@@ -1,0 +1,12 @@
+# custom file & directory
+.vscode
+tmp
+
+TOKEN.py
+
+##########
+# macos
+.DS_Store
+
+# python
+__pycache__
