@@ -1,0 +1,9 @@
+test:
+  msg: 메인 프로그램 시작
+init:
+  init: 봇을 시작하는 중...
+  components: 컴포넌트 로딩중...
+  done: 완료!
+  start: 부팅 완료!
+  bot-status-msg: 개발중
+# ts:

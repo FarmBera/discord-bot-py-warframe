@@ -1,0 +1,9 @@
+test:
+  msg: Program Main Start
+init:
+  init: Starting bot...
+  components: loading components...
+  done: Done!
+  start: Boot Complete!
+  bot-status-msg: developing
+# ts:
