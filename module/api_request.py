@@ -1,0 +1,95 @@
+import requests
+import json
+import datetime as dt
+
+from TOKEN import base_url, headers, query
+
+
+response = None
+date_start = None
+date_end = None
+data = None
+
+
+############
+date_origin_pat: str = "%Y-%m-%dT%H:%M:%S.%fZ"
+
+
+# default functions
+def divider():
+    print("=" * 45)
+
+
+def convert_date_time(timestamp: str):
+    return dt.datetime.strptime(timestamp, date_origin_pat)
+    # .strftime("%Y-%m-%d %H:%M:%S")
+
+
+def convert_remain_time(timestamp: str, footer: str = "남았습니다!") -> str:
+    if timestamp == None:
+        print(f"Timestamp ERR >> {timestamp}")
+        raise ValueError("timestamp is NULL")
+    try:
+        td = dt.datetime.strptime(timestamp, date_origin_pat)
+    except:
+        td = timestamp
+    timenow = dt.datetime.now()
+    diff = timenow - td
+    milisec = diff.microseconds // 1000 // 10
+
+    diff = int(diff.total_seconds())
+
+    hour = diff // 3600
+    min = (diff % 3600) // 60
+    sec = diff % 60
+
+    # TODO: f-string 3자리 나오는 문제 수정
+    result = f"{hour}시간 {min}분 {sec}.{milisec:02d}초"
+    print(result)
+
+    return None
+
+
+#####
+# api request func
+def send_request():
+    date_start = dt.datetime.now()
+    response = requests.get(base_url, headers=headers)
+    return dt.datetime.now() - date_start, response
+
+
+def check_request(est, response):
+    # response value is None type
+    if response is None:
+        raise ValueError("ERR: response is NULL")
+
+    # response code is NOT 200
+    res_code = response.status_code
+    if res_code != 200:
+        raise ArithmeticError(f"ERR: Failed API Request >> {res_code}")
+
+    # process response
+    print(f"Status >> {res_code} / ", end="")
+    print(f"EST: {est} / ", end="")
+
+    response = response.json()  # convert response data
+    fname = f"Warframe_{query}.json"  # file name to save
+
+    # save received data to JSON file
+    with open(fname, "w", encoding="utf-8") as json_file:
+        json.dump(response, json_file, ensure_ascii=False, indent=2)
+
+    print(f"response Saved at '{fname}'")
+    print(f'Updated time: {convert_date_time(response["timestamp"])}')
+
+    print("=" * 45)
+    return response
+
+
+# usage
+def API_Request():
+    est, response = send_request()
+    return est, check_request(est, response)
+
+
+# API_Request()

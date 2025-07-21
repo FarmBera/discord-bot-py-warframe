@@ -1,0 +1,40 @@
+import datetime as dt
+
+
+def W_news(newses):
+    if not newses:  # bool type
+        return False
+    # print(newses)
+    idx: int = 0
+    limit: int = 20
+    output_msg: str = "# [Warframe News](https://www.warframe.com/search)\n\n"
+
+    date_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
+
+    # sort data
+    newses = sorted(
+        newses,
+        key=lambda item: dt.datetime.strptime(item["date"], date_format),
+        reverse=True,  # asc/desc order
+    )
+
+    # process each news
+    for item in newses:
+        # exclude news
+        if item["message"] in [
+            "Join the official Warframe Discord server",
+            "Check out the official Warframe Wiki ",
+            "Visit the official Warframe Forums!",
+        ]:
+            continue
+
+        output_msg += f"### [{item['message']}]({item['link']})\n"
+        # - time: {item['date']}"
+        # - image: {item['imageLink']}
+
+        idx += 1
+        if idx >= limit:
+            break
+
+    # print(output_msg)
+    return output_msg

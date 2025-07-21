@@ -22,18 +22,6 @@ from module.save_log import save_log
 from module.parser.w_alerts import W_Alerts
 from module.parser.w_news import W_news
 
-# terminal text color dict
-color: dict = {
-    "black": "\033[30m",
-    "white": "\033[37m",
-    "red": "\033[31m",
-    "green": "\033[32m",
-    "yellow": "\033[33m",
-    "blue": "\033[34m",
-    "magenta": "\033[35m",
-    "cyan": "\033[36m",
-}
-
 
 def json_load(file_path):
     """
