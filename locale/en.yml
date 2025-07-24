@@ -7,10 +7,10 @@ init:
   done: Done!
   start: Connecting to the Server...
   connected: Sucessfully Connected Server!
-  bot-status-msg: developing
+  bot-status-msg: Developing
 
 general:
-  error-cmd: Processing Error! Please contact the administrator #TODO: translation fix
+  error-cmd: Processing Error. Please contact the administrator. #TODO: translation fix
 
 cmd:
   alerts:
@@ -29,21 +29,21 @@ cmd:
     cmd: archon_hunt
     desc: Get archon hunt missions this weekend
   void-traders:
-    cmd: when_baro
-    desc: Get datetime next baro ki-tier arrives # fix translation
+    cmd: void_traders
+    desc: Get datetime next baro ki'Teer arrives # fix translation
   steel-path-reward:
     cmd: steel_path_reward
     desc: Get teshin's offer specials # fix translation
   fissures:
     cmd: void_fissures
-    desc: Get currently available void fissures
+    desc: Get available void fissures with fast-run available (like Extermination, Capture and more)
   invasions: invasions
   duviri-cycle:
     cmd: duviri_cycle
     desc: Get currently duviri state
-  deep-archimedia:
-    cmd: deep_archimedia
-    desc: Get Deep Archimedia missions this weekend
-  temporal-archimedia:
-    cmd: temporal_archimedia
-    desc: Get Temporal Archimedia missions this weekend
+  deep-archimedea:
+    cmd: deep_archimedea
+    desc: Get Deep Archimedea missions this weekend
+  temporal-archimedea:
+    cmd: temporal_archimedea
+    desc: Get Temporal Archimedea missions this weekend

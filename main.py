@@ -32,6 +32,10 @@ from module.parser.w_news import W_news
 from module.parser.w_cetus_cycle import W_CetusCycle
 from module.parser.w_sortie import W_Sortie
 from module.parser.w_archon_hunt import W_archonHunt
+from module.parser.w_void_traders import W_VoidTraders
+from module.parser.w_steelPath import W_SteelPathReward
+from module.parser.w_deep_archimedea import W_DeepArchimedea
+from module.parser.w_temporal_archimedea import W_TemporalArchimedia
 
 
 kst = dt.timezone(dt.timedelta(hours=9))
@@ -186,14 +190,14 @@ class DiscordBot(discord.Client):
         #         print(value)
         #         # send message
 
-        # key = "deepArchimedia"
+        # key = "deepArchimedea"
         # if setting["noti"]["list"][key]:
         #     value = W_news(analyze_obj(key))
         #     if value != False:
         #         print(value)
         #         # send message
 
-        # key = "temporalArchimedia"
+        # key = "temporalArchimedea"
         # if setting["noti"]["list"][key]:
         #     value = W_news(analyze_obj(key))
         #     if value != False:
@@ -223,23 +227,24 @@ class DiscordBot(discord.Client):
             channel = await self.fetch_channel(ch)
             # await channel.send()
 
-    async def on_message(self, message):
-        if message.author == self.user:
-            return
+    # TEMP: temporary disabled
+    # async def on_message(self, message):
+    #     if message.author == self.user:
+    #         return
 
-        trim_text = message.content.replace(" ", "")
+    #     trim_text = message.content.replace(" ", "")
 
-        usrname = message.author.display_name
+    #     usrname = message.author.display_name
 
-        await message.delete()
-        await message.channel.send(f"response: {trim_text}")
-        save_log(
-            cmd=trim_text,
-            user=usrname,
-            time=message.created_at,
-            guild=message.guild,
-            channel=message.channel,
-        )
+    #     await message.delete()
+    #     await message.channel.send(f"response: {trim_text}")
+    #     save_log(
+    #         cmd=trim_text,
+    #         user=usrname,
+    #         time=message.created_at,
+    #         guild=message.guild,
+    #         channel=message.channel,
+    #     )
 
 
 # init discord bot
@@ -273,29 +278,21 @@ def cmd_obj_check(obj, name):
 
 
 # news command
-string = "news"
-
-
-@tree.command(
-    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
-)
+@tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
 async def cmd_news(interact: discord.Interaction):
+    string = "news"
     obj = get_obj(string)
     res = cmd_obj_check(obj, string)
     if res != True:
         await interact.response.send_message(res)
     else:
-        await interact.response.send_message(W_news(obj))
+        await interact.response.send_message(W_news(obj, language))
 
 
 # alerts command
-string = "alerts"
-
-
-@tree.command(
-    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
-)
+@tree.command(name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc"))
 async def cmd_alerts(interact: discord.Interaction):
+    string = "alerts"
     obj = get_obj(string)
     res = cmd_obj_check(obj, string)
     if res != True:
@@ -305,13 +302,9 @@ async def cmd_alerts(interact: discord.Interaction):
 
 
 # cetus command (cetusCycle)
-string = "cetus"
-
-
-@tree.command(
-    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
-)
+@tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
 async def cmd_cetus(interact: discord.Interaction):
+    string = "cetus"
     obj = get_obj(string)
     res = cmd_obj_check(obj, string)
     if res != True:
@@ -320,14 +313,10 @@ async def cmd_cetus(interact: discord.Interaction):
         await interact.response.send_message(W_CetusCycle(obj))
 
 
-# cetus command (cetusCycle)
-string = "sortie"
-
-
-@tree.command(
-    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
-)
-async def cmd_cetus(interact: discord.Interaction):
+# sortie command
+@tree.command(name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc"))
+async def cmd_sortie(interact: discord.Interaction):
+    string = "sortie"
     obj = get_obj(string)
     res = cmd_obj_check(obj, string)
     if res != True:
@@ -337,19 +326,76 @@ async def cmd_cetus(interact: discord.Interaction):
 
 
 # archon hunt command
-string = "archon-hunt"
-
-
 @tree.command(
-    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
+    name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
 )
-async def cmd_cetus(interact: discord.Interaction):
+async def cmd_archon_hunt(interact: discord.Interaction):
+    string = "archonHunt"
     obj = get_obj(string)
     res = cmd_obj_check(obj, string)
     if res != True:
         await interact.response.send_message(res)
     else:
         await interact.response.send_message(W_archonHunt(obj))
+
+
+# void traders command
+@tree.command(
+    name=ts.get(f"cmd.void-traders.cmd"), description=ts.get(f"cmd.void-traders.desc")
+)
+async def cmd_void_traders(interact: discord.Interaction):
+    string = "voidTraders"
+    obj = get_obj(string)
+    res = cmd_obj_check(obj, string)
+    if res != True:
+        await interact.response.send_message(res)
+    else:
+        await interact.response.send_message(W_VoidTraders(obj))
+
+
+# steel path reward command
+@tree.command(
+    name=ts.get(f"cmd.steel-path-reward.cmd"),
+    description=ts.get(f"cmd.steel-path-reward.desc"),
+)
+async def cmd_steel_reward(interact: discord.Interaction):
+    string = "steelPath"
+    obj = get_obj(string)
+    res = cmd_obj_check(obj, string)
+    if res != True:
+        await interact.response.send_message(res)
+    else:
+        await interact.response.send_message(W_SteelPathReward(obj))
+
+
+# deep archimedea command
+@tree.command(
+    name=ts.get(f"cmd.deep-archimedea.cmd"),
+    description=ts.get(f"cmd.deep-archimedea.desc"),
+)
+async def cmd_deep_archimedea(interact: discord.Interaction):
+    string = "deepArchimedea"
+    obj = get_obj(string)
+    res = cmd_obj_check(obj, string)
+    if res != True:
+        await interact.response.send_message(res)
+    else:
+        await interact.response.send_message(W_DeepArchimedea(obj))
+
+
+# temporal archimedea reward command
+@tree.command(
+    name=ts.get(f"cmd.temporal-archimedea.cmd"),
+    description=ts.get(f"cmd.temporal-archimedea.desc"),
+)
+async def cmd_temporal_archimedea(interact: discord.Interaction):
+    string = "temporalArchimedea"
+    obj = get_obj(string)
+    res = cmd_obj_check(obj, string)
+    if res != True:
+        await interact.response.send_message(res)
+    else:
+        await interact.response.send_message(W_TemporalArchimedia(obj))
 
 
 # main function

@@ -1,7 +1,7 @@
 import datetime as dt
 
 
-def W_news(newses):
+def W_news(newses, lang):
     if not newses:  # bool type
         return False
     # print(newses)
@@ -29,7 +29,11 @@ def W_news(newses):
         ]:
             continue
 
-        output_msg += f"- [{item['message']}]({item['link']})\n"
+        try:
+            output_msg += f"- [{item['translations'][lang]}]({item['link']})\n"
+        except:
+            output_msg += f"- [{item['translations']['en']}]({item['link']})\n"
+        # output_msg += f"- [{item['message']}]({item['link']})\n"
         # - time: {item['date']}"
         # - image: {item['imageLink']}
 

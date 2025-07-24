@@ -17,7 +17,7 @@ def W_Alerts(alerts):
 
         # write output text
         output_msg += f"{idx}. {dd['reward']['asString']}\n".replace("cr", " Credit")
-        output_msg += f"at {type} - {node}\n\n"
+        output_msg += f"{type} at {node}\n\n"
         # output_msg += f"{idx}. {type} - {node}\n"
         # output_msg += f"- reward: **{dd['reward']['asString']}**\n\n".replace("cr", " Credit")
         idx += 1
