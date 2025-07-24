@@ -5,71 +5,33 @@ from discord import app_commands  # , Interaction
 
 # essential module
 import datetime as dt
-import asyncio
-import yaml, csv, json, re
-from translator import Translator
 
-# custom module & variables
+# import asyncio
+# import yaml, csv, json, re
+
+### custom module & variables ###
+# essential variables
 from TOKEN import TOKEN as BOT_TOKEN
 from TOKEN import channel_list  # notice channel list
 
+# essential custom module
 from translator import Translator
 from text import log_file_path
 from module.color import color
 from module.api_request import API_Request
 from module.save_log import save_log
 
+# for object save & load
+from module.json_load import json_load
+from module.json_save import json_save
+from module.get_obj import get_obj
+
+# object parser
 from module.parser.w_alerts import W_Alerts
 from module.parser.w_news import W_news
-
-
-def json_load(file_path):
-    """
-    read json file at provided path and return
-
-    Args:
-        file_path (str): JSON file path
-
-    Returns:
-        dict or list: JSON file object.
-        None: file not found || parse error
-    """
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data
-    except FileNotFoundError:
-        print(f"{color['yellow']}File Not Found > {file_path}")
-        return None
-    except json.JSONDecodeError:
-        print(f"{color['yellow']}ERR: JSON Decode Exception > {file_path}")
-        return None
-    except Exception as e:
-        print(f"{color['red']}ERR: {e}")
-        return None
-
-
-def json_save(data, file_path) -> bool:
-    """
-    convert object(dict or list) and save as JSON file
-
-    Args:
-        data (dict or list): to save data
-        file_path (str): JSON file path
-
-    Returns:
-        bool: save success True, failed to save
-    """
-    try:
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-        return True
-    except TypeError as e:
-        print(f"{color['yellow']}ERR: Convertion Exception > {e}")
-        return False
-    except Exception as e:
-        print(f"{color['red']}ERR > {e}")
-        return False
+from module.parser.w_cetus_cycle import W_CetusCycle
+from module.parser.w_sortie import W_Sortie
+from module.parser.w_archon_hunt import W_archonHunt
 
 
 kst = dt.timezone(dt.timedelta(hours=9))
@@ -90,11 +52,16 @@ class DiscordBot(discord.Client):
             activity=discord.Game(ts.get("init.bot-status-msg")),
         )
         # self.auto_send_notice.start()
-        print(f"Logged on as {self.user}!")
+        print(color["green"], ts.get("init.connected"))
+        print(f"{color["default"]}Logged on as {self.user}!")
 
         # send dm to specific user ???
         # user = await client.fetch_user()
         # await user.send("Bot Running Start!")
+
+    # send to message at specific channels
+    async def send_message_to(msg):
+        return
 
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
@@ -109,6 +76,7 @@ class DiscordBot(discord.Client):
 
         def analyze_obj(name: str):
             FILE_PATH = f"json/{name}.json"
+            # setting = json_load("setting.json")
 
             if setting["noti"]["list"][name]:
                 # load json objects
@@ -279,24 +247,124 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot_client = DiscordBot(intents=intents)
 tree = app_commands.CommandTree(bot_client)
+# language initialize
+language = input("Select Language (en/ko) >> ")
+if language not in ["en", "ko"]:  # input check
+    # print(f"{color['red']}Selection ERR:{color['yellow']}'{language}'. {color['red']}abort.")
+    print(
+        f"{color['red']}Unknown string: {color['yellow']}'{language}'. {color['white']}will setup default lang: {color['cyan']}'en'{color['default']}"
+    )
+    language = "en"
+    # exit(1)
+ts = Translator(lang=language)
+
 
 # commands
-# to be continue
+# TODO: convert to create discord embed and return only embed object!
+def cmd_obj_check(obj, name):
+    obj = get_obj(name)
+    if not obj or obj is None:
+        print(
+            f"{color['red']}ERR in '{name}' command. Object is Empty or None{color['default']}"
+        )
+        return ts.get("general.error-cmd")
+
+    return True
+
+
+# news command
+string = "news"
+
+
+@tree.command(
+    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
+)
+async def cmd_news(interact: discord.Interaction):
+    obj = get_obj(string)
+    res = cmd_obj_check(obj, string)
+    if res != True:
+        await interact.response.send_message(res)
+    else:
+        await interact.response.send_message(W_news(obj))
+
+
+# alerts command
+string = "alerts"
+
+
+@tree.command(
+    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
+)
+async def cmd_alerts(interact: discord.Interaction):
+    obj = get_obj(string)
+    res = cmd_obj_check(obj, string)
+    if res != True:
+        await interact.response.send_message(res)
+    else:
+        await interact.response.send_message(W_Alerts((obj)))
+
+
+# cetus command (cetusCycle)
+string = "cetus"
+
+
+@tree.command(
+    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
+)
+async def cmd_cetus(interact: discord.Interaction):
+    obj = get_obj(string)
+    res = cmd_obj_check(obj, string)
+    if res != True:
+        await interact.response.send_message(res)
+    else:
+        await interact.response.send_message(W_CetusCycle(obj))
+
+
+# cetus command (cetusCycle)
+string = "sortie"
+
+
+@tree.command(
+    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
+)
+async def cmd_cetus(interact: discord.Interaction):
+    obj = get_obj(string)
+    res = cmd_obj_check(obj, string)
+    if res != True:
+        await interact.response.send_message(res)
+    else:
+        await interact.response.send_message(W_Sortie(obj))
+
+
+# archon hunt command
+string = "archon-hunt"
+
+
+@tree.command(
+    name=ts.get(f"cmd.{string}.cmd"), description=ts.get(f"cmd.{string}.desc")
+)
+async def cmd_cetus(interact: discord.Interaction):
+    obj = get_obj(string)
+    res = cmd_obj_check(obj, string)
+    if res != True:
+        await interact.response.send_message(res)
+    else:
+        await interact.response.send_message(W_archonHunt(obj))
 
 
 # main function
 if __name__ == "__main__":
-    language = input("Select Language (en/ko) >> ")
-    if language not in ["en", "ko"]:
-        print(
-            f"{color['red']}Selection ERR:{color['yellow']}'{language}'. {color['red']}abort."
-        )
-        exit(1)
-    ts = Translator(lang=language)
-    print(ts.get("init.init"), end="")
+    # language = input("Select Language (en/ko) >> ")
+    # if language not in ["en", "ko"]:
+    #     print(
+    #         f"{color['red']}Selection ERR:{color['yellow']}'{language}'. {color['red']}abort."
+    #     )
+    #     exit(1)
+    # ts = Translator(lang=language)
+    print(color["yellow"], ts.get("init.init"), end="", sep="")
     print(ts.get("init.components"), end="")
-    print(ts.get("init.done"))
-    print(ts.get("init.start"))
+    print(color["green"], ts.get("init.done"), sep="")
+    print(color["yellow"], ts.get("init.start"), end="", sep="")
 
     # run bot
     bot_client.run(BOT_TOKEN)

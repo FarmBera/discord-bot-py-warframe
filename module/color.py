@@ -1,5 +1,6 @@
 # terminal text color dict
 color: dict = {
+    "default": "\033[0m",
     "black": "\033[30m",
     "white": "\033[37m",
     "red": "\033[31m",

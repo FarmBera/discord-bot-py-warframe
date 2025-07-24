@@ -7,7 +7,8 @@ def W_news(newses):
     # print(newses)
     idx: int = 0
     limit: int = 20
-    output_msg: str = "# [Warframe News](https://www.warframe.com/search)\n\n"
+    # output_msg: str = "# [Warframe News](https://www.warframe.com/search)\n\n"
+    output_msg: str = "# Warframe Latest News\n\n"
 
     date_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
 
@@ -28,7 +29,7 @@ def W_news(newses):
         ]:
             continue
 
-        output_msg += f"### [{item['message']}]({item['link']})\n"
+        output_msg += f"- [{item['message']}]({item['link']})\n"
         # - time: {item['date']}"
         # - image: {item['imageLink']}
 

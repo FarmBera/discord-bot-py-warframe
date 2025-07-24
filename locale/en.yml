@@ -1,9 +1,49 @@
 test:
   msg: Program Main Start
+
 init:
   init: Starting bot...
   components: loading components...
   done: Done!
-  start: Boot Complete!
+  start: Connecting to the Server...
+  connected: Sucessfully Connected Server!
   bot-status-msg: developing
-# ts:
+
+general:
+  error-cmd: Processing Error! Please contact the administrator #TODO: translation fix
+
+cmd:
+  alerts:
+    cmd: alerts
+    desc: Get currently opened alert #TODO: translation fix
+  news:
+    cmd: news
+    desc: Get Latest Warframe News
+  cetus:
+    cmd: cetus_time
+    desc: Get current Cetus Time & next state
+  sortie:
+    cmd: sortie
+    desc: "Today's Sortie missions"
+  archon-hunt:
+    cmd: archon_hunt
+    desc: Get archon hunt missions this weekend
+  void-traders:
+    cmd: when_baro
+    desc: Get datetime next baro ki-tier arrives # fix translation
+  steel-path-reward:
+    cmd: steel_path_reward
+    desc: Get teshin's offer specials # fix translation
+  fissures:
+    cmd: void_fissures
+    desc: Get currently available void fissures
+  invasions: invasions
+  duviri-cycle:
+    cmd: duviri_cycle
+    desc: Get currently duviri state
+  deep-archimedia:
+    cmd: deep_archimedia
+    desc: Get Deep Archimedia missions this weekend
+  temporal-archimedia:
+    cmd: temporal_archimedia
+    desc: Get Temporal Archimedia missions this weekend
