@@ -1,7 +1,6 @@
 # discord module
 import discord
-from discord.ext import tasks, commands
-from discord import app_commands  # , Interaction
+from discord.ext import tasks
 
 # essential module
 import datetime as dt
@@ -15,7 +14,7 @@ from TOKEN import TOKEN as BOT_TOKEN
 from TOKEN import channel_list  # notice channel list
 
 # essential custom module
-from translator import Translator
+from translator import ts, language
 from text import log_file_path
 from module.color import color
 from module.api_request import API_Request
@@ -25,6 +24,7 @@ from module.save_log import save_log
 from module.json_load import json_load
 from module.json_save import json_save
 from module.get_obj import get_obj
+from module.cmd_obj_check import cmd_obj_check
 
 # object parser
 from module.parser.w_alerts import W_Alerts
@@ -70,24 +70,21 @@ class DiscordBot(discord.Client):
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
     async def api_request(self):
-        try:  # send API request
-            est, response = API_Request()
-        except Exception as e:
-            print(f"{color['red']}ERR: {e}")
-
+        print("auto request!")
         # open setting file
         setting = json_load("setting.json")
 
+        API_Request()
+        if not setting["noti"]["isEnabled"]:
+            return
+
         def analyze_obj(name: str):
             FILE_PATH = f"json/{name}.json"
-            # setting = json_load("setting.json")
 
             if setting["noti"]["list"][name]:
                 # load json objects
                 obj_prev = json_load(FILE_PATH)
                 obj_new = json_load("Warframe_pc.json")[name]
-
-            # print(len(obj_prev), len(obj_new))
 
             # check loaded obj
             if obj_prev is None or obj_new is None:
@@ -251,78 +248,35 @@ class DiscordBot(discord.Client):
 intents = discord.Intents.default()
 intents.message_content = True
 bot_client = DiscordBot(intents=intents)
-tree = app_commands.CommandTree(bot_client)
-# language initialize
-language = input("Select Language (en/ko) >> ")
-if language not in ["en", "ko"]:  # input check
-    # print(f"{color['red']}Selection ERR:{color['yellow']}'{language}'. {color['red']}abort.")
-    print(
-        f"{color['red']}Unknown string: {color['yellow']}'{language}'. {color['white']}will setup default lang: {color['cyan']}'en'{color['default']}"
-    )
-    language = "en"
-    # exit(1)
-ts = Translator(lang=language)
+tree = discord.app_commands.CommandTree(bot_client)
 
 
 # commands
 # TODO: convert to create discord embed and return only embed object!
-def cmd_obj_check(obj, name):
-    obj = get_obj(name)
-    if not obj or obj is None:
-        print(
-            f"{color['red']}ERR in '{name}' command. Object is Empty or None{color['default']}"
-        )
-        return ts.get("general.error-cmd")
-
-    return True
 
 
 # news command
 @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
 async def cmd_news(interact: discord.Interaction):
-    string = "news"
-    obj = get_obj(string)
-    res = cmd_obj_check(obj, string)
-    if res != True:
-        await interact.response.send_message(res)
-    else:
-        await interact.response.send_message(W_news(obj, language))
+    await interact.response.send_message(W_news(cmd_obj_check("news"), language))
 
 
 # alerts command
 @tree.command(name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc"))
 async def cmd_alerts(interact: discord.Interaction):
-    string = "alerts"
-    obj = get_obj(string)
-    res = cmd_obj_check(obj, string)
-    if res != True:
-        await interact.response.send_message(res)
-    else:
-        await interact.response.send_message(W_Alerts((obj)))
+    await interact.response.send_message(W_Alerts(cmd_obj_check("alerts"), language))
 
 
 # cetus command (cetusCycle)
 @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
 async def cmd_cetus(interact: discord.Interaction):
-    string = "cetus"
-    obj = get_obj(string)
-    res = cmd_obj_check(obj, string)
-    if res != True:
-        await interact.response.send_message(res)
-    else:
-        await interact.response.send_message(W_CetusCycle(obj))
+    await interact.response.send_message(W_CetusCycle(cmd_obj_check("cetus"), language))
 
 
 # sortie command
 @tree.command(name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc"))
 async def cmd_sortie(interact: discord.Interaction):
-    string = "sortie"
-    obj = get_obj(string)
-    res = cmd_obj_check(obj, string)
-    if res != True:
-        await interact.response.send_message(res)
-    else:
-        await interact.response.send_message(W_Sortie(obj))
+    await interact.response.send_message(W_Sortie(cmd_obj_check("sortie"), language))
 
 
 # archon hunt command
@@ -330,13 +284,9 @@ async def cmd_sortie(interact: discord.Interaction):
     name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
 )
 async def cmd_archon_hunt(interact: discord.Interaction):
-    string = "archonHunt"
-    obj = get_obj(string)
-    res = cmd_obj_check(obj, string)
-    if res != True:
-        await interact.response.send_message(res)
-    else:
-        await interact.response.send_message(W_archonHunt(obj))
+    await interact.response.send_message(
+        W_archonHunt(cmd_obj_check("archonHunt"), language)
+    )
 
 
 # void traders command
@@ -344,13 +294,9 @@ async def cmd_archon_hunt(interact: discord.Interaction):
     name=ts.get(f"cmd.void-traders.cmd"), description=ts.get(f"cmd.void-traders.desc")
 )
 async def cmd_void_traders(interact: discord.Interaction):
-    string = "voidTraders"
-    obj = get_obj(string)
-    res = cmd_obj_check(obj, string)
-    if res != True:
-        await interact.response.send_message(res)
-    else:
-        await interact.response.send_message(W_VoidTraders(obj))
+    await interact.response.send_message(
+        W_VoidTraders(cmd_obj_check("voidTraders"), language)
+    )
 
 
 # steel path reward command
@@ -359,13 +305,9 @@ async def cmd_void_traders(interact: discord.Interaction):
     description=ts.get(f"cmd.steel-path-reward.desc"),
 )
 async def cmd_steel_reward(interact: discord.Interaction):
-    string = "steelPath"
-    obj = get_obj(string)
-    res = cmd_obj_check(obj, string)
-    if res != True:
-        await interact.response.send_message(res)
-    else:
-        await interact.response.send_message(W_SteelPathReward(obj))
+    await interact.response.send_message(
+        W_SteelPathReward(cmd_obj_check("steelPath"), language)
+    )
 
 
 # deep archimedea command
@@ -374,13 +316,9 @@ async def cmd_steel_reward(interact: discord.Interaction):
     description=ts.get(f"cmd.deep-archimedea.desc"),
 )
 async def cmd_deep_archimedea(interact: discord.Interaction):
-    string = "deepArchimedea"
-    obj = get_obj(string)
-    res = cmd_obj_check(obj, string)
-    if res != True:
-        await interact.response.send_message(res)
-    else:
-        await interact.response.send_message(W_DeepArchimedea(obj))
+    await interact.response.send_message(
+        W_DeepArchimedea(cmd_obj_check("deepArchimedea"), language)
+    )
 
 
 # temporal archimedea reward command
@@ -389,28 +327,19 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.temporal-archimedea.desc"),
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
-    string = "temporalArchimedea"
-    obj = get_obj(string)
-    res = cmd_obj_check(obj, string)
-    if res != True:
-        await interact.response.send_message(res)
-    else:
-        await interact.response.send_message(W_TemporalArchimedia(obj))
+    await interact.response.send_message(
+        W_TemporalArchimedia(cmd_obj_check("temporalArchimedea"), language)
+    )
 
 
 # main function
-if __name__ == "__main__":
-    # language = input("Select Language (en/ko) >> ")
-    # if language not in ["en", "ko"]:
-    #     print(
-    #         f"{color['red']}Selection ERR:{color['yellow']}'{language}'. {color['red']}abort."
-    #     )
-    #     exit(1)
-    # ts = Translator(lang=language)
-    print(color["yellow"], ts.get("init.init"), end="", sep="")
-    print(ts.get("init.components"), end="")
-    print(color["green"], ts.get("init.done"), sep="")
-    print(color["yellow"], ts.get("init.start"), end="", sep="")
+# if __name__ == "__main__":
+# language = input("Select Language (en/ko) >> ")
+# if language not in ["en", "ko"]:
+#     print(f"{color['red']}Selection ERR:{color['yellow']}'{language}'. {color['red']}abort.")
+#     exit(1)
+# ts = Translator(lang=language)
 
-    # run bot
-    bot_client.run(BOT_TOKEN)
+
+# run bot
+bot_client.run(BOT_TOKEN)
