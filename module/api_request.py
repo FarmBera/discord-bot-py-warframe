@@ -2,7 +2,24 @@ import requests
 import json
 import datetime as dt
 
-from TOKEN import base_url, headers, query
+# from TOKEN import base_url, headers, query
+from module.color import color
+
+
+# api link & args
+base_api_url = "https://api.warframestat.us/"
+
+"""
+pc
+items
+mods
+warframes
+weapons
+pc/rivens
+"""
+query = "pc"
+base_url = f"{base_api_url}{query}"
+headers = {"Accept-Language": "en"}  # en / ko
 
 
 response = None
@@ -69,27 +86,34 @@ def check_request(est, response):
         raise ArithmeticError(f"ERR: Failed API Request >> {res_code}")
 
     # process response
-    print(f"Status >> {res_code} / ", end="")
-    print(f"EST: {est} / ", end="")
+    # print(f"Status >> {res_code} / ", end="")
+    # print(f"EST: {est} / ", end="")
 
     response = response.json()  # convert response data
     fname = f"Warframe_{query}.json"  # file name to save
 
     # save received data to JSON file
-    with open(fname, "w", encoding="utf-8") as json_file:
-        json.dump(response, json_file, ensure_ascii=False, indent=2)
+    try:
+        with open(fname, "w", encoding="utf-8") as json_file:
+            json.dump(response, json_file, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"ERR with saving file")
 
-    print(f"response Saved at '{fname}'")
+    # print(f"response Saved at '{fname}'")
     print(f'Updated time: {convert_date_time(response["timestamp"])}')
 
-    print("=" * 45)
+    # print("=" * 45)
     return response
 
 
 # usage
 def API_Request():
+    print(
+        f"{color['cyan']}API Requested: {dt.datetime.now()}{color['default']}",
+        end=" / ",
+    )
     est, response = send_request()
     return est, check_request(est, response)
 
 
-# API_Request()
+API_Request()

@@ -59,6 +59,8 @@ class DiscordBot(discord.Client):
         print(color["green"], ts.get("init.connected"))
         print(f"{color["default"]}Logged on as {self.user}!")
 
+        self.auto_send_msg_request.start()
+
         # send dm to specific user ???
         # user = await client.fetch_user()
         # await user.send("Bot Running Start!")
@@ -68,9 +70,9 @@ class DiscordBot(discord.Client):
         return
 
     # auto api request & check new contents
-    @tasks.loop(minutes=5.0)
-    async def api_request(self):
-        print("auto request!")
+    @tasks.loop(minutes=1.0)
+    async def auto_send_msg_request(self):
+        print("auto_send_msg_request()")
         # open setting file
         setting = json_load("setting.json")
 
@@ -107,97 +109,97 @@ class DiscordBot(discord.Client):
                 json_save(obj_new, FILE_PATH)
                 return obj_result  # only missing items
             else:  # not exist
-                return False
+                return None
 
         # analyze response data if flag is true
         key = "alerts"
         if setting["noti"]["list"][key]:
-            value = W_Alerts(analyze_obj(key))
-            if value != False:
+            value = W_Alerts(analyze_obj(key), language)
+            if value is not None:
                 print(value)
                 # send message
 
         key = "news"
         if setting["noti"]["list"][key]:
-            value = W_news(analyze_obj(key))
-            if value != False:
+            value = W_news(analyze_obj(key), language)
+            if value is not None:
                 print(value)
                 # send message
 
         # key = "cetus"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "sortie"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "archonHunt"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "voidTraders"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "voidTraderItem"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "steelPathReward"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "fissures"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "invasions"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "duviriCycle"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "deepArchimedea"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 
         # key = "temporalArchimedea"
         # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key))
-        #     if value != False:
+        #     value = W_news(analyze_obj(key),language)
+        #     if value is not None:
         #         print(value)
         #         # send message
 

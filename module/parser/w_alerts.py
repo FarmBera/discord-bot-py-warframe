@@ -3,9 +3,13 @@ from translator import ts
 
 # Event Mission
 def W_Alerts(alerts, lang):
+    # error check
+    if alerts == False:
+        return ts.get("general.error-cmd") + ": alert error"
+
     # skip if data is empty
-    if not alerts or alerts is None:
-        return ts.get("general.error-cmd")
+    if alerts is None:
+        return None
 
     # activated mission count
     activated_count = len(alerts)

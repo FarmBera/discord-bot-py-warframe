@@ -4,8 +4,11 @@ from translator import ts
 
 
 def W_news(newses, lang):
-    if not newses or newses is None:
+    if newses == False:
         return ts.get("general.error-cmd")
+
+    if newses is None:
+        return None
 
     idx: int = 0
     limit: int = 20
