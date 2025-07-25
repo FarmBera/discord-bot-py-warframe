@@ -1,14 +1,16 @@
 import datetime as dt
 
+from translator import ts
+
 
 def W_news(newses, lang):
-    if not newses:  # bool type
-        return False
-    # print(newses)
+    if not newses or newses is None:
+        return ts.get("general.error-cmd")
+
     idx: int = 0
     limit: int = 20
     # output_msg: str = "# [Warframe News](https://www.warframe.com/search)\n\n"
-    output_msg: str = "# Warframe Latest News\n\n"
+    output_msg: str = f"# {ts.get('cmd.news.title')}\n\n"
 
     date_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
 

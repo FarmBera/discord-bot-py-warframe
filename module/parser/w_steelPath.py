@@ -1,5 +1,11 @@
+from translator import ts
+
+
 # 태신 강철의 길 아이템 현황
-def W_SteelPathReward(steel):
+def W_SteelPathReward(steel, lang):
+    if not steel or steel is None:
+        return ts.get("general.error-cmd")
+
     current = steel["currentReward"]
     output_msg: str = f"# Steel Path Reward\n\n"
 

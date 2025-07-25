@@ -1,4 +1,10 @@
-def W_TemporalArchimedia(temporal) -> str:
+from translator import ts
+
+
+def W_TemporalArchimedia(temporal, lang) -> str:
+    if not temporal or temporal is None:
+        return ts.get("general.error-cmd")
+
     output_msg = f"# Temporal Archimedia\n\n"
 
     idx = 1
@@ -23,7 +29,7 @@ def W_TemporalArchimedia(temporal) -> str:
                 continue
             output_msg += f": {desc}\n"
 
-        output_msg += "\n\n"
+        output_msg += "\n"
         # for jtem in item["riskVariables"]:
         idx += 1
 

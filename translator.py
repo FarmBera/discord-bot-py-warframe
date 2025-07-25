@@ -1,5 +1,7 @@
 import yaml
 
+from module.color import color
+
 
 class Translator:
     def __init__(self, lang="en"):
@@ -32,14 +34,18 @@ class Translator:
 
 
 # if __name__ == "__main__":
-#     # 한국어 번역기 생성
-#     t_ko = Translator(lang="ko")
-#     print(t_ko.get("main_screen.title"))
-#     print(t_ko.get("main_screen.welcome_message", username="홍길동", mail_count=5))
+# language initialize
+language = input("Select Language (en/ko) >> ")
+if language not in ["en", "ko"]:  # input check
+    # print(f"{color['red']}Selection ERR:{color['yellow']}'{language}'. {color['red']}abort.")
+    print(
+        f"{color['red']}Unknown string: {color['yellow']}'{language}'. {color['white']}will setup default lang: {color['cyan']}'en'{color['default']}"
+    )
+    language = "en"
+    # exit(1)
+ts = Translator(lang=language)
 
-#     print("-" * 20)
-
-#     # 영어 번역기 생성
-#     t_en = Translator(lang="en")
-#     print(t_en.get("common.confirm"))
-#     print(t_en.get("non_existent.key"))  # 존재하지 않는 키 테스트
+print(color["yellow"], ts.get("init.init"), end="", sep="")
+print(ts.get("init.components"), end="")
+print(color["green"], ts.get("init.done"), sep="")
+print(color["yellow"], ts.get("init.start"), end="", sep="")

@@ -1,5 +1,9 @@
-def W_DeepArchimedea(deep) -> str:
-    # deep_archimedea = data["deepArchimedea"]
+from translator import ts
+
+
+def W_DeepArchimedea(deep, lang) -> str:
+    if not deep or deep is None:
+        return ts.get("general.error-cmd")
 
     output_msg = f"# Deep Archimedea\n\n"
 

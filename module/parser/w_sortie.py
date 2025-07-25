@@ -1,9 +1,15 @@
-def W_Sortie(sortie):
+from translator import ts
+
+
+def W_Sortie(sortie, lang):
+    if not sortie or sortie is None:
+        return ts.get("general.error-cmd")
+
+    prefix: str = "cmd.sortie"
     mis_list = sortie["variants"]
-    # mis_list = json.dumps(mis_list, ensure_ascii=False)
-    # print(mis_list)
-    output_msg = f"# Today's Sortie\n\n"
-    output_msg += f"- ETA: {sortie['eta']}\n\n"
+
+    output_msg = f"# {ts.get(f'{prefix}.title')}\n\n"
+    output_msg += f"- {ts.get(f'{prefix}.eta')}: {sortie['eta']}\n\n"
 
     idx = 1
     for item in mis_list:
@@ -11,5 +17,4 @@ def W_Sortie(sortie):
         output_msg += f"{item['modifier']}\n\n"
         idx += 1
 
-    # print(output_msg)
     return output_msg
