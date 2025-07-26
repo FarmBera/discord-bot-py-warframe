@@ -11,7 +11,8 @@ import datetime as dt
 ### custom module & variables ###
 # essential variables
 from TOKEN import TOKEN as BOT_TOKEN
-from TOKEN import channel_list  # notice channel list
+
+# from TOKEN import channel_list  # notice channel list
 
 # essential custom module
 from translator import ts, language
@@ -21,9 +22,11 @@ from module.api_request import API_Request
 from module.save_log import save_log
 
 # for object save & load
+from module.yaml_open import yaml_open
 from module.json_load import json_load
 from module.json_save import json_save
 from module.get_obj import get_obj
+from module.set_obj import set_obj
 from module.cmd_obj_check import cmd_obj_check
 
 # object parser
@@ -66,26 +69,23 @@ class DiscordBot(discord.Client):
         # await user.send("Bot Running Start!")
 
     # send to message at specific channels
-    async def send_message_to(msg):
+    async def send_message_to(msg, ch_list):
         return
 
     # auto api request & check new contents
-    @tasks.loop(minutes=1.0)
+    @tasks.loop(minutes=5.0)
     async def auto_send_msg_request(self):
-        print("auto_send_msg_request()")
         # open setting file
         setting = json_load("setting.json")
 
-        API_Request()
+        API_Request("auto_send_msg_request()")
         if not setting["noti"]["isEnabled"]:
             return
 
         def analyze_obj(name: str):
-            FILE_PATH = f"json/{name}.json"
-
             if setting["noti"]["list"][name]:
                 # load json objects
-                obj_prev = json_load(FILE_PATH)
+                obj_prev = get_obj(name)
                 obj_new = json_load("Warframe_pc.json")[name]
 
             # check loaded obj
@@ -95,133 +95,115 @@ class DiscordBot(discord.Client):
                 )
                 return False
 
-            missing = [
-                item
-                for item in [item["id"] for item in obj_new]
-                if item not in [item["id"] for item in obj_prev]
-            ]
+            # [fix bug]
+            if f"{type(obj_new)}" != "<class 'list'>":
+                obj_new = list(obj_new)
+
+            # check new contents
+            try:  # [fix bug]
+                missing = [
+                    item
+                    for item in [item["id"] for item in obj_new]
+                    if item not in [item["id"] for item in obj_prev]
+                ]
+            except:
+                missing = [item for item in obj_new if item not in obj_prev]
             if missing:  # if exist new contents
+                save_log(
+                    cmd="auto_send_msg_request()",
+                    user="bot.self",
+                    msg=f"New contents found. from {name}",
+                    obj=missing,
+                )
                 obj_result = []
                 for id in missing:  # open id
                     for i in range(len(obj_new)):  # check each objects
                         if id == obj_new[i]["id"]:
                             obj_result.append(obj_new[i])  # append new objects
-                json_save(obj_new, FILE_PATH)
+                set_obj(obj_new, name)
                 return obj_result  # only missing items
-            else:  # not exist
-                return None
 
-        # analyze response data if flag is true
-        key = "alerts"
-        if setting["noti"]["list"][key]:
-            value = W_Alerts(analyze_obj(key), language)
-            if value is not None:
-                print(value)
-                # send message
+            # update expired content
+            try:  # [fix bug]
+                new_content = [
+                    item
+                    for item in [item["id"] for item in obj_prev]
+                    if item not in [item["id"] for item in obj_new]
+                ]
+            except:
+                new_content = [item for item in obj_prev if item not in obj_new]
+            if new_content:
+                save_log(
+                    cmd="auto_send_msg_request()",
+                    user="bot.self",
+                    msg=f"Removed previous content. from {name}",
+                    obj=new_content,
+                )
+                set_obj(obj_new, name)
 
-        key = "news"
-        if setting["noti"]["list"][key]:
-            value = W_news(analyze_obj(key), language)
-            if value is not None:
-                print(value)
-                # send message
+            # else: nothing exist
+            return None
 
-        # key = "cetus"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
+        # send alert if notification flag (settings.json) is true
+        keys = [
+            ["alerts", W_Alerts],
+            ["news", W_news],
+            ["cetus", W_CetusCycle],
+            ["sortie", W_Sortie],
+            ["archonHunt", W_archonHunt],
+            ["voidTraders", W_VoidTraders],
+            ## ['voidTraderItem',],
+            ["steelPath", W_SteelPathReward],
+            ## ['fissures',],
+            ## ['invasions',],
+            ## ['duviriCycle'],
+            ["deepArchimedea", W_DeepArchimedea],
+            ["temporalArchimedea", W_TemporalArchimedia],
+        ]
+        for item in keys:
+            # checks alert is enabled in setting file
+            if not setting["noti"]["list"][item[0]]:
+                continue
 
-        # key = "sortie"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
+            # fetch object & check object
+            value = item[1](analyze_obj(item[0]), language)
+            if value is None:
+                continue
 
-        # key = "archonHunt"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
+            # send message
+            channel_list = yaml_open("channel")["channel"]
+            for ch in channel_list:
+                # print(ch, value)
+                channel = await self.fetch_channel(ch)
+                save_log(
+                    cmd="auto_sent_message",
+                    user="bot.self",
+                    guild=channel.guild,
+                    channel=channel.name,
+                    msg=item,
+                    obj=value,
+                )
+                await channel.send(value)
 
-        # key = "voidTraders"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
+            # save latest data
+            if not set_obj(get_obj(item[0]), item[0]):
+                print(
+                    f"{color['red']}ERR with saving object (from 'auto_send_msg_request'){color['default']}"
+                )
+            else:
+                save_log(
+                    cmd="auto_send_msg_request()",
+                    user="bot.self",
+                    msg=f"Updated obj > {item}",
+                )
 
-        # key = "voidTraderItem"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
+        return  # End Of auto_send_msg_request()
 
-        # key = "steelPathReward"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
-
-        # key = "fissures"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
-
-        # key = "invasions"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
-
-        # key = "duviriCycle"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
-
-        # key = "deepArchimedea"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
-
-        # key = "temporalArchimedea"
-        # if setting["noti"]["list"][key]:
-        #     value = W_news(analyze_obj(key),language)
-        #     if value is not None:
-        #         print(value)
-        #         # send message
-
-        return
-
-    # TODO
-    # send daily reset message
-    @tasks.loop(time=dt.time(hour=7, minute=0, tzinfo=kst))
-    async def send_atime_alert(self):
-        for ch in channel_list:
-            channel = await self.fetch_channel(ch)
-            # await channel.send()
-
-    # TODO: send weekly reset message
-    @tasks.loop(time=dt.time(hour=9, minute=0, tzinfo=kst))
-    async def send_weekly_noti(self):
-        return
-
-    # TODO: 특정 시간에 메시지 보내기 (공지)
+    # todo-delay: 특정 시간에 메시지 보내기 (공지)
     # alert specific time
-    @tasks.loop(time=alert_times)
+    # @tasks.loop(time=alert_times)#TODO: implements
     async def auto_notification(self):
+        channel_list = yaml_open("channel")["channel"]
         for ch in channel_list:
             channel = await self.fetch_channel(ch)
             # await channel.send()
@@ -260,24 +242,52 @@ tree = discord.app_commands.CommandTree(bot_client)
 # news command
 @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
 async def cmd_news(interact: discord.Interaction):
-    await interact.response.send_message(W_news(cmd_obj_check("news"), language))
+    save_log(
+        cmd="cmd.news",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
+    await interact.response.send_message(embed=W_news(cmd_obj_check("news"), language))
 
 
 # alerts command
 @tree.command(name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc"))
 async def cmd_alerts(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.alerts",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
     await interact.response.send_message(W_Alerts(cmd_obj_check("alerts"), language))
 
 
 # cetus command (cetusCycle)
 @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
 async def cmd_cetus(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.cetus",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
     await interact.response.send_message(W_CetusCycle(cmd_obj_check("cetus"), language))
 
 
 # sortie command
 @tree.command(name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc"))
 async def cmd_sortie(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.sortie",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
     await interact.response.send_message(W_Sortie(cmd_obj_check("sortie"), language))
 
 
@@ -286,6 +296,13 @@ async def cmd_sortie(interact: discord.Interaction):
     name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
 )
 async def cmd_archon_hunt(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.archon-hunt",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
     await interact.response.send_message(
         W_archonHunt(cmd_obj_check("archonHunt"), language)
     )
@@ -296,6 +313,13 @@ async def cmd_archon_hunt(interact: discord.Interaction):
     name=ts.get(f"cmd.void-traders.cmd"), description=ts.get(f"cmd.void-traders.desc")
 )
 async def cmd_void_traders(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.void-traders",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
     await interact.response.send_message(
         W_VoidTraders(cmd_obj_check("voidTraders"), language)
     )
@@ -307,6 +331,13 @@ async def cmd_void_traders(interact: discord.Interaction):
     description=ts.get(f"cmd.steel-path-reward.desc"),
 )
 async def cmd_steel_reward(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.steel-path",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
     await interact.response.send_message(
         W_SteelPathReward(cmd_obj_check("steelPath"), language)
     )
@@ -318,6 +349,13 @@ async def cmd_steel_reward(interact: discord.Interaction):
     description=ts.get(f"cmd.deep-archimedea.desc"),
 )
 async def cmd_deep_archimedea(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.deep-archimedea",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
     await interact.response.send_message(
         W_DeepArchimedea(cmd_obj_check("deepArchimedea"), language)
     )
@@ -329,6 +367,13 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.temporal-archimedea.desc"),
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.temporal-archimedea",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
     await interact.response.send_message(
         W_TemporalArchimedia(cmd_obj_check("temporalArchimedea"), language)
     )

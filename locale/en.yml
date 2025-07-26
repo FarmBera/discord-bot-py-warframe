@@ -18,10 +18,12 @@ cmd:
     desc: Get currently opened alert #TODO: translation fix
     title: Activated Alert
     credit: Credit
+
   news:
     cmd: news
     desc: Get Latest Warframe News
     title: Warframe Latest News
+
   cetus:
     cmd: cetus_time
     desc: Get current Cetus Time & next state
@@ -29,45 +31,51 @@ cmd:
     current: Current State
     night: Night
     day: Day
+
   sortie:
     cmd: sortie
     desc: "Today's Sortie missions"
     title: Today's Sortie
     eta: ETA
+
   archon-hunt:
     cmd: archon_hunt
     desc: Get archon hunt missions this weekend
     title: Archon Hunt
+
   void-traders:
     cmd: void_traders
     desc: Get datetime next baro ki'Teer arrives # fix translation
-
     title: Void Traders Status
     tdr: Trader
     status: Status
-
     activate: Activated
     deactivate: Deactivated
-
     end: Ends at
     location: Location
-
     appear: Appears at
     place: Coming to
 
   steel-path-reward:
     cmd: steel_path_reward
     desc: Get teshin's offer specials # fix translation
+
   fissures:
     cmd: void_fissures
     desc: Get available void fissures with fast-run available (like Extermination, Capture and more)
-  invasions: invasions
+
+  invasions:
+    name: invasions
+    desc: NULL
+
   duviri-cycle:
     cmd: duviri_cycle
     desc: Get currently duviri state
+
   deep-archimedea:
     cmd: deep_archimedea
     desc: Get Deep Archimedea missions this weekend
+
   temporal-archimedea:
     cmd: temporal_archimedea
     desc: Get Temporal Archimedea missions this weekend

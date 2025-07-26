@@ -1,3 +1,4 @@
+import discord
 import datetime as dt
 
 from translator import ts
@@ -12,10 +13,11 @@ def W_news(newses, lang):
 
     idx: int = 0
     limit: int = 20
-    # output_msg: str = "# [Warframe News](https://www.warframe.com/search)\n\n"
-    output_msg: str = f"# {ts.get('cmd.news.title')}\n\n"
-
+    output_msg: str = ""
     date_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
+
+    # output_msg: str = "# [Warframe News](https://www.warframe.com/search)\n\n"
+    output_msg += f"# {ts.get('cmd.news.title')}\n\n"
 
     # sort data
     newses = sorted(
@@ -46,5 +48,13 @@ def W_news(newses, lang):
         if idx >= limit:
             break
 
-    # print(output_msg)
-    return output_msg
+    embed = discord.Embed(
+        # title=f"# {ts.get('cmd.news.title')}\n\n",
+        description=output_msg,
+        color=0x00FFFF,
+        url=newses[-1]["link"],
+    )
+    embed.set_thumbnail(url=newses[-1]["imageLink"])
+
+    # return output_msg
+    return embed

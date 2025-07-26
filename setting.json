@@ -1,0 +1,20 @@
+{
+    "noti": {
+        "isEnabled": true,
+        "list": {
+            "alerts": true,
+            "cetus": false,
+            "news": true,
+            "sortie": false,
+            "archonHunt": true,
+            "voidTraders": true,
+            "voidTraderItem": true,
+            "steelPath": true,
+            "fissures": false,
+            "invasions": false,
+            "duviriCycle": false,
+            "deepArchimedea": true,
+            "temporalArchimedea": true
+        }
+    }
+}

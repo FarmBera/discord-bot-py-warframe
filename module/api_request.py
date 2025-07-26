@@ -4,7 +4,7 @@ import datetime as dt
 
 # from TOKEN import base_url, headers, query
 from module.color import color
-
+from module.save_log import save_log
 
 # api link & args
 base_api_url = "https://api.warframestat.us/"
@@ -107,13 +107,14 @@ def check_request(est, response):
 
 
 # usage
-def API_Request():
-    print(
-        f"{color['cyan']}API Requested: {dt.datetime.now()}{color['default']}",
-        end=" / ",
-    )
+def API_Request(*args):
+    # print(f"{color['cyan']}API Requested: {dt.datetime.now()}{color['default']}",end=" / ",)
+    if not args:
+        save_log(cmd="API_Request()", user="bot.self", msg=f"API Requested")
+    else:
+        save_log(
+            cmd="API_Request()", user="bot.self", msg=f"API Requested (from {args})"
+        )
+
     est, response = send_request()
     return est, check_request(est, response)
-
-
-API_Request()

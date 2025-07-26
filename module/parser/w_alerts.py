@@ -24,7 +24,7 @@ def W_Alerts(alerts, lang):
 
         # write output text
         output_msg += f"{idx}. {dd['reward']['asString']}\n".replace(
-            "cr", ts.get("cmd.alerts.credit")
+            "cr", f" {ts.get('cmd.alerts.credit')}"
         )
         output_msg += f"{type} at {node}\n\n"
         # output_msg += f"{idx}. {type} - {node}\n"

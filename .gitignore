@@ -1,8 +1,21 @@
 # custom file & directory
+# directory
 .vscode
+json/
+log
 tmp
 
+# file; personal
+channel.yml
 TOKEN.py
+test_.ipynb
+TODO.md
+w-api.ipynb
+
+
+# file; settings
+.markdownlint.json
+*_pc*.json
 
 ##########
 # macos

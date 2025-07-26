@@ -11,13 +11,17 @@ class Translator:
             with open(f"locale/{self.lang}.yml", "r", encoding="utf-8") as f:
                 self.translations = yaml.safe_load(f)
         except FileNotFoundError:
-            print(f"[warn]: Translation file for '{self.lang}' not found.")
-            # 기본 언어(예: 영어)로 대체 로드하는 로직 추가
+            print(
+                f"{color['yellow']}[warn]: Translation file for '{self.lang}' not found.{color['default']}"
+            )
+            # retry with default language: English
             try:
                 with open("locale/en.yml", "r", encoding="utf-8") as f:
                     self.translations = yaml.safe_load(f)
             except FileNotFoundError:
-                print("[warn]: Default translation file 'en.yml' also not found.")
+                print(
+                    f"{color['red']}[warn]: Default translation file 'en.yml' also not found.{color['default']}"
+                )
 
     def get(self, key, **kwargs):
         """

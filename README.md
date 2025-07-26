@@ -6,7 +6,7 @@ Python Toy Project for game called 'Warframe'
 
 - Python 3.13.3
 
-### external module used
+external module used
 
 - discord.py: v2.5.2
 - pyyaml: v6.0.2
