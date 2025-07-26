@@ -2,8 +2,11 @@ from translator import ts
 
 
 def W_archonHunt(archon, lang):
-    if not archon or archon is None:
+    if archon == False:
         return ts.get("general.error-cmd")
+
+    if archon is None:
+        return None
 
     prefix: str = "cmd.archon-hunt"
     output_msg = f"# {ts.get(f'{prefix}.title')}\n\n"

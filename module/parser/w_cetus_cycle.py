@@ -3,8 +3,11 @@ from translator import ts
 
 # cetus day/night state & cycle
 def W_CetusCycle(cetus, lang) -> str:
-    if not cetus or cetus is None:
+    if cetus == False:
         return ts.get("general.error-cmd")
+
+    if cetus is None:
+        return None
 
     prefix: str = "cmd.cetus"
     output_msg: str = f"# {ts.get(f'{prefix}.title')}\n\n"

@@ -2,8 +2,11 @@ from translator import ts
 
 
 def W_Sortie(sortie, lang):
-    if not sortie or sortie is None:
+    if sortie == False:
         return ts.get("general.error-cmd")
+
+    if sortie is None:
+        return None
 
     prefix: str = "cmd.sortie"
     mis_list = sortie["variants"]

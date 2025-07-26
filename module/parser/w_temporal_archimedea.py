@@ -2,8 +2,11 @@ from translator import ts
 
 
 def W_TemporalArchimedia(temporal, lang) -> str:
-    if not temporal or temporal is None:
+    if temporal == False:
         return ts.get("general.error-cmd")
+
+    if temporal is None:
+        return None
 
     output_msg = f"# Temporal Archimedia\n\n"
 

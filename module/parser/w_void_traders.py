@@ -2,8 +2,11 @@ from translator import ts
 
 
 def W_VoidTraders(trader, lang):
-    if not trader or trader is None:
+    if trader == False:
         return ts.get("general.error-cmd")
+
+    if trader is None:
+        return None
 
     idx = 1
     length = len(trader)

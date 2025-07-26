@@ -2,8 +2,11 @@ from translator import ts
 
 
 def W_DeepArchimedea(deep, lang) -> str:
-    if not deep or deep is None:
+    if deep == False:
         return ts.get("general.error-cmd")
+
+    if deep is None:
+        return None
 
     output_msg = f"# Deep Archimedea\n\n"
 
