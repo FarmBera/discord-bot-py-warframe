@@ -17,9 +17,8 @@ def save_log(
 ):
     try:
         log_f = open(log_file_path, "a", encoding="UTF-8", newline="")
-        time = (time + dt.timedelta(hours=9)).strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )  # for UTC+9 Timezone
+        time = time.strftime("%Y-%m-%d %H:%M:%S")
+        # time = (time + dt.timedelta(hours=9)).strftime("%Y-%m-%d %H:%M:%S")  # for UTC+9 Timezone
         # time = (time + datetime.timedelta(hours=9)).strftime("%Y-%m-%d %H:%M:%S")  # for US(UTC+0) Timezone
         wr = csv.writer(log_f)
         wr.writerow([user, time, cmd, guild, channel, msg, obj])
