@@ -39,6 +39,7 @@ from module.parser.w_void_traders import W_VoidTraders
 from module.parser.w_steelPath import W_SteelPathReward
 from module.parser.w_deep_archimedea import W_DeepArchimedea
 from module.parser.w_temporal_archimedea import W_TemporalArchimedia
+from module.parser.w_fissures import W_Fissures
 
 
 kst = dt.timezone(dt.timedelta(hours=9))
@@ -154,7 +155,7 @@ class DiscordBot(discord.Client):
             ["voidTraders", W_VoidTraders],
             ## ['voidTraderItem',],
             ["steelPath", W_SteelPathReward],
-            ## ['fissures',],
+            ["fissures", W_Fissures],
             ## ['invasions',],
             ## ['duviriCycle'],
             ["deepArchimedea", W_DeepArchimedea],

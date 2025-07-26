@@ -100,7 +100,7 @@ def check_request(est, response):
         print(f"ERR with saving file")
 
     # print(f"response Saved at '{fname}'")
-    print(f'Updated time: {convert_date_time(response["timestamp"])}')
+    # print(f'Updated time: {convert_date_time(response["timestamp"])}')
 
     # print("=" * 45)
     return response

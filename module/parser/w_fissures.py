@@ -1,6 +1,4 @@
 def W_Fissures(fissures):
-    print("Void Fissures")
-
     def PrintingLayout(item):
         # return f"{item['missionType']} - {item['enemy']} {'[Steel Path]' if item['isHard'] else ''}\n{item['tier']} Fissure\n{item['node']}\n{item['eta']} remain\n"
         return f"{item['missionType']} - {item['tier']} Fissure {'[Steel Path]' if item['isHard'] else ''}\n{item['node']} - {item['enemy']}\n{item['eta']} remain\n"
