@@ -3,7 +3,7 @@ import discord
 from translator import ts
 
 
-def W_Fissures(fissures):
+def W_Fissures(fissures, *lang):
     output_msg: str = ""
 
     output_msg += "# Void Fissures\n\n"

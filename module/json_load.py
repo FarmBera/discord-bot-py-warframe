@@ -1,8 +1,9 @@
 import json
 from module.color import color
+from TOKEN import DEFAULT_JSON_PATH
 
 
-def json_load(file_path):
+def json_load(file_path=DEFAULT_JSON_PATH):
     """
     read json file at provided path and return
 

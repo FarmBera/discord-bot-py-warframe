@@ -11,6 +11,7 @@ import datetime as dt
 ### custom module & variables ###
 # essential variables
 from TOKEN import TOKEN as BOT_TOKEN
+from TOKEN import DEFAULT_JSON_PATH
 
 # from TOKEN import channel_list  # notice channel list
 
@@ -79,15 +80,15 @@ class DiscordBot(discord.Client):
         # open setting file
         setting = json_load("setting.json")
 
-        API_Request("auto_send_msg_request()")
+        # API_Request("auto_send_msg_request()")
         if not setting["noti"]["isEnabled"]:
             return
 
         def analyze_obj(name: str):
-            if setting["noti"]["list"][name]:
-                # load json objects
-                obj_prev = get_obj(name)
-                obj_new = json_load("Warframe_pc.json")[name]
+            # if setting["noti"]["list"][name]:
+            # load json objects
+            obj_prev = get_obj(name)
+            obj_new = json_load(DEFAULT_JSON_PATH)[name]
 
             # check loaded obj
             if obj_prev is None or obj_new is None:
@@ -149,54 +150,54 @@ class DiscordBot(discord.Client):
         keys = [
             ["alerts", W_Alerts],
             ["news", W_news],
-            ["cetus", W_CetusCycle],
+            ["cetusCycle", W_CetusCycle],
             ["sortie", W_Sortie],
             ["archonHunt", W_archonHunt],
             ["voidTraders", W_VoidTraders],
             ## ['voidTraderItem',],
             ["steelPath", W_SteelPathReward],
-            ["fissures", W_Fissures],
+            # ["fissures", W_Fissures],# TODO: fix error
             ## ['invasions',],
             ## ['duviriCycle'],
             ["deepArchimedea", W_DeepArchimedea],
             ["temporalArchimedea", W_TemporalArchimedia],
         ]
         for item in keys:
-            # checks alert is enabled in setting file
-            if not setting["noti"]["list"][item[0]]:
-                continue
-
             # fetch object & check object
             value = item[1](analyze_obj(item[0]), language)
             if value is None:
                 continue
 
-            # send message
-            channel_list = yaml_open("channel")["channel"]
-            for ch in channel_list:
-                # print(ch, value)
-                channel = await self.fetch_channel(ch)
-                save_log(
-                    cmd="auto_sent_message",
-                    user="bot.self",
-                    guild=channel.guild,
-                    channel=channel.name,
-                    msg=item,
-                    obj=value,
-                )
-                await channel.send(value)
-
-            # save latest data
-            if not set_obj(get_obj(item[0]), item[0]):
+            # force save latest data
+            if not set_obj(json_load(DEFAULT_JSON_PATH)[item[0]], item[0]):
                 print(
                     f"{color['red']}ERR with saving object (from 'auto_send_msg_request'){color['default']}"
                 )
-            else:
-                save_log(
-                    cmd="auto_send_msg_request()",
-                    user="bot.self",
-                    msg=f"Updated obj > {item}",
-                )
+            # else:
+            #     save_log(
+            #         cmd="auto_send_msg_request()",
+            #         user="bot.self",
+            #         msg=f"Updated obj > {item}",
+            #     )
+
+            # checks alert is enabled in setting file
+            if not setting["noti"]["list"][item[0]]:
+                continue
+
+            # send message
+            channel_list = yaml_open("channel")["channel"]
+            for ch in channel_list:
+                print(ch, value)
+                # channel = await self.fetch_channel(ch)
+                # save_log(
+                #     cmd="auto_sent_message",
+                #     user="bot.self",
+                #     guild=channel.guild,
+                #     channel=channel.name,
+                #     msg=item,
+                #     obj=value,
+                # )
+                # await channel.send(value)
 
         return  # End Of auto_send_msg_request()
 
@@ -269,6 +270,8 @@ async def cmd_alerts(interact: discord.Interaction):
 # cetus command (cetusCycle)
 @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
 async def cmd_cetus(interact: discord.Interaction):
+    API_Request("cmd.cetus")
+    set_obj(json_load()["cetusCycle"], "cetusCycle")
     save_log(
         cmd="cmd.cetus",
         time=interact.created_at,
@@ -276,7 +279,9 @@ async def cmd_cetus(interact: discord.Interaction):
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(W_CetusCycle(cmd_obj_check("cetus"), language))
+    await interact.response.send_message(
+        W_CetusCycle(cmd_obj_check("cetusCycle"), language)
+    )
 
 
 # sortie command
@@ -348,7 +353,9 @@ async def cmd_steel_reward(interact: discord.Interaction):
 @tree.command(
     name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")
 )
-async def cmd_void_traders(interact: discord.Interaction):
+async def cmd_fissures(interact: discord.Interaction):
+    API_Request("cmd.cetus")
+    set_obj(json_load()["fissures"], "fissures")
     save_log(
         cmd="cmd.fissures",
         time=interact.created_at,

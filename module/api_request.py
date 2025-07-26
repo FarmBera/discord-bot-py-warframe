@@ -6,6 +6,8 @@ import datetime as dt
 from module.color import color
 from module.save_log import save_log
 
+from module.json_save import json_save
+
 # api link & args
 base_api_url = "https://api.warframestat.us/"
 
@@ -67,7 +69,6 @@ def convert_remain_time(timestamp: str, footer: str = "남았습니다!") -> str
     return None
 
 
-#####
 # api request func
 def send_request():
     date_start = dt.datetime.now()
@@ -117,4 +118,5 @@ def API_Request(*args):
         )
 
     est, response = send_request()
-    return est, check_request(est, response)
+    response = check_request(est, response)
+    return est, response

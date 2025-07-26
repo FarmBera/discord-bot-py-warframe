@@ -2,7 +2,7 @@ from translator import ts
 
 
 # Event Mission
-def W_Alerts(alerts, lang):
+def W_Alerts(alerts, *lang):
     # error check
     if alerts == False:
         return ts.get("general.error-cmd") + ": alert error"
