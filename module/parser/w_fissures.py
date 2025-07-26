@@ -1,7 +1,16 @@
+import discord
+
+from translator import ts
+
+
 def W_Fissures(fissures):
+    output_msg: str = ""
+
+    output_msg += "# Void Fissures\n\n"
+
     def PrintingLayout(item):
         # return f"{item['missionType']} - {item['enemy']} {'[Steel Path]' if item['isHard'] else ''}\n{item['tier']} Fissure\n{item['node']}\n{item['eta']} remain\n"
-        return f"{item['missionType']} - {item['tier']} Fissure {'[Steel Path]' if item['isHard'] else ''}\n{item['node']} - {item['enemy']}\n{item['eta']} remain\n"
+        return f"{item['missionType']} - {item['tier']} {ts.get('cmd.fissures.fiss')} {ts.get('cmd.fissures.steel') if item['isHard'] else ''}\n{item['node']} - {item['enemy']}\n{item['eta']} {ts.get('cmd.fissures.remain')}\n"
 
     normal = []  # 일반 성유물 노드
     steel_path = []  # 강길 성유물 노드
@@ -62,4 +71,6 @@ def W_Fissures(fissures):
 
     # fav_fissure = ExceptItems(fav_fissure, exception_tier, "tier")
     for item in fav_fissure:
-        print(PrintingLayout(item))
+        output_msg += f"{item['missionType']} - {item['tier']} {ts.get('cmd.fissures.fiss')} {ts.get('cmd.fissures.steel') if item['isHard'] else ''}\n{item['eta']} {ts.get('cmd.fissures.remain')} / {item['node']} - {item['enemy']}\n\n"
+
+    return output_msg

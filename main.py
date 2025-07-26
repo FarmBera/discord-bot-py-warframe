@@ -344,6 +344,21 @@ async def cmd_steel_reward(interact: discord.Interaction):
     )
 
 
+# fissures command
+@tree.command(
+    name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")
+)
+async def cmd_void_traders(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.fissures",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
+    await interact.response.send_message(W_Fissures(cmd_obj_check("fissures")))
+
+
 # deep archimedea command
 @tree.command(
     name=ts.get(f"cmd.deep-archimedea.cmd"),

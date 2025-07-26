@@ -7,7 +7,7 @@ init:
   done: Done!
   start: Connecting to the Server...
   connected: Sucessfully Connected Server!
-  bot-status-msg: Developing
+  bot-status-msg: Alert Ready.
 
 general:
   error-cmd: Processing Error. Please contact the administrator. #TODO: translation fix
@@ -62,11 +62,14 @@ cmd:
 
   fissures:
     cmd: void_fissures
-    desc: Get available void fissures with fast-run available (like Extermination, Capture and more)
+    desc: Get available void fissures with fast-run available (like Exterminate, Capture)
+    fiss: Fissure
+    steel: "**[Steel Path]**"
+    remain: left
 
   invasions:
     name: invasions
-    desc: NULL
+    desc: "NULL"
 
   duviri-cycle:
     cmd: duviri_cycle
