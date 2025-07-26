@@ -80,7 +80,7 @@ class DiscordBot(discord.Client):
         # open setting file
         setting = json_load("setting.json")
 
-        # API_Request("auto_send_msg_request()")
+        API_Request("auto_send_msg_request()")
         if not setting["noti"]["isEnabled"]:
             return
 
