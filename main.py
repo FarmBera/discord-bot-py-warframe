@@ -149,21 +149,21 @@ class DiscordBot(discord.Client):
                 missing = [item for item in obj_new if item not in obj_prev]
                 if missing:
                     is_new_content = True
-                    send_alert(W_news(missing))
+                    await send_alert(W_news(missing))
 
             elif item[0] == "cetusCycle":
                 if get_obj(item[0])["state"] == obj_new["state"]:
                     # print("cetusCycle: equal")
                     continue
                 is_new_content = True
-                send_alert(W_CetusCycle(obj_new))
+                await send_alert(W_CetusCycle(obj_new))
 
             elif item[0] == "sortie":
                 if get_obj(item[0])["activation"] == obj_new["activation"]:
                     # print("sortie: equal")
                     continue
                 is_new_content = True
-                send_alert(W_Sortie(obj_new))
+                await send_alert(W_Sortie(obj_new))
 
             # TODO: test later
             elif item[0] == "archonHunt":
@@ -171,7 +171,7 @@ class DiscordBot(discord.Client):
                     # print("archonHunt: equal")
                     continue
                 is_new_content = True
-                send_alert(W_archonHunt(obj_new))
+                await send_alert(W_archonHunt(obj_new))
 
             elif item[0] == "voidTraders":
                 # prev contetnt
@@ -194,7 +194,7 @@ class DiscordBot(discord.Client):
                     # print("voidTraders: empty")
                     continue
                 is_new_content = True
-                send_alert(W_VoidTraders(obj_new))
+                await send_alert(W_VoidTraders(obj_new))
 
             # elif item[0]=='voidTraderItem':
             # elif item[0]=='fissures':
@@ -204,21 +204,21 @@ class DiscordBot(discord.Client):
                     # print("steelPath: equal")
                     continue
                 is_new_content = True
-                send_alert(W_SteelPathReward(obj_new))
+                await send_alert(W_SteelPathReward(obj_new))
 
             elif item[0] == "deepArchimedea":
                 if get_obj("deepArchimedea")["activation"] == obj_new["activation"]:
                     # print("deepArchimedea: equal")
                     continue
                 is_new_content = True
-                send_alert(W_DeepArchimedea(obj_new))
+                await send_alert(W_DeepArchimedea(obj_new))
 
             elif item[0] == "temporalArchimedea":
                 if get_obj("temporalArchimedea")["activation"] == obj_new["activation"]:
                     # print("temporalArchimedea: equal")
                     continue
                 is_new_content = True
-                send_alert(W_TemporalArchimedia(obj_new))
+                await send_alert(W_TemporalArchimedia(obj_new))
 
             # else:
             #     print("~ else:")
