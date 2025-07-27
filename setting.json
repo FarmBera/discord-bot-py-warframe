@@ -9,7 +9,7 @@
             "archonHunt": true,
             "voidTraders": true,
             "voidTraderItem": false,
-            "steelPath": false,
+            "steelPath": true,
             "fissures": false,
             "invasions": false,
             "duviriCycle": false,

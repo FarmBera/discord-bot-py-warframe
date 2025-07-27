@@ -2,7 +2,7 @@ from translator import ts
 
 
 # cetus day/night state & cycle
-def W_CetusCycle(cetus, lang) -> str:
+def W_CetusCycle(cetus, *lang) -> str:
     if cetus == False:
         return ts.get("general.error-cmd")
 

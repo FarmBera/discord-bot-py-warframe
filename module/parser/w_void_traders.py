@@ -1,7 +1,7 @@
 from translator import ts
 
 
-def W_VoidTraders(trader, lang):
+def W_VoidTraders(trader, *lang):
     if trader == False:
         return ts.get("general.error-cmd")
 
@@ -45,3 +45,7 @@ def W_VoidTraders(trader, lang):
 
     # print(output_msg)
     return output_msg
+
+
+def W_voidTradersItem(traderItem, *lang):
+    return None

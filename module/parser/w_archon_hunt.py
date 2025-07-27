@@ -1,7 +1,7 @@
 from translator import ts
 
 
-def W_archonHunt(archon, lang):
+def W_archonHunt(archon, *lang):
     if archon == False:
         return ts.get("general.error-cmd")
 

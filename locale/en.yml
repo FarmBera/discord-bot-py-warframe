@@ -10,12 +10,13 @@ init:
   bot-status-msg: Alert Ready.
 
 general:
-  error-cmd: Processing Error. Please contact the administrator. #TODO: translation fix
+  error-cmd: Processing Error. Please contact the administrator.
 
 cmd:
   alerts:
     cmd: alerts
-    desc: Get currently opened alert #TODO: translation fix
+    desc: Get currently activated alert
+    desc-none: There're no activated alerts!
     title: Activated Alert
     credit: Credit
 

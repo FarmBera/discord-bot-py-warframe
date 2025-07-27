@@ -4,7 +4,7 @@ import datetime as dt
 from translator import ts
 
 
-def W_news(newses, lang):
+def W_news(newses, *lang):
     if newses == False:
         return ts.get("general.error-cmd")
 

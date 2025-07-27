@@ -2,7 +2,7 @@ from translator import ts
 
 
 # 태신 강철의 길 아이템 현황
-def W_SteelPathReward(steel, lang):
+def W_SteelPathReward(steel, *lang):
     if steel == False:
         return ts.get("general.error-cmd")
 

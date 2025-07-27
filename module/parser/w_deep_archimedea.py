@@ -1,7 +1,7 @@
 from translator import ts
 
 
-def W_DeepArchimedea(deep, lang) -> str:
+def W_DeepArchimedea(deep, *lang) -> str:
     if deep == False:
         return ts.get("general.error-cmd")
 

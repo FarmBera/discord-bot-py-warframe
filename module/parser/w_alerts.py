@@ -8,8 +8,8 @@ def W_Alerts(alerts, *lang):
         return ts.get("general.error-cmd") + ": alert error"
 
     # skip if data is empty
-    if alerts is None:
-        return None
+    if alerts is None or alerts == []:
+        return ts.get("cmd.alerts.desc-none")
 
     # activated mission count
     activated_count = len(alerts)
