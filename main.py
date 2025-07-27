@@ -111,6 +111,22 @@ class DiscordBot(discord.Client):
             # send message
             channel_list = yaml_open("channel")["channel"]
             for ch in channel_list:
+                # embed type
+                if str(type(value)) == "<class 'discord.embeds.Embed'>":
+                    # print(ch, value.description)
+                    channel = await self.fetch_channel(ch)
+                    save_log(
+                        cmd="auto_sent_message",
+                        user="bot.self",
+                        guild=channel.guild,
+                        channel=channel.name,
+                        msg=item,
+                        obj=value.description,
+                    )
+                    await channel.send(embed=value)
+                    return
+
+                # string type
                 # print(ch, value)
                 channel = await self.fetch_channel(ch)
                 save_log(
