@@ -141,13 +141,9 @@ class DiscordBot(discord.Client):
 
         # send alert if notification flag (settings.json) is true
         for item in keys:
-            # print(item[0])
             is_new_content: bool = False
             obj_prev = get_obj(item[0])
             obj_new = json_load(DEFAULT_JSON_PATH)[item[0]]
-
-            # compare = [item for item in obj_new if item not in obj_prev]
-            # print(compare)
 
             # TODO: test
             if item[0] == "alerts":
@@ -159,8 +155,7 @@ class DiscordBot(discord.Client):
                     continue
 
             elif item[0] == "news":
-                if get_obj(item[0])[-1] == obj_new[-1]:
-                    # print("news: equal")
+                if get_obj(item[0])[-1]["id"] == obj_new[-1]["id"]:
                     continue
                 missing = [item for item in obj_new if item not in obj_prev]
                 if missing:
@@ -190,17 +185,17 @@ class DiscordBot(discord.Client):
                 await send_alert(W_archonHunt(obj_new))
 
             elif item[0] == "voidTraders":
-                # prev contetnt
+                # prev content
                 try:
-                    val_prev = get_obj("voidTraders")[-1]
+                    val_prev = get_obj("voidTraders")[-1]["activation"]
                 except:
-                    val_prev = get_obj("voidTraders")
+                    val_prev = get_obj("voidTraders")["activation"]
 
                 # new content
                 try:
-                    val_new = obj_new[-1]
+                    val_new = obj_new[-1]["activation"]
                 except:
-                    val_new = obj_new
+                    val_new = obj_new["activation"]
 
                 # check
                 if val_prev == val_new:
@@ -242,7 +237,7 @@ class DiscordBot(discord.Client):
             if is_new_content:
                 set_obj(obj_new, item[0])
 
-            return  # End Of auto_send_msg_request()
+        return  # End Of auto_send_msg_request()
 
     # todo-delay: 특정 시간에 메시지 보내기 (공지)
     # alert specific time
