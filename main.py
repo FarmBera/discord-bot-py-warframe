@@ -14,6 +14,7 @@ from TOKEN import DEFAULT_JSON_PATH
 
 # essential custom module
 from translator import ts, language
+from times import alert_times, KST
 from module.color import color
 from module.api_request import API_Request
 from module.save_log import save_log
@@ -39,26 +40,20 @@ from module.parser.w_temporal_archimedea import W_TemporalArchimedia
 from module.parser.w_fissures import W_Fissures
 
 
-kst = dt.timezone(dt.timedelta(hours=9))
-alert_times = [
-    dt.time(hour=7, minute=0, tzinfo=kst),
-    dt.time(hour=7, minute=30, tzinfo=kst),
-    dt.time(hour=9, minute=0, tzinfo=kst),
-]
 keys = [
-    ["alerts", W_Alerts],
-    ["news", W_news],
-    ["cetusCycle", W_CetusCycle],
-    ["sortie", W_Sortie],
-    ["archonHunt", W_archonHunt],
-    ["voidTraders", W_VoidTraders],
-    ## ['voidTraderItem',],
-    ["steelPath", W_SteelPathReward],
-    # ["fissures", W_Fissures],
-    ## ['invasions',],
-    ## ['duviriCycle'],
-    ["deepArchimedea", W_DeepArchimedea],
-    ["temporalArchimedea", W_TemporalArchimedia],
+    "alerts",
+    "news",
+    "cetusCycle",
+    "sortie",
+    "archonHunt",
+    "voidTraders",
+    # "voidTraderItem",
+    "steelPath",
+    # "fissures",
+    # "invasions",
+    # "duviriCycle",
+    "deepArchimedea",
+    "temporalArchimedea",
 ]
 
 
@@ -76,10 +71,37 @@ class DiscordBot(discord.Client):
         print(f"{color["default"]}Logged on as {self.user}!")
 
         self.auto_send_msg_request.start()
+        self.auto_noti.start()
 
-    # send to message at specific channels
-    async def send_message_to(msg, ch_list):
-        return
+    async def send_alert(self, value):
+        # send message
+        channel_list = yaml_open("channel")["channel"]
+        for ch in channel_list:
+            # embed type
+            if str(type(value)) == "<class 'discord.embeds.Embed'>":
+                channel = await self.fetch_channel(ch)
+                save_log(
+                    cmd="auto_sent_message",
+                    user="bot.self",
+                    guild=channel.guild,
+                    channel=channel.name,
+                    # msg=item,
+                    obj=value.description,
+                )
+                await channel.send(embed=value)
+                return
+
+            # string type
+            channel = await self.fetch_channel(ch)
+            save_log(
+                cmd="auto_sent_message",
+                user="bot.self",
+                guild=channel.guild,
+                channel=channel.name,
+                # msg=item,
+                obj=value,
+            )
+            await channel.send(value)
 
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
@@ -97,7 +119,7 @@ class DiscordBot(discord.Client):
 
         async def send_alert(value):
             # checks alert is enabled in setting file
-            if not setting["noti"]["list"][item[0]]:
+            if not setting["noti"]["list"][item]:
                 return
 
             # send message
@@ -132,19 +154,19 @@ class DiscordBot(discord.Client):
         # check for new content & send alert
         for item in keys:
             is_new_content: bool = False
-            obj_prev = get_obj(item[0])
-            obj_new = json_load(DEFAULT_JSON_PATH)[item[0]]
+            obj_prev = get_obj(item)
+            obj_new = json_load(DEFAULT_JSON_PATH)[item]
 
-            # TODO: test
-            if item[0] == "alerts":
-                if get_obj(item[0]) == obj_new:
+            # TODO: alerts; test
+            if item == "alerts":
+                if get_obj(item) == obj_new:
                     continue
-                if empty_check(obj_new, item[0]):
+                if empty_check(obj_new, item):
                     continue
                 is_new_content = True
                 await send_alert(W_Alerts(missing))
 
-            elif item[0] == "news":
+            elif item == "news":
                 if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
                     continue
 
@@ -168,77 +190,85 @@ class DiscordBot(discord.Client):
                     is_new_content = True
                     send_alert(W_news(missing))
 
-            elif item[0] == "cetusCycle":
-                if get_obj(item[0])["state"] == obj_new["state"]:
+            elif item == "cetusCycle":
+                if get_obj(item)["state"] == obj_new["state"]:
                     continue
                 is_new_content = True
                 await send_alert(W_CetusCycle(obj_new))
 
-            elif item[0] == "sortie":
-                if get_obj(item[0])["activation"] == obj_new["activation"]:
+            elif item == "sortie":
+                if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
-                await send_alert(W_Sortie(obj_new))
+                # await send_alert(W_Sortie(obj_new))
 
-            elif item[0] == "archonHunt":
+            elif item == "archonHunt":
                 if get_obj("archonHunt")["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
                 await send_alert(W_archonHunt(obj_new))
 
-            elif item[0] == "voidTraders":
+            elif item == "voidTraders":
                 try:  # prev content
-                    val_prev = get_obj("voidTraders")[-1]["activation"]
+                    val_prev = get_obj(item)[-1]["activation"]
+                    val_prev_act = get_obj(item)[-1]["active"]
                 except:
-                    val_prev = get_obj("voidTraders")["activation"]
+                    val_prev = get_obj(item)["activation"]
+                    val_prev_act = get_obj(item)["active"]
 
                 try:  # new content
                     val_new = obj_new[-1]["activation"]
+                    val_new_act = obj_new[-1]["active"]
                 except:
                     val_new = obj_new["activation"]
+                    val_new_act = obj_new["active"]
 
                 # check
-                if val_prev == val_new:
+                if (val_prev == val_new) and (val_prev_act == val_new_act):
                     continue
-                if empty_check(obj_new, item[0]):
+                if empty_check(obj_new, item):
                     continue
                 is_new_content = True
                 await send_alert(W_VoidTraders(obj_new))
 
-            # elif item[0]=='voidTraderItem':
-            # elif item[0]=='fissures':
+            # elif item=='voidTraderItem':
+            # elif item=='fissures':
 
-            elif item[0] == "steelPath":
+            elif item == "steelPath":
                 if get_obj("steelPath")["currentReward"] == obj_new["currentReward"]:
                     continue
                 is_new_content = True
                 await send_alert(W_SteelPathReward(obj_new))
 
-            elif item[0] == "deepArchimedea":
+            elif item == "deepArchimedea":
                 if get_obj("deepArchimedea")["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
                 await send_alert(W_DeepArchimedea(obj_new))
 
-            elif item[0] == "temporalArchimedea":
+            elif item == "temporalArchimedea":
                 if get_obj("temporalArchimedea")["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
                 await send_alert(W_TemporalArchimedia(obj_new))
 
             if is_new_content:
-                set_obj(obj_new, item[0])
+                set_obj(obj_new, item)
 
         return  # End Of auto_send_msg_request()
 
-    # todo-delay: 특정 시간에 메시지 보내기 (공지)
-    # alert specific time
-    # @tasks.loop(time=alert_times)#TODO: implements
-    async def auto_notification(self):
-        channel_list = yaml_open("channel")["channel"]
-        for ch in channel_list:
-            channel = await self.fetch_channel(ch)
-            # await channel.send()
+    # send notification at specific time
+    @tasks.loop(time=alert_times)
+    async def auto_noti(self):
+        # TODO: 특정 시간에 메시지 보내기 (공지)
+        # curr = dt.datetime.now()
+        # curr_time = dt.time(hour=curr.hour, minute=curr.minute, tzinfo=KST)
+
+        # if curr_time not in alert_times:
+        #     print("Not Exists", curr_time)
+        #     return
+
+        await self.send_alert(W_Sortie(get_obj("sortie")))
 
     # TEMP: temporary disabled
     # async def on_message(self, message):
