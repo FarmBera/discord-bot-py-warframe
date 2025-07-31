@@ -171,7 +171,7 @@ class DiscordBot(discord.Client):
 
                 if missing:
                     is_new_content = True
-                    send_alert(W_news(missing))
+                    await send_alert(W_news(missing))
 
             elif item == "cetusCycle":
                 if get_obj(item)["state"] == obj_new["state"]:
