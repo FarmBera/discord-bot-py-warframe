@@ -141,14 +141,32 @@ class DiscordBot(discord.Client):
                     continue
                 if empty_check(obj_new, item[0]):
                     continue
+                is_new_content = True
+                await send_alert(W_Alerts(missing))
 
             elif item[0] == "news":
-                if get_obj(item[0])[-1]["id"] == obj_new[-1]["id"]:
+                if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
                     continue
-                missing = [item for item in obj_new if item not in obj_prev]
+
+                missing_id = [
+                    item
+                    for item in [item["id"] for item in obj_new]
+                    if item not in [item["id"] for item in obj_prev]
+                ]
+                if not missing_id:
+                    continue
+
+                missing = []
+                for id in missing_id:  #
+                    for jtem in obj_new:
+                        if id != jtem["id"]:  # skip if not equal id
+                            continue
+
+                        missing.append(jtem)
+
                 if missing:
                     is_new_content = True
-                    await send_alert(W_news(missing))
+                    send_alert(W_news(missing))
 
             elif item[0] == "cetusCycle":
                 if get_obj(item[0])["state"] == obj_new["state"]:
