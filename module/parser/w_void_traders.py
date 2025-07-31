@@ -16,21 +16,23 @@ def W_VoidTraders(trader, *lang):
 
     for item in trader:
         if length >= 2:
-            output_msg += f"{idx}. {ts.get(f'{prefix}.tdr')}: {item['character']}\n\n"
+            output_msg += (
+                f"{idx}. {ts.get(f'{prefix}.tdr-name')}: {item['character']}\n\n"
+            )
             idx += 1
         else:
-            output_msg += f"- {ts.get(f'{prefix}.tdr')}: {item['character']}\n"
+            output_msg += f"- {ts.get(f'{prefix}.tdr-name')}: {item['character']}\n"
 
         status = item["active"]
 
-        # OO 나타남
+        # OO appeared
         if status:
             output_msg += (
                 f"- {ts.get(f'{prefix}.status')}: **{ts.get(f'{prefix}.activate')}**\n"
             )
             output_msg += f"- {ts.get(f'{prefix}.end')} {item['endString']}\n"
             output_msg += f"- {ts.get(f'{prefix}.location')}: "
-        # XX 안나타남
+        # XX NOT appeared
         else:
             output_msg += f"- {ts.get(f'{prefix}.status')}: *Deactivated*\n"
             output_msg += f"- {ts.get(f'{prefix}.appear')} {item['startString']}\n"
@@ -39,11 +41,6 @@ def W_VoidTraders(trader, *lang):
         # appear location
         output_msg += f"{item['location']}\n\n"
 
-        # print(status)
-        # print(item["activation"])
-        # print(item["startString"])
-
-    # print(output_msg)
     return output_msg
 
 

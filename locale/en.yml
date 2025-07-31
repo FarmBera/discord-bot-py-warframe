@@ -48,7 +48,7 @@ cmd:
     cmd: void_traders
     desc: Get datetime next baro ki'Teer arrives # fix translation
     title: Void Traders Status
-    tdr: Trader
+    tdr-name: Trader
     status: Status
     activate: Activated
     deactivate: Deactivated

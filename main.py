@@ -5,9 +5,6 @@ from discord.ext import tasks
 # essential module
 import datetime as dt
 
-# import asyncio
-# import yaml, csv, json, re
-
 ### custom module & variables ###
 # essential variables
 from TOKEN import TOKEN as BOT_TOKEN
@@ -17,7 +14,6 @@ from TOKEN import DEFAULT_JSON_PATH
 
 # essential custom module
 from translator import ts, language
-from text import log_file_path
 from module.color import color
 from module.api_request import API_Request
 from module.save_log import save_log
@@ -81,10 +77,6 @@ class DiscordBot(discord.Client):
 
         self.auto_send_msg_request.start()
 
-        # send dm to specific user ???
-        # user = await client.fetch_user()
-        # await user.send("Bot Running Start!")
-
     # send to message at specific channels
     async def send_message_to(msg, ch_list):
         return
@@ -113,7 +105,6 @@ class DiscordBot(discord.Client):
             for ch in channel_list:
                 # embed type
                 if str(type(value)) == "<class 'discord.embeds.Embed'>":
-                    # print(ch, value.description)
                     channel = await self.fetch_channel(ch)
                     save_log(
                         cmd="auto_sent_message",
@@ -127,7 +118,6 @@ class DiscordBot(discord.Client):
                     return
 
                 # string type
-                # print(ch, value)
                 channel = await self.fetch_channel(ch)
                 save_log(
                     cmd="auto_sent_message",
@@ -139,7 +129,7 @@ class DiscordBot(discord.Client):
                 )
                 await channel.send(value)
 
-        # send alert if notification flag (settings.json) is true
+        # check for new content & send alert
         for item in keys:
             is_new_content: bool = False
             obj_prev = get_obj(item[0])
@@ -148,10 +138,8 @@ class DiscordBot(discord.Client):
             # TODO: test
             if item[0] == "alerts":
                 if get_obj(item[0]) == obj_new:
-                    # print("alerts: equal obj")
                     continue
                 if empty_check(obj_new, item[0]):
-                    # print("alerts: empty")
                     continue
 
             elif item[0] == "news":
@@ -164,45 +152,37 @@ class DiscordBot(discord.Client):
 
             elif item[0] == "cetusCycle":
                 if get_obj(item[0])["state"] == obj_new["state"]:
-                    # print("cetusCycle: equal")
                     continue
                 is_new_content = True
                 await send_alert(W_CetusCycle(obj_new))
 
             elif item[0] == "sortie":
                 if get_obj(item[0])["activation"] == obj_new["activation"]:
-                    # print("sortie: equal")
                     continue
                 is_new_content = True
                 await send_alert(W_Sortie(obj_new))
 
-            # TODO: test later
             elif item[0] == "archonHunt":
                 if get_obj("archonHunt")["activation"] == obj_new["activation"]:
-                    # print("archonHunt: equal")
                     continue
                 is_new_content = True
                 await send_alert(W_archonHunt(obj_new))
 
             elif item[0] == "voidTraders":
-                # prev content
-                try:
+                try:  # prev content
                     val_prev = get_obj("voidTraders")[-1]["activation"]
                 except:
                     val_prev = get_obj("voidTraders")["activation"]
 
-                # new content
-                try:
+                try:  # new content
                     val_new = obj_new[-1]["activation"]
                 except:
                     val_new = obj_new["activation"]
 
                 # check
                 if val_prev == val_new:
-                    # print("voidTraders: equal")
                     continue
                 if empty_check(obj_new, item[0]):
-                    # print("voidTraders: empty")
                     continue
                 is_new_content = True
                 await send_alert(W_VoidTraders(obj_new))
@@ -212,27 +192,21 @@ class DiscordBot(discord.Client):
 
             elif item[0] == "steelPath":
                 if get_obj("steelPath")["currentReward"] == obj_new["currentReward"]:
-                    # print("steelPath: equal")
                     continue
                 is_new_content = True
                 await send_alert(W_SteelPathReward(obj_new))
 
             elif item[0] == "deepArchimedea":
                 if get_obj("deepArchimedea")["activation"] == obj_new["activation"]:
-                    # print("deepArchimedea: equal")
                     continue
                 is_new_content = True
                 await send_alert(W_DeepArchimedea(obj_new))
 
             elif item[0] == "temporalArchimedea":
                 if get_obj("temporalArchimedea")["activation"] == obj_new["activation"]:
-                    # print("temporalArchimedea: equal")
                     continue
                 is_new_content = True
                 await send_alert(W_TemporalArchimedia(obj_new))
-
-            # else:
-            #     print("~ else:")
 
             if is_new_content:
                 set_obj(obj_new, item[0])
@@ -254,7 +228,6 @@ class DiscordBot(discord.Client):
     #         return
 
     #     trim_text = message.content.replace(" ", "")
-
     #     usrname = message.author.display_name
 
     #     await message.delete()
@@ -441,9 +414,6 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
         W_TemporalArchimedia(cmd_obj_check("temporalArchimedea"), language)
     )
 
-
-# main function
-# if __name__ == "__main__":
 
 # run bot
 bot_client.run(BOT_TOKEN)

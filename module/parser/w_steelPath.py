@@ -14,24 +14,20 @@ def W_SteelPathReward(steel, *lang):
 
     output_msg += f"- Current Reward: **{current['name']}** ({current['cost']} cost)\n"
 
-    idx = 0  # 다음주 아이템 계산을 위한 인덱스
+    # calculate next week item
+    idx = 0
     for item in steel["rotation"]:
-        # print(item["name"])
-        # 현재 아이템과 리스트에 있는 아이템이 같다면
+        # next week item
         if item["name"] == current["name"]:
-            idx += 1  # 다음 인덱스의 아이템을 가리킴
+            idx += 1
             if idx >= len(steel["rotation"]):  # index overflow fix
-                idx = 0  # reset index
+                idx = 0
 
-            # 출력
+            # output
             item = steel["rotation"][idx]
             output_msg += f"- Next Week: *{item['name']}* ({item['cost']} cost)"
             break
         else:
             idx += 1
 
-    # for item in steel:
-    #     # item = item["syndicate"]
-    #     print(item["syndicate"], item["jobs"])
-    # print(output_msg)
     return output_msg

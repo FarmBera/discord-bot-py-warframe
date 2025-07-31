@@ -20,9 +20,7 @@ def W_DeepArchimedea(deep, *lang) -> str:
                 output_msg += "\n"
                 continue
             output_msg += f": {desc}\n"
-            # print(idx, jtem["name"], jtem["description"])
         output_msg += f"\n"
         idx += 1
 
-    # print(output_msg)
     return output_msg

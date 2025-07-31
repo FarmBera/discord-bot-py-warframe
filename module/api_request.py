@@ -77,19 +77,18 @@ def send_request():
 
 
 def check_request(est, response):
-    # response value is None type
+    # check response value
     if response is None:
-        raise ValueError("ERR: response is NULL")
+        print(f"{color['red']}ERR: response is NULL{color['default']}")
+        # raise ValueError("ERR: response is NULL")
 
-    # response code is NOT 200
+    # check response code
     res_code = response.status_code
     if res_code != 200:
-        raise ArithmeticError(f"ERR: Failed API Request >> {res_code}")
+        print(f"{color['red']}ERR: Failed API Request >> {res_code}{color['default']}")
+        # raise ArithmeticError(f"ERR: Failed API Request >> {res_code}")
 
     # process response
-    # print(f"Status >> {res_code} / ", end="")
-    # print(f"EST: {est} / ", end="")
-
     response = response.json()  # convert response data
     fname = f"Warframe_{query}.json"  # file name to save
 
@@ -98,18 +97,13 @@ def check_request(est, response):
         with open(fname, "w", encoding="utf-8") as json_file:
             json.dump(response, json_file, ensure_ascii=False, indent=2)
     except Exception as e:
-        print(f"ERR with saving file")
+        print(f"{color['red']}ERR with saving file{color['default']}")
 
-    # print(f"response Saved at '{fname}'")
-    # print(f'Updated time: {convert_date_time(response["timestamp"])}')
-
-    # print("=" * 45)
     return response
 
 
 # usage
 def API_Request(*args):
-    # print(f"{color['cyan']}API Requested: {dt.datetime.now()}{color['default']}",end=" / ",)
     if not args:
         save_log(cmd="API_Request()", user="bot.self", msg=f"API Requested")
     else:
