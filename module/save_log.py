@@ -1,8 +1,9 @@
 import csv
 import datetime as dt
 
-from text import log_file_path
 from module.color import color
+
+log_file_path = "log/logfile.csv"
 
 
 # save log into file
