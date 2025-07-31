@@ -1,7 +1,7 @@
 test:
   msg: Program Main Start
 
-init:
+start:
   init: Starting bot...
   components: loading components...
   done: Done!

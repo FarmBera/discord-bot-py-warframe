@@ -25,7 +25,7 @@ class Translator:
 
     def get(self, key, **kwargs):
         """
-        키를 받아 번역문을 반환 (ex: 'main_screen.title')
+        receive keys and return translated text (ex: 'main_screen.title')
         """
         keys = key.split(".")
         value = self.translations
@@ -46,10 +46,9 @@ if language not in ["en", "ko"]:  # input check
         f"{color['red']}Unknown string: {color['yellow']}'{language}'. {color['white']}will setup default lang: {color['cyan']}'en'{color['default']}"
     )
     language = "en"
-    # exit(1)
 ts = Translator(lang=language)
 
-print(color["yellow"], ts.get("init.init"), end="", sep="")
-print(ts.get("init.components"), end="")
-print(color["green"], ts.get("init.done"), sep="")
-print(color["yellow"], ts.get("init.start"), end="", sep="")
+print(color["yellow"], ts.get("start.init"), end="", sep="")
+print(ts.get("start.components"), end="")
+print(color["green"], ts.get("start.done"), sep="")
+print(color["yellow"], ts.get("start.start"), end="", sep="")

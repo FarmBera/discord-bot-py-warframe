@@ -1,0 +1,15 @@
+keys = [
+    "alerts",
+    "news",
+    "cetusCycle",
+    "sortie",
+    "archonHunt",
+    "voidTraders",
+    # "voidTraderItem",
+    "steelPath",
+    # "fissures",
+    # "invasions",
+    "duviriCycle",
+    "deepArchimedea",
+    "temporalArchimedea",
+]

@@ -10,8 +10,6 @@ import datetime as dt
 from TOKEN import TOKEN as BOT_TOKEN
 from TOKEN import DEFAULT_JSON_PATH
 
-# from TOKEN import channel_list  # notice channel list
-
 # essential custom module
 from translator import ts, language
 from times import alert_times, KST
@@ -40,35 +38,20 @@ from module.parser.w_temporal_archimedea import W_TemporalArchimedia
 from module.parser.w_fissures import W_Fissures
 
 
-keys = [
-    "alerts",
-    "news",
-    "cetusCycle",
-    "sortie",
-    "archonHunt",
-    "voidTraders",
-    # "voidTraderItem",
-    "steelPath",
-    # "fissures",
-    # "invasions",
-    # "duviriCycle",
-    "deepArchimedea",
-    "temporalArchimedea",
-]
+from variables.keys import keys
 
 
 class DiscordBot(discord.Client):
     async def on_ready(self):
         await self.wait_until_ready()
         await tree.sync()
-        # change bot state
         await self.change_presence(
             status=discord.Status.online,
-            activity=discord.Game(ts.get("init.bot-status-msg")),
+            activity=discord.Game(ts.get("start.bot-status-msg")),
         )
-        # self.auto_send_notice.start()
-        print(color["green"], ts.get("init.connected"))
-        print(f"{color["default"]}Logged on as {self.user}!")
+
+        print(color["green"], ts.get("start.connected"))
+        print(f"{color["cyan"]}Logged on as {self.user}!{color['default']}")
 
         self.auto_send_msg_request.start()
         self.auto_noti.start()
@@ -239,6 +222,8 @@ class DiscordBot(discord.Client):
                     continue
                 is_new_content = True
                 await send_alert(W_SteelPathReward(obj_new))
+
+            # elif item =='duviriCycle':
 
             elif item == "deepArchimedea":
                 if get_obj("deepArchimedea")["activation"] == obj_new["activation"]:
@@ -425,6 +410,24 @@ async def cmd_fissures(interact: discord.Interaction):
         channel=interact.channel,
     )
     await interact.response.send_message(W_Fissures(cmd_obj_check("fissures")))
+
+
+# duviriCycle command
+# @tree.command(
+#     name=ts.get(f"cmd.duviri-cycle.cmd"),
+#     description=ts.get(f"cmd.duviri-cycle.desc"),
+# )
+# async def cmd_temporal_archimedea(interact: discord.Interaction):
+#     save_log(
+#         cmd="cmd.duviri-cycle",
+#         time=interact.created_at,
+#         user=interact.user,
+#         guild=interact.guild,
+#         channel=interact.channel,
+#     )
+#     await interact.response.send_message(
+#         (cmd_obj_check("duviriCycle"), language)
+#     )
 
 
 # deep archimedea command
