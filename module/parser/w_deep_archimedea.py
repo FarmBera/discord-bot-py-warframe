@@ -8,7 +8,9 @@ def W_DeepArchimedea(deep, *lang) -> str:
     if deep is None:
         return None
 
-    output_msg = f"# Deep Archimedea\n\n"
+    prefix = f"cmd.deep-archimedea"
+
+    output_msg = f"# {ts.get(f'{prefix}.title')}\n\n"
 
     idx = 1
     for item in deep["missions"]:

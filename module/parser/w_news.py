@@ -6,7 +6,7 @@ from translator import ts
 
 def W_news(newses, *lang):
     if newses == False:
-        return ts.get("general.error-cmd")
+        return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
 
     if newses is None:
         return None
@@ -19,16 +19,15 @@ def W_news(newses, *lang):
     # output_msg: str = "# [Warframe News](https://www.warframe.com/search)\n\n"
     output_msg += f"# {ts.get('cmd.news.title')}\n\n"
 
-    # sort data
     newses = sorted(
         newses,
         key=lambda item: dt.datetime.strptime(item["date"], date_format),
-        reverse=True,  # asc/desc order
+        reverse=True,
     )
 
-    # process each news
+    # process
     for item in newses:
-        # exclude news
+        # excluded news
         if item["message"] in [
             "Join the official Warframe Discord server",
             "Check out the official Warframe Wiki ",
@@ -40,21 +39,15 @@ def W_news(newses, *lang):
             output_msg += f"- [{item['translations'][lang]}]({item['link']})\n"
         except:
             output_msg += f"- [{item['translations']['en']}]({item['link']})\n"
-        # output_msg += f"- [{item['message']}]({item['link']})\n"
-        # - time: {item['date']}"
-        # - image: {item['imageLink']}
 
         idx += 1
         if idx >= limit:
             break
 
     embed = discord.Embed(
-        # title=f"# {ts.get('cmd.news.title')}\n\n",
         description=output_msg,
         color=0x00FFFF,
-        url=newses[-1]["link"],
     )
-    embed.set_thumbnail(url=newses[-1]["imageLink"])
+    embed.set_image(url=newses[-1]["imageLink"])
 
-    # return output_msg
     return embed

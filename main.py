@@ -9,7 +9,7 @@ from variables.keys import keys
 
 from translator import ts, language
 from times import alert_times, KST
-from module.color import color
+from variables.color import color
 from module.api_request import API_Request
 from module.save_log import save_log
 
@@ -42,8 +42,8 @@ class DiscordBot(discord.Client):
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
 
-        print(color["green"], ts.get("start.connected"))
-        print(f"{color["cyan"]}Logged on as {self.user}!{color['default']}")
+        # print(color["green"], ts.get("start.connected"))
+        print(f"{color["cyan"]}Logged on as {self.user}!{color['default']}")  # VAR
 
         self.auto_send_msg_request.start()
         self.auto_noti.start()
@@ -53,11 +53,11 @@ class DiscordBot(discord.Client):
         channel_list = yaml_open("channel")["channel"]
         for ch in channel_list:
             # embed type
-            if str(type(value)) == "<class 'discord.embeds.Embed'>":
+            if str(type(value)) == "<class 'discord.embeds.Embed'>":  # VAR
                 channel = await self.fetch_channel(ch)
                 save_log(
                     cmd="auto_sent_message",
-                    user="bot.self",
+                    user="bot.self",  # VAR
                     guild=channel.guild,
                     channel=channel.name,
                     # msg=item,
@@ -70,7 +70,7 @@ class DiscordBot(discord.Client):
             channel = await self.fetch_channel(ch)
             save_log(
                 cmd="auto_sent_message",
-                user="bot.self",
+                user="bot.self",  # VAR
                 guild=channel.guild,
                 channel=channel.name,
                 # msg=item,
@@ -105,7 +105,7 @@ class DiscordBot(discord.Client):
                     channel = await self.fetch_channel(ch)
                     save_log(
                         cmd="auto_sent_message",
-                        user="bot.self",
+                        user="bot.self",  # VAR
                         guild=channel.guild,
                         channel=channel.name,
                         msg=item,
@@ -281,7 +281,7 @@ async def cmd_news(interact: discord.Interaction):
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(embed=W_news(cmd_obj_check("news"), language))
+    await interact.response.send_message(embed=W_news(cmd_obj_check(keys[1]), language))
 
 
 # alerts command
@@ -294,14 +294,14 @@ async def cmd_alerts(interact: discord.Interaction):
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(W_Alerts(get_obj("alerts")))
+    await interact.response.send_message(embed=W_Alerts(get_obj(keys[0])))
 
 
 # cetus command (cetusCycle)
 @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
 async def cmd_cetus(interact: discord.Interaction):
     API_Request("cmd.cetus")
-    set_obj(json_load()["cetusCycle"], "cetusCycle")  # TODO: fix keys
+    set_obj(json_load()[keys[2]], keys[2])
     save_log(
         cmd="cmd.cetus",
         time=interact.created_at,
@@ -309,9 +309,7 @@ async def cmd_cetus(interact: discord.Interaction):
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(
-        W_CetusCycle(cmd_obj_check("cetusCycle"), language)
-    )
+    await interact.response.send_message(W_CetusCycle(cmd_obj_check(keys[2]), language))
 
 
 # sortie command
@@ -324,7 +322,7 @@ async def cmd_sortie(interact: discord.Interaction):
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(W_Sortie(cmd_obj_check("sortie"), language))
+    await interact.response.send_message(W_Sortie(cmd_obj_check(keys[3]), language))
 
 
 # archon hunt command
@@ -339,9 +337,7 @@ async def cmd_archon_hunt(interact: discord.Interaction):
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(
-        W_archonHunt(cmd_obj_check("archonHunt"), language)
-    )
+    await interact.response.send_message(W_archonHunt(cmd_obj_check(keys[4]), language))
 
 
 # void traders command
@@ -350,7 +346,7 @@ async def cmd_archon_hunt(interact: discord.Interaction):
 )
 async def cmd_void_traders(interact: discord.Interaction):
     API_Request("cmd.voidTraders")
-    set_obj(json_load()["voidTraders"], "voidTraders")
+    set_obj(json_load()[keys[5]], keys[5])
     save_log(
         cmd="cmd.void-traders",
         time=interact.created_at,
@@ -359,7 +355,7 @@ async def cmd_void_traders(interact: discord.Interaction):
         channel=interact.channel,
     )
     await interact.response.send_message(
-        W_VoidTraders(cmd_obj_check("voidTraders"), language)
+        embed=W_VoidTraders(cmd_obj_check(keys[5]), language)
     )
 
 
@@ -377,7 +373,7 @@ async def cmd_steel_reward(interact: discord.Interaction):
         channel=interact.channel,
     )
     await interact.response.send_message(
-        W_SteelPathReward(cmd_obj_check("steelPath"), language)
+        W_SteelPathReward(cmd_obj_check(keys[6]), language)
     )
 
 
@@ -412,7 +408,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
         channel=interact.channel,
     )
     await interact.response.send_message(
-        W_duviriCycle(cmd_obj_check("duviriCycle"), language)
+        embed=W_duviriCycle(cmd_obj_check(keys[7]), language)
     )
 
 
@@ -430,7 +426,7 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
         channel=interact.channel,
     )
     await interact.response.send_message(
-        W_DeepArchimedea(cmd_obj_check("deepArchimedea"), language)
+        W_DeepArchimedea(cmd_obj_check(keys[8]), language)
     )
 
 
@@ -448,7 +444,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
         channel=interact.channel,
     )
     await interact.response.send_message(
-        W_TemporalArchimedia(cmd_obj_check("temporalArchimedea"), language)
+        W_TemporalArchimedia(cmd_obj_check(keys[9]), language)
     )
 
 

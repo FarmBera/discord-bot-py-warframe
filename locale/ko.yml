@@ -16,7 +16,7 @@ cmd:
   alerts:
     cmd: alerts
     desc: 현채 활성화된 얼럿 미션을 가져옵니다
-    desc-none: 현채 얼럿 미션이 없습니다!
+    desc-none: "# 현재 활성화된 얼럿 미션이 없습니다."
     title: 활성화된 얼럿
     credit: 크레딧
 
@@ -76,11 +76,21 @@ cmd:
   duviri-cycle:
     cmd: duviri_cycle
     desc: 현재 두비리 상태를 가져옵니다
+    title: 두비리 주기
+    state: 상태
+
+    joy: 기쁨
+    anger: 화남
+    envy: 부러움
+    sorrow: 슬픔
+    fear: 두려움
 
   deep-archimedea:
     cmd: deep_archimedea
     desc: 이번주 심층 아르키메디아 미션 목록을 가져옵니다
+    title: 심층 아르키메디아
 
   temporal-archimedea:
     cmd: temporal_archimedea
     desc: 이번주 템포럴 아르키메디아 미션 목록을 가져옵니다
+    title: 템포럴 아르키메디아

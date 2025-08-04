@@ -16,7 +16,7 @@ cmd:
   alerts:
     cmd: alerts
     desc: Get currently activated alert
-    desc-none: There're no activated alerts!
+    desc-none: "# There're no activated alerts missions."
     title: Activated Alert
     credit: Credit
 
@@ -76,11 +76,21 @@ cmd:
   duviri-cycle:
     cmd: duviri_cycle
     desc: Get current Duviri State
+    title: Duviri Cycle
+    state: State
+
+    joy: Joy
+    anger: Anger
+    envy: Envy
+    sorrow: Sorrow
+    fear: Fear
 
   deep-archimedea:
     cmd: deep_archimedea
     desc: Get Deep Archimedea missions this weekend
+    title: Deep Archimedea
 
   temporal-archimedea:
     cmd: temporal_archimedea
     desc: Get Temporal Archimedea missions this weekend
+    title: Temporal Archimedia

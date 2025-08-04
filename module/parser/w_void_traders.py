@@ -1,9 +1,18 @@
+import discord
+
 from translator import ts
+
+
+def color_decision(t):
+    for item in t:
+        if item["active"]:
+            return 0x4DD2FF
+    return 0xFFA826
 
 
 def W_VoidTraders(trader, *lang):
     if trader == False:
-        return ts.get("general.error-cmd")
+        return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
 
     if trader is None:
         return None
@@ -41,7 +50,9 @@ def W_VoidTraders(trader, *lang):
         # appear location
         output_msg += f"{item['location']}\n\n"
 
-    return output_msg
+    embed = discord.Embed(description=output_msg, color=color_decision(trader))
+
+    return embed
 
 
 def W_voidTradersItem(traderItem, *lang):

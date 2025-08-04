@@ -8,7 +8,9 @@ def W_TemporalArchimedia(temporal, *lang) -> str:
     if temporal is None:
         return None
 
-    output_msg = f"# Temporal Archimedia\n\n"
+    prefix = "cmd.temporal-archimedea"
+
+    output_msg = f"# {ts.get(f'{prefix}.title')}\n\n"
 
     idx = 1
     for item in temporal["missions"]:
