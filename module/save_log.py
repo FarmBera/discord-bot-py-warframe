@@ -2,7 +2,7 @@ import csv
 import datetime as dt
 
 from times import KST
-from module.color import color
+from variables.color import color
 
 log_file_path = "log/logfile.csv"  # VAR
 

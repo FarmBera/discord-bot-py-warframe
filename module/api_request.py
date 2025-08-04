@@ -3,7 +3,7 @@ import json
 import datetime as dt
 
 # from TOKEN import base_url, headers, query
-from module.color import color
+from variables.color import color
 from module.save_log import save_log
 
 from module.json_save import json_save

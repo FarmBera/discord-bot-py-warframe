@@ -6,9 +6,9 @@ log
 tmp
 
 # file; personal
+*test*
 channel.yml
 TOKEN.py
-test_.ipynb
 TODO.md
 w-api.ipynb
 

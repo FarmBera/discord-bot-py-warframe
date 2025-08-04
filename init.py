@@ -2,7 +2,7 @@
 
 # essential custom module
 from translator import ts, language
-from module.color import color
+from variables.color import color
 from module.api_request import API_Request
 from module.save_log import save_log
 

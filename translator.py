@@ -1,6 +1,6 @@
 import yaml
 
-from module.color import color
+from variables.color import color
 
 
 class Translator:
