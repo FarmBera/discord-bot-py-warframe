@@ -13,8 +13,8 @@
             "fissures": false,
             "invasions": false,
             "duviriCycle": false,
-            "deepArchimedea": true,
-            "temporalArchimedea": true
+            "deepArchimedea": false,
+            "temporalArchimedea": false
         }
     }
 }
