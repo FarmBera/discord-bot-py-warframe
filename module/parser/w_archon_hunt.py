@@ -10,6 +10,7 @@ def W_archonHunt(archon, *lang):
 
     prefix: str = "cmd.archon-hunt"
     output_msg = f"# {ts.get(f'{prefix}.title')}\n\n"
+    output_msg += f"{ts.get(f'{prefix}.eta')}: {archon['eta']}\n\n"
 
     idx: int = 1
     for value in archon["missions"]:

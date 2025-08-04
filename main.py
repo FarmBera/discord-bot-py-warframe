@@ -1,23 +1,18 @@
-# discord module
 import discord
 from discord.ext import tasks
-
-# essential module
 import datetime as dt
 
-### custom module & variables ###
-# essential variables
+
 from TOKEN import TOKEN as BOT_TOKEN
 from TOKEN import DEFAULT_JSON_PATH
+from variables.keys import keys
 
-# essential custom module
 from translator import ts, language
 from times import alert_times, KST
 from module.color import color
 from module.api_request import API_Request
 from module.save_log import save_log
 
-# for object save & load
 from module.yaml_open import yaml_open
 from module.json_load import json_load
 from module.json_save import json_save
@@ -25,7 +20,6 @@ from module.get_obj import get_obj
 from module.set_obj import set_obj
 from module.cmd_obj_check import cmd_obj_check
 
-# object parser
 from module.parser.w_alerts import W_Alerts
 from module.parser.w_news import W_news
 from module.parser.w_cetus_cycle import W_CetusCycle
@@ -33,12 +27,10 @@ from module.parser.w_sortie import W_Sortie
 from module.parser.w_archon_hunt import W_archonHunt
 from module.parser.w_void_traders import W_VoidTraders
 from module.parser.w_steelPath import W_SteelPathReward
+from module.parser.w_duviri_cycle import W_duviriCycle
 from module.parser.w_deep_archimedea import W_DeepArchimedea
 from module.parser.w_temporal_archimedea import W_TemporalArchimedia
 from module.parser.w_fissures import W_Fissures
-
-
-from variables.keys import keys
 
 
 class DiscordBot(discord.Client):
@@ -90,9 +82,9 @@ class DiscordBot(discord.Client):
     @tasks.loop(minutes=5.0)
     async def auto_send_msg_request(self):
         # open setting file
-        setting = json_load("setting.json")
+        setting = json_load("setting.json")  # VAR
 
-        API_Request("auto_send_msg_request()")
+        API_Request("auto_send_msg_request()")  # VAR
 
         def empty_check(obj, item):
             if obj == []:
@@ -106,10 +98,10 @@ class DiscordBot(discord.Client):
                 return
 
             # send message
-            channel_list = yaml_open("channel")["channel"]
+            channel_list = yaml_open("channel")["channel"]  # VAR
             for ch in channel_list:
                 # embed type
-                if str(type(value)) == "<class 'discord.embeds.Embed'>":
+                if str(type(value)) == "<class 'discord.embeds.Embed'>":  # VAR
                     channel = await self.fetch_channel(ch)
                     save_log(
                         cmd="auto_sent_message",
@@ -125,8 +117,8 @@ class DiscordBot(discord.Client):
                 # string type
                 channel = await self.fetch_channel(ch)
                 save_log(
-                    cmd="auto_sent_message",
-                    user="bot.self",
+                    cmd="auto_sent_message",  # VAR
+                    user="bot.self",  # VAR
                     guild=channel.guild,
                     channel=channel.name,
                     msg=item,
@@ -141,7 +133,7 @@ class DiscordBot(discord.Client):
             obj_new = json_load(DEFAULT_JSON_PATH)[item]
 
             # TODO: alerts; test
-            if item == "alerts":
+            if item == keys[0]:  # alerts
                 if get_obj(item) == obj_new:
                     continue
                 if empty_check(obj_new, item):
@@ -149,7 +141,7 @@ class DiscordBot(discord.Client):
                 is_new_content = True
                 await send_alert(W_Alerts(missing))
 
-            elif item == "news":
+            elif item == keys[1]:  # news
                 if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
                     continue
 
@@ -162,7 +154,7 @@ class DiscordBot(discord.Client):
                     continue
 
                 missing = []
-                for id in missing_id:  #
+                for id in missing_id:
                     for jtem in obj_new:
                         if id != jtem["id"]:  # skip if not equal id
                             continue
@@ -173,25 +165,25 @@ class DiscordBot(discord.Client):
                     is_new_content = True
                     await send_alert(W_news(missing))
 
-            elif item == "cetusCycle":
+            elif item == keys[2]:  # cetusCycle
                 if get_obj(item)["state"] == obj_new["state"]:
                     continue
                 is_new_content = True
                 await send_alert(W_CetusCycle(obj_new))
 
-            elif item == "sortie":
+            elif item == keys[3]:  # sortie
                 if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
                 # await send_alert(W_Sortie(obj_new))
 
-            elif item == "archonHunt":
-                if get_obj("archonHunt")["activation"] == obj_new["activation"]:
+            elif item == keys[4]:  # archonHunt
+                if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
                 await send_alert(W_archonHunt(obj_new))
 
-            elif item == "voidTraders":
+            elif item == keys[5]:  # voidTraders
                 try:  # prev content
                     val_prev = get_obj(item)[-1]["activation"]
                     val_prev_act = get_obj(item)[-1]["active"]
@@ -217,45 +209,39 @@ class DiscordBot(discord.Client):
             # elif item=='voidTraderItem':
             # elif item=='fissures':
 
-            elif item == "steelPath":
-                if get_obj("steelPath")["currentReward"] == obj_new["currentReward"]:
+            elif item == keys[6]:  # steelPath
+                if get_obj(item)["currentReward"] == obj_new["currentReward"]:
                     continue
                 is_new_content = True
                 await send_alert(W_SteelPathReward(obj_new))
 
-            # elif item =='duviriCycle':
+            elif item == keys[7]:  # duviriCycle
+                if get_obj(item)["state"] == obj_new["state"]:
+                    continue
+                is_new_content = True
+                await send_alert(W_duviriCycle(obj_new))
 
-            elif item == "deepArchimedea":
-                if get_obj("deepArchimedea")["activation"] == obj_new["activation"]:
+            elif item == keys[8]:  # deepArchimedea
+                if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
                 await send_alert(W_DeepArchimedea(obj_new))
 
-            elif item == "temporalArchimedea":
-                if get_obj("temporalArchimedea")["activation"] == obj_new["activation"]:
+            elif item == keys[9]:  # temporalArchimedea
+                if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
                 await send_alert(W_TemporalArchimedia(obj_new))
 
-            if is_new_content:
+            if is_new_content:  # update json file
                 set_obj(obj_new, item)
 
         return  # End Of auto_send_msg_request()
 
-    # send notification at specific time
     @tasks.loop(time=alert_times)
-    async def auto_noti(self):
-        # TODO: 특정 시간에 메시지 보내기 (공지)
-        # curr = dt.datetime.now()
-        # curr_time = dt.time(hour=curr.hour, minute=curr.minute, tzinfo=KST)
+    async def auto_noti(self):  # auto alert; sortie
+        await self.send_alert(W_Sortie(get_obj(keys[3])))
 
-        # if curr_time not in alert_times:
-        #     print("Not Exists", curr_time)
-        #     return
-
-        await self.send_alert(W_Sortie(get_obj("sortie")))
-
-    # TEMP: temporary disabled
     # async def on_message(self, message):
     #     if message.author == self.user:
     #         return
@@ -315,7 +301,7 @@ async def cmd_alerts(interact: discord.Interaction):
 @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
 async def cmd_cetus(interact: discord.Interaction):
     API_Request("cmd.cetus")
-    set_obj(json_load()["cetusCycle"], "cetusCycle")
+    set_obj(json_load()["cetusCycle"], "cetusCycle")  # TODO: fix keys
     save_log(
         cmd="cmd.cetus",
         time=interact.created_at,
@@ -413,21 +399,21 @@ async def cmd_fissures(interact: discord.Interaction):
 
 
 # duviriCycle command
-# @tree.command(
-#     name=ts.get(f"cmd.duviri-cycle.cmd"),
-#     description=ts.get(f"cmd.duviri-cycle.desc"),
-# )
-# async def cmd_temporal_archimedea(interact: discord.Interaction):
-#     save_log(
-#         cmd="cmd.duviri-cycle",
-#         time=interact.created_at,
-#         user=interact.user,
-#         guild=interact.guild,
-#         channel=interact.channel,
-#     )
-#     await interact.response.send_message(
-#         (cmd_obj_check("duviriCycle"), language)
-#     )
+@tree.command(
+    name=ts.get(f"cmd.duviri-cycle.cmd"),
+    description=ts.get(f"cmd.duviri-cycle.desc"),
+)
+async def cmd_temporal_archimedea(interact: discord.Interaction):
+    save_log(
+        cmd="cmd.duviri-cycle",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
+    await interact.response.send_message(
+        W_duviriCycle(cmd_obj_check("duviriCycle"), language)
+    )
 
 
 # deep archimedea command

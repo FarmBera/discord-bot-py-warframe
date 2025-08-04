@@ -12,7 +12,7 @@ def W_TemporalArchimedia(temporal, *lang) -> str:
 
     idx = 1
     for item in temporal["missions"]:
-        output_msg += f"## {idx}. {item['mission']}\n\n"
+        output_msg += f"### {idx}. {item['mission']}\n\n"
         for jtem in item["riskVariables"]:
             output_msg += f"- {jtem['name']}"
             desc = jtem["description"]

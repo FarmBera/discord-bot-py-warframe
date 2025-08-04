@@ -1,6 +1,7 @@
 import csv
 import datetime as dt
 
+from times import KST
 from module.color import color
 
 log_file_path = "log/logfile.csv"  # VAR
@@ -9,7 +10,7 @@ log_file_path = "log/logfile.csv"  # VAR
 # save log into file
 def save_log(
     cmd: str,  # cmd or function name
-    time=dt.datetime.now(dt.timezone(dt.timedelta(hours=9))),  # current time
+    time=dt.datetime.now(KST),  # current time
     user: str = "NULL",  # used user
     guild: str = "NULL",  # used server
     channel: str = "NULL",  # used channel
