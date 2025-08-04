@@ -3,7 +3,7 @@ import datetime as dt
 
 from module.color import color
 
-log_file_path = "log/logfile.csv"
+log_file_path = "log/logfile.csv"  # VAR
 
 
 # save log into file
@@ -16,6 +16,12 @@ def save_log(
     msg: str = "NULL",  # msg content
     obj: str = "NULL",  # used objects
 ):
+    diff: dt.datetime = dt.datetime.now().hour - time.hour
+    threshold: int = 2  # VAR
+
+    if diff > threshold or diff < -threshold:
+        time = time + dt.timedelta(hours=9)
+
     try:
         log_f = open(log_file_path, "a", encoding="UTF-8", newline="")
         time = time.strftime("%Y-%m-%d %H:%M:%S")
