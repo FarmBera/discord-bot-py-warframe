@@ -43,6 +43,7 @@ cmd:
     cmd: archon_hunt
     desc: Get archon hunt missions this weekend
     title: Archon Hunt
+    eta: Expires at
 
   void-traders:
     cmd: void_traders
@@ -74,7 +75,7 @@ cmd:
 
   duviri-cycle:
     cmd: duviri_cycle
-    desc: Get currently duviri state
+    desc: Get current Duviri State
 
   deep-archimedea:
     cmd: deep_archimedea

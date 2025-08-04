@@ -43,6 +43,7 @@ cmd:
     cmd: archon_hunt
     desc: 이번주 집정관 사냥 미션을 불러옵니다
     title: 집정관 사냥 미션 목록
+    eta: '만료일:'
 
   void-traders:
     cmd: void_traders

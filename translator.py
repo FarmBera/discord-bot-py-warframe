@@ -48,7 +48,7 @@ if language not in ["en", "ko"]:  # input check
     language = "en"
 ts = Translator(lang=language)
 
-print(color["yellow"], ts.get("start.init"), end="", sep="")
-print(ts.get("start.components"), end="")
-print(color["green"], ts.get("start.done"), sep="")
-print(color["yellow"], ts.get("start.start"), end="", sep="")
+# print(color["yellow"], ts.get("start.init"), end="", sep="")
+# print(ts.get("start.components"), end="")
+# print(color["green"], ts.get("start.done"), sep="")
+# print(color["yellow"], ts.get("start.start"), end="", sep="")
