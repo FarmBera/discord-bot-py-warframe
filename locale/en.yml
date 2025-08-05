@@ -60,7 +60,7 @@ cmd:
 
   steel-path-reward:
     cmd: steel_path_reward
-    desc: Get teshin's offer specials # fix translation
+    desc: Get teshin's special offers
 
   fissures:
     cmd: void_fissures

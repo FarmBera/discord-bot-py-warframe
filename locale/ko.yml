@@ -60,11 +60,11 @@ cmd:
 
   steel-path-reward:
     cmd: steel_path_reward
-    desc: 주간 태신의 강길 애센스 교환 물풍을 가져옵니다
+    desc: 주간 태신의 강길 애센스 교환 물품을 가져옵니다
 
   fissures:
     cmd: void_fissures
-    desc: 현채 활성화된 보이드 균열중 빠른 클리어가 가능한 미션 목록을 가져옵니다 (예: 섬멸, 생포)
+    desc: 현채 활성화된 보이드 균열 중 빠른 클리어가 가능한 미션 목록을 가져옵니다 (예: 섬멸, 생포)
     fiss: 보이드 균열
     steel: "**[강길]**"
     remain: 남음
@@ -79,11 +79,11 @@ cmd:
     title: 두비리 주기
     state: 상태
 
-    joy: 기쁨
-    anger: 화남
-    envy: 부러움
-    sorrow: 슬픔
-    fear: 두려움
+    joy: 기쁨 (Joy)
+    anger: 화남 (Anger)
+    envy: 부러움 (Envy)
+    sorrow: 슬픔 (Sorrow)
+    fear: 두려움 (Fear)
 
   deep-archimedea:
     cmd: deep_archimedea
