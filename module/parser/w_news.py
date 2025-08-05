@@ -2,6 +2,7 @@ import discord
 import datetime as dt
 
 from translator import ts
+from times import JSON_DATE_PAT
 
 
 def W_news(newses, *lang):
@@ -14,14 +15,13 @@ def W_news(newses, *lang):
     idx: int = 0
     limit: int = 20
     output_msg: str = ""
-    date_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
 
     # output_msg: str = "# [Warframe News](https://www.warframe.com/search)\n\n"
     output_msg += f"# {ts.get('cmd.news.title')}\n\n"
 
     newses = sorted(
         newses,
-        key=lambda item: dt.datetime.strptime(item["date"], date_format),
+        key=lambda item: dt.datetime.strptime(item["date"], JSON_DATE_PAT),
         reverse=True,
     )
 

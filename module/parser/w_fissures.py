@@ -1,76 +1,41 @@
 import discord
+import datetime as dt
 
 from translator import ts
+from times import JSON_DATE_PAT, time_calculate_with_curr
+from module.json_load import json_load
 
 
 def W_Fissures(fissures, *lang):
+    setting = json_load("setting.json")  # VAR
+    fav_mission = setting["fissures"]["favMission"]  # VAR
+    tier_except = setting["fissures"]["tierExcept"]  # VAR
+
     output_msg: str = ""
+    normal = []  # normal fissures
+    steel_path = []  # steel path fissures
 
-    output_msg += "# Void Fissures\n\n"
-
-    def PrintingLayout(item):
-        # return f"{item['missionType']} - {item['enemy']} {'[Steel Path]' if item['isHard'] else ''}\n{item['tier']} Fissure\n{item['node']}\n{item['eta']} remain\n"
-        return f"{item['missionType']} - {item['tier']} {ts.get('cmd.fissures.fiss')} {ts.get('cmd.fissures.steel') if item['isHard'] else ''}\n{item['node']} - {item['enemy']}\n{item['eta']} {ts.get('cmd.fissures.remain')}\n"
-
-    normal = []  # 일반 성유물 노드
-    steel_path = []  # 강길 성유물 노드
-    fav_fissure = []  # 즐겨찾는 성유물 노드 저장
-    # 즐겨찾는 성유물 미션 목록
-    fav = ["Extermination", "Rescue", "Capture"]  # , "Excavation"]
-    # 제외 할 성유물 티어 종류
-    # exception_tier = ["Requiem"]  # "Axi"]  #
+    output_msg += "# Void Fissures\n\n"  # VAR
 
     for item in fissures:
-        # 강철의 길 구분
-        if item["isHard"] == True:
-            steel_path.append(item)
-        else:  # 일반 미션 (강길 아닌)
-            normal.append(item)
+        if item["tier"] in tier_except:
+            continue
 
-        # 즐격찾는 미션 타입 있으면 별도 알림
-        if (
-            item["missionType"]
-            in fav
-            # or (item["node"] == "Circulus (Lua)")
-            # or (item["tier"] == "Omnia")
-        ):
-            fav_fissure.append(item)
+        if item["missionType"] in fav_mission:
+            if item["isHard"]:  # steel path
+                steel_path.append(item)
+            else:  # normal mission
+                normal.append(item)
 
-    # # 일반 미션에 있는 모든 미션 출력
-    # for item in normal:
-    #     print(PrintingLayout(item))
+    for item in normal + steel_path:
+        item["expiry"] = time_calculate_with_curr(item["expiry"])
 
-    # # 강길 미션 모두 출력
-    # for item in steel_path:
-    #     print(PrintingLayout(item))
-
-    # 즐겨찾기 미션 처리 & 출력
-    # idx = 0
-    # for item in fav_fissure:
-    #     for_flag = True
-    #     for jtem in exception_tier:
-    #         if item["tier"] in jtem:
-    #             for_flag = False
-    #             fav_fissure.pop(idx)
-    #     if not (for_flag):
-    #         continue
-    #     idx += 1
-
-    # def ExceptItems(item_list: list, except_list: list, key: str):
-    #     idx = 0
-    #     for item in item_list:
-    #         for_flag = True
-    #         for jtem in except_list:
-    #             if item[key] in jtem:
-    #                 for_flag = False
-    #                 item_list.pop(idx)
-    #         if not (for_flag):
-    #             continue
-    #         idx += 1
-    #     return item_list
-
-    # fav_fissure = ExceptItems(fav_fissure, exception_tier, "tier")
-    for item in fav_fissure:
-        output_msg += f"{item['missionType']} - {item['tier']} {ts.get('cmd.fissures.fiss')} {ts.get('cmd.fissures.steel') if item['isHard'] else ''}\n{item['eta']} {ts.get('cmd.fissures.remain')} / {item['node']} - {item['enemy']}\n\n"
+    for item in normal + steel_path:
+        """
+        Extermination - Neo Fissure **[Steel Path]**
+        53m(53m 54s) left / Neso (Neptune) - Corpus
+        """
+        output_msg += f"""{item['missionType']} - {item['tier']} {ts.get('cmd.fissures.fiss')} {ts.get('cmd.fissures.steel') if item['isHard'] else ''}
+{item['expiry']}({item['eta']}) {ts.get('cmd.fissures.remain')} / {item['node']} - {item['enemy']}\n\n"""
 
     return output_msg

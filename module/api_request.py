@@ -4,8 +4,8 @@ import datetime as dt
 
 # from TOKEN import base_url, headers, query
 from variables.color import color
+from times import JSON_DATE_PAT
 from module.save_log import save_log
-
 from module.json_save import json_save
 
 # api link & args
@@ -30,17 +30,13 @@ date_end = None
 data = None
 
 
-############
-date_origin_pat: str = "%Y-%m-%dT%H:%M:%S.%fZ"
-
-
 # default functions
 def divider():
     print("=" * 45)
 
 
 def convert_date_time(timestamp: str):
-    return dt.datetime.strptime(timestamp, date_origin_pat)
+    return dt.datetime.strptime(timestamp, JSON_DATE_PAT)
     # .strftime("%Y-%m-%d %H:%M:%S")
 
 
@@ -49,7 +45,7 @@ def convert_remain_time(timestamp: str, footer: str = "남았습니다!") -> str
         print(f"Timestamp ERR >> {timestamp}")
         raise ValueError("timestamp is NULL")
     try:
-        td = dt.datetime.strptime(timestamp, date_origin_pat)
+        td = dt.datetime.strptime(timestamp, JSON_DATE_PAT)
     except:
         td = timestamp
     timenow = dt.datetime.now()

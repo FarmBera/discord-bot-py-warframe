@@ -16,5 +16,20 @@
             "deepArchimedea": false,
             "temporalArchimedea": false
         }
+    },
+    "fissures": {
+        "favMission": [
+            "Extermination",
+            "Rescue",
+            "Capture"
+        ],
+        "missionTemp": [
+            "Excavation"
+        ],
+        "tierExcept": [],
+        "tierTemp": [
+            "Requiem",
+            "Axi"
+        ]
     }
 }

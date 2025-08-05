@@ -207,7 +207,7 @@ class DiscordBot(discord.Client):
                 await send_alert(W_VoidTraders(obj_new))
 
             # elif item=='voidTraderItem':
-            # elif item=='fissures':
+            # elif item == keys[10]:  # fissures
 
             elif item == keys[6]:  # steelPath
                 if get_obj(item)["currentReward"] == obj_new["currentReward"]:
@@ -383,7 +383,7 @@ async def cmd_steel_reward(interact: discord.Interaction):
 )
 async def cmd_fissures(interact: discord.Interaction):
     API_Request("cmd.fissures")
-    set_obj(json_load()["fissures"], "fissures")
+    set_obj(json_load()[keys[10]], keys[10])
     save_log(
         cmd="cmd.fissures",
         time=interact.created_at,
@@ -391,7 +391,7 @@ async def cmd_fissures(interact: discord.Interaction):
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(W_Fissures(cmd_obj_check("fissures")))
+    await interact.response.send_message(W_Fissures(cmd_obj_check(keys[10])))
 
 
 # duviriCycle command

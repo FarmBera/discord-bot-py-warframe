@@ -9,7 +9,7 @@ keys = [
     "duviriCycle",  # 7
     "deepArchimedea",  # 8
     "temporalArchimedea",  # 9
+    "fissures",  # 10
     # "voidTraderItem",# 6
-    # "fissures",# 8
     # "invasions",# 9
 ]
