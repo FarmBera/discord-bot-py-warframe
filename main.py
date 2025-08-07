@@ -8,14 +8,13 @@ from TOKEN import DEFAULT_JSON_PATH
 from variables.keys import keys
 
 from translator import ts, language
-from times import alert_times, KST
+from times import alert_times
 from variables.color import color
 from module.api_request import API_Request
 from module.save_log import save_log
 
 from module.yaml_open import yaml_open
 from module.json_load import json_load
-from module.json_save import json_save
 from module.get_obj import get_obj
 from module.set_obj import set_obj
 from module.cmd_obj_check import cmd_obj_check
@@ -41,7 +40,6 @@ class DiscordBot(discord.Client):
             status=discord.Status.online,
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
-
         # print(color["green"], ts.get("start.connected"))
         print(f"{color["cyan"]}Logged on as {self.user}!{color['default']}")  # VAR
 
@@ -139,7 +137,7 @@ class DiscordBot(discord.Client):
                 if empty_check(obj_new, item):
                     continue
                 is_new_content = True
-                await send_alert(W_Alerts(missing))
+                await send_alert(W_Alerts(obj_new))
 
             elif item == keys[1]:  # news
                 if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
