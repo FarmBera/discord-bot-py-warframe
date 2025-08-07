@@ -132,12 +132,14 @@ class DiscordBot(discord.Client):
 
             # TODO: alerts; test
             if item == keys[0]:  # alerts
-                if get_obj(item) == obj_new:
-                    continue
                 if empty_check(obj_new, item):
                     continue
-                is_new_content = True
-                await send_alert(W_Alerts(obj_new))
+                try:
+                    if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
+                        continue
+                except:
+                    is_new_content = True
+                    await send_alert(W_Alerts(obj_new))
 
             elif item == keys[1]:  # news
                 if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
