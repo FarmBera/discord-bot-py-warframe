@@ -88,9 +88,18 @@ cmd:
   deep-archimedea:
     cmd: deep_archimedea
     desc: Get Deep Archimedea missions this weekend
-    title: Deep Archimedea
+    title: Deep Archimedea (BETA)
 
   temporal-archimedea:
     cmd: temporal_archimedea
     desc: Get Temporal Archimedea missions this weekend
-    title: Temporal Archimedia
+    title: Temporal Archimedia (BETA)
+
+  calendar:
+    cmd: calendar
+    desc: Get Hex calendar mission/rewards this week
+    title: Hex Calendar (BETA)
+    choice-all: All
+    choice-to-do: To Do
+    choice-over: Override
+    choice-prize: Big Prize

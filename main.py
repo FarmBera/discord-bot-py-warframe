@@ -30,6 +30,7 @@ from module.parser.w_duviri_cycle import W_duviriCycle
 from module.parser.w_deep_archimedea import W_DeepArchimedea
 from module.parser.w_temporal_archimedea import W_TemporalArchimedia
 from module.parser.w_fissures import W_Fissures
+from module.parser.w_calendar import W_calendar
 
 
 class DiscordBot(discord.Client):
@@ -445,6 +446,34 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
     )
     await interact.response.send_message(
         W_TemporalArchimedia(cmd_obj_check(keys[9]), language)
+    )
+
+
+# hex calendar reward command
+@tree.command(
+    name=ts.get(f"cmd.calendar.cmd"),
+    description=ts.get(f"cmd.calendar.desc"),
+)
+@discord.app_commands.choices(
+    types=[
+        discord.app_commands.Choice(name=ts.get("cmd.calendar.choice-all"), value=1),
+        discord.app_commands.Choice(name=ts.get("cmd.calendar.choice-to-do"), value=2),
+        discord.app_commands.Choice(name=ts.get("cmd.calendar.choice-over"), value=3),
+        discord.app_commands.Choice(name=ts.get("cmd.calendar.choice-prize"), value=4),
+    ]
+)
+async def cmd_calendar(
+    interact: discord.Interaction, types: discord.app_commands.Choice[int]
+):
+    save_log(
+        cmd="cmd.calendar",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
+    await interact.response.send_message(
+        W_calendar(cmd_obj_check(keys[11]), types.name, language)
     )
 
 
