@@ -1,6 +1,3 @@
-test:
-  msg: Program Main Start
-
 start:
   init: Starting bot...
   components: loading components...
@@ -98,7 +95,7 @@ cmd:
   calendar:
     cmd: calendar
     desc: Get Hex calendar mission/rewards this week
-    title: Hex Calendar (BETA)
+    title: Hex Calendar (Test)
     choice-all: All
     choice-to-do: To Do
     choice-over: Override
