@@ -5,6 +5,7 @@ start:
   start: Connecting to the Server...
   connected: Sucessfully Connected Server!
   bot-status-msg: Alert Ready.
+  final: Logged on as
 
 general:
   error-cmd: Processing Error. Please contact the administrator.
@@ -13,7 +14,7 @@ cmd:
   alerts:
     cmd: alerts
     desc: Get currently activated alert
-    desc-none: "# There're no activated alerts missions."
+    desc-none: "## There're no activated alerts missions."
     title: Activated Alert
     credit: Credit
 
@@ -58,10 +59,15 @@ cmd:
   steel-path-reward:
     cmd: steel_path_reward
     desc: Get teshin's special offers
+    title: Steel Path Reward
+    curr-reward: Current Reward
+    cost: cost
+    next: Next Week
 
   fissures:
     cmd: void_fissures
     desc: Get available void fissures with fast-run available (like Exterminate, Capture)
+    title: Fast Void Fissures
     fiss: Fissure
     steel: "**[Steel Path]**"
     remain: left
@@ -75,6 +81,7 @@ cmd:
     desc: Get current Duviri State
     title: Duviri Cycle
     state: State
+    expire: Expires in
 
     joy: Joy
     anger: Anger
@@ -95,7 +102,7 @@ cmd:
   calendar:
     cmd: calendar
     desc: Get Hex calendar mission/rewards this week
-    title: Hex Calendar (Test)
+    title: Hex Calendar
     choice-all: All
     choice-to-do: To Do
     choice-over: Override

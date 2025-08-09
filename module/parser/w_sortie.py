@@ -18,7 +18,7 @@ def W_Sortie(sortie, *lang):
     for item in mis_list:
         # output_msg += f"{idx}. {item['missionType']} - {item['node']}\n"
         output_msg += f"{idx}. {item['missionType']} - "
-        output_msg += f"{item['modifier']}\n\n"
+        output_msg += f"{item['modifier']}\n"
         idx += 1
 
     return output_msg

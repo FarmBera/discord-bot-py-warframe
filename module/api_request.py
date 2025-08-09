@@ -4,7 +4,7 @@ import datetime as dt
 
 # from TOKEN import base_url, headers, query
 from variables.color import color
-from times import JSON_DATE_PAT
+from variables.times import JSON_DATE_PAT
 from module.save_log import save_log
 from module.json_save import json_save
 

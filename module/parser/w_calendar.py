@@ -14,13 +14,12 @@ def redef(prop):
 
 def W_calendar(cal, typ, *lang) -> str:
     if cal == False:
-        # return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
         ts.get("general.error-cmd")
 
     if cal is None:
         return None
 
-    output_msg: str = f"# Hex Calendar ({typ if typ else ''})\n\n"  # VAR
+    output_msg: str = f"# {ts.get('cmd.calendar.title')} ({typ if typ else ''})\n\n"
 
     type_all = ts.get("cmd.calendar.choice-all")
     type_todo = ts.get("cmd.calendar.choice-to-do")

@@ -1,3 +1,7 @@
+SETTING_FILE_LOC: str = "setting.json"
+TYPE_EMBED: str = "<class 'discord.embeds.Embed'>"
+MSG_BOT: str = "bot.self"
+
 keys = [
     "alerts",  # 0
     "news",  # 1

@@ -1,10 +1,10 @@
 import csv
 import datetime as dt
 
-from times import KST
+from variables.times import KST
 from variables.color import color
 
-log_file_path = "log/logfile.csv"  # VAR
+LOG_FILE_PATH = "log/logfile.csv"  # VAR
 
 
 # save log into file
@@ -24,7 +24,7 @@ def save_log(
         time = time + dt.timedelta(hours=9)
 
     try:
-        log_f = open(log_file_path, "a", encoding="UTF-8", newline="")
+        log_f = open(LOG_FILE_PATH, "a", encoding="UTF-8", newline="")
         time = time.strftime("%Y-%m-%d %H:%M:%S")
         wr = csv.writer(log_f)
         wr.writerow([user, time, cmd, guild, channel, msg, obj])

@@ -8,8 +8,9 @@ from TOKEN import DEFAULT_JSON_PATH
 from variables.keys import keys
 
 from translator import ts, language
-from times import alert_times
+from variables.times import alert_times
 from variables.color import color
+from variables.keys import SETTING_FILE_LOC, TYPE_EMBED, MSG_BOT
 from module.api_request import API_Request
 from module.save_log import save_log
 
@@ -41,8 +42,7 @@ class DiscordBot(discord.Client):
             status=discord.Status.online,
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
-        # print(color["green"], ts.get("start.connected"))
-        print(f"{color["cyan"]}Logged on as {self.user}!{color['default']}")  # VAR
+        print(f"{color["cyan"]}{ts.get('start.final')} {self.user}!{color['default']}")
 
         self.auto_send_msg_request.start()
         self.auto_noti.start()
@@ -52,11 +52,11 @@ class DiscordBot(discord.Client):
         channel_list = yaml_open("channel")["channel"]
         for ch in channel_list:
             # embed type
-            if str(type(value)) == "<class 'discord.embeds.Embed'>":  # VAR
+            if str(type(value)) == TYPE_EMBED:
                 channel = await self.fetch_channel(ch)
                 save_log(
                     cmd="auto_sent_message",
-                    user="bot.self",  # VAR
+                    user=MSG_BOT,
                     guild=channel.guild,
                     channel=channel.name,
                     # msg=item,
@@ -69,7 +69,7 @@ class DiscordBot(discord.Client):
             channel = await self.fetch_channel(ch)
             save_log(
                 cmd="auto_sent_message",
-                user="bot.self",  # VAR
+                user=MSG_BOT,
                 guild=channel.guild,
                 channel=channel.name,
                 # msg=item,
@@ -80,8 +80,7 @@ class DiscordBot(discord.Client):
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
     async def auto_send_msg_request(self):
-        # open setting file
-        setting = json_load("setting.json")  # VAR
+        setting = json_load(SETTING_FILE_LOC)  # open setting file
 
         API_Request("auto_send_msg_request()")  # VAR
 
@@ -100,11 +99,11 @@ class DiscordBot(discord.Client):
             channel_list = yaml_open("channel")["channel"]  # VAR
             for ch in channel_list:
                 # embed type
-                if str(type(value)) == "<class 'discord.embeds.Embed'>":  # VAR
+                if str(type(value)) == TYPE_EMBED:
                     channel = await self.fetch_channel(ch)
                     save_log(
                         cmd="auto_sent_message",
-                        user="bot.self",  # VAR
+                        user=MSG_BOT,
                         guild=channel.guild,
                         channel=channel.name,
                         msg=item,
@@ -117,7 +116,7 @@ class DiscordBot(discord.Client):
                 channel = await self.fetch_channel(ch)
                 save_log(
                     cmd="auto_sent_message",  # VAR
-                    user="bot.self",  # VAR
+                    user=MSG_BOT,
                     guild=channel.guild,
                     channel=channel.name,
                     msg=item,
@@ -242,23 +241,6 @@ class DiscordBot(discord.Client):
     @tasks.loop(time=alert_times)
     async def auto_noti(self):  # auto alert; sortie
         await self.send_alert(W_Sortie(get_obj(keys[3])))
-
-    # async def on_message(self, message):
-    #     if message.author == self.user:
-    #         return
-
-    #     trim_text = message.content.replace(" ", "")
-    #     usrname = message.author.display_name
-
-    #     await message.delete()
-    #     await message.channel.send(f"response: {trim_text}")
-    #     save_log(
-    #         cmd=trim_text,
-    #         user=usrname,
-    #         time=message.created_at,
-    #         guild=message.guild,
-    #         channel=message.channel,
-    #     )
 
 
 # init discord bot
@@ -466,7 +448,7 @@ async def cmd_calendar(
     interact: discord.Interaction, types: discord.app_commands.Choice[int]
 ):
     save_log(
-        cmd="cmd.calendar",
+        cmd=f"cmd.calendar.{type}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,

@@ -9,10 +9,12 @@ def W_SteelPathReward(steel, *lang):
     if steel is None:
         return None
 
-    current = steel["currentReward"]
-    output_msg: str = f"# Steel Path Reward\n\n"
+    pf: str = "cmd.steel-path-reward"
 
-    output_msg += f"- Current Reward: **{current['name']}** ({current['cost']} cost)\n"
+    current = steel["currentReward"]
+    output_msg: str = f"# {ts.get(f'{pf}.title')}\n\n"
+
+    output_msg += f"- {ts.get(f'{pf}.curr-reward')}: **{current['name']}** ({current['cost']} {ts.get(f'{pf}.cost')})\n"
 
     # calculate next week item
     idx = 0
@@ -20,12 +22,14 @@ def W_SteelPathReward(steel, *lang):
         # next week item
         if item["name"] == current["name"]:
             idx += 1
-            if idx >= len(steel["rotation"]):  # index overflow fix
+            if idx >= len(steel["rotation"]):  # fix index overflow
                 idx = 0
 
             # output
             item = steel["rotation"][idx]
-            output_msg += f"- Next Week: *{item['name']}* ({item['cost']} cost)"
+            output_msg += (
+                f"- {ts.get(f'{pf}.next')}: *{item['name']}* ({item['cost']} cost)"
+            )
             break
         else:
             idx += 1

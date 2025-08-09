@@ -2,7 +2,7 @@ import discord
 import datetime as dt
 
 from translator import ts
-from times import JSON_DATE_PAT, time_calculate_with_curr
+from variables.times import time_calculate_with_curr
 
 
 state_color = {
@@ -27,7 +27,7 @@ def W_duviriCycle(duviri, *lang):
     output_msg += (
         f"- State: < " + ts.get(f"cmd.duviri-cycle.{duviri['state']}") + " >\n"
     )
-    output_msg += f"- Expires in {time_calculate_with_curr(duviri["expiry"])}"  # VAR
+    output_msg += f"- {ts.get('cmd.duviri-cycle.expire')} {time_calculate_with_curr(duviri["expiry"])}"
 
     embed = discord.Embed(description=output_msg, color=state_color[duviri["state"]])
 

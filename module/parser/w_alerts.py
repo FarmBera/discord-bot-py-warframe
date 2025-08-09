@@ -9,14 +9,12 @@ def color_decision(t):
     return 0xFFA826
 
 
-# Event Mission
 def W_Alerts(alerts, *lang):
     if alerts == False:
         return discord.Embed(
             description=ts.get("general.error-cmd") + ": alert error",
             color=0xFF0000,
         )
-    ts.get("general.error-cmd") + ": alert error"
 
     if alerts is None or alerts == []:
         return discord.Embed(

@@ -2,7 +2,7 @@ import discord
 import datetime as dt
 
 from translator import ts
-from times import JSON_DATE_PAT
+from variables.times import JSON_DATE_PAT
 
 
 def W_news(newses, *lang):
@@ -13,10 +13,9 @@ def W_news(newses, *lang):
         return None
 
     idx: int = 0
-    limit: int = 20
+    LIMIT_OUTPUT_CNT: int = 20
     output_msg: str = ""
 
-    # output_msg: str = "# [Warframe News](https://www.warframe.com/search)\n\n"
     output_msg += f"# {ts.get('cmd.news.title')}\n\n"
 
     newses = sorted(
@@ -27,8 +26,7 @@ def W_news(newses, *lang):
 
     # process
     for item in newses:
-        # excluded news
-        if item["message"] in [
+        if item["message"] in [  # excluded news
             "Join the official Warframe Discord server",
             "Check out the official Warframe Wiki ",
             "Visit the official Warframe Forums!",
@@ -41,7 +39,7 @@ def W_news(newses, *lang):
             output_msg += f"- [{item['translations']['en']}]({item['link']})\n"
 
         idx += 1
-        if idx >= limit:
+        if idx >= LIMIT_OUTPUT_CNT:
             break
 
     embed = discord.Embed(

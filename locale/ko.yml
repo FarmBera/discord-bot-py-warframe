@@ -5,6 +5,7 @@ start:
   start: 부팅 완료!
   connected: 서버 연결 완료!
   bot-status-msg: 개발중
+  final: 로그인 완료!
 
 general:
   error-cmd: 처리 오류. 관리자에게 문의하세요.
@@ -13,7 +14,7 @@ cmd:
   alerts:
     cmd: alerts
     desc: 현채 활성화된 얼럿 미션을 가져옵니다
-    desc-none: "# 현재 활성화된 얼럿 미션이 없습니다."
+    desc-none: "## 현재 활성화된 얼럿 미션이 없습니다."
     title: 활성화된 얼럿
     credit: 크레딧
 
@@ -58,10 +59,15 @@ cmd:
   steel-path-reward:
     cmd: steel_path_reward
     desc: 주간 태신의 강길 애센스 교환 물품을 가져옵니다
+    title: 강철의 길 보상
+    curr-reward: 현재 보상
+    cost: 개
+    next: 다음주
 
   fissures:
     cmd: void_fissures
     desc: 현채 활성화된 보이드 균열 중 빠른 클리어가 가능한 미션 목록을 가져옵니다 (예: 섬멸, 생포)
+    title: 빠른클 성유물 목록
     fiss: 보이드 균열
     steel: "**[강길]**"
     remain: 남음
@@ -75,6 +81,7 @@ cmd:
     desc: 현재 두비리 상태를 가져옵니다
     title: 두비리 주기
     state: 상태
+    expire: 만료일
 
     joy: 기쁨 (Joy)
     anger: 화남 (Anger)

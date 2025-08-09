@@ -1,7 +1,7 @@
-# custom file & directory
 # directory
 .vscode
-json/
+archive
+json
 log
 tmp
 
@@ -9,9 +9,6 @@ tmp
 *test*
 channel.yml
 TOKEN.py
-TODO.md
-w-api.ipynb
-
 
 # file; settings
 .markdownlint.json
