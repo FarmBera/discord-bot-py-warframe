@@ -19,33 +19,33 @@ def W_VoidTraders(trader, *lang):
 
     idx = 1
     length = len(trader)
-    prefix: str = "cmd.void-traders"
+    pf: str = "cmd.void-traders"
 
-    output_msg: str = f"# {ts.get(f'{prefix}.title')}\n\n"
+    output_msg: str = f"# {ts.get(f'{pf}.title')}\n\n"
 
     for item in trader:
         if length >= 2:
-            output_msg += (
-                f"{idx}. {ts.get(f'{prefix}.tdr-name')}: {item['character']}\n\n"
-            )
+            output_msg += f"{idx}. {ts.get(f'{pf}.tdr-name')}: {item['character']}\n\n"
             idx += 1
         else:
-            output_msg += f"- {ts.get(f'{prefix}.tdr-name')}: {item['character']}\n"
+            output_msg += f"- {ts.get(f'{pf}.tdr-name')}: {item['character']}\n"
 
         status = item["active"]
 
         # OO appeared
         if status:
             output_msg += (
-                f"- {ts.get(f'{prefix}.status')}: **{ts.get(f'{prefix}.activate')}**\n"
+                f"- {ts.get(f'{pf}.status')}: **{ts.get(f'{pf}.activate')}**\n"
             )
-            output_msg += f"- {ts.get(f'{prefix}.end')} {item['endString']}\n"
-            output_msg += f"- {ts.get(f'{prefix}.location')}: "
+            output_msg += f"- {ts.get(f'{pf}.end')} {item['endString']}\n"
+            output_msg += f"- {ts.get(f'{pf}.location')}: "
         # XX NOT appeared
         else:
-            output_msg += f"- {ts.get(f'{prefix}.status')}: *Deactivated*\n"
-            output_msg += f"- {ts.get(f'{prefix}.appear')} {item['startString']}\n"
-            output_msg += f"- {ts.get(f'{prefix}.place')}: "
+            output_msg += (
+                f"- {ts.get(f'{pf}.status')}: *{ts.get(f'{pf}.deactivate')}*\n"
+            )
+            output_msg += f"- {ts.get(f'{pf}.appear')} {item['startString']}\n"
+            output_msg += f"- {ts.get(f'{pf}.place')}: "
 
         # appear location
         output_msg += f"{item['location']}\n\n"

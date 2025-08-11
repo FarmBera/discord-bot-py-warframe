@@ -1,4 +1,5 @@
 SETTING_FILE_LOC: str = "setting.json"
+CHANNEL_FILE_LOC: str = "channel"
 TYPE_EMBED: str = "<class 'discord.embeds.Embed'>"
 MSG_BOT: str = "bot.self"
 

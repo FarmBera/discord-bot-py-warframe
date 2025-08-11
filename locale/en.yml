@@ -8,12 +8,12 @@ start:
   final: Logged on as
 
 general:
-  error-cmd: Processing Error. Please contact the administrator.
+  error-cmd: Internal Error. Please contact the administrator.
 
 cmd:
   alerts:
     cmd: alerts
-    desc: Get currently activated alert
+    desc: Get currently activated alert mission
     desc-none: "## There're no activated alerts missions."
     title: Activated Alert
     credit: Credit
@@ -24,7 +24,7 @@ cmd:
     title: Warframe Latest News
 
   cetus:
-    cmd: cetus_time
+    cmd: cetustime
     desc: Get current Cetus Time & next state
     title: Cetus Day/Night Cycle
     current: Current State
@@ -38,13 +38,13 @@ cmd:
     eta: ETA
 
   archon-hunt:
-    cmd: archon_hunt
+    cmd: archonhunt
     desc: Get archon hunt missions this weekend
     title: Archon Hunt
     eta: Expires at
 
   void-traders:
-    cmd: void_traders
+    cmd: voidtraders
     desc: Get datetime next baro ki'Teer arrives # fix translation
     title: Void Traders Status
     tdr-name: Trader
@@ -57,7 +57,7 @@ cmd:
     place: Coming to
 
   steel-path-reward:
-    cmd: steel_path_reward
+    cmd: steelpathreward
     desc: Get teshin's special offers
     title: Steel Path Reward
     curr-reward: Current Reward
@@ -65,7 +65,7 @@ cmd:
     next: Next Week
 
   fissures:
-    cmd: void_fissures
+    cmd: voidfissures
     desc: Get available void fissures with fast-run available (like Exterminate, Capture)
     title: Fast Void Fissures
     fiss: Fissure
@@ -77,7 +77,7 @@ cmd:
     desc: "NULL"
 
   duviri-cycle:
-    cmd: duviri_cycle
+    cmd: duviricycle
     desc: Get current Duviri State
     title: Duviri Cycle
     state: State
@@ -90,17 +90,17 @@ cmd:
     fear: Fear
 
   deep-archimedea:
-    cmd: deep_archimedea
-    desc: Get Deep Archimedea missions this weekend
+    cmd: deeparchimedea
+    desc: "[Beta] Get Deep Archimedea missions this weekend"
     title: Deep Archimedea (BETA)
 
   temporal-archimedea:
-    cmd: temporal_archimedea
-    desc: Get Temporal Archimedea missions this weekend
+    cmd: temporalarchimedea
+    desc: "[Beta] Get Temporal Archimedea missions this weekend"
     title: Temporal Archimedia (BETA)
 
   calendar:
-    cmd: calendar
+    cmd: hexcalendar
     desc: Get Hex calendar mission/rewards this week
     title: Hex Calendar
     choice-all: All

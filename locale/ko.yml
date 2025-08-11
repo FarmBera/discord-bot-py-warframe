@@ -8,23 +8,23 @@ start:
   final: 로그인 완료!
 
 general:
-  error-cmd: 처리 오류. 관리자에게 문의하세요.
+  error-cmd: 내부 오류. 관리자에게 문의하세요.
 
 cmd:
   alerts:
-    cmd: alerts
+    cmd: 얼럿
     desc: 현채 활성화된 얼럿 미션을 가져옵니다
     desc-none: "## 현재 활성화된 얼럿 미션이 없습니다."
     title: 활성화된 얼럿
     credit: 크레딧
 
   news:
-    cmd: news
+    cmd: 뉴스
     desc: 최신 워프레임 뉴스를 불러옵니다
     title: 최신 워프레임 뉴스
 
   cetus:
-    cmd: cetus_time
+    cmd: 시터스
     desc: 현재 시터스 시간/상태를 불러옵니다
     title: 시터스 낮/밤 주기
     current: 현재 상태
@@ -32,19 +32,19 @@ cmd:
     day: 낮
 
   sortie:
-    cmd: sortie
+    cmd: 출격
     desc: 오늘의 출격 미션을 불러옵니다
     title: 오늘의 출격 미션
     eta: 남은 시간
 
   archon-hunt:
-    cmd: archon_hunt
+    cmd: 집정관사냥
     desc: 이번주 집정관 사냥 미션을 불러옵니다
     title: 집정관 사냥 미션 목록
-    eta: '만료일:'
+    eta: 만료일
 
   void-traders:
-    cmd: void_traders
+    cmd: 보이드상인
     desc: 현재 활성화 되거나, 앞으로 인제 등장할지 불러옵니다
     title: 보이드 상인 상태
     tdr-name: 상인
@@ -57,7 +57,7 @@ cmd:
     place: 등장 예정 위치
 
   steel-path-reward:
-    cmd: steel_path_reward
+    cmd: 강길보상
     desc: 주간 태신의 강길 애센스 교환 물품을 가져옵니다
     title: 강철의 길 보상
     curr-reward: 현재 보상
@@ -65,7 +65,7 @@ cmd:
     next: 다음주
 
   fissures:
-    cmd: void_fissures
+    cmd: 보이드균열
     desc: 현채 활성화된 보이드 균열 중 빠른 클리어가 가능한 미션 목록을 가져옵니다 (예: 섬멸, 생포)
     title: 빠른클 성유물 목록
     fiss: 보이드 균열
@@ -77,7 +77,7 @@ cmd:
     desc: "NULL"
 
   duviri-cycle:
-    cmd: duviri_cycle
+    cmd: 두비리
     desc: 현재 두비리 상태를 가져옵니다
     title: 두비리 주기
     state: 상태
@@ -90,17 +90,17 @@ cmd:
     fear: 두려움 (Fear)
 
   deep-archimedea:
-    cmd: deep_archimedea
-    desc: 이번주 심층 아르키메디아 미션 목록을 가져옵니다
+    cmd: 심층아르키메디아
+    desc: "[베타버전] 이번주 심층 아르키메디아 미션 목록을 가져옵니다"
     title: 심층 아르키메디아 (베타)
 
   temporal-archimedea:
-    cmd: temporal_archimedea
-    desc: 이번주 템포럴 아르키메디아 미션 목록을 가져옵니다
+    cmd: 템포럴아르키메디아
+    desc: "[베타버전] 이번주 템포럴 아르키메디아 미션 목록을 가져옵니다"
     title: 템포럴 아르키메디아 (베타)
 
   calendar:
-    cmd: calendar
+    cmd: 헥스캘린더
     desc: 이번주 헥스 캘린더 할일/보상 목록을 가져옵니다
     title: 헥스 캘린더 (테스트)
     choice-all: 모두

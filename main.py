@@ -3,14 +3,12 @@ from discord.ext import tasks
 import datetime as dt
 
 
+from translator import ts, language
 from TOKEN import TOKEN as BOT_TOKEN
 from TOKEN import DEFAULT_JSON_PATH
-from variables.keys import keys
-
-from translator import ts, language
 from variables.times import alert_times
 from variables.color import color
-from variables.keys import SETTING_FILE_LOC, TYPE_EMBED, MSG_BOT
+from variables.keys import keys, SETTING_FILE_LOC, CHANNEL_FILE_LOC, TYPE_EMBED, MSG_BOT
 from module.api_request import API_Request
 from module.save_log import save_log
 
@@ -49,7 +47,7 @@ class DiscordBot(discord.Client):
 
     async def send_alert(self, value):
         # send message
-        channel_list = yaml_open("channel")["channel"]
+        channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]
         for ch in channel_list:
             # embed type
             if str(type(value)) == TYPE_EMBED:
@@ -101,7 +99,7 @@ class DiscordBot(discord.Client):
                 return
 
             # send message
-            channel_list = yaml_open("channel")["channel"]  # VAR
+            channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]  # VAR
             for ch in channel_list:
                 # embed type
                 if str(type(value)) == TYPE_EMBED:
@@ -162,7 +160,6 @@ class DiscordBot(discord.Client):
                     for jtem in obj_new:
                         if id != jtem["id"]:  # skip if not equal id
                             continue
-
                         missing.append(jtem)
 
                 if missing:
