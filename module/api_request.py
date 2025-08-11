@@ -94,7 +94,7 @@ def check_request(est, response):
     except Exception as e:
         print(f"{color['red']}ERR with saving file{color['default']}")
 
-    return response
+    return response, res_code
 
 
 # usage
@@ -107,5 +107,5 @@ def API_Request(*args):
         )
 
     est, response = send_request()
-    response = check_request(est, response)
-    return response.status_code
+    response, code = check_request(est, response)
+    return code
