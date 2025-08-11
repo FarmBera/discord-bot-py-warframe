@@ -76,16 +76,15 @@ def check_request(est, response):
     # check response value
     if response is None:
         print(f"{color['red']}ERR: response is NULL{color['default']}")
-        # raise ValueError("ERR: response is NULL")
 
     # check response code
-    res_code = response.status_code
+    res_code: int = response.status_code
     if res_code != 200:
         print(f"{color['red']}ERR: Failed API Request >> {res_code}{color['default']}")
-        # raise ArithmeticError(f"ERR: Failed API Request >> {res_code}")
+        return response
 
     # process response
-    response = response.json()  # convert response data
+    response = response.json()
     fname = f"Warframe_{query}.json"  # file name to save
 
     # save received data to JSON file
@@ -109,4 +108,4 @@ def API_Request(*args):
 
     est, response = send_request()
     response = check_request(est, response)
-    return est, response
+    return response.status_code

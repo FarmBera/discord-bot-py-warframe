@@ -82,7 +82,12 @@ class DiscordBot(discord.Client):
     async def auto_send_msg_request(self):
         setting = json_load(SETTING_FILE_LOC)  # open setting file
 
-        API_Request("auto_send_msg_request()")  # VAR
+        code = API_Request("auto_send_msg_request()")  # VAR
+        if code != 200:
+            print(
+                f"{color['yellow']}response code < {code} > Task Aborted. (from auto_send_msg_request){color['default']}"
+            )
+            return
 
         def empty_check(obj, item):
             if obj == []:
@@ -130,7 +135,6 @@ class DiscordBot(discord.Client):
             obj_prev = get_obj(item)
             obj_new = json_load(DEFAULT_JSON_PATH)[item]
 
-            # TODO: alerts; test
             if item == keys[0]:  # alerts
                 if empty_check(obj_new, item):
                     continue

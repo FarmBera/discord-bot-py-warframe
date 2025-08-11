@@ -39,16 +39,11 @@ class Translator:
 
 # if __name__ == "__main__":
 # language initialize
-language = input("Select Language (en/ko) >> ")
+# language = input("Select Language (en/ko) >> ")  # TEMPORARYˇ
+language = "en"  # temporary
 if language not in ["en", "ko"]:  # input check
-    # print(f"{color['red']}Selection ERR:{color['yellow']}'{language}'. {color['red']}abort.")
     print(
         f"{color['red']}Unknown string: {color['yellow']}'{language}'. {color['white']}will setup default lang: {color['cyan']}'en'{color['default']}"
     )
     language = "en"
 ts = Translator(lang=language)
-
-# print(color["yellow"], ts.get("start.init"), end="", sep="")
-# print(ts.get("start.components"), end="")
-# print(color["green"], ts.get("start.done"), sep="")
-# print(color["yellow"], ts.get("start.start"), end="", sep="")
