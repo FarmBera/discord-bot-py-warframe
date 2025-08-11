@@ -1,7 +1,20 @@
+import discord
+
 from translator import ts
 
 
-# 태신 강철의 길 아이템 현황
+color_list = {
+    "Umbra Forma Blueprint": 0x00FFFF,
+    "50,000 Kuva": 0xB02121,
+    "Kitgun Riven Mod": 0xA11EE3,
+    "3x Forma": 0xA11EE3,
+    "Zaw Riven Mod": 0xA11EE3,
+    "30,000 Endo": 0xFBFF24,
+    "Rifle Riven Mod": 0xA11EE3,
+    "Shotgun Riven Mod": 0xA11EE3,
+}
+
+
 def W_SteelPathReward(steel, *lang):
     if steel == False:
         return ts.get("general.error-cmd")
@@ -14,6 +27,7 @@ def W_SteelPathReward(steel, *lang):
     current = steel["currentReward"]
     output_msg: str = f"# {ts.get(f'{pf}.title')}\n\n"
 
+    # current reward
     output_msg += f"- {ts.get(f'{pf}.curr-reward')}: **{current['name']}** ({current['cost']} {ts.get(f'{pf}.cost')})\n"
 
     # calculate next week item
@@ -27,11 +41,10 @@ def W_SteelPathReward(steel, *lang):
 
             # output
             item = steel["rotation"][idx]
-            output_msg += (
-                f"- {ts.get(f'{pf}.next')}: *{item['name']}* ({item['cost']} cost)"
-            )
+            output_msg += f"- {ts.get(f'{pf}.next')}: *{item['name']}* ({item['cost']} {ts.get(f'{pf}.cost')})"
             break
         else:
             idx += 1
+    embed = discord.Embed(description=output_msg, colour=color_list[current["name"]])
 
-    return output_msg
+    return embed
