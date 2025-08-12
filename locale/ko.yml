@@ -24,7 +24,7 @@ cmd:
     title: 최신 워프레임 뉴스
 
   cetus:
-    cmd: 시터스
+    cmd: 시터스주기
     desc: 현재 시터스 시간/상태를 불러옵니다
     title: 시터스 낮/밤 주기
     current: 현재 상태
@@ -73,7 +73,7 @@ cmd:
     remain: 남음
 
   invasions:
-    name: invasions
+    name: 침공
     desc: "NULL"
 
   duviri-cycle:
@@ -104,6 +104,6 @@ cmd:
     desc: 이번주 헥스 캘린더 할일/보상 목록을 가져옵니다
     title: 헥스 캘린더 (테스트)
     choice-all: 모두
-    choice-to-do: 할 일
+    choice-to-do: 할 일 목록
     choice-over: 오버라이드
     choice-prize: 보상(상품)
