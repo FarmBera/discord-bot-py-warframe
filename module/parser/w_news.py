@@ -36,7 +36,7 @@ def W_news(newses, *lang):
         try:
             output_msg += f"- [{item['translations'][lang]}]({item['link']})\n"
         except:
-            output_msg += f"- [{item['translations']['en']}]({item['link']})\n"
+            output_msg += f"- [{item['message']}]({item['link']})\n"
 
         idx += 1
         if idx >= LIMIT_OUTPUT_CNT:
