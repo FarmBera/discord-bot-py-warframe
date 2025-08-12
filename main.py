@@ -34,16 +34,23 @@ from module.parser.w_calendar import W_calendar
 
 class DiscordBot(discord.Client):
     async def on_ready(self):
+        print(f"{color['yellow']}Syncing...{color['default']}", end="")
         await self.wait_until_ready()
         await tree.sync()
         await self.change_presence(
             status=discord.Status.online,
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
-        print(f"{color["cyan"]}{ts.get('start.final')} {self.user}!{color['default']}")
+        print(
+            f"{color["cyan"]}{ts.get('start.final')} <<{color['white']}{self.user}{color["cyan"]}>>{color['default']}",
+        )
+
+        save_log(cmd="bot.BOOTED", user=MSG_BOT, msg="Booted")
 
         self.auto_send_msg_request.start()
         self.auto_noti.start()
+
+        print(f"{color['green']}Internal Coroutine Started{color['default']}")
 
     async def send_alert(self, value):
         # send message
@@ -82,9 +89,9 @@ class DiscordBot(discord.Client):
 
         code = API_Request("auto_send_msg_request()")  # VAR
         if code != 200:
-            print(
-                f"{color['yellow']}response code < {code} > Task Aborted. (from auto_send_msg_request){color['default']}"
-            )
+            msg = f"{color['yellow']}response code < {code} > Task Aborted. (from auto_send_msg_request){color['default']}"
+            save_log(cmd="auto_send_msg_request()", user=MSG_BOT, msg=msg)
+            print(msg)
             return
 
         def empty_check(obj, item):
@@ -252,14 +259,28 @@ tree = discord.app_commands.CommandTree(bot_client)
 
 
 # commands
-# TODO: convert to create discord embed and return only embed object!
+
+
+# help command
+@tree.command(name="help", description="About this Bot")
+async def cmd_help(interact: discord.Interaction):
+    save_log(
+        # cmd=f"cmd.{ts.get(f'cmd.help')}",
+        cmd="help",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
+    # TODO: help commands
+    await interact.response.send_message("help commands")
 
 
 # news command
 @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
 async def cmd_news(interact: discord.Interaction):
     save_log(
-        cmd="cmd.news",
+        cmd=f"cmd.{ts.get(f'cmd.news.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -272,7 +293,7 @@ async def cmd_news(interact: discord.Interaction):
 @tree.command(name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc"))
 async def cmd_alerts(interact: discord.Interaction):
     save_log(
-        cmd="cmd.alerts",
+        cmd=f"cmd.{ts.get(f'cmd.alerts.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -287,20 +308,22 @@ async def cmd_cetus(interact: discord.Interaction):
     API_Request("cmd.cetus")
     set_obj(json_load()[keys[2]], keys[2])
     save_log(
-        cmd="cmd.cetus",
+        cmd=f"cmd.{ts.get(f'cmd.cetus.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(W_CetusCycle(cmd_obj_check(keys[2]), language))
+    await interact.response.send_message(
+        embed=W_CetusCycle(cmd_obj_check(keys[2]), language)
+    )
 
 
 # sortie command
 @tree.command(name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc"))
 async def cmd_sortie(interact: discord.Interaction):
     save_log(
-        cmd="cmd.sortie",
+        cmd=f"cmd.{ts.get(f'cmd.sortie.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -315,7 +338,7 @@ async def cmd_sortie(interact: discord.Interaction):
 )
 async def cmd_archon_hunt(interact: discord.Interaction):
     save_log(
-        cmd="cmd.archon-hunt",
+        cmd=f"cmd.{ts.get(f'cmd.archon-hunt.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -332,7 +355,7 @@ async def cmd_void_traders(interact: discord.Interaction):
     API_Request("cmd.voidTraders")
     set_obj(json_load()[keys[5]], keys[5])
     save_log(
-        cmd="cmd.void-traders",
+        cmd=f"cmd.{ts.get(f'cmd.void-traders.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -350,14 +373,14 @@ async def cmd_void_traders(interact: discord.Interaction):
 )
 async def cmd_steel_reward(interact: discord.Interaction):
     save_log(
-        cmd="cmd.steel-path",
+        cmd=f"cmd.{ts.get(f'cmd.steel-path-reward.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
     )
     await interact.response.send_message(
-        W_SteelPathReward(cmd_obj_check(keys[6]), language)
+        embed=W_SteelPathReward(cmd_obj_check(keys[6]), language)
     )
 
 
@@ -369,7 +392,7 @@ async def cmd_fissures(interact: discord.Interaction):
     API_Request("cmd.fissures")
     set_obj(json_load()[keys[10]], keys[10])
     save_log(
-        cmd="cmd.fissures",
+        cmd=f"cmd.{ts.get(f'cmd.fissures.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -384,8 +407,10 @@ async def cmd_fissures(interact: discord.Interaction):
     description=ts.get(f"cmd.duviri-cycle.desc"),
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
+    API_Request("cmd.cetus")
+    set_obj(json_load()[keys[7]], keys[7])
     save_log(
-        cmd="cmd.duviri-cycle",
+        cmd=f"cmd.{ts.get(f'cmd.duviri-cycle.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -403,7 +428,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
 )
 async def cmd_deep_archimedea(interact: discord.Interaction):
     save_log(
-        cmd="cmd.deep-archimedea",
+        cmd=f"cmd.{ts.get(f'cmd.deep-archimedea.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -421,7 +446,7 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
     save_log(
-        cmd="cmd.temporal-archimedea",
+        cmd=f"cmd.{ts.get(f'cmd.temporal-archimedea.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -449,7 +474,7 @@ async def cmd_calendar(
     interact: discord.Interaction, types: discord.app_commands.Choice[int]
 ):
     save_log(
-        cmd=f"cmd.calendar.{type}",
+        cmd=f"cmd.{ts.get(f'cmd.calendar.cmd')}.{type}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,

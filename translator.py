@@ -1,6 +1,8 @@
 import yaml
 
+from module.save_log import save_log
 from variables.color import color
+from variables.keys import MSG_BOT
 
 
 class Translator:
@@ -11,17 +13,17 @@ class Translator:
             with open(f"locale/{self.lang}.yml", "r", encoding="utf-8") as f:
                 self.translations = yaml.safe_load(f)
         except FileNotFoundError:
-            print(
-                f"{color['yellow']}[warn]: Translation file for '{self.lang}' not found.{color['default']}"
-            )
+            msg = f"{color['yellow']}[warn]: Translation file for '{self.lang}' not found.{color['default']}"
+            save_log(cmd="translator.py", user=MSG_BOT, msg=msg)
+            print(msg)
             # retry with default language: English
             try:
                 with open("locale/en.yml", "r", encoding="utf-8") as f:
                     self.translations = yaml.safe_load(f)
             except FileNotFoundError:
-                print(
-                    f"{color['red']}[warn]: Default translation file 'en.yml' also not found.{color['default']}"
-                )
+                msg = f"{color['red']}[warn]: Default translation file 'en.yml' also not found.{color['default']}"
+                save_log(cmd="translator.py", user=MSG_BOT, msg=msg)
+                print(msg)
 
     def get(self, key, **kwargs):
         """

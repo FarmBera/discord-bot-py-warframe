@@ -24,7 +24,7 @@ cmd:
     title: Warframe Latest News
 
   cetus:
-    cmd: cetustime
+    cmd: cetuscycle
     desc: Get current Cetus Time & next state
     title: Cetus Day/Night Cycle
     current: Current State

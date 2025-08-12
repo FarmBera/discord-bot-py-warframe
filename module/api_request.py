@@ -5,6 +5,7 @@ import datetime as dt
 # from TOKEN import base_url, headers, query
 from variables.color import color
 from variables.times import JSON_DATE_PAT
+from variables.keys import MSG_BOT
 from module.save_log import save_log
 from module.json_save import json_save
 
@@ -28,41 +29,6 @@ response = None
 date_start = None
 date_end = None
 data = None
-
-
-# default functions
-def divider():
-    print("=" * 45)
-
-
-def convert_date_time(timestamp: str):
-    return dt.datetime.strptime(timestamp, JSON_DATE_PAT)
-    # .strftime("%Y-%m-%d %H:%M:%S")
-
-
-def convert_remain_time(timestamp: str, footer: str = "남았습니다!") -> str:
-    if timestamp == None:
-        print(f"Timestamp ERR >> {timestamp}")
-        raise ValueError("timestamp is NULL")
-    try:
-        td = dt.datetime.strptime(timestamp, JSON_DATE_PAT)
-    except:
-        td = timestamp
-    timenow = dt.datetime.now()
-    diff = timenow - td
-    milisec = diff.microseconds // 1000 // 10
-
-    diff = int(diff.total_seconds())
-
-    hour = diff // 3600
-    min = (diff % 3600) // 60
-    sec = diff % 60
-
-    # TODO: f-string 3자리 나오는 문제 수정
-    result = f"{hour}시간 {min}분 {sec}.{milisec:02d}초"
-    print(result)
-
-    return None
 
 
 # api request func
@@ -100,11 +66,9 @@ def check_request(est, response):
 # usage
 def API_Request(*args):
     if not args:
-        save_log(cmd="API_Request()", user="bot.self", msg=f"API Requested")
+        save_log(cmd="API_Request()", user=MSG_BOT, msg=f"API Requested")
     else:
-        save_log(
-            cmd="API_Request()", user="bot.self", msg=f"API Requested (from {args})"
-        )
+        save_log(cmd="API_Request()", user=MSG_BOT, msg=f"API Requested / from {args}")
 
     est, response = send_request()
     response, code = check_request(est, response)

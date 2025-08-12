@@ -23,13 +23,17 @@ if __name__ == "__main__":
         os.mkdir("json")
         print(f"{prefix}json")
     except:
-        print(f"{color['yellow']}{prefix_err}'json'")
+        msg = f"{color['yellow']}{prefix_err}'json'"
+        save_log(cmd="init.py", user="console", msg=msg)
+        print(msg)
 
     try:
         os.mkdir("log")
         print(f"{prefix}json")
     except:
-        print(f"{color['yellow']}{prefix_err}'log'")
+        msg = f"{color['yellow']}{prefix_err}'log'"
+        save_log(cmd="init.py", user="console", msg=msg)
+        print(msg)
 
     obj_origin = json_load()
     for item in keys:

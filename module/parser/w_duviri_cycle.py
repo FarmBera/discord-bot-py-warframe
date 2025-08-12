@@ -5,7 +5,7 @@ from translator import ts
 from variables.times import time_calculate_with_curr
 
 
-state_color = {
+duviri_color = {
     "joy": 0x377C82,
     "anger": 0xED983C,
     "envy": 0x8CC847,
@@ -29,6 +29,6 @@ def W_duviriCycle(duviri, *lang):
     )
     output_msg += f"- {ts.get('cmd.duviri-cycle.expire')} {time_calculate_with_curr(duviri["expiry"])}"
 
-    embed = discord.Embed(description=output_msg, color=state_color[duviri["state"]])
+    embed = discord.Embed(description=output_msg, color=duviri_color[duviri["state"]])
 
     return embed
