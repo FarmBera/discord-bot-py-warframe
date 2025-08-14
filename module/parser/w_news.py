@@ -46,6 +46,6 @@ def W_news(newses, *lang):
         description=output_msg,
         color=0x00FFFF,
     )
-    embed.set_image(url=newses[-1]["imageLink"])
+    embed.set_image(url=newses[0]["imageLink"])
 
     return embed
