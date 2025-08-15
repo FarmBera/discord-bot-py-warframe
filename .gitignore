@@ -14,6 +14,12 @@ TOKEN.py
 .markdownlint.json
 *_pc*.json
 
+# python virtual env
+bin/
+lib/
+lib64
+pyvenv.cfg
+
 ##########
 # macos
 .DS_Store
