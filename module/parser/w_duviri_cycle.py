@@ -27,7 +27,7 @@ def W_duviriCycle(duviri, *lang):
     output_msg += (
         f"- State: < " + ts.get(f"cmd.duviri-cycle.{duviri['state']}") + " >\n"
     )
-    output_msg += f"- {ts.get('cmd.duviri-cycle.expire')} {time_calculate_with_curr(duviri["expiry"])}"
+    output_msg += f"- {ts.get('cmd.duviri-cycle.expire')} {time_calculate_with_curr(duviri['expiry'])}"
 
     embed = discord.Embed(description=output_msg, color=duviri_color[duviri["state"]])
 
