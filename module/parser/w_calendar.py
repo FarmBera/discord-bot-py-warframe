@@ -39,7 +39,7 @@ def W_calendar(cal, typ, *lang) -> str:
 
             # to do
             if (typ in [type_all, type_todo]) and e_type == "To Do":
-                output.append(f": {redef(jtem["challenge"]["description"])}")
+                output.append(f": {redef(jtem['challenge']['description'])}")
 
             # big prize
             elif (typ in [type_all, type_prize]) and e_type == "Big Prize!":
@@ -54,7 +54,7 @@ def W_calendar(cal, typ, *lang) -> str:
 
         if output:
             output_msg += (
-                f"{dt.date(1999, 1, 1) + dt.timedelta(days=item["day"] - 1)} "  # VAR
+                f"{dt.date(1999, 1, 1) + dt.timedelta(days=item['day'] - 1)} "  # VAR
             )
             # output_msg += f"Day {item['day']} "
             output_msg += t[0]["type"]
