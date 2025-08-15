@@ -42,7 +42,7 @@ class DiscordBot(discord.Client):
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
         print(
-            f"{color["cyan"]}{ts.get('start.final')} <<{color['white']}{self.user}{color["cyan"]}>>{color['default']}",
+            f"{color['cyan']}{ts.get('start.final')} <<{color['white']}{self.user}{color['cyan']}>>{color['default']}",
         )
 
         save_log(cmd="bot.BOOTED", user=MSG_BOT, msg="Booted")
