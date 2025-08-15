@@ -10,7 +10,7 @@ from module.set_obj import set_obj
 from variables.keys import keys
 
 if __name__ == "__main__":
-    # API_Request()  # TODO: uncomment before commit
+    RESPONSE_CODE = API_Request()
 
     dir_base = os.getcwd()
 
