@@ -1,6 +1,5 @@
 import discord
 from discord.ext import tasks
-import datetime as dt
 
 
 from translator import ts, language
@@ -30,6 +29,7 @@ from module.parser.w_deep_archimedea import W_DeepArchimedea
 from module.parser.w_temporal_archimedea import W_TemporalArchimedia
 from module.parser.w_fissures import W_Fissures
 from module.parser.w_calendar import W_calendar
+from module.parser.w_cambionCycle import w_cambionCycle
 
 
 class DiscordBot(discord.Client):
@@ -262,11 +262,10 @@ tree = discord.app_commands.CommandTree(bot_client)
 
 
 # help command
-@tree.command(name="help", description="About this Bot")
+@tree.command(name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}")
 async def cmd_help(interact: discord.Interaction):
     save_log(
-        # cmd=f"cmd.{ts.get(f'cmd.help')}",
-        cmd="help",
+        cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
@@ -314,9 +313,11 @@ async def cmd_cetus(interact: discord.Interaction):
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(
-        embed=W_CetusCycle(cmd_obj_check(keys[2]), language)
-    )
+    embed, f = W_CetusCycle(cmd_obj_check(keys[2]), language)
+    if f is None:
+        await interact.response.send_message(embed=embed)
+    else:
+        await interact.response.send_message(embed=embed, file=f)
 
 
 # sortie command
@@ -379,9 +380,11 @@ async def cmd_steel_reward(interact: discord.Interaction):
         guild=interact.guild,
         channel=interact.channel,
     )
-    await interact.response.send_message(
-        embed=W_SteelPathReward(cmd_obj_check(keys[6]), language)
-    )
+    embed, f = W_SteelPathReward(cmd_obj_check(keys[6]), language)
+    if f is None:
+        await interact.response.send_message(embed=embed)
+    else:
+        await interact.response.send_message(embed=embed, file=f)
 
 
 # fissures command
@@ -483,6 +486,25 @@ async def cmd_calendar(
     await interact.response.send_message(
         W_calendar(cmd_obj_check(keys[11]), types.name, language)
     )
+
+
+# cambion command (cambionCycle)
+@tree.command(name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc"))
+async def cmd_cambion(interact: discord.Interaction):
+    API_Request("cmd.cambion")
+    set_obj(json_load()[keys[12]], keys[12])
+    save_log(
+        cmd=f"cmd.{ts.get(f'cmd.cambion.cmd')}",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+    )
+    embed, f = w_cambionCycle(cmd_obj_check(keys[12]), language)
+    if f is None:
+        await interact.response.send_message(embed=embed)
+    else:
+        await interact.response.send_message(embed=embed, file=f)
 
 
 # run bot

@@ -16,6 +16,7 @@ keys = [
     "temporalArchimedea",  # 9
     "fissures",  # 10
     "calendar",  # 11
+    "cambionCycle",  # 12
     # "voidTraderItem",# 6
     # "invasions",# 9
 ]

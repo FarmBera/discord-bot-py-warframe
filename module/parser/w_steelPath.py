@@ -13,10 +13,24 @@ color_list = {
     "Shotgun Riven Mod": 0xA11EE3,
 }
 
+img_list = {
+    "Umbra Forma Blueprint": "umbra-forma",
+    "50,000 Kuva": "kuva",
+    "Kitgun Riven Mod": "riven-mod",
+    "3x Forma": "forma",
+    "Zaw Riven Mod": "riven-mod",
+    "30,000 Endo": "endo",
+    "Rifle Riven Mod": "riven-mod",
+    "Shotgun Riven Mod": "riven-mod",
+}
+
 
 def W_SteelPathReward(steel, *lang):
     if steel == False:
-        return ts.get("general.error-cmd")
+        return (
+            discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000),
+            None,
+        )
 
     if steel is None:
         return None
@@ -24,16 +38,17 @@ def W_SteelPathReward(steel, *lang):
     pf: str = "cmd.steel-path-reward"
 
     current = steel["currentReward"]
+    cname: str = current["name"]
     output_msg: str = f"# {ts.get(f'{pf}.title')}\n\n"
 
     # current reward
-    output_msg += f"- {ts.get(f'{pf}.curr-reward')}: **{current['name']}** ({current['cost']} {ts.get(f'{pf}.cost')})\n"
+    output_msg += f"- {ts.get(f'{pf}.curr-reward')}: **{cname}** ({current['cost']} {ts.get(f'{pf}.cost')})\n"
 
-    # calculate next week item
+    # next week reward
     idx = 0
     for item in steel["rotation"]:
         # next week item
-        if item["name"] == current["name"]:
+        if item["name"] == cname:
             idx += 1
             if idx >= len(steel["rotation"]):  # fix index overflow
                 idx = 0
@@ -44,6 +59,9 @@ def W_SteelPathReward(steel, *lang):
             break
         else:
             idx += 1
-    embed = discord.Embed(description=output_msg, colour=color_list[current["name"]])
 
-    return embed
+    f = discord.File(f"img/{img_list[cname]}.png", filename="thumb.png")
+    embed = discord.Embed(description=output_msg, colour=color_list[cname])
+    embed.set_thumbnail(url="attachment://thumb.png")
+
+    return embed, f
