@@ -1,4 +1,3 @@
-import discord
 import datetime as dt
 
 from translator import ts

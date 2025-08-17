@@ -1,5 +1,4 @@
 import discord
-
 from translator import ts
 
 
