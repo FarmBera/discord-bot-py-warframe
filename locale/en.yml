@@ -11,6 +11,10 @@ general:
   error-cmd: Internal Error. Please contact the administrator.
 
 cmd:
+  help:
+    cmd: help
+    desc: Help center about this Bot
+
   alerts:
     cmd: alerts
     desc: Get currently activated alert mission
@@ -26,7 +30,7 @@ cmd:
   cetus:
     cmd: cetuscycle
     desc: Get current Cetus Time & next state
-    title: Cetus Day/Night Cycle
+    title: Cetus State
     current: Current State
     night: Night
     day: Day
@@ -107,3 +111,7 @@ cmd:
     choice-to-do: To Do
     choice-over: Override
     choice-prize: Big Prize
+
+  cambion:
+    cmd: cambioncycle
+    desc: Get current cambion state
