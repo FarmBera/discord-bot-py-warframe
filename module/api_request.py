@@ -2,27 +2,10 @@ import requests
 import json
 import datetime as dt
 
-# from TOKEN import base_url, headers, query
+from TOKEN import base_url, headers, query
 from variables.color import color
-from variables.times import JSON_DATE_PAT
 from variables.keys import MSG_BOT
 from module.save_log import save_log
-from module.json_save import json_save
-
-# api link & args
-base_api_url = "https://api.warframestat.us/"
-
-"""
-pc
-items
-mods
-warframes
-weapons
-pc/rivens
-"""
-query = "pc"
-base_url = f"{base_api_url}{query}"
-headers = {"Accept-Language": "en"}  # en / ko
 
 
 response = None
@@ -41,13 +24,15 @@ def send_request():
 def check_request(est, response):
     # check response value
     if response is None:
-        print(f"{color['red']}ERR: response is NULL{color['default']}")
+        print(f"{color['red']}[ERR] response is NULL{color['default']}")
 
     # check response code
     res_code: int = response.status_code
     if res_code != 200:
-        print(f"{color['red']}ERR: Failed API Request >> {res_code}{color['default']}")
-        return response
+        print(
+            f"{color['yellow']}[warn] response code is not 200 >> {res_code} (est: {est}){color['default']}"
+        )
+        return response, res_code, est
 
     # process response
     response = response.json()
@@ -60,16 +45,23 @@ def check_request(est, response):
     except Exception as e:
         print(f"{color['red']}ERR with saving file{color['default']}")
 
-    return response, res_code
+    return response, res_code, est
 
 
 # usage
 def API_Request(*args):
-    if not args:
-        save_log(cmd="API_Request()", user=MSG_BOT, msg=f"API Requested")
-    else:
-        save_log(cmd="API_Request()", user=MSG_BOT, msg=f"API Requested / from {args}")
+    est, response = send_request()  # real request
+    response, code, est = check_request(est, response)  # verify
 
-    est, response = send_request()
-    response, code = check_request(est, response)
+    # save logs
+    if not args:
+        save_log(cmd="API_Request()", user=MSG_BOT, msg=f"API Requested", obj=est)
+    else:
+        save_log(
+            cmd="API_Request()",
+            user=MSG_BOT,
+            msg=f"API Requested / from {args}",
+            obj=est,
+        )
+
     return code
