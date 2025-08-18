@@ -11,7 +11,7 @@ def w_dailyDeals(deals, *lang):
 
     pf = f"cmd.dailyDeals"
 
-    output_msg: str = f"### {ts.get(f"{pf}.title")}\n\n"
+    output_msg: str = f"### {ts.get(f'{pf}.title')}\n\n"
 
     for item in deals:
         output_msg += f"""# {item['item']}
