@@ -7,7 +7,14 @@ from TOKEN import TOKEN as BOT_TOKEN
 from TOKEN import DEFAULT_JSON_PATH
 from variables.times import alert_times
 from variables.color import color
-from variables.keys import keys, SETTING_FILE_LOC, CHANNEL_FILE_LOC, TYPE_EMBED, MSG_BOT
+from variables.keys import (
+    keys,
+    SETTING_FILE_LOC,
+    CHANNEL_FILE_LOC,
+    TYPE_EMBED,
+    TYPE_TUPLE,
+    MSG_BOT,
+)
 from module.api_request import API_Request
 from module.save_log import save_log
 
@@ -109,8 +116,9 @@ class DiscordBot(discord.Client):
             channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]  # VAR
             for ch in channel_list:
                 # embed type
+                channel = await self.fetch_channel(ch)
+
                 if str(type(value)) == TYPE_EMBED:
-                    channel = await self.fetch_channel(ch)
                     save_log(
                         cmd="auto_sent_message",
                         user=MSG_BOT,
@@ -120,19 +128,29 @@ class DiscordBot(discord.Client):
                         obj=value.description,
                     )
                     await channel.send(embed=value)
-                    return
 
-                # string type
-                channel = await self.fetch_channel(ch)
-                save_log(
-                    cmd="auto_sent_message",  # VAR
-                    user=MSG_BOT,
-                    guild=channel.guild,
-                    channel=channel.name,
-                    msg=item,
-                    obj=value,
-                )
-                await channel.send(value)
+                elif str(type(value)) == TYPE_TUPLE:
+                    eb, f = value
+                    save_log(
+                        cmd="auto_sent_message",
+                        user=MSG_BOT,
+                        guild=channel.guild,
+                        channel=channel.name,
+                        msg=item,
+                        obj=eb.description,
+                    )
+                    await channel.send(embed=eb, file=f)
+
+                else:  # string type
+                    save_log(
+                        cmd="auto_sent_message",  # VAR
+                        user=MSG_BOT,
+                        guild=channel.guild,
+                        channel=channel.name,
+                        msg=item,
+                        obj=value,
+                    )
+                    await channel.send(value)
 
         # check for new content & send alert
         for item in keys:
