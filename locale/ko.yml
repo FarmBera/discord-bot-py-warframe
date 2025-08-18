@@ -115,3 +115,10 @@ cmd:
   cambion:
     cmd: 캠비온퇴적지주기
     desc: Get current cambion state
+
+  dailyDeals:
+    cmd: 일일특가
+    desc: 오늘의 특가 품목을 가져옵니다
+    title: 오늘의 특가
+    remain: 개 남았습니다
+    exp: 마감까지

@@ -37,6 +37,7 @@ from module.parser.w_temporal_archimedea import W_TemporalArchimedia
 from module.parser.w_fissures import W_Fissures
 from module.parser.w_calendar import W_calendar
 from module.parser.w_cambionCycle import w_cambionCycle
+from module.parser.w_dailyDeals import w_dailyDeals
 
 
 class DiscordBot(discord.Client):
@@ -233,7 +234,6 @@ class DiscordBot(discord.Client):
                 await send_alert(W_VoidTraders(obj_new))
 
             # elif item=='voidTraderItem':
-            # elif item == keys[10]:  # fissures
 
             elif item == keys[6]:  # steelPath
                 if get_obj(item)["currentReward"] == obj_new["currentReward"]:
@@ -258,6 +258,27 @@ class DiscordBot(discord.Client):
                     continue
                 is_new_content = True
                 await send_alert(W_TemporalArchimedia(obj_new))
+
+            # elif item == keys[10]:  # fissures
+            # deprecated
+
+            elif item == keys[11]:  # calendar
+                if get_obj(item)[0]["activation"] == obj_new[0]["activation"]:
+                    continue
+                is_new_content = True
+                await send_alert(W_calendar(obj_new, ts.get("cmd.calendar.choice-all")))
+
+            elif item == keys[12]:  # cambionCycle
+                if get_obj(item)["state"] == obj_new["state"]:
+                    continue
+                is_new_content = True
+                await send_alert(w_cambionCycle(obj_new))
+
+            elif item == keys[12]:  # dailyDeals
+                if get_obj(item)[0]["item"] == obj_new[0]["item"]:
+                    continue
+                is_new_content = True
+                await send_alert(w_dailyDeals(obj_new))
 
             if is_new_content:  # update json file
                 set_obj(obj_new, item)
@@ -523,6 +544,25 @@ async def cmd_cambion(interact: discord.Interaction):
         await interact.response.send_message(embed=embed)
     else:
         await interact.response.send_message(embed=embed, file=f)
+
+
+# dailyDeals command
+@tree.command(
+    name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
+)
+async def cmd_dailyDeals(interact: discord.Interaction):
+    API_Request("cmd.dailyDeals")
+    set_obj(json_load()[keys[13]], keys[13])
+    eb = w_dailyDeals(cmd_obj_check(keys[13]), language)
+    await interact.response.send_message(embed=eb)
+    save_log(
+        cmd=f"cmd.{ts.get(f'cmd.dailyDeals.cmd')}",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+        obj=eb.description,
+    )
 
 
 # run bot

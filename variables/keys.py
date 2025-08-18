@@ -18,8 +18,9 @@ keys = [
     "fissures",  # 10
     "calendar",  # 11
     "cambionCycle",  # 12
+    "dailyDeals",  # 13
+    # "invasions",# 14
     # "voidTraderItem",# 6
-    # "invasions",# 9
 ]
 
 cal_item = {
