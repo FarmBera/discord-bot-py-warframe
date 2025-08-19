@@ -274,7 +274,7 @@ class DiscordBot(discord.Client):
                 is_new_content = True
                 await send_alert(w_cambionCycle(obj_new))
 
-            elif item == keys[12]:  # dailyDeals
+            elif item == keys[13]:  # dailyDeals
                 if get_obj(item)[0]["item"] == obj_new[0]["item"]:
                     continue
                 is_new_content = True
