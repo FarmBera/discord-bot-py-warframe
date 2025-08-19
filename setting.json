@@ -3,18 +3,21 @@
         "isEnabled": true,
         "list": {
             "alerts": true,
-            "cetusCycle": false,
             "news": true,
+            "cetusCycle": false,
             "sortie": true,
             "archonHunt": true,
             "voidTraders": true,
-            "voidTraderItem": false,
             "steelPath": true,
-            "fissures": false,
-            "invasions": false,
             "duviriCycle": false,
             "deepArchimedea": false,
-            "temporalArchimedea": false
+            "temporalArchimedea": false,
+            "fissures": false,
+            "calendar": true,
+            "cambionCycle": false,
+            "dailyDeals": true,
+            "voidTraderItem": false,
+            "invasions": false
         }
     },
     "fissures": {

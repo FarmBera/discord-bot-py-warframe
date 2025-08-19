@@ -10,7 +10,11 @@ from module.set_obj import set_obj
 from variables.keys import keys
 
 if __name__ == "__main__":
-    RESPONSE_CODE = API_Request()
+    print("API Requesting...")
+    RESPONSE_CODE = API_Request()  # TODO: uncomment before commit
+    if RESPONSE_CODE != 200:
+        raise ValueError("Response code is NOT 200!")
+    print(f"Done! Code: {RESPONSE_CODE}")
 
     dir_base = os.getcwd()
 
