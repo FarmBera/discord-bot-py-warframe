@@ -54,13 +54,23 @@ def API_Request(*args):
     response, code, est = check_request(est, response)  # verify
 
     # save logs
-    if not args:
-        save_log(cmd="API_Request()", user=MSG_BOT, msg=f"API Requested", obj=est)
+    if args is not None:
+        msg = (f"API Requested / from {args}",)
     else:
+        msg = "API Requested"
+
+    save_log(
+        cmd="API_Request()",
+        user=MSG_BOT,
+        msg=msg,
+        obj=est,
+    )
+
+    if code != 200:
         save_log(
             cmd="API_Request()",
             user=MSG_BOT,
-            msg=f"API Requested / from {args}",
+            msg=f"{color['yellow']}response code error >> {code}",
             obj=est,
         )
 
