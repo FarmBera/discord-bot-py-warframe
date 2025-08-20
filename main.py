@@ -70,6 +70,7 @@ class DiscordBot(discord.Client):
             if str(type(value)) == TYPE_EMBED:
                 channel = await self.fetch_channel(ch)
                 save_log(
+                    type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
                     guild=channel.guild,
@@ -83,6 +84,7 @@ class DiscordBot(discord.Client):
             # string type
             channel = await self.fetch_channel(ch)
             save_log(
+                type="msg",
                 cmd="auto_sent_message",
                 user=MSG_BOT,
                 guild=channel.guild,
@@ -100,7 +102,7 @@ class DiscordBot(discord.Client):
         code = API_Request("auto_send_msg_request()")  # VAR
         if code != 200:
             msg = f"{color['yellow']}response code < {code} > Task Aborted. (from auto_send_msg_request){color['default']}"
-            save_log(cmd="auto_send_msg_request()", user=MSG_BOT, msg=msg)
+            save_log(type="warn", cmd="auto_send_msg_request()", user=MSG_BOT, msg=msg)
             print(msg)
             return
 
@@ -125,6 +127,7 @@ class DiscordBot(discord.Client):
 
                 if str(type(value)) == TYPE_EMBED:
                     save_log(
+                        type="msg",
                         cmd="auto_sent_message",
                         user=MSG_BOT,
                         guild=channel.guild,
@@ -137,6 +140,7 @@ class DiscordBot(discord.Client):
                 elif str(type(value)) == TYPE_TUPLE:
                     eb, f = value
                     save_log(
+                        type="msg",
                         cmd="auto_sent_message",
                         user=MSG_BOT,
                         guild=channel.guild,
@@ -148,6 +152,7 @@ class DiscordBot(discord.Client):
 
                 else:  # string type
                     save_log(
+                        type="msg",
                         cmd="auto_sent_message",  # VAR
                         user=MSG_BOT,
                         guild=channel.guild,
@@ -315,6 +320,7 @@ async def cmd_help(interact: discord.Interaction):
     # TODO: help commands
     await interact.response.send_message("help commands")
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -330,6 +336,7 @@ async def cmd_news(interact: discord.Interaction):
     eb = W_news(cmd_obj_check(keys[1]), language)
     await interact.response.send_message(embed=eb)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.news.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -345,6 +352,7 @@ async def cmd_alerts(interact: discord.Interaction):
     eb = W_Alerts(get_obj(keys[0]))
     await interact.response.send_message(embed=eb)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.alerts.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -365,6 +373,7 @@ async def cmd_cetus(interact: discord.Interaction):
     else:
         await interact.response.send_message(embed=eb, file=f)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.cetus.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -380,6 +389,7 @@ async def cmd_sortie(interact: discord.Interaction):
     text_obj = W_Sortie(cmd_obj_check(keys[3]), language)
     await interact.response.send_message()
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.sortie.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -397,6 +407,7 @@ async def cmd_archon_hunt(interact: discord.Interaction):
     text_obj = W_archonHunt(cmd_obj_check(keys[4]), language)
     await interact.response.send_message(text_obj)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.archon-hunt.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -416,6 +427,7 @@ async def cmd_void_traders(interact: discord.Interaction):
     eb = W_VoidTraders(cmd_obj_check(keys[5]), language)
     await interact.response.send_message(embed=eb)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.void-traders.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -437,6 +449,7 @@ async def cmd_steel_reward(interact: discord.Interaction):
     else:
         await interact.response.send_message(embed=eb, file=f)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.steel-path-reward.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -456,6 +469,7 @@ async def cmd_fissures(interact: discord.Interaction):
     text_obj = W_Fissures(cmd_obj_check(keys[10]))
     await interact.response.send_message()
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.fissures.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -476,6 +490,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
     eb = W_duviriCycle(cmd_obj_check(keys[7]), language)
     await interact.response.send_message(embed=eb)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.duviri-cycle.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -494,6 +509,7 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
     text_obj = W_DeepArchimedea(cmd_obj_check(keys[8]), language)
     await interact.response.send_message(text_obj)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.deep-archimedea.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -512,6 +528,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
     text_obj = W_TemporalArchimedia(cmd_obj_check(keys[9]), language)
     await interact.response.send_message(text_obj)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.temporal-archimedea.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -540,6 +557,7 @@ async def cmd_calendar(
     text_obj = W_calendar(cmd_obj_check(keys[11]), types.name, language)
     await interact.response.send_message(text_obj)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.calendar.cmd')}.{type}",
         time=interact.created_at,
         user=interact.user,
@@ -560,6 +578,7 @@ async def cmd_cambion(interact: discord.Interaction):
     else:
         await interact.response.send_message(embed=eb, file=f)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.cambion.cmd')}",
         time=interact.created_at,
         user=interact.user,
@@ -579,6 +598,7 @@ async def cmd_dailyDeals(interact: discord.Interaction):
     eb = w_dailyDeals(cmd_obj_check(keys[13]), language)
     await interact.response.send_message(embed=eb)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.dailyDeals.cmd')}",
         time=interact.created_at,
         user=interact.user,

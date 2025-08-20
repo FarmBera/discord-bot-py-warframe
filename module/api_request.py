@@ -60,6 +60,7 @@ def API_Request(*args):
         msg = "API Requested"
 
     save_log(
+        type="api",
         cmd="API_Request()",
         user=MSG_BOT,
         msg=msg,
@@ -68,6 +69,7 @@ def API_Request(*args):
 
     if code != 200:
         save_log(
+            type="api",
             cmd="API_Request()",
             user=MSG_BOT,
             msg=f"{color['yellow']}response code error >> {code}",
