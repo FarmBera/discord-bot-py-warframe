@@ -5,6 +5,7 @@ from translator import ts
 from variables.keys import SETTING_FILE_LOC
 from variables.times import time_calculate_with_curr
 from module.json_load import json_load
+from module.get_emoji import get_emoji
 
 
 def W_Fissures(fissures, *lang):
@@ -37,7 +38,11 @@ def W_Fissures(fissures, *lang):
         Extermination - Neo Fissure **[Steel Path]**
         53m(53m 54s) left / Neso (Neptune) - Corpus
         """
-        output_msg += f"""{item['missionType']} - {item['tier']} {ts.get(f'{pf}.fiss')} {ts.get(f'{pf}.steel') if item['isHard'] else ''}
+        o_tier = item["tier"]
+        o_emoji = get_emoji(o_tier)
+        o_isSteel = ts.get(f"{pf}.steel") if item["isHard"] else ""
+
+        output_msg += f"""{item["missionType"]} - {o_emoji} {o_tier} {ts.get(f'{pf}.fiss')} {o_isSteel}
 {item['expiry']}({item['eta']}) {ts.get(f'{pf}.remain')} / {item['node']} - {item['enemy']}\n\n"""
 
     return output_msg
