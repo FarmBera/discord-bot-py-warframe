@@ -2,6 +2,7 @@ import datetime as dt
 
 from translator import ts
 from variables.keys import cal_item
+from module.get_emoji import get_emoji
 
 
 def redef(prop):
@@ -42,7 +43,8 @@ def W_calendar(cal, typ, *lang) -> str:
 
             # big prize
             elif (typ in [type_all, type_prize]) and e_type == "Big Prize!":
-                output.append(f"\n- {redef(jtem['reward'])}")
+                tt = jtem["reward"]
+                output.append(f"\n- {get_emoji(tt)} {redef(tt)}")
 
             # override
             elif (typ in [type_all, type_over]) and e_type == "Override":

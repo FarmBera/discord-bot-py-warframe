@@ -23,6 +23,7 @@ from module.json_load import json_load
 from module.get_obj import get_obj
 from module.set_obj import set_obj
 from module.cmd_obj_check import cmd_obj_check
+from module.get_emoji import get_emoji
 
 from module.parser.w_alerts import W_Alerts
 from module.parser.w_news import W_news
@@ -117,7 +118,7 @@ class DiscordBot(discord.Client):
             if not setting["noti"]["list"][item]:
                 return
 
-            if not channel_list:
+            if channel_list is None:
                 channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]  # VAR
 
             # send message
@@ -137,6 +138,7 @@ class DiscordBot(discord.Client):
                     )
                     await channel.send(embed=value)
 
+                # embed with file or thumbnail
                 elif str(type(value)) == TYPE_TUPLE:
                     eb, f = value
                     save_log(
@@ -276,7 +278,7 @@ class DiscordBot(discord.Client):
                     continue
                 is_new_content = True
                 await send_alert(
-                    W_calendar(obj_new, ts.get("cmd.calendar.choice-all")),
+                    W_calendar(obj_new, ts.get("cmd.calendar.choice-prize")),
                     yaml_open(CHANNEL_FILE_LOC)["hex-cal"],
                 )
 
@@ -421,11 +423,11 @@ async def cmd_archon_hunt(interact: discord.Interaction):
 @tree.command(
     name=ts.get(f"cmd.void-traders.cmd"), description=ts.get(f"cmd.void-traders.desc")
 )
-async def cmd_void_traders(interact: discord.Interaction):
+async def cmd_voidTraders(interact: discord.Interaction):
     API_Request("cmd.voidTraders")
     set_obj(json_load()[keys[5]], keys[5])
-    eb = W_VoidTraders(cmd_obj_check(keys[5]), language)
-    await interact.response.send_message(embed=eb)
+    eb, f = W_VoidTraders(cmd_obj_check(keys[5]), language)
+    await interact.response.send_message(embed=eb, file=f)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.void-traders.cmd')}",

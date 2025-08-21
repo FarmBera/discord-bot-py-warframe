@@ -1,5 +1,6 @@
 import discord
 from translator import ts
+from module.discord_file import img_file
 
 
 def w_cambionCycle(cambion, *lang):
@@ -24,8 +25,8 @@ def w_cambionCycle(cambion, *lang):
 - expires in '{cambion['timeLeft']}'
 """
 
-    f = discord.File(f"img/{status}.png", filename="thumb.png")
+    f = img_file(status)
     embed = discord.Embed(description=output_msg, color=color_decision(status))
-    embed.set_thumbnail(url="attachment://thumb.png")
+    embed.set_thumbnail(url="attachment://i.png")
 
     return embed, f

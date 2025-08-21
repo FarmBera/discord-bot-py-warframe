@@ -4,7 +4,7 @@ TYPE_EMBED: str = "<class 'discord.embeds.Embed'>"
 TYPE_TUPLE: str = "<class 'tuple'>"
 MSG_BOT: str = "bot.self"
 
-keys = [
+keys: list = [
     "alerts",  # 0
     "news",  # 1
     "cetusCycle",  # 2
@@ -23,9 +23,11 @@ keys = [
     # "voidTraderItem",# 6
 ]
 
-cal_item = {
+cal_item: dict = {
     "Riven": "Riven Mod",
     "Forma": "Forma Blueprint",
     "Exilus Adapter": "Exilus Warframe Adapter",
     # "[PH] Calendar Kill Enemies With Melee Medium Desc": "kill Enemies With Melee Weapons",
 }
+
+emoji: dict = {}
