@@ -469,7 +469,7 @@ async def cmd_fissures(interact: discord.Interaction):
     API_Request("cmd.fissures")
     set_obj(json_load()[keys[10]], keys[10])
     text_obj = W_Fissures(cmd_obj_check(keys[10]))
-    await interact.response.send_message()
+    await interact.response.send_message(text_obj)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.fissures.cmd')}",
