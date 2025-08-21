@@ -2,7 +2,7 @@ import requests
 import json
 import datetime as dt
 
-from TOKEN import base_url, headers, query
+from TOKEN import base_url, params, query
 from variables.color import color
 from variables.keys import MSG_BOT
 from module.save_log import save_log
@@ -17,7 +17,7 @@ data = None
 # api request func
 def send_request():
     date_start = dt.datetime.now()
-    response = requests.get(base_url, headers=headers)
+    response = requests.get(base_url, params=params)
     return dt.datetime.now() - date_start, response
 
 
@@ -54,13 +54,25 @@ def API_Request(*args):
     response, code, est = check_request(est, response)  # verify
 
     # save logs
-    if not args:
-        save_log(cmd="API_Request()", user=MSG_BOT, msg=f"API Requested", obj=est)
+    if args is not None:
+        msg = (f"API Requested / from {args}",)
     else:
+        msg = "API Requested"
+
+    save_log(
+        type="api",
+        cmd="API_Request()",
+        user=MSG_BOT,
+        msg=msg,
+        obj=est,
+    )
+
+    if code != 200:
         save_log(
+            type="api",
             cmd="API_Request()",
             user=MSG_BOT,
-            msg=f"API Requested / from {args}",
+            msg=f"{color['yellow']}response code error >> {code}",
             obj=est,
         )
 

@@ -23,6 +23,7 @@ from module.json_load import json_load
 from module.get_obj import get_obj
 from module.set_obj import set_obj
 from module.cmd_obj_check import cmd_obj_check
+from module.get_emoji import get_emoji
 
 from module.parser.w_alerts import W_Alerts
 from module.parser.w_news import W_news
@@ -60,14 +61,17 @@ class DiscordBot(discord.Client):
 
         print(f"{color['green']}Internal Coroutine Started{color['default']}")
 
-    async def send_alert(self, value):
+    async def send_alert(self, value, channel_list=None):
+        if not channel_list:
+            channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]
+
         # send message
-        channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]
         for ch in channel_list:
             # embed type
             if str(type(value)) == TYPE_EMBED:
                 channel = await self.fetch_channel(ch)
                 save_log(
+                    type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
                     guild=channel.guild,
@@ -81,6 +85,7 @@ class DiscordBot(discord.Client):
             # string type
             channel = await self.fetch_channel(ch)
             save_log(
+                type="msg",
                 cmd="auto_sent_message",
                 user=MSG_BOT,
                 guild=channel.guild,
@@ -98,7 +103,7 @@ class DiscordBot(discord.Client):
         code = API_Request("auto_send_msg_request()")  # VAR
         if code != 200:
             msg = f"{color['yellow']}response code < {code} > Task Aborted. (from auto_send_msg_request){color['default']}"
-            save_log(cmd="auto_send_msg_request()", user=MSG_BOT, msg=msg)
+            save_log(type="warn", cmd="auto_send_msg_request()", user=MSG_BOT, msg=msg)
             print(msg)
             return
 
@@ -108,19 +113,22 @@ class DiscordBot(discord.Client):
                 return True
             return False
 
-        async def send_alert(value):
+        async def send_alert(value, channel_list=None):
             # checks alert is enabled in setting file
             if not setting["noti"]["list"][item]:
                 return
 
+            if channel_list is None:
+                channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]  # VAR
+
             # send message
-            channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]  # VAR
             for ch in channel_list:
                 # embed type
                 channel = await self.fetch_channel(ch)
 
                 if str(type(value)) == TYPE_EMBED:
                     save_log(
+                        type="msg",
                         cmd="auto_sent_message",
                         user=MSG_BOT,
                         guild=channel.guild,
@@ -130,9 +138,11 @@ class DiscordBot(discord.Client):
                     )
                     await channel.send(embed=value)
 
+                # embed with file or thumbnail
                 elif str(type(value)) == TYPE_TUPLE:
                     eb, f = value
                     save_log(
+                        type="msg",
                         cmd="auto_sent_message",
                         user=MSG_BOT,
                         guild=channel.guild,
@@ -144,6 +154,7 @@ class DiscordBot(discord.Client):
 
                 else:  # string type
                     save_log(
+                        type="msg",
                         cmd="auto_sent_message",  # VAR
                         user=MSG_BOT,
                         guild=channel.guild,
@@ -266,7 +277,10 @@ class DiscordBot(discord.Client):
                 if get_obj(item)[0]["activation"] == obj_new[0]["activation"]:
                     continue
                 is_new_content = True
-                await send_alert(W_calendar(obj_new, ts.get("cmd.calendar.choice-all")))
+                await send_alert(
+                    W_calendar(obj_new, ts.get("cmd.calendar.choice-prize")),
+                    yaml_open(CHANNEL_FILE_LOC)["hex-cal"],
+                )
 
             elif item == keys[12]:  # cambionCycle
                 if get_obj(item)["state"] == obj_new["state"]:
@@ -287,7 +301,9 @@ class DiscordBot(discord.Client):
 
     @tasks.loop(time=alert_times)
     async def auto_noti(self):  # auto alert; sortie
-        await self.send_alert(W_Sortie(get_obj(keys[3])))
+        await self.send_alert(
+            W_Sortie(get_obj(keys[3])), yaml_open(CHANNEL_FILE_LOC)["sortie"]
+        )
 
 
 # init discord bot
@@ -303,41 +319,49 @@ tree = discord.app_commands.CommandTree(bot_client)
 # help command
 @tree.command(name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}")
 async def cmd_help(interact: discord.Interaction):
+    # TODO: help commands
+    await interact.response.send_message("help commands")
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        # obj=
     )
-    # TODO: help commands
-    await interact.response.send_message("help commands")
 
 
 # news command
 @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
 async def cmd_news(interact: discord.Interaction):
+    eb = W_news(cmd_obj_check(keys[1]), language)
+    await interact.response.send_message(embed=eb)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.news.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        # obj=eb.description,
     )
-    await interact.response.send_message(embed=W_news(cmd_obj_check(keys[1]), language))
 
 
 # alerts command
 @tree.command(name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc"))
 async def cmd_alerts(interact: discord.Interaction):
+    eb = W_Alerts(get_obj(keys[0]))
+    await interact.response.send_message(embed=eb)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.alerts.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        # obj=eb.description,
     )
-    await interact.response.send_message(embed=W_Alerts(get_obj(keys[0])))
 
 
 # cetus command (cetusCycle)
@@ -345,31 +369,36 @@ async def cmd_alerts(interact: discord.Interaction):
 async def cmd_cetus(interact: discord.Interaction):
     API_Request("cmd.cetus")
     set_obj(json_load()[keys[2]], keys[2])
+    eb, f = W_CetusCycle(cmd_obj_check(keys[2]), language)
+    if f is None:
+        await interact.response.send_message(embed=eb)
+    else:
+        await interact.response.send_message(embed=eb, file=f)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.cetus.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        # obj=eb.description,
     )
-    embed, f = W_CetusCycle(cmd_obj_check(keys[2]), language)
-    if f is None:
-        await interact.response.send_message(embed=embed)
-    else:
-        await interact.response.send_message(embed=embed, file=f)
 
 
 # sortie command
 @tree.command(name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc"))
 async def cmd_sortie(interact: discord.Interaction):
+    text_obj = W_Sortie(cmd_obj_check(keys[3]), language)
+    await interact.response.send_message()
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.sortie.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        # obj=text_obj,
     )
-    await interact.response.send_message(W_Sortie(cmd_obj_check(keys[3]), language))
 
 
 # archon hunt command
@@ -377,32 +406,36 @@ async def cmd_sortie(interact: discord.Interaction):
     name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
 )
 async def cmd_archon_hunt(interact: discord.Interaction):
+    text_obj = W_archonHunt(cmd_obj_check(keys[4]), language)
+    await interact.response.send_message(text_obj)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.archon-hunt.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        # obj=text_obj,
     )
-    await interact.response.send_message(W_archonHunt(cmd_obj_check(keys[4]), language))
 
 
 # void traders command
 @tree.command(
     name=ts.get(f"cmd.void-traders.cmd"), description=ts.get(f"cmd.void-traders.desc")
 )
-async def cmd_void_traders(interact: discord.Interaction):
+async def cmd_voidTraders(interact: discord.Interaction):
     API_Request("cmd.voidTraders")
     set_obj(json_load()[keys[5]], keys[5])
+    eb, f = W_VoidTraders(cmd_obj_check(keys[5]), language)
+    await interact.response.send_message(embed=eb, file=f)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.void-traders.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-    )
-    await interact.response.send_message(
-        embed=W_VoidTraders(cmd_obj_check(keys[5]), language)
+        # obj=eb.description,
     )
 
 
@@ -412,18 +445,20 @@ async def cmd_void_traders(interact: discord.Interaction):
     description=ts.get(f"cmd.steel-path-reward.desc"),
 )
 async def cmd_steel_reward(interact: discord.Interaction):
+    eb, f = W_SteelPathReward(cmd_obj_check(keys[6]), language)
+    if f is None:
+        await interact.response.send_message(embed=eb)
+    else:
+        await interact.response.send_message(embed=eb, file=f)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.steel-path-reward.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        # obj=eb.description,
     )
-    embed, f = W_SteelPathReward(cmd_obj_check(keys[6]), language)
-    if f is None:
-        await interact.response.send_message(embed=embed)
-    else:
-        await interact.response.send_message(embed=embed, file=f)
 
 
 # fissures command
@@ -433,14 +468,17 @@ async def cmd_steel_reward(interact: discord.Interaction):
 async def cmd_fissures(interact: discord.Interaction):
     API_Request("cmd.fissures")
     set_obj(json_load()[keys[10]], keys[10])
+    text_obj = W_Fissures(cmd_obj_check(keys[10]))
+    await interact.response.send_message(text_obj)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.fissures.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        # obj=text_obj,
     )
-    await interact.response.send_message(W_Fissures(cmd_obj_check(keys[10])))
 
 
 # duviriCycle command
@@ -451,15 +489,16 @@ async def cmd_fissures(interact: discord.Interaction):
 async def cmd_temporal_archimedea(interact: discord.Interaction):
     API_Request("cmd.cetus")
     set_obj(json_load()[keys[7]], keys[7])
+    eb = W_duviriCycle(cmd_obj_check(keys[7]), language)
+    await interact.response.send_message(embed=eb)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.duviri-cycle.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-    )
-    await interact.response.send_message(
-        embed=W_duviriCycle(cmd_obj_check(keys[7]), language)
+        # obj=eb.description,
     )
 
 
@@ -469,15 +508,16 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.deep-archimedea.desc"),
 )
 async def cmd_deep_archimedea(interact: discord.Interaction):
+    text_obj = W_DeepArchimedea(cmd_obj_check(keys[8]), language)
+    await interact.response.send_message(text_obj)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.deep-archimedea.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-    )
-    await interact.response.send_message(
-        W_DeepArchimedea(cmd_obj_check(keys[8]), language)
+        # obj=text_obj,
     )
 
 
@@ -487,15 +527,16 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.temporal-archimedea.desc"),
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
+    text_obj = W_TemporalArchimedia(cmd_obj_check(keys[9]), language)
+    await interact.response.send_message(text_obj)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.temporal-archimedea.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-    )
-    await interact.response.send_message(
-        W_TemporalArchimedia(cmd_obj_check(keys[9]), language)
+        # obj=text_obj,
     )
 
 
@@ -515,15 +556,16 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
 async def cmd_calendar(
     interact: discord.Interaction, types: discord.app_commands.Choice[int]
 ):
+    text_obj = W_calendar(cmd_obj_check(keys[11]), types.name, language)
+    await interact.response.send_message(text_obj)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.calendar.cmd')}.{type}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-    )
-    await interact.response.send_message(
-        W_calendar(cmd_obj_check(keys[11]), types.name, language)
+        # obj=text_obj,
     )
 
 
@@ -532,18 +574,20 @@ async def cmd_calendar(
 async def cmd_cambion(interact: discord.Interaction):
     API_Request("cmd.cambion")
     set_obj(json_load()[keys[12]], keys[12])
+    eb, f = w_cambionCycle(cmd_obj_check(keys[12]), language)
+    if f is None:
+        await interact.response.send_message(embed=eb)
+    else:
+        await interact.response.send_message(embed=eb, file=f)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.cambion.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        # obj=eb.description,
     )
-    embed, f = w_cambionCycle(cmd_obj_check(keys[12]), language)
-    if f is None:
-        await interact.response.send_message(embed=embed)
-    else:
-        await interact.response.send_message(embed=embed, file=f)
 
 
 # dailyDeals command
@@ -556,12 +600,13 @@ async def cmd_dailyDeals(interact: discord.Interaction):
     eb = w_dailyDeals(cmd_obj_check(keys[13]), language)
     await interact.response.send_message(embed=eb)
     save_log(
+        type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.dailyDeals.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        obj=eb.description,
+        # obj=eb.description,
     )
 
 

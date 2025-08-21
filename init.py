@@ -11,7 +11,7 @@ from variables.keys import keys
 
 if __name__ == "__main__":
     print("API Requesting...")
-    RESPONSE_CODE = API_Request()  # TODO: uncomment before commit
+    RESPONSE_CODE = API_Request()
     if RESPONSE_CODE != 200:
         raise ValueError("Response code is NOT 200!")
     print(f"Done! Code: {RESPONSE_CODE}")

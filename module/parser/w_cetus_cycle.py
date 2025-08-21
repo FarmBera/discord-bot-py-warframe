@@ -1,5 +1,6 @@
 import discord
 from translator import ts
+from module.discord_file import img_file
 
 
 cetus_color = {"day": 0xFFBB00, "night": 0x2B79FF}
@@ -27,8 +28,8 @@ def W_CetusCycle(cetus, *lang):
         ts.get(f"{prefix}.night") if cetus["isDay"] else ts.get(f"{prefix}.day")
     )
 
-    f = discord.File(f"img/cetus-{STATE}.png", filename="thumb.png")
+    f = img_file(f"cetus-{STATE}")
     embed = discord.Embed(description=output_msg, color=cetus_color[STATE])
-    embed.set_thumbnail(url="attachment://thumb.png")
+    embed.set_thumbnail(url="attachment://i.png")
 
     return embed, f

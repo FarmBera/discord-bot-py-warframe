@@ -10,7 +10,8 @@ threshold = 2  # VAR
 
 # save log into file
 def save_log(
-    cmd: str,  # cmd or function name
+    type: str = "info",
+    cmd: str = "NULL",  # cmd or function name
     time=None,  # current time
     user: str = "NULL",  # used user
     guild: str = "NULL",  # used server
@@ -38,7 +39,7 @@ def save_log(
     try:
         log_f = open(LOG_FILE_PATH, "a", encoding="UTF-8", newline="")
         wr = csv.writer(log_f)
-        wr.writerow([user, time, cmd, guild, channel, msg, obj])
+        wr.writerow([type, user, time, cmd, guild, channel, msg, obj])
         log_f.close()
     except Exception as e:
         print(f"{color['red']}ERR with saving file (save_log) >> {e}{color['default']}")

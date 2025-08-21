@@ -22,7 +22,7 @@ class Translator:
                     self.translations = yaml.safe_load(f)
             except FileNotFoundError:
                 msg = f"{color['red']}[warn]: Default translation file 'en.yml' also not found.{color['default']}"
-                save_log(cmd="translator.py", user=MSG_BOT, msg=msg)
+                save_log(type="error", cmd="translator.py", user=MSG_BOT, msg=msg)
                 print(msg)
 
     def get(self, key, **kwargs):

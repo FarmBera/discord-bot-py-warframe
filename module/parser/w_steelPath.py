@@ -1,5 +1,6 @@
 import discord
 from translator import ts
+from module.discord_file import img_file
 
 
 color_list = {
@@ -60,8 +61,8 @@ def W_SteelPathReward(steel, *lang):
         else:
             idx += 1
 
-    f = discord.File(f"img/{img_list[cname]}.png", filename="thumb.png")
+    f = img_file(img_list[cname])
     embed = discord.Embed(description=output_msg, colour=color_list[cname])
-    embed.set_thumbnail(url="attachment://thumb.png")
+    embed.set_thumbnail(url="attachment://i.png")
 
     return embed, f
