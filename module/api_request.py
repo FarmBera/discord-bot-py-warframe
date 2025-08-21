@@ -2,7 +2,7 @@ import requests
 import json
 import datetime as dt
 
-from TOKEN import base_url, headers, query
+from TOKEN import base_url, params, query
 from variables.color import color
 from variables.keys import MSG_BOT
 from module.save_log import save_log
@@ -17,7 +17,7 @@ data = None
 # api request func
 def send_request():
     date_start = dt.datetime.now()
-    response = requests.get(base_url, headers=headers)
+    response = requests.get(base_url, params=params)
     return dt.datetime.now() - date_start, response
 
 
