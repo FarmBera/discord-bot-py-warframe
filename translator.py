@@ -39,7 +39,6 @@ class Translator:
             return key
 
 
-# if __name__ == "__main__":
 # language initialize
 # language = input("Select Language (en/ko) >> ")  # TEMPORARYˇ
 language = "en"  # temporary

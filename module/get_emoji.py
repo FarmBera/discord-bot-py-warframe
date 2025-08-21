@@ -46,6 +46,17 @@ def get_emoji(item: str):
     elif "violet" in item:
         return "<:VioletArchonShard:1407864652175642665>"
 
+    elif "axi" in item:
+        return "<:AxiRelic:1408056877992116355>"
+    elif "lith" in item:
+        return "<:LithRelic:1408056882051944489>"
+    elif "meso" in item:
+        return "<:MesoRelic:1408056873747484713>"
+    elif "neo" in item:
+        return "<:NeoRelic:1408056875735584818>"
+    elif "requiem" in item:
+        return "<:RequiemRelic:1408056880206577705>"
+
     # 5; 3 day boosters
     elif "affinity" in item:
         return "<:3DayAffinity:1407881490381013034>"
