@@ -19,7 +19,7 @@ def W_VoidTraders(trader, *lang):
         return None
 
     idx = 1
-    length = len(trader)
+    length: int = len(trader)
     pf: str = "cmd.void-traders"
 
     output_msg: str = f"# {ts.get(f'{pf}.title')}\n\n"

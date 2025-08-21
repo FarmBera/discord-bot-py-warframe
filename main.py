@@ -27,14 +27,14 @@ from module.get_emoji import get_emoji
 
 from module.parser.w_alerts import W_Alerts
 from module.parser.w_news import W_news
-from module.parser.w_cetus_cycle import W_CetusCycle
+from module.parser.w_cetusCycle import W_CetusCycle
 from module.parser.w_sortie import W_Sortie
-from module.parser.w_archon_hunt import W_archonHunt
-from module.parser.w_void_traders import W_VoidTraders
+from module.parser.w_archonHunt import W_archonHunt
+from module.parser.w_voidTraders import W_VoidTraders
 from module.parser.w_steelPath import W_SteelPathReward
-from module.parser.w_duviri_cycle import W_duviriCycle
-from module.parser.w_deep_archimedea import W_DeepArchimedea
-from module.parser.w_temporal_archimedea import W_TemporalArchimedia
+from module.parser.w_duviriCycle import W_duviriCycle
+from module.parser.w_deepArchimedea import W_DeepArchimedea
+from module.parser.w_temporalArchimedea import W_TemporalArchimedia
 from module.parser.w_fissures import W_Fissures
 from module.parser.w_calendar import W_calendar
 from module.parser.w_cambionCycle import w_cambionCycle
@@ -201,7 +201,9 @@ class DiscordBot(discord.Client):
 
                 if missing:
                     is_new_content = True
-                    await send_alert(W_news(missing))
+                    await send_alert(
+                        W_news(missing), yaml_open(CHANNEL_FILE_LOC)["news"]
+                    )
 
             elif item == keys[2]:  # cetusCycle
                 if get_obj(item)["state"] == obj_new["state"]:
@@ -213,13 +215,15 @@ class DiscordBot(discord.Client):
                 if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
-                # await send_alert(W_Sortie(obj_new))
+                # await send_alert(W_Sortie(obj_new), yaml_open(CHANNEL_FILE_LOC)["sortie"])
 
             elif item == keys[4]:  # archonHunt
                 if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
-                await send_alert(W_archonHunt(obj_new))
+                await send_alert(
+                    W_archonHunt(obj_new), yaml_open(CHANNEL_FILE_LOC)["sortie"]
+                )
 
             elif item == keys[5]:  # voidTraders
                 try:  # prev content
@@ -299,8 +303,9 @@ class DiscordBot(discord.Client):
 
         return  # End Of auto_send_msg_request()
 
+    # sortie alert
     @tasks.loop(time=alert_times)
-    async def auto_noti(self):  # auto alert; sortie
+    async def auto_noti(self):
         await self.send_alert(
             W_Sortie(get_obj(keys[3])), yaml_open(CHANNEL_FILE_LOC)["sortie"]
         )
@@ -389,7 +394,7 @@ async def cmd_cetus(interact: discord.Interaction):
 @tree.command(name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc"))
 async def cmd_sortie(interact: discord.Interaction):
     text_obj = W_Sortie(cmd_obj_check(keys[3]), language)
-    await interact.response.send_message()
+    await interact.response.send_message(text_obj)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.sortie.cmd')}",

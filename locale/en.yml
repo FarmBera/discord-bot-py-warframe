@@ -57,7 +57,7 @@ cmd:
     deactivate: Deactivated
     end: Ends at
     location: Location
-    appear: Appears at
+    appear: Appears in
     place: Coming to
 
   steel-path-reward:
