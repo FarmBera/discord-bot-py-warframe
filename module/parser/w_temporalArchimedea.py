@@ -1,7 +1,7 @@
 from translator import ts
 
 
-def W_TemporalArchimedia(temporal, *lang) -> str:
+def w_temporalArchimedia(temporal, *lang) -> str:
     if temporal == False:
         return ts.get("general.error-cmd")
 

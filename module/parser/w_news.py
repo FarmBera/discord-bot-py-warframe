@@ -5,7 +5,7 @@ from translator import ts
 from variables.times import JSON_DATE_PAT
 
 
-def W_news(newses, *lang):
+def w_news(newses, *lang):
     if newses == False:
         return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
 

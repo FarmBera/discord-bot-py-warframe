@@ -12,7 +12,7 @@ def redef(prop):
         return prop
 
 
-def W_calendar(cal, typ, *lang) -> str:
+def w_calendar(cal, typ, *lang) -> str:
     if cal == False:
         ts.get("general.error-cmd")
 

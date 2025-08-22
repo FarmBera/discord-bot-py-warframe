@@ -26,7 +26,7 @@ img_list = {
 }
 
 
-def W_SteelPathReward(steel, *lang):
+def w_steelPath(steel, *lang):
     if steel == False:
         return (
             discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000),

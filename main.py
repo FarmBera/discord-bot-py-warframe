@@ -25,18 +25,18 @@ from module.set_obj import set_obj
 from module.cmd_obj_check import cmd_obj_check
 from module.get_emoji import get_emoji
 
-from module.parser.w_alerts import W_Alerts
-from module.parser.w_news import W_news
-from module.parser.w_cetusCycle import W_CetusCycle
-from module.parser.w_sortie import W_Sortie
-from module.parser.w_archonHunt import W_archonHunt
-from module.parser.w_voidTraders import W_VoidTraders
-from module.parser.w_steelPath import W_SteelPathReward
-from module.parser.w_duviriCycle import W_duviriCycle
-from module.parser.w_deepArchimedea import W_DeepArchimedea
-from module.parser.w_temporalArchimedea import W_TemporalArchimedia
-from module.parser.w_fissures import W_Fissures
-from module.parser.w_calendar import W_calendar
+from module.parser.w_alerts import w_alerts
+from module.parser.w_news import w_news
+from module.parser.w_cetusCycle import w_cetusCycle
+from module.parser.w_sortie import w_sortie
+from module.parser.w_archonHunt import w_archonHunt
+from module.parser.w_voidTraders import w_voidTraders
+from module.parser.w_steelPath import w_steelPath
+from module.parser.w_duviriCycle import w_duviriCycle
+from module.parser.w_deepArchimedea import w_deepArchimedea
+from module.parser.w_temporalArchimedea import w_temporalArchimedia
+from module.parser.w_fissures import w_fissures
+from module.parser.w_calendar import w_calendar
 from module.parser.w_cambionCycle import w_cambionCycle
 from module.parser.w_dailyDeals import w_dailyDeals
 
@@ -178,7 +178,7 @@ class DiscordBot(discord.Client):
                         continue
                 except:
                     is_new_content = True
-                    await send_alert(W_Alerts(obj_new))
+                    await send_alert(w_alerts(obj_new))
 
             elif item == keys[1]:  # news
                 if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
@@ -202,14 +202,14 @@ class DiscordBot(discord.Client):
                 if missing:
                     is_new_content = True
                     await send_alert(
-                        W_news(missing), yaml_open(CHANNEL_FILE_LOC)["news"]
+                        w_news(missing), yaml_open(CHANNEL_FILE_LOC)["news"]
                     )
 
             elif item == keys[2]:  # cetusCycle
                 if get_obj(item)["state"] == obj_new["state"]:
                     continue
                 is_new_content = True
-                await send_alert(W_CetusCycle(obj_new))
+                await send_alert(w_cetusCycle(obj_new))
 
             elif item == keys[3]:  # sortie
                 if get_obj(item)["activation"] == obj_new["activation"]:
@@ -222,7 +222,7 @@ class DiscordBot(discord.Client):
                     continue
                 is_new_content = True
                 await send_alert(
-                    W_archonHunt(obj_new), yaml_open(CHANNEL_FILE_LOC)["sortie"]
+                    w_archonHunt(obj_new), yaml_open(CHANNEL_FILE_LOC)["sortie"]
                 )
 
             elif item == keys[5]:  # voidTraders
@@ -246,7 +246,7 @@ class DiscordBot(discord.Client):
                 if empty_check(obj_new, item):
                     continue
                 is_new_content = True
-                await send_alert(W_VoidTraders(obj_new))
+                await send_alert(w_voidTraders(obj_new))
 
             # elif item=='voidTraderItem':
 
@@ -254,25 +254,25 @@ class DiscordBot(discord.Client):
                 if get_obj(item)["currentReward"] == obj_new["currentReward"]:
                     continue
                 is_new_content = True
-                await send_alert(W_SteelPathReward(obj_new))
+                await send_alert(w_steelPath(obj_new))
 
             elif item == keys[7]:  # duviriCycle
                 if get_obj(item)["state"] == obj_new["state"]:
                     continue
                 is_new_content = True
-                await send_alert(W_duviriCycle(obj_new))
+                await send_alert(w_duviriCycle(obj_new))
 
             elif item == keys[8]:  # deepArchimedea
                 if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
-                await send_alert(W_DeepArchimedea(obj_new))
+                await send_alert(w_deepArchimedea(obj_new))
 
             elif item == keys[9]:  # temporalArchimedea
                 if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
-                await send_alert(W_TemporalArchimedia(obj_new))
+                await send_alert(w_temporalArchimedia(obj_new))
 
             # elif item == keys[10]:  # fissures
             # deprecated
@@ -282,7 +282,7 @@ class DiscordBot(discord.Client):
                     continue
                 is_new_content = True
                 await send_alert(
-                    W_calendar(obj_new, ts.get("cmd.calendar.choice-prize")),
+                    w_calendar(obj_new, ts.get("cmd.calendar.choice-prize")),
                     yaml_open(CHANNEL_FILE_LOC)["hex-cal"],
                 )
 
@@ -307,7 +307,7 @@ class DiscordBot(discord.Client):
     @tasks.loop(time=alert_times)
     async def auto_noti(self):
         await self.send_alert(
-            W_Sortie(get_obj(keys[3])), yaml_open(CHANNEL_FILE_LOC)["sortie"]
+            w_sortie(get_obj(keys[3])), yaml_open(CHANNEL_FILE_LOC)["sortie"]
         )
 
 
@@ -340,7 +340,7 @@ async def cmd_help(interact: discord.Interaction):
 # news command
 @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
 async def cmd_news(interact: discord.Interaction):
-    eb = W_news(cmd_obj_check(keys[1]), language)
+    eb = w_news(cmd_obj_check(keys[1]), language)
     await interact.response.send_message(embed=eb)
     save_log(
         type="cmd",
@@ -356,7 +356,7 @@ async def cmd_news(interact: discord.Interaction):
 # alerts command
 @tree.command(name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc"))
 async def cmd_alerts(interact: discord.Interaction):
-    eb = W_Alerts(get_obj(keys[0]))
+    eb = w_alerts(get_obj(keys[0]))
     await interact.response.send_message(embed=eb)
     save_log(
         type="cmd",
@@ -374,7 +374,7 @@ async def cmd_alerts(interact: discord.Interaction):
 async def cmd_cetus(interact: discord.Interaction):
     API_Request("cmd.cetus")
     set_obj(json_load()[keys[2]], keys[2])
-    eb, f = W_CetusCycle(cmd_obj_check(keys[2]), language)
+    eb, f = w_cetusCycle(cmd_obj_check(keys[2]), language)
     if f is None:
         await interact.response.send_message(embed=eb)
     else:
@@ -393,7 +393,7 @@ async def cmd_cetus(interact: discord.Interaction):
 # sortie command
 @tree.command(name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc"))
 async def cmd_sortie(interact: discord.Interaction):
-    text_obj = W_Sortie(cmd_obj_check(keys[3]), language)
+    text_obj = w_sortie(cmd_obj_check(keys[3]), language)
     await interact.response.send_message(text_obj)
     save_log(
         type="cmd",
@@ -411,7 +411,7 @@ async def cmd_sortie(interact: discord.Interaction):
     name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
 )
 async def cmd_archon_hunt(interact: discord.Interaction):
-    text_obj = W_archonHunt(cmd_obj_check(keys[4]), language)
+    text_obj = w_archonHunt(cmd_obj_check(keys[4]), language)
     await interact.response.send_message(text_obj)
     save_log(
         type="cmd",
@@ -431,7 +431,7 @@ async def cmd_archon_hunt(interact: discord.Interaction):
 async def cmd_voidTraders(interact: discord.Interaction):
     API_Request("cmd.voidTraders")
     set_obj(json_load()[keys[5]], keys[5])
-    eb, f = W_VoidTraders(cmd_obj_check(keys[5]), language)
+    eb, f = w_voidTraders(cmd_obj_check(keys[5]), language)
     await interact.response.send_message(embed=eb, file=f)
     save_log(
         type="cmd",
@@ -450,7 +450,7 @@ async def cmd_voidTraders(interact: discord.Interaction):
     description=ts.get(f"cmd.steel-path-reward.desc"),
 )
 async def cmd_steel_reward(interact: discord.Interaction):
-    eb, f = W_SteelPathReward(cmd_obj_check(keys[6]), language)
+    eb, f = w_steelPath(cmd_obj_check(keys[6]), language)
     if f is None:
         await interact.response.send_message(embed=eb)
     else:
@@ -473,7 +473,7 @@ async def cmd_steel_reward(interact: discord.Interaction):
 async def cmd_fissures(interact: discord.Interaction):
     API_Request("cmd.fissures")
     set_obj(json_load()[keys[10]], keys[10])
-    text_obj = W_Fissures(cmd_obj_check(keys[10]))
+    text_obj = w_fissures(cmd_obj_check(keys[10]))
     await interact.response.send_message(text_obj)
     save_log(
         type="cmd",
@@ -494,7 +494,7 @@ async def cmd_fissures(interact: discord.Interaction):
 async def cmd_temporal_archimedea(interact: discord.Interaction):
     API_Request("cmd.cetus")
     set_obj(json_load()[keys[7]], keys[7])
-    eb = W_duviriCycle(cmd_obj_check(keys[7]), language)
+    eb = w_duviriCycle(cmd_obj_check(keys[7]), language)
     await interact.response.send_message(embed=eb)
     save_log(
         type="cmd",
@@ -513,7 +513,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.deep-archimedea.desc"),
 )
 async def cmd_deep_archimedea(interact: discord.Interaction):
-    text_obj = W_DeepArchimedea(cmd_obj_check(keys[8]), language)
+    text_obj = w_deepArchimedea(cmd_obj_check(keys[8]), language)
     await interact.response.send_message(text_obj)
     save_log(
         type="cmd",
@@ -532,7 +532,7 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.temporal-archimedea.desc"),
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
-    text_obj = W_TemporalArchimedia(cmd_obj_check(keys[9]), language)
+    text_obj = w_temporalArchimedia(cmd_obj_check(keys[9]), language)
     await interact.response.send_message(text_obj)
     save_log(
         type="cmd",
@@ -561,7 +561,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
 async def cmd_calendar(
     interact: discord.Interaction, types: discord.app_commands.Choice[int]
 ):
-    text_obj = W_calendar(cmd_obj_check(keys[11]), types.name, language)
+    text_obj = w_calendar(cmd_obj_check(keys[11]), types.name, language)
     await interact.response.send_message(text_obj)
     save_log(
         type="cmd",

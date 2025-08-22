@@ -14,7 +14,7 @@ duviri_color = {
 }
 
 
-def W_duviriCycle(duviri, *lang):
+def w_duviriCycle(duviri, *lang):
     if duviri == False:
         return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
 

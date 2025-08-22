@@ -1,7 +1,7 @@
 from translator import ts
 
 
-def W_Sortie(sortie, *lang):
+def w_sortie(sortie, *lang):
     if sortie == False:
         return ts.get("general.error-cmd")
 

@@ -46,6 +46,7 @@ def get_emoji(item: str):
     elif "violet" in item:
         return "<:VioletArchonShard:1407864652175642665>"
 
+    # 5; void relics
     elif "axi" in item:
         return "<:AxiRelic:1408056877992116355>"
     elif "lith" in item:

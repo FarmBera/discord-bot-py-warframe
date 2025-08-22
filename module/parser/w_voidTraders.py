@@ -11,7 +11,7 @@ def color_decision(t):
     return 0xFFA826
 
 
-def W_VoidTraders(trader, *lang):
+def w_voidTraders(trader, *lang):
     if trader == False:
         return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
 

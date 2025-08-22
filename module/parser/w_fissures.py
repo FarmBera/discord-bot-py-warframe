@@ -8,7 +8,7 @@ from module.json_load import json_load
 from module.get_emoji import get_emoji
 
 
-def W_Fissures(fissures, *lang):
+def w_fissures(fissures, *lang):
     setting = json_load(SETTING_FILE_LOC)
     fav_mission = setting["fissures"]["favMission"]  # var
     tier_except = setting["fissures"]["tierExcept"]  # var

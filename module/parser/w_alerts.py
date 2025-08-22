@@ -8,7 +8,7 @@ def color_decision(t):
     return 0xFFA826
 
 
-def W_Alerts(alerts, *lang):
+def w_alerts(alerts, *lang):
     if alerts == False:
         return discord.Embed(
             description=ts.get("general.error-cmd") + ": alert error",

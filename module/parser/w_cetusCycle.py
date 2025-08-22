@@ -7,7 +7,7 @@ cetus_color = {"day": 0xFFBB00, "night": 0x2B79FF}
 
 
 # cetus day/night state & cycle
-def W_CetusCycle(cetus, *lang):
+def w_cetusCycle(cetus, *lang):
     if cetus == False:
         return (
             discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000),
