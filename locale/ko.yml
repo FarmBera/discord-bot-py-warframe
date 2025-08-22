@@ -15,6 +15,18 @@ cmd:
     cmd: 도움말
     desc: 봇 도움말을 표시합니다
 
+  announcement:
+    cmd: 공지사항
+    desc: 봇 공지사항을 불러옵니다
+
+  patch-note:
+    cmd: 패치노트
+    desc: 봇의 최근 업데이트 내역을 불러옵니다
+
+  privacy-policy:
+    cmd: 개인정보-처리방침
+    desc: 개인정보 처리방침
+
   alerts:
     cmd: 얼럿
     desc: 현채 활성화된 얼럿 미션을 가져옵니다
@@ -124,5 +136,5 @@ cmd:
     desc: 현재 활성화된 미션 목록을 가져옵니다
     title: 침공
     at: /
-    atk-from: 공격자:
+    atk-from: "공격자:"
     eta: 만료일

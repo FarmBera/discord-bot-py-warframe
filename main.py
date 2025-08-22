@@ -11,6 +11,10 @@ from variables.keys import (
     keys,
     SETTING_FILE_LOC,
     CHANNEL_FILE_LOC,
+    HELP_FILE_LOC,
+    ANNOUNCE_FILE_LOC,
+    PATCHNOTE_FILE_LOC,
+    POLICY_FILE_LOC,
     TYPE_EMBED,
     TYPE_TUPLE,
     MSG_BOT,
@@ -24,6 +28,7 @@ from module.get_obj import get_obj
 from module.set_obj import set_obj
 from module.cmd_obj_check import cmd_obj_check
 from module.get_emoji import get_emoji
+from module.open_file import open_file
 
 from module.parser.w_alerts import w_alerts
 from module.parser.w_news import w_news
@@ -345,8 +350,9 @@ tree = discord.app_commands.CommandTree(bot_client)
 # help command
 @tree.command(name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}")
 async def cmd_help(interact: discord.Interaction):
-    # TODO: help commands
-    await interact.response.send_message("help commands")
+    txt = open_file(HELP_FILE_LOC)
+    eb = discord.Embed(description=txt, color=0xCEFF00)
+    await interact.response.send_message(embed=eb)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
@@ -354,7 +360,67 @@ async def cmd_help(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=
+        obj=txt,
+    )
+
+
+# announcement command
+@tree.command(
+    name=ts.get(f"cmd.announcement.cmd"),
+    description=f"{ts.get('cmd.announcement.desc')}",
+)
+async def cmd_announcement(interact: discord.Interaction):
+    txt = open_file(ANNOUNCE_FILE_LOC)
+    eb = discord.Embed(description=txt, color=0xCEFF00)
+    await interact.response.send_message(embed=eb)
+    save_log(
+        type="cmd",
+        cmd=f"cmd.{ts.get(f'cmd.announcement.cmd')}",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+        obj=txt,
+    )
+
+
+# patch-note command
+@tree.command(
+    name=ts.get(f"cmd.patch-note.cmd"),
+    description=f"{ts.get('cmd.patch-note.desc')}",
+)
+async def cmd_patch_note(interact: discord.Interaction):
+    txt = open_file(PATCHNOTE_FILE_LOC)
+    eb = discord.Embed(description=txt, color=0xCEFF00)
+    await interact.response.send_message(embed=eb)
+    save_log(
+        type="cmd",
+        cmd=f"cmd.{ts.get(f'cmd.patch-note.cmd')}",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+        obj=txt,
+    )
+
+
+# privacy-policy command
+@tree.command(
+    name=ts.get(f"cmd.privacy-policy.cmd"),
+    description=f"{ts.get('cmd.privacy-policy.desc')}",
+)
+async def cmd_privacy_policy(interact: discord.Interaction):
+    txt = open_file(POLICY_FILE_LOC)
+    eb = discord.Embed(description=txt, color=0xCEFF00)
+    await interact.response.send_message(embed=eb)
+    save_log(
+        type="cmd",
+        cmd=f"cmd.{ts.get(f'cmd.privacy-policy.cmd')}",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+        obj=txt,
     )
 
 

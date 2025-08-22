@@ -13,7 +13,19 @@ general:
 cmd:
   help:
     cmd: help
-    desc: Help center about this Bot
+    desc: Help center about this Bot (command etc)
+
+  announcement:
+    cmd: announcement
+    desc: Show Announcements
+
+  patch-note:
+    cmd: patch-note
+    desc: Recent patch-note this bot
+
+  privacy-policy:
+    cmd: privacy-policy
+    desc: Print Privacy Policy
 
   alerts:
     cmd: alerts

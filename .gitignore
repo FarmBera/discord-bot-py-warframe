@@ -1,17 +1,18 @@
 # directory
-.vscode
-archive
 img-tmp
 json
 log
 tmp
 
-# file; personal
+# personal file
+.obsidian
+.vscode
+archive
+docss
 *test*
 channel.yml
 TOKEN.py
-
-# file; settings
+# settings
 .markdownlint.json
 *_pc*.json
 

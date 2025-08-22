@@ -3,8 +3,8 @@ import datetime as dt
 
 from variables.times import KST
 from variables.color import color
+from variables.keys import LOG_FILE_PATH
 
-LOG_FILE_PATH = "log/logfile.csv"  # VAR
 threshold = 2  # VAR
 
 
