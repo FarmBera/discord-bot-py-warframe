@@ -19,7 +19,7 @@ keys: list = [
     "calendar",  # 11
     "cambionCycle",  # 12
     "dailyDeals",  # 13
-    # "invasions",# 14
+    "invasions",# 14
     # "voidTraderItem",# 6
 ]
 

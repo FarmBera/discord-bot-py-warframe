@@ -17,7 +17,7 @@
             "cambionCycle": false,
             "dailyDeals": true,
             "voidTraderItem": false,
-            "invasions": false
+            "invasions": true
         }
     },
     "fissures": {

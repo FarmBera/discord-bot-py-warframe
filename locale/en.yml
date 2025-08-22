@@ -76,10 +76,6 @@ cmd:
     steel: "**[Steel Path]**"
     remain: left
 
-  invasions:
-    name: invasions
-    desc: "NULL"
-
   duviri-cycle:
     cmd: duviricycle
     desc: Get current Duviri State
@@ -122,3 +118,11 @@ cmd:
     title: Daily Deal
     remain: Qty remain!
     exp: expires in
+
+  invasions:
+    cmd: invasions
+    desc: Get currently activated invasions
+    title: Invasions
+    at: at
+    atk-from: Attacked from
+    eta: Expires in

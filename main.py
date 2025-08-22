@@ -39,6 +39,7 @@ from module.parser.w_fissures import w_fissures
 from module.parser.w_calendar import w_calendar
 from module.parser.w_cambionCycle import w_cambionCycle
 from module.parser.w_dailyDeals import w_dailyDeals
+from module.parser.w_invasions import w_invasions
 
 
 class DiscordBot(discord.Client):
@@ -297,6 +298,26 @@ class DiscordBot(discord.Client):
                     continue
                 is_new_content = True
                 await send_alert(w_dailyDeals(obj_new))
+
+            elif item == keys[14]:  # invasions
+                missing_id = [
+                    item
+                    for item in [item["id"] for item in obj_new]
+                    if item not in [item["id"] for item in obj_prev]
+                ]
+                if not missing_id:
+                    continue
+
+                missing = []
+                for id in missing_id:
+                    for jtem in obj_new:
+                        if id != jtem["id"]:  # skip if not equal id
+                            continue
+                        missing.append(jtem)
+
+                if missing:
+                    is_new_content = True
+                    await send_alert(w_invasions(missing))
 
             if is_new_content:  # update json file
                 set_obj(obj_new, item)
@@ -607,6 +628,26 @@ async def cmd_dailyDeals(interact: discord.Interaction):
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.dailyDeals.cmd')}",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+        # obj=eb.description,
+    )
+
+
+# invasions command
+@tree.command(
+    name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
+)
+async def cmd_invasions(interact: discord.Interaction):
+    API_Request("cmd.invasions")
+    set_obj(json_load()[keys[14]], keys[14])
+    eb = w_invasions(cmd_obj_check(keys[14]), language)
+    await interact.response.send_message(embed=eb)
+    save_log(
+        type="cmd",
+        cmd=f"cmd.{ts.get(f'cmd.invasions.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
