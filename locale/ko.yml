@@ -1,11 +1,9 @@
 start:
   init: 봇을 시작하는 중...
-  components: 컴포넌트 로딩중...
-  done: 완료!
-  start: 부팅 완료!
-  connected: 서버 연결 완료!
-  bot-status-msg: 개발중
+  sync: 동기화 중
+  bot-status-msg: /help
   final: 로그인 완료!
+  coroutine: 내부 코루틴 시작 완료!
 
 general:
   error-cmd: 내부 오류. 관리자에게 문의하세요.
@@ -13,7 +11,7 @@ general:
 cmd:
   help:
     cmd: 도움말
-    desc: 봇 도움말을 표시합니다
+    desc: 봇 명령어 관련 도움말을 표시합니다
 
   announcement:
     cmd: 공지사항
@@ -25,12 +23,12 @@ cmd:
 
   privacy-policy:
     cmd: 개인정보-처리방침
-    desc: 개인정보 처리방침
+    desc: 개인정보 처리방침에 대하여...
 
   alerts:
     cmd: 얼럿
     desc: 현채 활성화된 얼럿 미션을 가져옵니다
-    desc-none: "## 현재 활성화된 얼럿 미션이 없습니다."
+    desc-none: "### 현재 활성화된 얼럿 미션이 없습니다!"
     title: 활성화된 얼럿
     credit: 크레딧
 
@@ -41,8 +39,8 @@ cmd:
 
   cetus:
     cmd: 시터스주기
-    desc: 현재 시터스 시간/상태를 불러옵니다
-    title: 시터스 낮/밤 주기
+    desc: 현재 지구의 시터스 시간 및 상태를 불러옵니다
+    title: 시터스 낮/밤 상태
     current: 현재 상태
     night: 밤
     day: 낮
@@ -61,7 +59,7 @@ cmd:
 
   void-traders:
     cmd: 보이드상인
-    desc: 현재 활성화 되거나, 앞으로 인제 등장할지 불러옵니다
+    desc: 보이드 상인이 언제, 어디서 등장할지 알려줍니다
     title: 보이드 상인 상태
     tdr-name: 상인
     status: 상태
@@ -74,7 +72,7 @@ cmd:
 
   steel-path-reward:
     cmd: 강길보상
-    desc: 주간 태신의 강길 애센스 교환 물품을 가져옵니다
+    desc: 주간 태신의 강길 에센스 교환 물품을 가져옵니다
     title: 강철의 길 보상
     curr-reward: 현재 보상
     cost: 개
@@ -103,26 +101,26 @@ cmd:
 
   deep-archimedea:
     cmd: 심층아르키메디아
-    desc: "[베타버전] 이번주 심층 아르키메디아 미션 목록을 가져옵니다"
-    title: 심층 아르키메디아 (베타)
+    desc: "[불안정] 이번주 심층 아르키메디아 미션 목록을 가져옵니다"
+    title: 심층 아르키메디아
 
   temporal-archimedea:
     cmd: 템포럴아르키메디아
-    desc: "[베타버전] 이번주 템포럴 아르키메디아 미션 목록을 가져옵니다"
-    title: 템포럴 아르키메디아 (베타)
+    desc: "[불안정] 이번주 템포럴 아르키메디아 미션 목록을 가져옵니다"
+    title: 템포럴 아르키메디아
 
   calendar:
     cmd: 헥스캘린더
-    desc: 이번주 헥스 캘린더 할일/보상 목록을 가져옵니다
-    title: 헥스 캘린더 (테스트)
+    desc: 이번주 헥스 캘린더 할일/보상 목록 등을 가져옵니다 (모두 출력하는 읍션의 경우 텍스트 길이로 인한 오류 발생 가능)
+    title: 헥스 캘린더
     choice-all: 모두
     choice-to-do: 할 일 목록
     choice-over: 오버라이드
     choice-prize: 보상(상품)
 
   cambion:
-    cmd: 캠비온퇴적지주기
-    desc: 현재 데이모스 캠비온 퇴적지 주기를 가져옵니다
+    cmd: 캠비온주기
+    desc: 현재 데이모스의 캠비온 퇴적지 주기를 가져옵니다
 
   dailyDeals:
     cmd: 일일특가
@@ -133,7 +131,7 @@ cmd:
 
   invasions:
     cmd: 침공
-    desc: 현재 활성화된 미션 목록을 가져옵니다
+    desc: 현재 활성화된 침공 미션 목록을 가져옵니다
     title: 침공
     at: /
     atk-from: "공격자:"

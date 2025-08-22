@@ -49,7 +49,7 @@ from module.parser.w_invasions import w_invasions
 
 class DiscordBot(discord.Client):
     async def on_ready(self):
-        print(f"{color['yellow']}Syncing...{color['default']}", end="")
+        print(f"{color['yellow']}{ts.get('start.sync')}...{color['default']}", end="")
         await self.wait_until_ready()
         await tree.sync()
         await self.change_presence(
@@ -65,17 +65,18 @@ class DiscordBot(discord.Client):
         self.auto_send_msg_request.start()
         self.auto_noti.start()
 
-        print(f"{color['green']}Internal Coroutine Started{color['default']}")
+        print(f"{color['green']}{ts.get('start.coroutine')}{color['default']}")
 
-    async def send_alert(self, value, channel_list=None):
-        if not channel_list:
+    async def send_alert_(self, value, channel_list=None):
+        if channel_list is None:
             channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]
 
         # send message
         for ch in channel_list:
+            channel = await self.fetch_channel(ch)
+
             # embed type
             if str(type(value)) == TYPE_EMBED:
-                channel = await self.fetch_channel(ch)
                 save_log(
                     type="msg",
                     cmd="auto_sent_message",
@@ -88,18 +89,31 @@ class DiscordBot(discord.Client):
                 await channel.send(embed=value)
                 return
 
-            # string type
-            channel = await self.fetch_channel(ch)
-            save_log(
-                type="msg",
-                cmd="auto_sent_message",
-                user=MSG_BOT,
-                guild=channel.guild,
-                channel=channel.name,
-                # msg=item,
-                obj=value,
-            )
-            await channel.send(value)
+            # embed with file or thumbnail
+            elif str(type(value)) == TYPE_TUPLE:
+                eb, f = value
+                save_log(
+                    type="msg",
+                    cmd="auto_sent_message",
+                    user=MSG_BOT,
+                    guild=channel.guild,
+                    channel=channel.name,
+                    # msg=item,
+                    obj=eb.description,
+                )
+                await channel.send(embed=eb, file=f)
+
+            else:  # string type
+                save_log(
+                    type="msg",
+                    cmd="auto_sent_message",
+                    user=MSG_BOT,
+                    guild=channel.guild,
+                    channel=channel.name,
+                    # msg=item,
+                    obj=value,
+                )
+                await channel.send(value)
 
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
@@ -332,7 +346,7 @@ class DiscordBot(discord.Client):
     # sortie alert
     @tasks.loop(time=alert_times)
     async def auto_noti(self):
-        await self.send_alert(
+        await self.send_alert_(
             w_sortie(get_obj(keys[3])), yaml_open(CHANNEL_FILE_LOC)["sortie"]
         )
 

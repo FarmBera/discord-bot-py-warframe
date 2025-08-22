@@ -1,11 +1,9 @@
 start:
   init: Starting bot...
-  components: loading components...
-  done: Done!
-  start: Connecting to the Server...
-  connected: Sucessfully Connected Server!
-  bot-status-msg: Alert Ready.
+  sync: Syncing
+  bot-status-msg: Alert Ready;
   final: Logged on as
+  coroutine: Internal Coroutine Started
 
 general:
   error-cmd: Internal Error. Please contact the administrator.
@@ -30,7 +28,7 @@ cmd:
   alerts:
     cmd: alerts
     desc: Get currently activated alert mission
-    desc-none: "## There're no activated alerts missions."
+    desc-none: "### There're no activated alerts missions!"
     title: Activated Alert
     credit: Credit
 
@@ -61,7 +59,7 @@ cmd:
 
   void-traders:
     cmd: voidtraders
-    desc: Get datetime next baro ki'Teer arrives # fix translation
+    desc: Get when & where Baro Ki'Teer arrives
     title: Void Traders Status
     tdr-name: Trader
     status: Status
@@ -103,13 +101,13 @@ cmd:
 
   deep-archimedea:
     cmd: deeparchimedea
-    desc: "[Beta] Get Deep Archimedea missions this weekend"
-    title: Deep Archimedea (BETA)
+    desc: "[Unstable] Get Deep Archimedea missions this weekend"
+    title: Deep Archimedea
 
   temporal-archimedea:
     cmd: temporalarchimedea
-    desc: "[Beta] Get Temporal Archimedea missions this weekend"
-    title: Temporal Archimedia (BETA)
+    desc: "[Unstable] Get Temporal Archimedea missions this weekend"
+    title: Temporal Archimedia
 
   calendar:
     cmd: hexcalendar
