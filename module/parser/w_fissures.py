@@ -7,6 +7,47 @@ from variables.times import time_calculate_with_curr
 from module.json_load import json_load
 from module.get_emoji import get_emoji
 
+railjack: list = [
+    # veil proxima
+    "numina",
+    "calabash",
+    "r-9 cloud",
+    "flexa",
+    "h-2 cloud",
+    "nsu grid",
+    # saturn proxima
+    "lupal pass",
+    "mordo cluster",
+    "nodo gap",
+    "kasio’s rest",
+    # venus proxima
+    "falling glory",
+    "vesper strait",
+    "luckless expanse",
+    "orvin-haarc",
+    "beacon shield ring",
+    "birost echo",
+    # earth proxima
+    "bendar cluster",
+    "sover strait",
+    "iota temple",
+    "ogal cluster",
+    "korm’s belt",
+    # neptune proxima
+    "brom cluster",
+    "mammon’s prospect",
+    "enkidu ice drifts",
+    "nu-gya mines",
+    "arva vector",
+    # pluto proxima
+    "khufu envoy",
+    "seven sirens",
+    "obol crossing",
+    "fenton’s field",
+    "profit margin",
+    "peregrine axis",
+]
+
 
 def w_fissures(fissures, *lang):
     setting = json_load(SETTING_FILE_LOC)
@@ -24,6 +65,11 @@ def w_fissures(fissures, *lang):
         if item["tier"] in tier_except:
             continue
 
+        # except railjack node
+        if item["node"].split("(")[0].lower() in railjack:
+            # print("RAILJACK MISSION")
+            continue
+
         if item["missionType"] in fav_mission:
             if item["isHard"]:  # steel path
                 steel_path.append(item)
@@ -37,12 +83,14 @@ def w_fissures(fissures, *lang):
         """
         Extermination - Neo Fissure **[Steel Path]**
         53m(53m 54s) left / Neso (Neptune) - Corpus
+
+        ({item['eta']})
         """
         o_tier = item["tier"]
         o_emoji = get_emoji(o_tier)
         o_isSteel = ts.get(f"{pf}.steel") if item["isHard"] else ""
 
         output_msg += f"""{item["missionType"]} - {o_emoji} {o_tier} {ts.get(f'{pf}.fiss')} {o_isSteel}
-{item['expiry']}({item['eta']}) {ts.get(f'{pf}.remain')} / {item['node']} - {item['enemy']}\n\n"""
+{item['expiry']} {ts.get(f'{pf}.remain')} / {item['node']} - {item['enemy']}\n\n"""
 
     return output_msg
