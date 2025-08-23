@@ -133,6 +133,7 @@ cmd:
     cmd: 침공
     desc: 현재 활성화된 침공 미션 목록을 가져옵니다
     title: 침공
-    at: /
+    at: at
+    completion: 진행상황
     atk-from: "공격자:"
-    eta: 만료일
+    eta: 시작한지

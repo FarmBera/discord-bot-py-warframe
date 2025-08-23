@@ -134,5 +134,6 @@ cmd:
     desc: Get currently activated invasions
     title: Invasions
     at: at
-    atk-from: Attacked from
-    eta: Expires in
+    completion: Progress
+    atk-from: "ATK:"
+    eta: Started before
