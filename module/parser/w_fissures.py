@@ -37,11 +37,11 @@ railjack: list = [
     "brom cluster",
     "mammon’s prospect",
     "enkidu ice drifts",
-    "nu-gya mines",
+    "nu-gua mines",
     "arva vector",
     # pluto proxima
     "khufu envoy",
-    "seven sirens",
+    "seven sirens",  # check
     "obol crossing",
     "fenton’s field",
     "profit margin",
