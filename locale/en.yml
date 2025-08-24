@@ -141,3 +141,17 @@ cmd:
   void-traders-item:
     cmd: voidtraders-item
     desc: Get Baro Ki'Teer item list.
+
+    not-yet: Trader is NOT arrived yet!
+    arrives-in: Arrives in
+
+    mods: Mods
+    skin: Skin
+    deco: Deco
+    weapon: Weapon
+    booster: Booster
+    glyph: Glyph
+    music: Music
+    relic: Relic
+    keys: Key
+    other: Other

@@ -137,3 +137,21 @@ cmd:
     completion: 진행상황
     atk-from: "공격자:"
     eta: 시작한지
+
+  void-traders-item:
+    cmd: 보이드상인-물품
+    desc: 바로 키 티어가 판매하는 물품 목록을 불러옵니다
+
+    not-yet: 상인이 아직 도착하지 않았습니다!
+    arrives-in: 다음 시간 뒤애 도착
+
+    mods: 모드
+    skin: 스킨
+    deco: 장식품
+    weapon: 무기
+    booster: 부스터
+    glyph: 글리프
+    music: 음악
+    relic: 성유물
+    keys: 키
+    other: 기타

@@ -750,8 +750,8 @@ async def cmd_invasions(interact: discord.Interaction):
 async def cmd_traders_item(interact: discord.Interaction):
     API_Request("cmd.void-traders-item")
     set_obj(json_load()[keys[5]], keys[5])
-    eb, f = W_voidTradersItem(cmd_obj_check(keys[5]), language)
-    await interact.response.send_message(embed=eb, file=f)
+    eb = W_voidTradersItem(cmd_obj_check(keys[5]), language)
+    await interact.response.send_message(embed=eb)  # , file=f)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.void-traders-item.cmd')}",
