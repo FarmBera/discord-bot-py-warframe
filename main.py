@@ -24,6 +24,7 @@ from module.save_log import save_log
 
 from module.yaml_open import yaml_open
 from module.json_load import json_load
+from module.json_save import json_save
 from module.get_obj import get_obj
 from module.set_obj import set_obj
 from module.cmd_obj_check import cmd_obj_check
@@ -479,6 +480,8 @@ async def cmd_alerts(interact: discord.Interaction):
 # cetus command (cetusCycle)
 @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
 async def cmd_cetus(interact: discord.Interaction):
+    await interact.response.defer()
+
     API_Request("cmd.cetus")
     set_obj(json_load()[keys[2]], keys[2])
     eb, f = w_cetusCycle(cmd_obj_check(keys[2]), language)
@@ -536,6 +539,8 @@ async def cmd_archon_hunt(interact: discord.Interaction):
     name=ts.get(f"cmd.void-traders.cmd"), description=ts.get(f"cmd.void-traders.desc")
 )
 async def cmd_voidTraders(interact: discord.Interaction):
+    await interact.response.defer()
+
     API_Request("cmd.voidTraders")
     set_obj(json_load()[keys[5]], keys[5])
     eb, f = w_voidTraders(cmd_obj_check(keys[5]), language)
@@ -578,6 +583,8 @@ async def cmd_steel_reward(interact: discord.Interaction):
     name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")
 )
 async def cmd_fissures(interact: discord.Interaction):
+    await interact.response.defer()
+
     API_Request("cmd.fissures")
     set_obj(json_load()[keys[10]], keys[10])
     text_obj = w_fissures(cmd_obj_check(keys[10]))
@@ -599,6 +606,8 @@ async def cmd_fissures(interact: discord.Interaction):
     description=ts.get(f"cmd.duviri-cycle.desc"),
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
+    await interact.response.defer()
+
     API_Request("cmd.cetus")
     set_obj(json_load()[keys[7]], keys[7])
     eb = w_duviriCycle(cmd_obj_check(keys[7]), language)
@@ -684,6 +693,8 @@ async def cmd_calendar(
 # cambion command (cambionCycle)
 @tree.command(name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc"))
 async def cmd_cambion(interact: discord.Interaction):
+    await interact.response.defer()
+
     API_Request("cmd.cambion")
     set_obj(json_load()[keys[12]], keys[12])
     eb, f = w_cambionCycle(cmd_obj_check(keys[12]), language)
@@ -707,6 +718,8 @@ async def cmd_cambion(interact: discord.Interaction):
     name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
 )
 async def cmd_dailyDeals(interact: discord.Interaction):
+    await interact.response.defer()
+
     API_Request("cmd.dailyDeals")
     set_obj(json_load()[keys[13]], keys[13])
     eb = w_dailyDeals(cmd_obj_check(keys[13]), language)
@@ -727,6 +740,8 @@ async def cmd_dailyDeals(interact: discord.Interaction):
     name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
 )
 async def cmd_invasions(interact: discord.Interaction):
+    await interact.response.defer()
+
     API_Request("cmd.invasions")
     set_obj(json_load()[keys[14]], keys[14])
     eb = w_invasions(cmd_obj_check(keys[14]), language)
@@ -748,6 +763,8 @@ async def cmd_invasions(interact: discord.Interaction):
     description=ts.get(f"cmd.void-traders-item.desc"),
 )
 async def cmd_traders_item(interact: discord.Interaction):
+    await interact.response.defer()
+
     API_Request("cmd.void-traders-item")
     set_obj(json_load()[keys[5]], keys[5])
     eb = W_voidTradersItem(cmd_obj_check(keys[5]), language)

@@ -11,7 +11,7 @@ def formatDate(dd: str):
     h, r = divmod(d.seconds, 3600)
     m, s = divmod(r, 60)
 
-    if h <= 0 and m < 10:
+    if h <= 0 and m < 5:
         return "Started Now"
 
     out = f"{d.days}d " if d.days >= 1 else ""
@@ -32,9 +32,14 @@ def singleInvasion(inv) -> str:
     output_msg = f"""### {ts.get(f'{pf}title')} {ts.get(f'{pf}at')} *{inv['node']}*
 
 {ts.get(f'{pf}completion')}: **{(inv['completion']):.1f}%** ({ts.get(f'{pf}atk-from')} {atk})
-{ts.get(f'{pf}eta')} {formatDate(inv['activation'])}
-
 """
+
+    date = formatDate(inv["activation"])
+    if date[0:1] == "S":
+        output_msg += date
+    else:
+        output_msg += f"{ts.get(f'{pf}eta')} {date}"
+
     if not inv["vsInfestation"]:
         output_msg += f"- **{atk}** - {inv['attacker']['reward']['itemString']}\n"
 
