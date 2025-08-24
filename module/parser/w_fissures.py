@@ -26,7 +26,7 @@ railjack: list = [
     "luckless expanse",
     "orvin-haarc",
     "beacon shield ring",
-    "birost echo",
+    "bifrost echo",
     # earth proxima
     "bendar cluster",
     "sover strait",
