@@ -337,7 +337,7 @@ class DiscordBot(discord.Client):
                     continue
 
                 for x in missing:
-                    if x["completed"]:
+                    if x["completed"] or x["completion"] >= 100.0:
                         missing.remove(x)
 
                 if missing:
