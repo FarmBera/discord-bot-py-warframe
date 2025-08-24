@@ -486,9 +486,9 @@ async def cmd_cetus(interact: discord.Interaction):
     set_obj(json_load()[keys[2]], keys[2])
     eb, f = w_cetusCycle(cmd_obj_check(keys[2]), language)
     if f is None:
-        await interact.response.send_message(embed=eb)
+        await interact.followup.send(embed=eb)
     else:
-        await interact.response.send_message(embed=eb, file=f)
+        await interact.followup.send(embed=eb, file=f)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.cetus.cmd')}",
@@ -544,7 +544,7 @@ async def cmd_voidTraders(interact: discord.Interaction):
     API_Request("cmd.voidTraders")
     set_obj(json_load()[keys[5]], keys[5])
     eb, f = w_voidTraders(cmd_obj_check(keys[5]), language)
-    await interact.response.send_message(embed=eb, file=f)
+    await interact.followup.send(embed=eb, file=f)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.void-traders.cmd')}",
@@ -588,7 +588,7 @@ async def cmd_fissures(interact: discord.Interaction):
     API_Request("cmd.fissures")
     set_obj(json_load()[keys[10]], keys[10])
     text_obj = w_fissures(cmd_obj_check(keys[10]))
-    await interact.response.send_message(text_obj)
+    await interact.followup.send(text_obj)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.fissures.cmd')}",
@@ -611,7 +611,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
     API_Request("cmd.cetus")
     set_obj(json_load()[keys[7]], keys[7])
     eb = w_duviriCycle(cmd_obj_check(keys[7]), language)
-    await interact.response.send_message(embed=eb)
+    await interact.followup.send(embed=eb)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.duviri-cycle.cmd')}",
@@ -699,9 +699,9 @@ async def cmd_cambion(interact: discord.Interaction):
     set_obj(json_load()[keys[12]], keys[12])
     eb, f = w_cambionCycle(cmd_obj_check(keys[12]), language)
     if f is None:
-        await interact.response.send_message(embed=eb)
+        await interact.followup.send(embed=eb)
     else:
-        await interact.response.send_message(embed=eb, file=f)
+        await interact.followup.send(embed=eb, file=f)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.cambion.cmd')}",
@@ -723,7 +723,7 @@ async def cmd_dailyDeals(interact: discord.Interaction):
     API_Request("cmd.dailyDeals")
     set_obj(json_load()[keys[13]], keys[13])
     eb = w_dailyDeals(cmd_obj_check(keys[13]), language)
-    await interact.response.send_message(embed=eb)
+    await interact.followup.send(embed=eb)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.dailyDeals.cmd')}",
@@ -745,7 +745,7 @@ async def cmd_invasions(interact: discord.Interaction):
     API_Request("cmd.invasions")
     set_obj(json_load()[keys[14]], keys[14])
     eb = w_invasions(cmd_obj_check(keys[14]), language)
-    await interact.response.send_message(embed=eb)
+    await interact.followup.send(embed=eb)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.invasions.cmd')}",
@@ -768,7 +768,7 @@ async def cmd_traders_item(interact: discord.Interaction):
     API_Request("cmd.void-traders-item")
     set_obj(json_load()[keys[5]], keys[5])
     eb = W_voidTradersItem(cmd_obj_check(keys[5]), language)
-    await interact.response.send_message(embed=eb)  # , file=f)
+    await interact.followup.send(embed=eb)  # , file=f)
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.void-traders-item.cmd')}",
