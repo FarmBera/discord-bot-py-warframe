@@ -67,7 +67,6 @@ def w_fissures(fissures, *lang):
 
         # except railjack node
         if item["node"].split("(")[0].lower() in railjack:
-            # print("RAILJACK MISSION")
             continue
 
         if item["missionType"] in fav_mission:
