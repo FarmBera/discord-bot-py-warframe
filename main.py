@@ -333,6 +333,12 @@ class DiscordBot(discord.Client):
                         if id != jtem["id"]:  # skip if not equal id
                             continue
                         missing.append(jtem)
+                if not missing:
+                    continue
+
+                for item in missing:
+                    if item["completed"]:
+                        missing.remove(item)
 
                 if missing:
                     is_new_content = True

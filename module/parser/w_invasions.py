@@ -36,7 +36,7 @@ def singleInvasion(inv) -> str:
 
 """
     if not inv["vsInfestation"]:
-        output_msg += f"- **{atk}** - {'X' if inv['vsInfestation'] else inv['attacker']['reward']['itemString']}\n"
+        output_msg += f"- **{atk}** - {inv['attacker']['reward']['itemString']}\n"
 
     output_msg += f"- **{dfd['faction']}** - {dfd['reward']['itemString']}\n\n"
 
