@@ -38,7 +38,7 @@ def singleInvasion(inv) -> str:
     if date[0:1] == "S":
         output_msg += date
     else:
-        output_msg += f"{ts.get(f'{pf}eta')} {date}"
+        output_msg += f"{ts.get(f'{pf}eta')} {date}\n\n"
 
     if not inv["vsInfestation"]:
         output_msg += f"- **{atk}** - {inv['attacker']['reward']['itemString']}\n"
