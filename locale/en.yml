@@ -63,7 +63,7 @@ cmd:
     title: Void Traders Status
     tdr-name: Trader
     status: Status
-    activate: Activated
+    activate: "[Activated](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
     deactivate: Deactivated
     end: Ends at
     location: Location
@@ -137,3 +137,7 @@ cmd:
     completion: Progress
     atk-from: "ATK:"
     eta: Started before
+
+  void-traders-item:
+    cmd: voidtraders-item
+    desc: Get Baro Ki'Teer item list.

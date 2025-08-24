@@ -14,6 +14,10 @@ def get_emoji(item: str):
         return "<:OrokinReactor:1407882689331335188>"
     elif "catalyst" in item:
         return "<:OrokinCatalyst:1407882687032852551>"
+    elif "ducat" in item:
+        return "<:ducats:1408813306415808676>"
+    elif "credit" in item:
+        return "<:credits:1408813303798563077>"
     # 2; forma
     elif "forma" in item:
         return "<:forma:1407864910997622916>"

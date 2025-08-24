@@ -1,6 +1,6 @@
 fileprefix: str = "docs/"
 
-LOG_FILE_PATH:str="log/log.csv"
+LOG_FILE_PATH: str = "log/log.csv"
 SETTING_FILE_LOC: str = "setting.json"
 CHANNEL_FILE_LOC: str = "channel"
 
@@ -30,7 +30,6 @@ keys: list = [
     "cambionCycle",  # 12
     "dailyDeals",  # 13
     "invasions",  # 14
-    # "voidTraderItem",# 6
 ]
 
 cal_item: dict = {

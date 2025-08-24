@@ -35,7 +35,7 @@ from module.parser.w_news import w_news
 from module.parser.w_cetusCycle import w_cetusCycle
 from module.parser.w_sortie import w_sortie
 from module.parser.w_archonHunt import w_archonHunt
-from module.parser.w_voidTraders import w_voidTraders
+from module.parser.w_voidTraders import w_voidTraders, W_voidTradersItem
 from module.parser.w_steelPath import w_steelPath
 from module.parser.w_duviriCycle import w_duviriCycle
 from module.parser.w_deepArchimedea import w_deepArchimedea
@@ -734,6 +734,27 @@ async def cmd_invasions(interact: discord.Interaction):
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.invasions.cmd')}",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+        # obj=eb.description,
+    )
+
+
+# voidTrader item command
+@tree.command(
+    name=ts.get(f"cmd.void-traders-item.cmd"),
+    description=ts.get(f"cmd.void-traders-item.desc"),
+)
+async def cmd_traders_item(interact: discord.Interaction):
+    API_Request("cmd.void-traders-item")
+    set_obj(json_load()[keys[5]], keys[5])
+    eb, f = W_voidTradersItem(cmd_obj_check(keys[5]), language)
+    await interact.response.send_message(embed=eb, file=f)
+    save_log(
+        type="cmd",
+        cmd=f"cmd.{ts.get(f'cmd.void-traders-item.cmd')}",
         time=interact.created_at,
         user=interact.user,
         guild=interact.guild,
