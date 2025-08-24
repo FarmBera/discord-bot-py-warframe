@@ -320,9 +320,9 @@ class DiscordBot(discord.Client):
 
             elif item == keys[14]:  # invasions
                 missing_id = [
-                    item
-                    for item in [item["id"] for item in obj_new]
-                    if item not in [item["id"] for item in obj_prev]
+                    x
+                    for x in [x["id"] for x in obj_new]
+                    if x not in [x["id"] for x in obj_prev]
                 ]
                 if not missing_id:
                     continue
@@ -336,9 +336,9 @@ class DiscordBot(discord.Client):
                 if not missing:
                     continue
 
-                for item in missing:
-                    if item["completed"]:
-                        missing.remove(item)
+                for x in missing:
+                    if x["completed"]:
+                        missing.remove(x)
 
                 if missing:
                     is_new_content = True
