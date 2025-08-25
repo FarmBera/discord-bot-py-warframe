@@ -306,6 +306,7 @@ class DiscordBot(discord.Client):
                         yaml_open(CHANNEL_FILE_LOC)["hex-cal"],
                     )
                 except:
+                    is_new_content = True
                     save_log(
                         type="warn",
                         cmd="auto_send_msg_request()",

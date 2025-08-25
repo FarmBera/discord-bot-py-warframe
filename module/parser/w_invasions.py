@@ -36,7 +36,7 @@ def singleInvasion(inv) -> str:
 
     date = formatDate(inv["activation"])
     if date[0:1] == "S":
-        output_msg += date
+        output_msg += f"{date}\n\n"
     else:
         output_msg += f"{ts.get(f'{pf}eta')} {date}\n\n"
 
