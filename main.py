@@ -227,16 +227,15 @@ class DiscordBot(discord.Client):
                     )
 
             elif item == keys[2]:  # cetusCycle
+                is_new_content = True
                 if get_obj(item)["state"] == obj_new["state"]:
                     continue
-                is_new_content = True
                 await send_alert(w_cetusCycle(obj_new))
 
             elif item == keys[3]:  # sortie
                 if get_obj(item)["activation"] == obj_new["activation"]:
                     continue
                 is_new_content = True
-                # await send_alert(W_Sortie(obj_new), yaml_open(CHANNEL_FILE_LOC)["sortie"])
 
             elif item == keys[4]:  # archonHunt
                 if get_obj(item)["activation"] == obj_new["activation"]:
@@ -247,6 +246,8 @@ class DiscordBot(discord.Client):
                 )
 
             elif item == keys[5]:  # voidTraders
+                is_new_content = True
+                # TODO: improve
                 try:  # prev content
                     val_prev = get_obj(item)[-1]["activation"]
                     val_prev_act = get_obj(item)[-1]["active"]
@@ -266,10 +267,7 @@ class DiscordBot(discord.Client):
                     continue
                 if empty_check(obj_new, item):
                     continue
-                is_new_content = True
                 await send_alert(w_voidTraders(obj_new))
-
-            # elif item=='voidTraderItem':
 
             elif item == keys[6]:  # steelPath
                 if get_obj(item)["currentReward"] == obj_new["currentReward"]:
@@ -278,9 +276,9 @@ class DiscordBot(discord.Client):
                 await send_alert(w_steelPath(obj_new))
 
             elif item == keys[7]:  # duviriCycle
+                is_new_content = True
                 if get_obj(item)["state"] == obj_new["state"]:
                     continue
-                is_new_content = True
                 await send_alert(w_duviriCycle(obj_new))
 
             elif item == keys[8]:  # deepArchimedea
@@ -299,18 +297,27 @@ class DiscordBot(discord.Client):
             # deprecated
 
             elif item == keys[11]:  # calendar
-                if get_obj(item)[0]["activation"] == obj_new[0]["activation"]:
-                    continue
-                is_new_content = True
-                await send_alert(
-                    w_calendar(obj_new, ts.get("cmd.calendar.choice-prize")),
-                    yaml_open(CHANNEL_FILE_LOC)["hex-cal"],
-                )
+                try:
+                    if get_obj(item)[0]["activation"] == obj_new[0]["activation"]:
+                        continue
+                    is_new_content = True
+                    await send_alert(
+                        w_calendar(obj_new, ts.get("cmd.calendar.choice-prize")),
+                        yaml_open(CHANNEL_FILE_LOC)["hex-cal"],
+                    )
+                except:
+                    save_log(
+                        type="warn",
+                        cmd="auto_send_msg_request()",
+                        user=MSG_BOT,
+                        msg="exception on calendar",
+                        obj=obj_new,
+                    )
 
             elif item == keys[12]:  # cambionCycle
+                is_new_content = True
                 if get_obj(item)["state"] == obj_new["state"]:
                     continue
-                is_new_content = True
                 await send_alert(w_cambionCycle(obj_new))
 
             elif item == keys[13]:  # dailyDeals
