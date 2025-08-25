@@ -1,11 +1,15 @@
 import discord
+import random
 
 from translator import ts
 from module.discord_file import img_file
 from module.get_emoji import get_emoji
 
+baro_img = ["baro-ki-teer", "baro"]  # VAR
 
-BARO_IMG_NAME = "baro-ki-teer"  # VAR
+
+def getBaroImg():
+    return baro_img[random.randrange(0, len(baro_img))]
 
 
 def color_decision(t):
@@ -55,7 +59,7 @@ def w_voidTraders(trader, *lang):
         # appear location
         output_msg += f"{item['location']}\n\n"
 
-    f = img_file(BARO_IMG_NAME)
+    f = img_file(getBaroImg())
     embed = discord.Embed(description=output_msg, color=color_decision(trader))
     embed.set_thumbnail(url="attachment://i.png")
 
@@ -109,7 +113,7 @@ def W_voidTradersItem(trader, *lang):
             output_msg += f"- {jtem}\n"
         output_msg += "\n"
 
-    # f = img_file(BARO_IMG_NAME)
+    # f = img_file(getBaroImg())
     embed = discord.Embed(description=output_msg, color=color_decision(trader))
     # embed.set_thumbnail(url="attachment://i.png")
 
