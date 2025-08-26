@@ -205,25 +205,25 @@ class DiscordBot(discord.Client):
                 if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
                     continue
 
-                missing_id = [
+                missing_id_news = [
                     item
                     for item in [item["id"] for item in obj_new]
                     if item not in [item["id"] for item in obj_prev]
                 ]
-                if not missing_id:
+                if not missing_id_news:
                     continue
 
-                missing = []
-                for id in missing_id:
+                missing_news = []
+                for id in missing_id_news:
                     for jtem in obj_new:
                         if id != jtem["id"]:  # skip if not equal id
                             continue
-                        missing.append(jtem)
+                        missing_news.append(jtem)
 
-                if missing:
+                if missing_news:
                     is_new_content = True
                     await send_alert(
-                        w_news(missing), yaml_open(CHANNEL_FILE_LOC)["news"]
+                        w_news(missing_news), yaml_open(CHANNEL_FILE_LOC)["news"]
                     )
 
             elif item == keys[2]:  # cetusCycle
@@ -328,30 +328,33 @@ class DiscordBot(discord.Client):
                 await send_alert(w_dailyDeals(obj_new))
 
             elif item == keys[14]:  # invasions
-                missing_id = [
+                missing_id_ivs = [
                     x
                     for x in [x["id"] for x in obj_new]
                     if x not in [x["id"] for x in obj_prev]
                 ]
-                if not missing_id:
+                if not missing_id_ivs:
                     continue
 
-                missing = []
-                for id in missing_id:
+                missing_ivs = []
+                for id in missing_id_ivs:
                     for jtem in obj_new:
                         if id != jtem["id"]:  # skip if not equal id
                             continue
-                        missing.append(jtem)
-                if not missing:
+                        missing_ivs.append(jtem)
+                if not missing_ivs:
                     continue
 
-                for x in missing:
+                for x in missing_ivs:
                     if x["completed"] or x["completion"] >= 100.0:
-                        missing.remove(x)
+                        missing_ivs.remove(x)
 
-                if missing:
+                if missing_ivs:
                     is_new_content = True
-                    await send_alert(w_invasions(missing))
+                    ivasion = w_invasions(missing_ivs)
+                    if not w_invasions:
+                        continue
+                    await send_alert(ivasion)
 
             if is_new_content:  # update json file
                 set_obj(obj_new, item)
