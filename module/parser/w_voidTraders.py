@@ -103,7 +103,7 @@ def W_voidTradersItem(trader, *lang):
             else:
                 itype = ts.get(f"{pf}other")
 
-            out = f"{itype} / {get_emoji('ducat')} {jtem['ducats']} {get_emoji('credit')} {int((jtem['credits'])):,} / {jtem['item']}"
+            out = f"{itype} / {jtem['item']} / {get_emoji('ducat')} {jtem['ducats']} {get_emoji('credit')} {int((jtem['credits'])):,}"
             listItem.append(out)
 
         listItem.sort()
