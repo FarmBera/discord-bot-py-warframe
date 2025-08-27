@@ -156,7 +156,7 @@ class DiscordBot(discord.Client):
         print(f"{color['green']}{ts.get('start.coroutine')}{color['default']}")
 
     async def send_alert(self, value, channel_list):
-        if channel_list is None:
+        if not channel_list or channel_list is None:
             channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]
 
         # send message
@@ -278,7 +278,9 @@ class DiscordBot(discord.Client):
                 if target_ch:  # send msg
                     await self.send_alert(parsed_content, channel_list=target_ch)
                 else:
-                    print(f"{color['red']}[err] target channel is Empty! > {target_ch}{color['default']}")
+                    print(
+                        f"{color['red']}[err] target channel is Empty! > {target_ch}{color['default']}"
+                    )
 
             if should_save_data:
                 set_obj(obj_new, key)
@@ -288,7 +290,7 @@ class DiscordBot(discord.Client):
     # sortie alert
     @tasks.loop(time=alert_times)
     async def auto_noti(self):
-        await self.send_alert_(
+        await self.send_alert(
             w_sortie(get_obj(keys[3])), yaml_open(CHANNEL_FILE_LOC)["sortie"]
         )
 
