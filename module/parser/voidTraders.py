@@ -66,7 +66,7 @@ def w_voidTraders(trader, *lang):
     return embed, f
 
 
-def W_voidTradersItem(trader, *lang):
+def w_voidTradersItem(trader, *lang):
     output_msg: str = ""
     pf = "cmd.void-traders-item."
 
