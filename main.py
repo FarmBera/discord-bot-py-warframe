@@ -31,21 +31,108 @@ from module.cmd_obj_check import cmd_obj_check
 from module.get_emoji import get_emoji
 from module.open_file import open_file
 
-from module.parser.w_alerts import w_alerts
-from module.parser.w_news import w_news
-from module.parser.w_cetusCycle import w_cetusCycle
-from module.parser.w_sortie import w_sortie
-from module.parser.w_archonHunt import w_archonHunt
-from module.parser.w_voidTraders import w_voidTraders, W_voidTradersItem
-from module.parser.w_steelPath import w_steelPath
-from module.parser.w_duviriCycle import w_duviriCycle
-from module.parser.w_deepArchimedea import w_deepArchimedea
-from module.parser.w_temporalArchimedea import w_temporalArchimedia
-from module.parser.w_fissures import w_fissures
-from module.parser.w_calendar import w_calendar
-from module.parser.w_cambionCycle import w_cambionCycle
-from module.parser.w_dailyDeals import w_dailyDeals
-from module.parser.w_invasions import w_invasions
+from module.parser.alerts import w_alerts
+from module.parser.news import w_news
+from module.parser.cetusCycle import w_cetusCycle
+from module.parser.sortie import w_sortie
+from module.parser.archonHunt import w_archonHunt
+from module.parser.voidTraders import w_voidTraders, w_voidTradersItem
+from module.parser.steelPath import w_steelPath
+from module.parser.duviriCycle import w_duviriCycle
+from module.parser.deepArchimedea import w_deepArchimedea
+from module.parser.temporalArchimedea import w_temporalArchimedia
+from module.parser.fissures import w_fissures
+from module.parser.calendar import w_calendar
+from module.parser.cambionCycle import w_cambionCycle
+from module.parser.dailyDeals import w_dailyDeals
+from module.parser.invasions import w_invasions
+
+
+def _check_void_trader_update(prev, new):
+    """Checks for updates regardless of the data structure (dict or list) of voidTraders."""
+    prev_data = prev[-1] if isinstance(prev, list) and prev else prev
+    new_data = new[-1] if isinstance(new, list) and new else new
+    if not isinstance(prev_data, dict) or not isinstance(new_data, dict):
+        # perform a simple comparison. data structure is diff than normal
+        return prev != new
+
+    return (prev_data.get("activation"), prev_data.get("active")) != (
+        new_data.get("activation"),
+        new_data.get("active"),
+    )
+
+
+DATA_HANDLERS = {
+    "alerts": {
+        "parser": w_alerts,
+        "special_logic": "handle_missing_items",
+    },
+    "news": {
+        "parser": w_news,
+        "special_logic": "handle_missing_items",
+        "channel_key": "news",
+    },
+    "cetusCycle": {
+        "parser": w_cetusCycle,
+        "update_check": lambda prev, new: prev.get("state") != new.get("state"),
+    },
+    "sortie": {
+        "parser": w_sortie,
+        "update_check": lambda prev, new: prev.get("id") != new.get("id"),
+        "channel_key": "sortie",
+    },
+    "archonHunt": {
+        "parser": w_archonHunt,
+        "update_check": lambda prev, new: prev.get("activation")
+        != new.get("activation"),
+        "channel_key": "sortie",
+    },
+    # TODO: improve
+    "voidTraders": {
+        "parser": w_voidTraders,
+        "update_check": _check_void_trader_update,
+    },
+    "steelPath": {
+        "parser": w_steelPath,
+        "update_check": lambda prev, new: prev.get("currentReward")
+        != new.get("currentReward"),
+    },
+    "duviriCycle": {
+        "parser": w_duviriCycle,
+        "update_check": lambda prev, new: prev.get("state") != new.get("state"),
+    },
+    "deepArchimedea": {
+        "parser": w_deepArchimedea,
+        "update_check": lambda prev, new: prev.get("activation")
+        != new.get("activation"),
+    },
+    "temporalArchimedea": {
+        "parser": w_temporalArchimedia,
+        "update_check": lambda prev, new: prev.get("activation")
+        != new.get("activation"),
+    },
+    "calendar": {
+        "parser": lambda data: w_calendar(data, ts.get("cmd.calendar.choice-prize")),
+        "update_check": lambda prev, new: prev
+        and new
+        and prev[0].get("activation") != new[0].get("activation"),
+        "channel_key": "hex-cal",
+    },
+    "cambionCycle": {
+        "parser": w_cambionCycle,
+        "update_check": lambda prev, new: prev.get("state") != new.get("state"),
+    },
+    "dailyDeals": {
+        "parser": w_dailyDeals,
+        "update_check": lambda prev, new: prev
+        and new
+        and prev[0].get("item") != new[0].get("item"),
+    },
+    "invasions": {
+        "parser": w_invasions,
+        "special_logic": "handle_missing_invasions",
+    },
+}
 
 
 class DiscordBot(discord.Client):
@@ -68,7 +155,7 @@ class DiscordBot(discord.Client):
 
         print(f"{color['green']}{ts.get('start.coroutine')}{color['default']}")
 
-    async def send_alert_(self, value, channel_list=None):
+    async def send_alert(self, value, channel_list):
         if channel_list is None:
             channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]
 
@@ -77,21 +164,20 @@ class DiscordBot(discord.Client):
             channel = await self.fetch_channel(ch)
 
             # embed type
-            if str(type(value)) == TYPE_EMBED:
+            if isinstance(value, discord.Embed):
                 save_log(
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
                     guild=channel.guild,
                     channel=channel.name,
-                    # msg=item,
                     obj=value.description,
                 )
                 await channel.send(embed=value)
                 return
 
             # embed with file or thumbnail
-            elif str(type(value)) == TYPE_TUPLE:
+            elif isinstance(value, tuple):
                 eb, f = value
                 save_log(
                     type="msg",
@@ -99,7 +185,6 @@ class DiscordBot(discord.Client):
                     user=MSG_BOT,
                     guild=channel.guild,
                     channel=channel.name,
-                    # msg=item,
                     obj=eb.description,
                 )
                 await channel.send(embed=eb, file=f)
@@ -111,7 +196,6 @@ class DiscordBot(discord.Client):
                     user=MSG_BOT,
                     guild=channel.guild,
                     channel=channel.name,
-                    # msg=item,
                     obj=value,
                 )
                 await channel.send(value)
@@ -120,6 +204,7 @@ class DiscordBot(discord.Client):
     @tasks.loop(minutes=5.0)
     async def auto_send_msg_request(self):
         setting = json_load(SETTING_FILE_LOC)  # open setting file
+        channels = yaml_open(CHANNEL_FILE_LOC)
 
         code = API_Request("auto_send_msg_request()")  # VAR
         if code != 200:
@@ -128,236 +213,75 @@ class DiscordBot(discord.Client):
             print(msg)
             return
 
-        def empty_check(obj, item):
-            if obj == []:
-                set_obj(obj, item)
-                return True
-            return False
-
-        async def send_alert(value, channel_list=None):
-            # checks alert is enabled in setting file
-            if not setting["noti"]["list"][item]:
-                return
-
-            if channel_list is None:
-                channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]  # VAR
-
-            # send message
-            for ch in channel_list:
-                # embed type
-                channel = await self.fetch_channel(ch)
-
-                if str(type(value)) == TYPE_EMBED:
-                    save_log(
-                        type="msg",
-                        cmd="auto_sent_message",
-                        user=MSG_BOT,
-                        guild=channel.guild,
-                        channel=channel.name,
-                        msg=item,
-                        obj=value.description,
-                    )
-                    await channel.send(embed=value)
-
-                # embed with file or thumbnail
-                elif str(type(value)) == TYPE_TUPLE:
-                    eb, f = value
-                    save_log(
-                        type="msg",
-                        cmd="auto_sent_message",
-                        user=MSG_BOT,
-                        guild=channel.guild,
-                        channel=channel.name,
-                        msg=item,
-                        obj=eb.description,
-                    )
-                    await channel.send(embed=eb, file=f)
-
-                else:  # string type
-                    save_log(
-                        type="msg",
-                        cmd="auto_sent_message",  # VAR
-                        user=MSG_BOT,
-                        guild=channel.guild,
-                        channel=channel.name,
-                        msg=item,
-                        obj=value,
-                    )
-                    await channel.send(value)
+        latest_data = json_load(DEFAULT_JSON_PATH)
 
         # check for new content & send alert
-        for item in keys:
-            is_new_content: bool = False
-            obj_prev = get_obj(item)
-            obj_new = json_load(DEFAULT_JSON_PATH)[item]
+        for key, handler in DATA_HANDLERS.items():
+            obj_prev = get_obj(key)
+            obj_new = latest_data[key]
 
-            if item == keys[0]:  # alerts
-                if empty_check(obj_new, item):
-                    continue
-                try:
-                    if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
-                        continue
-                except:
-                    is_new_content = True
-                    await send_alert(w_alerts(obj_new))
+            # if not obj_new or not obj_prev:
+            #     if obj_new:
+            #         set_obj(obj_new, key)
+            #     continue
 
-            elif item == keys[1]:  # news
-                if get_obj(item)[-1]["id"] == obj_new[-1]["id"]:
-                    continue
+            notification: bool = False
+            parsed_content = None
+            should_save_data = False
 
-                missing_id_news = [
+            special_logic = handler.get("special_logic")
+
+            # missing-item: check new content with missing item (parsing)
+            if special_logic == "handle_missing_items":  # alerts, news
+                prev_ids = {item["id"] for item in obj_prev}
+                new_ids = {item["id"] for item in obj_new}
+
+                if prev_ids != new_ids:
+                    should_save_data = True
+
+                # check newly added items
+                newly_added_ids = new_ids - prev_ids
+                if newly_added_ids:
+                    missing_items = [
+                        item for item in obj_new if item["id"] in newly_added_ids
+                    ]
+                    if missing_items:
+                        notification = True
+                        parsed_content = handler["parser"](missing_items)
+            elif special_logic == "handle_missing_invasions":  # invasions
+                prev_ids = {item["id"] for item in obj_prev}
+                # filter not completed invasion
+                missing_items = [
                     item
-                    for item in [item["id"] for item in obj_new]
-                    if item not in [item["id"] for item in obj_prev]
+                    for item in obj_new
+                    if item["id"] not in prev_ids and not item.get("completed", False)
                 ]
-                if not missing_id_news:
+                if missing_items:
+                    notification = True
+                    should_save_data = True
+                    parsed_content = handler["parser"](missing_items)
+            # default: check new content (parsing)
+            elif handler["update_check"](obj_prev, obj_new):
+                notification = True
+                should_save_data = True
+                parsed_content = handler["parser"](obj_new)
+
+            # FINAL; fetch channel & send msg
+            if notification and parsed_content:
+                # isEnabled alerts
+                if not setting["noti"]["list"][key]:
                     continue
 
-                missing_news = []
-                for id in missing_id_news:
-                    for jtem in obj_new:
-                        if id != jtem["id"]:  # skip if not equal id
-                            continue
-                        missing_news.append(jtem)
+                # fetch channel
+                ch_key = handler.get("channel_key", "channel")
+                target_ch = channels.get(ch_key)
+                if target_ch:  # send msg
+                    await self.send_alert(parsed_content, channel_list=target_ch)
+                else:
+                    print(f"{color['red']}[err] target channel is Empty! > {target_ch}{color['default']}")
 
-                if missing_news:
-                    is_new_content = True
-                    await send_alert(
-                        w_news(missing_news), yaml_open(CHANNEL_FILE_LOC)["news"]
-                    )
-
-            elif item == keys[2]:  # cetusCycle
-                is_new_content = True
-                if get_obj(item)["state"] == obj_new["state"]:
-                    continue
-                await send_alert(w_cetusCycle(obj_new))
-
-            elif item == keys[3]:  # sortie
-                if get_obj(item)["activation"] == obj_new["activation"]:
-                    continue
-                is_new_content = True
-
-            elif item == keys[4]:  # archonHunt
-                if get_obj(item)["activation"] == obj_new["activation"]:
-                    continue
-                is_new_content = True
-                await send_alert(
-                    w_archonHunt(obj_new), yaml_open(CHANNEL_FILE_LOC)["sortie"]
-                )
-
-            elif item == keys[5]:  # voidTraders
-                is_new_content = True
-                # TODO: improve
-                try:  # prev content
-                    val_prev = get_obj(item)[-1]["activation"]
-                    val_prev_act = get_obj(item)[-1]["active"]
-                except:
-                    val_prev = get_obj(item)["activation"]
-                    val_prev_act = get_obj(item)["active"]
-
-                try:  # new content
-                    val_new = obj_new[-1]["activation"]
-                    val_new_act = obj_new[-1]["active"]
-                except:
-                    val_new = obj_new["activation"]
-                    val_new_act = obj_new["active"]
-
-                # check
-                if (val_prev == val_new) and (val_prev_act == val_new_act):
-                    continue
-                if empty_check(obj_new, item):
-                    continue
-                await send_alert(w_voidTraders(obj_new))
-
-            elif item == keys[6]:  # steelPath
-                if get_obj(item)["currentReward"] == obj_new["currentReward"]:
-                    continue
-                is_new_content = True
-                await send_alert(w_steelPath(obj_new))
-
-            elif item == keys[7]:  # duviriCycle
-                is_new_content = True
-                if get_obj(item)["state"] == obj_new["state"]:
-                    continue
-                await send_alert(w_duviriCycle(obj_new))
-
-            elif item == keys[8]:  # deepArchimedea
-                if get_obj(item)["activation"] == obj_new["activation"]:
-                    continue
-                is_new_content = True
-                await send_alert(w_deepArchimedea(obj_new))
-
-            elif item == keys[9]:  # temporalArchimedea
-                if get_obj(item)["activation"] == obj_new["activation"]:
-                    continue
-                is_new_content = True
-                await send_alert(w_temporalArchimedia(obj_new))
-
-            # elif item == keys[10]:  # fissures
-            # deprecated
-
-            elif item == keys[11]:  # calendar
-                try:
-                    if get_obj(item)[0]["activation"] == obj_new[0]["activation"]:
-                        continue
-                    is_new_content = True
-                    await send_alert(
-                        w_calendar(obj_new, ts.get("cmd.calendar.choice-prize")),
-                        yaml_open(CHANNEL_FILE_LOC)["hex-cal"],
-                    )
-                except:
-                    is_new_content = True
-                    save_log(
-                        type="warn",
-                        cmd="auto_send_msg_request()",
-                        user=MSG_BOT,
-                        msg="exception on calendar",
-                        obj=obj_new,
-                    )
-
-            elif item == keys[12]:  # cambionCycle
-                is_new_content = True
-                if get_obj(item)["state"] == obj_new["state"]:
-                    continue
-                await send_alert(w_cambionCycle(obj_new))
-
-            elif item == keys[13]:  # dailyDeals
-                if get_obj(item)[0]["item"] == obj_new[0]["item"]:
-                    continue
-                is_new_content = True
-                await send_alert(w_dailyDeals(obj_new))
-
-            elif item == keys[14]:  # invasions
-                missing_id_ivs = [
-                    x
-                    for x in [x["id"] for x in obj_new]
-                    if x not in [x["id"] for x in obj_prev]
-                ]
-                if not missing_id_ivs:
-                    continue
-
-                missing_ivs = []
-                for id in missing_id_ivs:
-                    for jtem in obj_new:
-                        if id != jtem["id"]:  # skip if not equal id
-                            continue
-                        missing_ivs.append(jtem)
-                if not missing_ivs:
-                    continue
-
-                for x in missing_ivs:
-                    if x["completed"] or x["completion"] >= 100.0:
-                        missing_ivs.remove(x)
-
-                if missing_ivs:
-                    is_new_content = True
-                    ivasion = w_invasions(missing_ivs)
-                    if not ivasion:
-                        continue
-                    await send_alert(ivasion)
-
-            if is_new_content:  # update json file
-                set_obj(obj_new, item)
+            if should_save_data:
+                set_obj(obj_new, key)
 
         return  # End Of auto_send_msg_request()
 
@@ -778,7 +702,7 @@ async def cmd_traders_item(interact: discord.Interaction):
 
     API_Request("cmd.void-traders-item")
     set_obj(json_load()[keys[5]], keys[5])
-    eb = W_voidTradersItem(cmd_obj_check(keys[5]), language)
+    eb = w_voidTradersItem(cmd_obj_check(keys[5]), language)
     await interact.followup.send(embed=eb)  # , file=f)
     save_log(
         type="cmd",
