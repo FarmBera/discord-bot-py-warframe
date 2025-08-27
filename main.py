@@ -352,7 +352,7 @@ class DiscordBot(discord.Client):
                 if missing_ivs:
                     is_new_content = True
                     ivasion = w_invasions(missing_ivs)
-                    if not w_invasions:
+                    if not ivasion:
                         continue
                     await send_alert(ivasion)
 
@@ -468,7 +468,7 @@ async def cmd_news(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 
@@ -484,7 +484,7 @@ async def cmd_alerts(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 
@@ -507,7 +507,7 @@ async def cmd_cetus(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 
@@ -523,7 +523,7 @@ async def cmd_sortie(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=text_obj,
+        obj=text_obj,
     )
 
 
@@ -541,7 +541,7 @@ async def cmd_archon_hunt(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=text_obj,
+        obj=text_obj,
     )
 
 
@@ -563,7 +563,7 @@ async def cmd_voidTraders(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 
@@ -585,7 +585,7 @@ async def cmd_steel_reward(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 
@@ -607,7 +607,7 @@ async def cmd_fissures(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=text_obj,
+        obj=text_obj,
     )
 
 
@@ -630,7 +630,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 
@@ -649,7 +649,7 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=text_obj,
+        obj=text_obj,
     )
 
 
@@ -668,7 +668,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=text_obj,
+        obj=text_obj,
     )
 
 
@@ -697,7 +697,7 @@ async def cmd_calendar(
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=text_obj,
+        obj=text_obj,
     )
 
 
@@ -720,7 +720,7 @@ async def cmd_cambion(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 
@@ -742,7 +742,7 @@ async def cmd_dailyDeals(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 
@@ -764,7 +764,7 @@ async def cmd_invasions(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 
@@ -787,7 +787,7 @@ async def cmd_traders_item(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        # obj=eb.description,
+        obj=eb.description,
     )
 
 

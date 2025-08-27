@@ -24,7 +24,7 @@ def send_request():
 def check_request(est, response):
     # check response value
     if response is None:
-        print(f"{color['red']}[ERR] response is NULL{color['default']}")
+        print(f"{color['red']}[err] response is Empty!{color['default']}")
 
     # check response code
     res_code: int = response.status_code
@@ -43,28 +43,28 @@ def check_request(est, response):
         with open(fname, "w", encoding="utf-8") as json_file:
             json.dump(response, json_file, ensure_ascii=False, indent=2)
     except Exception as e:
-        print(f"{color['red']}ERR with saving file{color['default']}")
+        print(f"{color['red']}[err] Exception on saving file! {e}{color['default']}")
 
     return response, res_code, est
 
 
 # usage
-def API_Request(*args):
+def API_Request(args: str):
     est, response = send_request()  # real request
     response, code, est = check_request(est, response)  # verify
 
     # save logs
     if args is not None:
-        msg = (f"API Requested / from {args}",)
+        msg = args
     else:
-        msg = "API Requested"
+        msg = "API Requested from unknown source"
 
     save_log(
         type="api",
         cmd="API_Request()",
         user=MSG_BOT,
-        msg=msg,
-        obj=est,
+        msg=f"{msg} / {est}",
+        obj=code,
     )
 
     if code != 200:
@@ -72,8 +72,8 @@ def API_Request(*args):
             type="api",
             cmd="API_Request()",
             user=MSG_BOT,
-            msg=f"{color['yellow']}response code error >> {code}",
-            obj=est,
+            msg=f"response code error >> {code} / {est}",
+            obj=code,
         )
 
     return code
