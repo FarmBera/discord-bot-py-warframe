@@ -42,4 +42,6 @@ def save_log(
         wr.writerow([type, user, time, cmd, guild, channel, msg, obj])
         log_f.close()
     except Exception as e:
-        print(f"{color['red']}ERR with saving file (save_log) >> {e}{color['default']}")
+        print(
+            f"{color['red']}[err] Something wrong with saving file (save_log) >> {e}{color['default']}"
+        )
