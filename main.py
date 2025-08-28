@@ -208,9 +208,15 @@ class DiscordBot(discord.Client):
 
         code = API_Request("auto_send_msg_request()")  # VAR
         if code != 200:
-            msg = f"{color['yellow']}response code < {code} > Task Aborted. (from auto_send_msg_request){color['default']}"
-            save_log(type="warn", cmd="auto_send_msg_request()", user=MSG_BOT, msg=msg)
-            print(msg)
+            msg = f"[warn] response code error < {code} > Task Aborted. (from auto_send_msg_request)"
+            save_log(
+                type="warn",
+                cmd="auto_send_msg_request()",
+                user=MSG_BOT,
+                msg=msg,
+                obj=code,
+            )
+            print(color["yellow"], msg, color["default"], sep="")
             return
 
         latest_data = json_load(DEFAULT_JSON_PATH)
@@ -221,17 +227,16 @@ class DiscordBot(discord.Client):
             obj_new = latest_data[key]
 
             # if not obj_new or not obj_prev:
-            #     if obj_new:
-            #         set_obj(obj_new, key)
+            #     if obj_new: set_obj(obj_new, key)
             #     continue
 
             notification: bool = False
             parsed_content = None
-            should_save_data = False
+            should_save_data: bool = False
 
             special_logic = handler.get("special_logic")
 
-            # missing-item: check new content with missing item (parsing)
+            # parsing special case with missing item
             if special_logic == "handle_missing_items":  # alerts, news
                 prev_ids = {item["id"] for item in obj_prev}
                 new_ids = {item["id"] for item in obj_new}
@@ -248,6 +253,7 @@ class DiscordBot(discord.Client):
                     if missing_items:
                         notification = True
                         parsed_content = handler["parser"](missing_items)
+            # parsing special case: invasions
             elif special_logic == "handle_missing_invasions":  # invasions
                 prev_ids = {item["id"] for item in obj_prev}
                 # filter not completed invasion
@@ -260,7 +266,7 @@ class DiscordBot(discord.Client):
                     notification = True
                     should_save_data = True
                     parsed_content = handler["parser"](missing_items)
-            # default: check new content (parsing)
+            # parsing: default
             elif handler["update_check"](obj_prev, obj_new):
                 notification = True
                 should_save_data = True
@@ -282,6 +288,7 @@ class DiscordBot(discord.Client):
                         f"{color['red']}[err] target channel is Empty! > {target_ch}{color['default']}"
                     )
 
+            # save data
             if should_save_data:
                 set_obj(obj_new, key)
 
@@ -303,14 +310,75 @@ tree = discord.app_commands.CommandTree(bot_client)
 
 
 # commands
+async def cmd_helper(
+    interact: discord.Interaction,
+    key: str,
+    parser_func,
+    isFollowUp: bool = False,
+    need_api_call: bool = False,
+    parser_args=None,
+):
+    # delay response if needed
+    if isFollowUp:
+        await interact.response.defer()
+
+    # API request if needed
+    if need_api_call:
+        API_Request(f"cmd.{key}")
+        set_obj(json_load()[key], key)
+
+    # load objects
+    if parser_args:
+        obj = parser_func(cmd_obj_check(key), parser_args)
+    else:
+        obj = parser_func(cmd_obj_check(key))
+
+    # send message
+    resp_head = interact.followup if isFollowUp else interact.response
+
+    if isinstance(obj, discord.Embed):  # embed only
+        if isFollowUp:
+            await resp_head.send(embed=obj)
+        else:
+            await resp_head.send_message(embed=obj)
+        log_obj = obj.description
+    elif isinstance(obj, tuple):  # embed with file
+        eb, file = obj
+        if isFollowUp:
+            await resp_head.send(embed=eb, file=file)
+        else:
+            await resp_head.send_message(embed=eb, file=file)
+        log_obj = eb.description
+    else:  # text only
+        if isFollowUp:
+            await resp_head.send(obj)
+        else:
+            await resp_head.send_message(obj)
+        log_obj = obj
+
+    save_log(
+        type="cmd",
+        cmd=f"cmd.{key}{f'-{parser_args}' if parser_args else ''}",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+        msg="[info] cmd used",
+        obj=log_obj,
+    )
 
 
-# help command
-@tree.command(name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}")
-async def cmd_help(interact: discord.Interaction):
-    txt = open_file(HELP_FILE_LOC)
-    eb = discord.Embed(description=txt, color=0xCEFF00)
-    await interact.response.send_message(embed=eb)
+async def cmd_helper_txt(
+    interact: discord.Interaction,
+    file_name: str,
+):
+    txt = open_file(file_name)
+
+    # send message
+    await interact.response.send_message(
+        embed=discord.Embed(description=txt, color=0xCEFF00)  # VAR
+    )
+
     save_log(
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
@@ -318,8 +386,15 @@ async def cmd_help(interact: discord.Interaction):
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
+        msg="[info] cmd used",
         obj=txt,
     )
+
+
+# help command
+@tree.command(name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}")
+async def cmd_help(interact: discord.Interaction):
+    await cmd_helper_txt(interact, file_name=HELP_FILE_LOC)
 
 
 # announcement command
@@ -328,18 +403,7 @@ async def cmd_help(interact: discord.Interaction):
     description=f"{ts.get('cmd.announcement.desc')}",
 )
 async def cmd_announcement(interact: discord.Interaction):
-    txt = open_file(ANNOUNCE_FILE_LOC)
-    eb = discord.Embed(description=txt, color=0xCEFF00)
-    await interact.response.send_message(embed=eb)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.announcement.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=txt,
-    )
+    await cmd_helper_txt(interact, file_name=ANNOUNCE_FILE_LOC)
 
 
 # patch-note command
@@ -348,18 +412,7 @@ async def cmd_announcement(interact: discord.Interaction):
     description=f"{ts.get('cmd.patch-note.desc')}",
 )
 async def cmd_patch_note(interact: discord.Interaction):
-    txt = open_file(PATCHNOTE_FILE_LOC)
-    eb = discord.Embed(description=txt, color=0xCEFF00)
-    await interact.response.send_message(embed=eb)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.patch-note.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=txt,
-    )
+    await cmd_helper_txt(interact, file_name=PATCHNOTE_FILE_LOC)
 
 
 # privacy-policy command
@@ -368,89 +421,37 @@ async def cmd_patch_note(interact: discord.Interaction):
     description=f"{ts.get('cmd.privacy-policy.desc')}",
 )
 async def cmd_privacy_policy(interact: discord.Interaction):
-    txt = open_file(POLICY_FILE_LOC)
-    eb = discord.Embed(description=txt, color=0xCEFF00)
-    await interact.response.send_message(embed=eb)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.privacy-policy.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=txt,
-    )
+    await cmd_helper_txt(interact, file_name=POLICY_FILE_LOC)
 
 
 # news command
 @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
 async def cmd_news(interact: discord.Interaction):
-    eb = w_news(cmd_obj_check(keys[1]), language)
-    await interact.response.send_message(embed=eb)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.news.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
-    )
+    await cmd_helper(interact, key=keys[1], parser_func=w_news)
 
 
 # alerts command
 @tree.command(name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc"))
 async def cmd_alerts(interact: discord.Interaction):
-    eb = w_alerts(get_obj(keys[0]))
-    await interact.response.send_message(embed=eb)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.alerts.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
-    )
+    await cmd_helper(interact=interact, key=keys[0], parser_func=w_alerts)
 
 
 # cetus command (cetusCycle)
 @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
 async def cmd_cetus(interact: discord.Interaction):
-    await interact.response.defer()
-
-    API_Request("cmd.cetus")
-    set_obj(json_load()[keys[2]], keys[2])
-    eb, f = w_cetusCycle(cmd_obj_check(keys[2]), language)
-    if f is None:
-        await interact.followup.send(embed=eb)
-    else:
-        await interact.followup.send(embed=eb, file=f)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.cetus.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
+    await cmd_helper(
+        interact=interact,
+        key=keys[2],
+        parser_func=w_cetusCycle,
+        isFollowUp=True,
+        need_api_call=True,
     )
 
 
 # sortie command
 @tree.command(name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc"))
 async def cmd_sortie(interact: discord.Interaction):
-    text_obj = w_sortie(cmd_obj_check(keys[3]), language)
-    await interact.response.send_message(text_obj)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.sortie.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=text_obj,
-    )
+    await cmd_helper(interact, key=keys[3], parser_func=w_sortie)
 
 
 # archon hunt command
@@ -458,17 +459,7 @@ async def cmd_sortie(interact: discord.Interaction):
     name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
 )
 async def cmd_archon_hunt(interact: discord.Interaction):
-    text_obj = w_archonHunt(cmd_obj_check(keys[4]), language)
-    await interact.response.send_message(text_obj)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.archon-hunt.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=text_obj,
-    )
+    await cmd_helper(interact, key=keys[4], parser_func=w_archonHunt)
 
 
 # void traders command
@@ -476,20 +467,12 @@ async def cmd_archon_hunt(interact: discord.Interaction):
     name=ts.get(f"cmd.void-traders.cmd"), description=ts.get(f"cmd.void-traders.desc")
 )
 async def cmd_voidTraders(interact: discord.Interaction):
-    await interact.response.defer()
-
-    API_Request("cmd.voidTraders")
-    set_obj(json_load()[keys[5]], keys[5])
-    eb, f = w_voidTraders(cmd_obj_check(keys[5]), language)
-    await interact.followup.send(embed=eb, file=f)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.void-traders.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
+    await cmd_helper(
+        interact,
+        key=keys[5],
+        parser_func=w_voidTraders,
+        isFollowUp=True,
+        need_api_call=True,
     )
 
 
@@ -499,20 +482,7 @@ async def cmd_voidTraders(interact: discord.Interaction):
     description=ts.get(f"cmd.steel-path-reward.desc"),
 )
 async def cmd_steel_reward(interact: discord.Interaction):
-    eb, f = w_steelPath(cmd_obj_check(keys[6]), language)
-    if f is None:
-        await interact.response.send_message(embed=eb)
-    else:
-        await interact.response.send_message(embed=eb, file=f)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.steel-path-reward.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
-    )
+    await cmd_helper(interact, key=keys[6], parser_func=w_steelPath)
 
 
 # fissures command
@@ -520,20 +490,12 @@ async def cmd_steel_reward(interact: discord.Interaction):
     name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")
 )
 async def cmd_fissures(interact: discord.Interaction):
-    await interact.response.defer()
-
-    API_Request("cmd.fissures")
-    set_obj(json_load()[keys[10]], keys[10])
-    text_obj = w_fissures(cmd_obj_check(keys[10]))
-    await interact.followup.send(text_obj)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.fissures.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=text_obj,
+    await cmd_helper(
+        interact,
+        key=keys[10],
+        parser_func=w_fissures,
+        isFollowUp=True,
+        need_api_call=True,
     )
 
 
@@ -543,20 +505,12 @@ async def cmd_fissures(interact: discord.Interaction):
     description=ts.get(f"cmd.duviri-cycle.desc"),
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
-    await interact.response.defer()
-
-    API_Request("cmd.cetus")
-    set_obj(json_load()[keys[7]], keys[7])
-    eb = w_duviriCycle(cmd_obj_check(keys[7]), language)
-    await interact.followup.send(embed=eb)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.duviri-cycle.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
+    await cmd_helper(
+        interact,
+        key=keys[7],
+        parser_func=w_duviriCycle,
+        isFollowUp=True,
+        need_api_call=True,
     )
 
 
@@ -566,17 +520,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.deep-archimedea.desc"),
 )
 async def cmd_deep_archimedea(interact: discord.Interaction):
-    text_obj = w_deepArchimedea(cmd_obj_check(keys[8]), language)
-    await interact.response.send_message(text_obj)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.deep-archimedea.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=text_obj,
-    )
+    await cmd_helper(interact, key=keys[8], parser_func=w_deepArchimedea)
 
 
 # temporal archimedea reward command
@@ -585,17 +529,7 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.temporal-archimedea.desc"),
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
-    text_obj = w_temporalArchimedia(cmd_obj_check(keys[9]), language)
-    await interact.response.send_message(text_obj)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.temporal-archimedea.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=text_obj,
-    )
+    await cmd_helper(interact, key=keys[9], parser_func=w_temporalArchimedia)
 
 
 # hex calendar reward command
@@ -614,39 +548,20 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
 async def cmd_calendar(
     interact: discord.Interaction, types: discord.app_commands.Choice[int]
 ):
-    text_obj = w_calendar(cmd_obj_check(keys[11]), types.name, language)
-    await interact.response.send_message(text_obj)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.calendar.cmd')}.{type}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=text_obj,
+    await cmd_helper(
+        interact, key=keys[11], parser_func=w_calendar, parser_args=types.name
     )
 
 
 # cambion command (cambionCycle)
 @tree.command(name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc"))
 async def cmd_cambion(interact: discord.Interaction):
-    await interact.response.defer()
-
-    API_Request("cmd.cambion")
-    set_obj(json_load()[keys[12]], keys[12])
-    eb, f = w_cambionCycle(cmd_obj_check(keys[12]), language)
-    if f is None:
-        await interact.followup.send(embed=eb)
-    else:
-        await interact.followup.send(embed=eb, file=f)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.cambion.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
+    await cmd_helper(
+        interact,
+        key=keys[12],
+        parser_func=w_cambionCycle,
+        isFollowUp=True,
+        need_api_call=True,
     )
 
 
@@ -655,20 +570,12 @@ async def cmd_cambion(interact: discord.Interaction):
     name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
 )
 async def cmd_dailyDeals(interact: discord.Interaction):
-    await interact.response.defer()
-
-    API_Request("cmd.dailyDeals")
-    set_obj(json_load()[keys[13]], keys[13])
-    eb = w_dailyDeals(cmd_obj_check(keys[13]), language)
-    await interact.followup.send(embed=eb)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.dailyDeals.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
+    await cmd_helper(
+        interact,
+        key=keys[13],
+        parser_func=w_dailyDeals,
+        isFollowUp=True,
+        need_api_call=True,
     )
 
 
@@ -677,20 +584,12 @@ async def cmd_dailyDeals(interact: discord.Interaction):
     name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
 )
 async def cmd_invasions(interact: discord.Interaction):
-    await interact.response.defer()
-
-    API_Request("cmd.invasions")
-    set_obj(json_load()[keys[14]], keys[14])
-    eb = w_invasions(cmd_obj_check(keys[14]), language)
-    await interact.followup.send(embed=eb)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.invasions.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
+    await cmd_helper(
+        interact,
+        key=keys[14],
+        parser_func=w_invasions,
+        isFollowUp=True,
+        need_api_call=True,
     )
 
 
@@ -700,20 +599,12 @@ async def cmd_invasions(interact: discord.Interaction):
     description=ts.get(f"cmd.void-traders-item.desc"),
 )
 async def cmd_traders_item(interact: discord.Interaction):
-    await interact.response.defer()
-
-    API_Request("cmd.void-traders-item")
-    set_obj(json_load()[keys[5]], keys[5])
-    eb = w_voidTradersItem(cmd_obj_check(keys[5]), language)
-    await interact.followup.send(embed=eb)  # , file=f)
-    save_log(
-        type="cmd",
-        cmd=f"cmd.{ts.get(f'cmd.void-traders-item.cmd')}",
-        time=interact.created_at,
-        user=interact.user,
-        guild=interact.guild,
-        channel=interact.channel,
-        obj=eb.description,
+    await cmd_helper(
+        interact,
+        key=keys[5],
+        parser_func=w_voidTradersItem,
+        isFollowUp=True,
+        need_api_call=True,
     )
 
 
