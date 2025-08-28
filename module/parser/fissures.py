@@ -68,7 +68,7 @@ def w_fissures(fissures, *lang):
             continue
 
         # except railjack node
-        if include_railjack_node:
+        if not include_railjack_node:
             if item["node"].split(" (")[0].lower() in railjack:
                 continue
 
@@ -84,9 +84,7 @@ def w_fissures(fissures, *lang):
     for item in normal + steel_path:
         """
         Extermination - Neo Fissure **[Steel Path]**
-        53m(53m 54s) left / Neso (Neptune) - Corpus
-
-        ({item['eta']})
+        53m left / Neso (Neptune) - Corpus
         """
         o_tier = item["tier"]
         o_emoji = get_emoji(o_tier)
