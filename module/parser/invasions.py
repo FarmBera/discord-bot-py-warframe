@@ -1,5 +1,6 @@
 import discord
 import datetime as dt
+from collections import defaultdict
 
 from translator import ts
 from variables.times import JSON_DATE_PAT
@@ -22,8 +23,8 @@ def formatDate(dd: str):
 
 
 def singleInvasion(inv) -> str:
-    if inv["completed"] or inv["eta"][0:1] == "-":
-        return ""
+    # if inv["completed"]:  # or inv["eta"][0:1] == "-":
+    #     return ""
 
     atk = inv["attackingFaction"]
     dfd = inv["defender"]
@@ -55,8 +56,26 @@ def w_invasions(invasions, *lang) -> discord.Embed:
     if invasions is None:
         return None
 
-    output_msg: str = ""
+    def getPlanet(inv) -> str:
+        return inv["node"].split(" (")[-1].replace(")", "")
+
+    mission_per_planets = defaultdict(list)
+
     for inv in invasions:
-        output_msg += singleInvasion(inv)
+        if inv.get("completed"):
+            continue
+
+        planet = getPlanet(inv)
+        mission_per_planets[planet].append(dict(inv))
+
+    # generate output msg
+    output_msg: str = ""
+    for planet, inv_list in mission_per_planets.items():
+        if inv_list == []:  # ignore empty planet
+            continue
+
+        output_msg += f"# {planet}\n\n"  # planet title
+        for inv in inv_list:  # desc
+            output_msg += singleInvasion(inv)
 
     return discord.Embed(description=output_msg)  # color=0x00FFFF,

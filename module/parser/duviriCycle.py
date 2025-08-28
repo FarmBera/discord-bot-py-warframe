@@ -25,7 +25,7 @@ def w_duviriCycle(duviri, *lang):
 
     output_msg += f"# {ts.get('cmd.duviri-cycle.title')}\n\n"
     output_msg += (
-        f"- State: < " + ts.get(f"cmd.duviri-cycle.{duviri['state']}") + " >\n"
+        f"- State: < **" + ts.get(f"cmd.duviri-cycle.{duviri['state']}") + "** >\n"
     )
     output_msg += f"- {ts.get('cmd.duviri-cycle.expire')} {time_calculate_with_curr(duviri['expiry'])}"
 
