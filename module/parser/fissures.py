@@ -79,9 +79,9 @@ def w_fissures(fissures, *lang):
                 normal.append(item)
 
     for item in normal + steel_path:
-        item["expiry"] = time_calculate_with_curr(item["expiry"])
+        if item["expired"]:
+            continue
 
-    for item in normal + steel_path:
         """
         Extermination - Neo Fissure **[Steel Path]**
         53m left / Neso (Neptune) - Corpus
@@ -89,8 +89,9 @@ def w_fissures(fissures, *lang):
         o_tier = item["tier"]
         o_emoji = get_emoji(o_tier)
         o_isSteel = ts.get(f"{pf}.steel") if item["isHard"] else ""
+        exp_time = time_calculate_with_curr(item["expiry"])
 
         output_msg += f"""{item["missionType"]} - {o_emoji} {o_tier} {ts.get(f'{pf}.fiss')} {o_isSteel}
-{item['expiry']} {ts.get(f'{pf}.remain')} / {item['node']} - {item['enemy']}\n\n"""
+{exp_time} {ts.get(f'{pf}.remain')} / {item['node']} - {item['enemy']}\n\n"""
 
     return output_msg
