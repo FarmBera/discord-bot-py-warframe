@@ -49,12 +49,12 @@ def check_request(est, response):
 
 
 # usage
-def API_Request(args: str):
+def API_Request(args: str = ""):
     est, response = send_request()  # real request
     response, code, est = check_request(est, response)  # verify
 
     # save logs
-    if args is not None:
+    if args:
         msg = args
     else:
         msg = "API Requested from unknown source"
