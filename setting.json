@@ -5,7 +5,7 @@
             "alerts": true,
             "news": true,
             "cetusCycle": false,
-            "sortie": true,
+            "sortie": false,
             "archonHunt": true,
             "voidTraders": true,
             "steelPath": true,
@@ -21,6 +21,7 @@
         }
     },
     "fissures": {
+        "IncludeRailjack": false,
         "favMission": [
             "Extermination",
             "Rescue",

@@ -1,4 +1,5 @@
 from translator import ts
+from variables.times import time_calculate_with_curr
 
 
 def w_sortie(sortie, *lang):
@@ -12,7 +13,7 @@ def w_sortie(sortie, *lang):
     mis_list = sortie["variants"]
 
     output_msg = f"# {ts.get(f'{prefix}.title')}\n\n"
-    output_msg += f"- {ts.get(f'{prefix}.eta')}: {sortie['eta']}\n\n"
+    output_msg += (f"- {ts.get(f'{prefix}.eta')}: {time_calculate_with_curr(sortie['expiry'])}\n\n")
 
     idx = 1
     for item in mis_list:

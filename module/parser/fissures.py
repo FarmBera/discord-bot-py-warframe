@@ -51,8 +51,10 @@ railjack: list = [
 
 def w_fissures(fissures, *lang):
     setting = json_load(SETTING_FILE_LOC)
-    fav_mission = setting["fissures"]["favMission"]  # var
-    tier_except = setting["fissures"]["tierExcept"]  # var
+    prefix = setting["fissures"]
+    fav_mission = prefix["favMission"]  # var
+    tier_except = prefix["tierExcept"]  # var
+    include_railjack_node: bool = prefix["IncludeRailjack"]
 
     output_msg: str = ""
     normal = []  # normal fissures
@@ -66,8 +68,9 @@ def w_fissures(fissures, *lang):
             continue
 
         # except railjack node
-        if item["node"].split(" (")[0].lower() in railjack:
-            continue
+        if include_railjack_node:
+            if item["node"].split(" (")[0].lower() in railjack:
+                continue
 
         if item["missionType"] in fav_mission:
             if item["isHard"]:  # steel path

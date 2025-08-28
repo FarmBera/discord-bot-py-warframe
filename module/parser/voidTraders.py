@@ -66,7 +66,7 @@ def w_voidTraders(trader, *lang):
     return embed, f
 
 
-def W_voidTradersItem(trader, *lang):
+def w_voidTradersItem(trader, *lang):
     output_msg: str = ""
     pf = "cmd.void-traders-item."
 
@@ -75,7 +75,7 @@ def W_voidTradersItem(trader, *lang):
 
         if item["inventory"] == []:
             listItem.append(
-                f"{ts.get(f'{pf}not-yet')}\n- {ts.get(f'{pf}arrives-in')} {item['startString']}"
+                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} {item['startString']}"
             )
 
         for jtem in item["inventory"]:

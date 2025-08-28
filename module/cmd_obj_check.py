@@ -5,7 +5,7 @@ from translator import ts
 
 def cmd_obj_check(name):
     obj = get_obj(name)
-    if not obj or obj is None:
+    if obj is None:  # or not obj:
         print(
             f"{color['red']}[err] Unknown '{name}' command. (from cmd_obj_check){color['default']}"
         )
