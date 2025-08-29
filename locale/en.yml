@@ -5,6 +5,9 @@ start:
   final: Logged on as
   coroutine: Internal Coroutine Started
 
+maintenance:
+  bot-status-msg: On Maintenance
+
 general:
   error-cmd: Internal Error. Please contact the administrator.
 
