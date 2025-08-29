@@ -2,7 +2,7 @@ import discord
 import datetime as dt
 
 from translator import ts
-from variables.times import time_calculate_with_curr
+from var.times import time_calculate_with_curr
 from module.return_err import err_embed
 
 duviri_color = {

@@ -1,6 +1,6 @@
 import discord
 from translator import ts
-from variables.times import time_calculate_with_curr
+from var.times import time_calculate_with_curr
 from module.discord_file import img_file
 from module.return_err import err_embed
 

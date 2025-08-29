@@ -1,8 +1,8 @@
 import yaml
 
 from module.save_log import save_log
-from variables.color import color
-from variables.keys import MSG_BOT
+from var.color import color
+from var.keys import MSG_BOT
 
 
 class Translator:

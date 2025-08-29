@@ -3,7 +3,7 @@ import datetime as dt
 from collections import defaultdict
 
 from translator import ts
-from variables.times import JSON_DATE_PAT
+from var.times import JSON_DATE_PAT
 from module.return_err import err_embed
 
 

@@ -1,7 +1,7 @@
 import datetime as dt
 
 from translator import ts
-from variables.keys import cal_item
+from var.keys import cal_item
 from module.get_emoji import get_emoji
 from module.return_err import err_text
 

@@ -3,8 +3,8 @@ import json
 import datetime as dt
 
 from TOKEN import base_url, params, query
-from variables.color import color
-from variables.keys import MSG_BOT
+from var.color import color
+from var.keys import MSG_BOT
 from module.save_log import save_log
 
 

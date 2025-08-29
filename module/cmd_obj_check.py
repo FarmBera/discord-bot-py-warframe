@@ -1,5 +1,5 @@
 from module.get_obj import get_obj
-from variables.color import color
+from var.color import color
 from translator import ts
 
 

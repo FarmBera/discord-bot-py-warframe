@@ -2,8 +2,8 @@ import discord
 import datetime as dt
 
 from translator import ts
-from variables.keys import SETTING_FILE_LOC
-from variables.times import time_calculate_with_curr
+from var.keys import SETTING_FILE_LOC
+from var.times import time_calculate_with_curr
 from module.json_load import json_load
 from module.get_emoji import get_emoji
 

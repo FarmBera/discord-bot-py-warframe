@@ -2,7 +2,7 @@ import discord
 import datetime as dt
 
 from translator import ts, language as lang
-from variables.times import JSON_DATE_PAT
+from var.times import JSON_DATE_PAT
 from module.return_err import err_embed
 
 

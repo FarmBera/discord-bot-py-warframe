@@ -1,9 +1,9 @@
 import csv
 import datetime as dt
 
-from variables.times import KST
-from variables.color import color
-from variables.keys import LOG_FILE_PATH
+from var.times import KST
+from var.color import color
+from var.keys import LOG_FILE_PATH
 
 threshold = 2  # VAR
 

@@ -1,5 +1,5 @@
 import json
-from variables.color import color
+from var.color import color
 
 
 def json_save(data, file_path) -> bool:

@@ -1,5 +1,5 @@
 import json
-from variables.color import color
+from var.color import color
 from TOKEN import DEFAULT_JSON_PATH
 
 

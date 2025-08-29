@@ -1,13 +1,13 @@
 import os
 
 from translator import ts
-from variables.color import color
+from var.color import color
 from module.api_request import API_Request
 from module.save_log import save_log
 from module.json_load import json_load
 from module.get_obj import get_obj
 from module.set_obj import set_obj
-from variables.keys import keys
+from var.keys import keys
 
 if __name__ == "__main__":
     print("API Requesting...")
