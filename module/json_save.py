@@ -1,5 +1,5 @@
 import json
-from var.color import color
+from var.color import C
 
 
 def json_save(data, file_path) -> bool:
@@ -18,8 +18,8 @@ def json_save(data, file_path) -> bool:
             json.dump(data, f, ensure_ascii=False, indent=4)
         return True
     except TypeError as e:
-        print(f"{color['red']}[err] Convertion Error > {e}")
+        print(f"{C.red}[err] Convertion Error > {e}")
         return False
     except Exception as e:
-        print(f"{color['red']}[err] Unknown Error in [json_save] func > {e}")
+        print(f"{C.red}[err] Unknown Error in [json_save] func > {e}")
         return False

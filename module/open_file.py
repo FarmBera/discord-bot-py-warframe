@@ -1,5 +1,5 @@
 import json
-from var.color import color
+from var.color import C
 
 
 def open_file(file_path):
@@ -18,8 +18,8 @@ def open_file(file_path):
             data = f.read()
         return data
     except FileNotFoundError:
-        print(f"{color['red']}[err] File Not Found > {file_path}{color['default']}")
+        print(f"{C.red}[err] File Not Found > {file_path}{C.default}")
         return None
     except Exception as e:
-        print(f"{color['red']}[err] Unknown Error in [open_file] func: {e}")
+        print(f"{C.red}[err] Unknown Error in [open_file] func: {e}")
         return None

@@ -10,7 +10,7 @@ from translator import ts, language
 from TOKEN import TOKEN as BOT_TOKEN
 from TOKEN import DEFAULT_JSON_PATH
 from var.times import alert_times, JSON_DATE_PAT, time_format
-from var.color import color, C
+from var.color import C
 from var.keys import (
     keys,
     SETTING_FILE_LOC,
@@ -135,7 +135,7 @@ DATA_HANDLERS = {
 class DiscordBot(discord.Client):
     async def on_ready(self):
         print(
-            f"{color['blue']}[info] {color['yellow']}{ts.get('start.sync')}...{color['default']}",
+            f"{C.blue}[info] {C.yellow}{ts.get('start.sync')}...{C.default}",
             end="",
         )
         await self.wait_until_ready()
@@ -145,7 +145,7 @@ class DiscordBot(discord.Client):
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
         print(
-            f"{color['cyan']}{ts.get('start.final')} <<{color['white']}{self.user}{color['cyan']}>>{color['default']}",
+            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default}",
         )
 
         save_log(cmd="bot.BOOTED", user=MSG_BOT, msg="[info] Bot booted up.")  # VAR
@@ -153,7 +153,7 @@ class DiscordBot(discord.Client):
         self.auto_send_msg_request.start()
         self.auto_noti.start()
 
-        print(f"{color['green']}{ts.get('start.coroutine')}{color['default']}")
+        print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
     async def send_alert(self, value, channel_list, setting=None):
         if not setting:
@@ -221,7 +221,7 @@ class DiscordBot(discord.Client):
                 msg=msg,
                 obj=code,
             )
-            print(color["yellow"], msg, color["default"], sep="")
+            print(C.yellow, msg, C.default, sep="")
             return
 
         latest_data = json_load(DEFAULT_JSON_PATH)
@@ -291,7 +291,7 @@ class DiscordBot(discord.Client):
                     )
                 else:
                     print(
-                        f"{color['red']}[err] target channel is Empty! > {target_ch}{color['default']}"
+                        f"{C.red}[err] target channel is Empty! > {target_ch}{C.default}"
                     )  # VAR
 
             if should_save_data:  # save data
@@ -310,7 +310,7 @@ class DiscordBot(discord.Client):
 class MaintanceBot(discord.Client):
     async def on_ready(self):
         print(
-            f"{color['blue']}[info] {color['yellow']}{ts.get('start.sync')}...{color['default']}",
+            f"{C.blue}[info] {C.yellow}{ts.get('start.sync')}...{C.default}",
             end="",
         )
         await self.wait_until_ready()
@@ -320,7 +320,7 @@ class MaintanceBot(discord.Client):
             activity=discord.Game(ts.get("maintenance.bot-status-msg")),
         )
         print(
-            f"{color['cyan']}{ts.get('start.final')} <<{color['white']}{self.user}{color['cyan']}>>{color['default']}",
+            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default}",
         )
 
         save_file(
@@ -328,7 +328,7 @@ class MaintanceBot(discord.Client):
             dt.datetime.strftime(dt.datetime.now(), JSON_DATE_PAT),
         )
 
-        print(f"{color['magenta']}[info] Bot is on Maintance Mode!{color['default']}")
+        print(f"{C.magenta}[info] Bot is on Maintance Mode!{C.default}")
 
         save_log(
             cmd="bot.BOOTED",
@@ -448,13 +448,13 @@ async def cmd_helper_maintenance(interact: discord.Interaction):
 
     txt = f"""# 서버 점검 중
 
-    지금은 서버 점검 및 패치 작업으로 인하여 명령어를 사용할 수 없습니다.
-    이용에 불편을 드려 죄송합니다.
+지금은 서버 점검 및 패치 작업으로 인하여 명령어를 사용할 수 없습니다.
+이용에 불편을 드려 죄송합니다.
 
-    > 예상 소요 시간: {time_format(time_left)}
-    > 예상 완료 시간: {dt.datetime.strftime(time_target,"%Y-%m-%d %H:%M")}
+> 예상 소요 시간: {time_format(time_left)}
+> 예상 완료 시간: {dt.datetime.strftime(time_target,"%Y-%m-%d %H:%M")}
 
-    패치 작업은 조기 종료 될 수 있으며, 또한 지연될 수 있음을 알립니다.
+패치 작업은 조기 종료 될 수 있으며, 또한 지연될 수 있음을 알립니다.
 """
 
     # send message
@@ -722,14 +722,12 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
 
 
 async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
-    # help command
     @tree.command(
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
     )
     async def cmd_help(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # announcement command
     @tree.command(
         name=ts.get(f"cmd.announcement.cmd"),
         description=f"{ts.get('cmd.announcement.desc')}",
@@ -737,7 +735,6 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     async def cmd_announcement(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # patch-note command
     @tree.command(
         name=ts.get(f"cmd.patch-note.cmd"),
         description=f"{ts.get('cmd.patch-note.desc')}",
@@ -745,7 +742,6 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     async def cmd_patch_note(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # privacy-policy command
     @tree.command(
         name=ts.get(f"cmd.privacy-policy.cmd"),
         description=f"{ts.get('cmd.privacy-policy.desc')}",
@@ -753,38 +749,32 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     async def cmd_privacy_policy(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # news command
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
     async def cmd_news(interact: discord.Interaction, number_of_news: int = 20):
         await cmd_helper_maintenance(interact)
 
-    # alerts command
     @tree.command(
         name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc")
     )
     async def cmd_alerts(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # cetus command (cetusCycle)
     @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
     async def cmd_cetus(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # sortie command
     @tree.command(
         name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc")
     )
     async def cmd_sortie(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # archon hunt command
     @tree.command(
         name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
     )
     async def cmd_archon_hunt(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # void traders command
     @tree.command(
         name=ts.get(f"cmd.void-traders.cmd"),
         description=ts.get(f"cmd.void-traders.desc"),
@@ -792,7 +782,6 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     async def cmd_voidTraders(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # steel path reward command
     @tree.command(
         name=ts.get(f"cmd.steel-path-reward.cmd"),
         description=ts.get(f"cmd.steel-path-reward.desc"),
@@ -800,14 +789,12 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     async def cmd_steel_reward(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # fissures command
     @tree.command(
         name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")
     )
     async def cmd_fissures(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # duviriCycle command
     @tree.command(
         name=ts.get(f"cmd.duviri-cycle.cmd"),
         description=ts.get(f"cmd.duviri-cycle.desc"),
@@ -815,7 +802,6 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     async def cmd_temporal_archimedea(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # deep archimedea command
     @tree.command(
         name=ts.get(f"cmd.deep-archimedea.cmd"),
         description=ts.get(f"cmd.deep-archimedea.desc"),
@@ -823,7 +809,6 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     async def cmd_deep_archimedea(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # temporal archimedea reward command
     @tree.command(
         name=ts.get(f"cmd.temporal-archimedea.cmd"),
         description=ts.get(f"cmd.temporal-archimedea.desc"),
@@ -831,7 +816,6 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     async def cmd_temporal_archimedea(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # hex calendar reward command
     @tree.command(
         name=ts.get(f"cmd.calendar.cmd"),
         description=ts.get(f"cmd.calendar.desc"),
@@ -841,28 +825,24 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     ):
         await cmd_helper_maintenance(interact)
 
-    # cambion command (cambionCycle)
     @tree.command(
         name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
     )
     async def cmd_cambion(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # dailyDeals command
     @tree.command(
         name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
     )
     async def cmd_dailyDeals(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # invasions command
     @tree.command(
         name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
     )
     async def cmd_invasions(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # voidTrader item command
     @tree.command(
         name=ts.get(f"cmd.void-traders-item.cmd"),
         description=ts.get(f"cmd.void-traders-item.desc"),
@@ -894,7 +874,7 @@ async def main_manager():
 
     while bot_mode != "exit":
         if bot_mode == "main":
-            print(f"{color['cyan']}[info] Starting Main Bot...{color['default']}")
+            print(f"{C.cyan}[info] Starting Main Bot...{C.default}")
             intents = discord.Intents.default()
             intents.message_content = True
             current_bot = DiscordBot(intents=intents)
@@ -902,7 +882,7 @@ async def main_manager():
             await register_main_commands(tree)
 
         elif bot_mode == "maintenance":
-            print(f"{color['magenta']}Starting Maintenance Bot...{color['default']}")
+            print(f"{C.magenta}Starting Maintenance Bot...{C.default}")
 
             intents = discord.Intents.default()
             intents.message_content = True
@@ -930,13 +910,11 @@ async def main_manager():
                 print(f"Switching Bot... '{bot_mode}' into '{new_mode}'")  # VAR
             bot_mode = new_mode
         else:
-            print(
-                f"{color['red']}[err] The Bot has unexpectedly terminated!{color['default']}"
-            )
+            print(f"{C.red}[err] The Bot has unexpectedly terminated!{C.default}")
             # bot_mode = "exit"  # exit loop
 
         # quit currently running bot & skip to next loop
-        print(f"{color['default']}[info] Terminating current bot...")  # VAR
+        print(f"{C.default}[info] Terminating current bot...")  # VAR
         await current_bot.close()
         for task in pending:  # cancel remaining task
             task.cancel()
@@ -948,4 +926,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main_manager())
     except KeyboardInterrupt:
-        print(f"\n{color['yellow']}Force Quitted!")  # VAR
+        print(f"\n{C.yellow}Force Quitted!")  # VAR

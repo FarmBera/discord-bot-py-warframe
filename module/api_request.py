@@ -3,7 +3,7 @@ import json
 import datetime as dt
 
 from TOKEN import base_url, params, query
-from var.color import color
+from var.color import C
 from var.keys import MSG_BOT
 from module.save_log import save_log
 
@@ -24,13 +24,13 @@ def send_request():
 def check_request(est, response):
     # check response value
     if response is None:
-        print(f"{color['red']}[err] response is Empty!{color['default']}")
+        print(f"{C.red}[err] response is Empty!{C.default}")
 
     # check response code
     res_code: int = response.status_code
     if res_code != 200:
         print(
-            f"{color['yellow']}[warn] response code is not 200 >> {res_code} (est: {est}){color['default']}"
+            f"{C.yellow}[warn] response code is not 200 >> {res_code} (est: {est}){C.default}"
         )
         return response, res_code, est
 
@@ -43,7 +43,7 @@ def check_request(est, response):
         with open(fname, "w", encoding="utf-8") as json_file:
             json.dump(response, json_file, ensure_ascii=False, indent=2)
     except Exception as e:
-        print(f"{color['red']}[err] Exception on saving file! {e}{color['default']}")
+        print(f"{C.red}[err] Exception on saving file! {e}{C.default}")
 
     return response, res_code, est
 

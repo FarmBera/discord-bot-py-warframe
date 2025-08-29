@@ -1,5 +1,5 @@
 import json
-from var.color import color
+from var.color import C
 from TOKEN import DEFAULT_JSON_PATH
 
 
@@ -19,13 +19,11 @@ def json_load(file_path=DEFAULT_JSON_PATH):
             data = json.load(f)
         return data
     except FileNotFoundError:
-        print(f"{color['yellow']}ERR: File Not Found > {file_path}{color['default']}")
+        print(f"{C.yellow}ERR: File Not Found > {file_path}{C.default}")
         return None
     except json.JSONDecodeError:
-        print(
-            f"{color['yellow']}ERR: JSON Decode Exception > {file_path}{color['default']}"
-        )
+        print(f"{C.yellow}ERR: JSON Decode Exception > {file_path}{C.default}")
         return None
     except Exception as e:
-        print(f"{color['red']}ERR: {e}")
+        print(f"{C.red}ERR: {e}")
         return None
