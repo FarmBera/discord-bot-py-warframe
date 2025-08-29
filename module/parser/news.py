@@ -6,12 +6,11 @@ from variables.times import JSON_DATE_PAT
 from module.return_err import err_embed
 
 
-def w_news(newses):
+def w_news(newses, LIMIT_OUTPUT_CNT: int = 20):
     if not newses:
         return err_embed("news")
 
     idx: int = 0
-    LIMIT_OUTPUT_CNT: int = 20
     output_msg: str = ""
 
     output_msg += f"# {ts.get('cmd.news.title')}\n\n"

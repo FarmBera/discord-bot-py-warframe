@@ -1,5 +1,6 @@
 import discord
 from translator import ts
+from variables.times import time_calculate_with_curr
 from module.discord_file import img_file
 from module.return_err import err_embed
 
@@ -17,7 +18,7 @@ def w_cambionCycle(cambion) -> tuple:
 
 # {status.capitalize()}
 
-- expires in '{cambion['timeLeft']}'
+- expires in {time_calculate_with_curr(cambion['expiry'])} ({cambion['timeLeft']})
 """
 
     f = img_file(status)

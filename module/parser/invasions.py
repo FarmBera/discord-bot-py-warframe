@@ -24,9 +24,6 @@ def formatDate(dd: str):
 
 
 def singleInvasion(inv) -> str:
-    # if inv["completed"]:  # or inv["eta"][0:1] == "-":
-    #     return ""
-
     atk = inv["attackingFaction"]
     dfd = inv["defender"]
 
@@ -43,9 +40,9 @@ def singleInvasion(inv) -> str:
         output_msg += f"{ts.get(f'{pf}eta')} {date}\n\n"
 
     if not inv["vsInfestation"]:
-        output_msg += f"- **{atk}** - {inv['attacker']['reward']['itemString']}\n"
+        output_msg += f"- {atk} - **{inv['attacker']['reward']['itemString']}**\n"
 
-    output_msg += f"- **{dfd['faction']}** - {dfd['reward']['itemString']}\n\n"
+    output_msg += f"- {dfd['faction']} - **{dfd['reward']['itemString']}**\n\n"
 
     return output_msg
 
