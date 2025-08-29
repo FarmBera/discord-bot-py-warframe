@@ -9,6 +9,8 @@ ANNOUNCE_FILE_LOC: str = f"{fileprefix}announcement.md"
 PATCHNOTE_FILE_LOC: str = f"{fileprefix}patch-note.md"
 POLICY_FILE_LOC: str = f"{fileprefix}privacy-policy.md"
 FOOTER_FILE_LOC: str = f"{fileprefix}footer.md"
+STARTED_TIME_FILE_LOC: str = f"{fileprefix}m-started_time.md"
+DELTA_TIME_LOC: str = f"{fileprefix}m-delta.md"
 
 
 MSG_BOT: str = "bot.self"
