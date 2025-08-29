@@ -5,9 +5,9 @@ from discord.ext import tasks
 from translator import ts, language
 from TOKEN import TOKEN as BOT_TOKEN
 from TOKEN import DEFAULT_JSON_PATH
-from variables.times import alert_times
-from variables.color import color
-from variables.keys import (
+from var.times import alert_times
+from var.color import color
+from var.keys import (
     keys,
     SETTING_FILE_LOC,
     CHANNEL_FILE_LOC,
@@ -31,6 +31,8 @@ from module.get_emoji import get_emoji
 from module.open_file import open_file
 from module.return_err import err_embed
 
+from module.handler.handleVoidTrader import _check_void_trader_update
+
 from module.parser.alerts import w_alerts
 from module.parser.news import w_news
 from module.parser.cetusCycle import w_cetusCycle
@@ -46,20 +48,6 @@ from module.parser.calendar import w_calendar
 from module.parser.cambionCycle import w_cambionCycle
 from module.parser.dailyDeals import w_dailyDeals
 from module.parser.invasions import w_invasions
-
-
-def _check_void_trader_update(prev, new):
-    """Checks for updates regardless of the data structure (dict or list) of voidTraders."""
-    prev_data = prev[-1] if isinstance(prev, list) and prev else prev
-    new_data = new[-1] if isinstance(new, list) and new else new
-    if not isinstance(prev_data, dict) or not isinstance(new_data, dict):
-        # perform a simple comparison. data structure is diff than normal
-        return prev != new
-
-    return (prev_data.get("activation"), prev_data.get("active")) != (
-        new_data.get("activation"),
-        new_data.get("active"),
-    )
 
 
 DATA_HANDLERS = {
