@@ -23,7 +23,7 @@ cmd:
 
   privacy-policy:
     cmd: 개인정보-처리방침
-    desc: 개인정보 처리방침에 대하여...
+    desc: 봇의 개인정보 처리방침에 대하여...
 
   alerts:
     cmd: 얼럿
@@ -42,6 +42,7 @@ cmd:
     desc: 현재 지구의 시터스 시간 및 상태를 불러옵니다
     title: 시터스 낮/밤 상태
     current: 현재 상태
+    endin: 종료 시간
     night: 밤
     day: 낮
 
@@ -63,7 +64,7 @@ cmd:
     title: 보이드 상인 상태
     tdr-name: 상인
     status: 상태
-    activate: 활성화됨
+    activate: "[활성화됨](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
     deactivate: 비활성화됨
     end: 종료 시간
     location: 위치
@@ -71,7 +72,7 @@ cmd:
     place: 등장 예정 위치
 
   steel-path-reward:
-    cmd: 강길보상
+    cmd: 강길에센스
     desc: 주간 태신의 강길 에센스 교환 물품을 가져옵니다
     title: 강철의 길 보상
     curr-reward: 현재 보상

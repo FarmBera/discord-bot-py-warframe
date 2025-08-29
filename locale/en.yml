@@ -42,6 +42,7 @@ cmd:
     desc: Get current Cetus Time & next state
     title: Cetus State
     current: Current State
+    endin: Ends in
     night: Night
     day: Day
 
