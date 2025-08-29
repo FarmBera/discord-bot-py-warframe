@@ -158,7 +158,12 @@ class DiscordBot(discord.Client):
 
         print(f"{color['green']}{ts.get('start.coroutine')}{color['default']}")
 
-    async def send_alert(self, value, channel_list):
+    async def send_alert(self, value, channel_list, setting=None):
+        if not setting:
+            setting = json_load(SETTING_FILE_LOC)
+        if not setting["noti"]["isEnabled"]:
+            return
+
         if not channel_list:
             channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]
 
@@ -284,7 +289,9 @@ class DiscordBot(discord.Client):
                 ch_key = handler.get("channel_key", "channel")
                 target_ch = channels.get(ch_key)
                 if target_ch:  # send msg
-                    await self.send_alert(parsed_content, channel_list=target_ch)
+                    await self.send_alert(
+                        parsed_content, channel_list=target_ch, setting=setting
+                    )
                 else:
                     print(
                         f"{color['red']}[err] target channel is Empty! > {target_ch}{color['default']}"
@@ -318,9 +325,10 @@ async def cmd_helper(
     isFollowUp: bool = False,
     need_api_call: bool = False,
     parser_args=None,
+    isUserViewOnly: bool = False,
 ):
     if isFollowUp:  # delay response if needed
-        await interact.response.defer()
+        await interact.response.defer(ephemeral=isUserViewOnly)
 
     if need_api_call:  # API request if needed
         API_Request(f"cmd.{key}")
@@ -337,22 +345,22 @@ async def cmd_helper(
 
     if isinstance(obj, discord.Embed):  # embed only
         if isFollowUp:
-            await resp_head.send(embed=obj)
+            await resp_head.send(embed=obj, ephemeral=isUserViewOnly)
         else:
-            await resp_head.send_message(embed=obj)
+            await resp_head.send_message(embed=obj, ephemeral=isUserViewOnly)
         log_obj = obj.description
     elif isinstance(obj, tuple):  # embed with file
         eb, file = obj
         if isFollowUp:
-            await resp_head.send(embed=eb, file=file)
+            await resp_head.send(embed=eb, file=file, ephemeral=isUserViewOnly)
         else:
-            await resp_head.send_message(embed=eb, file=file)
+            await resp_head.send_message(embed=eb, file=file, ephemeral=isUserViewOnly)
         log_obj = eb.description
     else:  # text only
         if isFollowUp:
-            await resp_head.send(obj)
+            await resp_head.send(obj, ephemeral=isUserViewOnly)
         else:
-            await resp_head.send_message(obj)
+            await resp_head.send_message(obj, ephemeral=isUserViewOnly)
         log_obj = obj
 
     save_log(
@@ -368,8 +376,7 @@ async def cmd_helper(
 
 
 async def cmd_helper_txt(
-    interact: discord.Interaction,
-    file_name: str,
+    interact: discord.Interaction, file_name: str, isUserViewOnly: bool = False
 ):
     try:
         txt1 = open_file(file_name)
@@ -377,7 +384,7 @@ async def cmd_helper_txt(
         txt = txt1 + txt2
     except Exception as e:
         msg: str = "open_file err in cmd_helper_txt"  # VAR
-        await interact.response.send_message(embed=err_embed(msg))
+        await interact.response.send_message(embed=err_embed(msg), ephemeral=True)
         save_log(
             type="err",
             cmd="cmd_helper_txt",
@@ -392,7 +399,8 @@ async def cmd_helper_txt(
 
     # send message
     await interact.response.send_message(
-        embed=discord.Embed(description=txt, color=0xCEFF00)  # VAR: color
+        embed=discord.Embed(description=txt, color=0xCEFF00),  # VAR: color
+        ephemeral=isUserViewOnly,
     )
 
     save_log(
@@ -410,7 +418,7 @@ async def cmd_helper_txt(
 # help command
 @tree.command(name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}")
 async def cmd_help(interact: discord.Interaction):
-    await cmd_helper_txt(interact, file_name=HELP_FILE_LOC)
+    await cmd_helper_txt(interact, file_name=HELP_FILE_LOC, isUserViewOnly=True)
 
 
 # announcement command
@@ -437,19 +445,27 @@ async def cmd_patch_note(interact: discord.Interaction):
     description=f"{ts.get('cmd.privacy-policy.desc')}",
 )
 async def cmd_privacy_policy(interact: discord.Interaction):
-    await cmd_helper_txt(interact, file_name=POLICY_FILE_LOC)
+    await cmd_helper_txt(interact, file_name=POLICY_FILE_LOC, isUserViewOnly=True)
 
 
 # news command
 @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
-async def cmd_news(interact: discord.Interaction):
-    await cmd_helper(interact, key=keys[1], parser_func=w_news)
+async def cmd_news(interact: discord.Interaction, number_of_news: int = 20):
+    await cmd_helper(
+        interact,
+        key=keys[1],
+        parser_func=w_news,
+        parser_args=number_of_news,
+        isUserViewOnly=True,
+    )
 
 
 # alerts command
 @tree.command(name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc"))
 async def cmd_alerts(interact: discord.Interaction):
-    await cmd_helper(interact=interact, key=keys[0], parser_func=w_alerts)
+    await cmd_helper(
+        interact=interact, key=keys[0], parser_func=w_alerts, isUserViewOnly=True
+    )
 
 
 # cetus command (cetusCycle)
@@ -461,13 +477,14 @@ async def cmd_cetus(interact: discord.Interaction):
         parser_func=w_cetusCycle,
         isFollowUp=True,
         need_api_call=True,
+        isUserViewOnly=True,
     )
 
 
 # sortie command
 @tree.command(name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc"))
 async def cmd_sortie(interact: discord.Interaction):
-    await cmd_helper(interact, key=keys[3], parser_func=w_sortie)
+    await cmd_helper(interact, key=keys[3], parser_func=w_sortie, isUserViewOnly=True)
 
 
 # archon hunt command
@@ -475,7 +492,9 @@ async def cmd_sortie(interact: discord.Interaction):
     name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
 )
 async def cmd_archon_hunt(interact: discord.Interaction):
-    await cmd_helper(interact, key=keys[4], parser_func=w_archonHunt)
+    await cmd_helper(
+        interact, key=keys[4], parser_func=w_archonHunt, isUserViewOnly=True
+    )
 
 
 # void traders command
@@ -489,6 +508,7 @@ async def cmd_voidTraders(interact: discord.Interaction):
         parser_func=w_voidTraders,
         isFollowUp=True,
         need_api_call=True,
+        isUserViewOnly=True,
     )
 
 
@@ -498,7 +518,9 @@ async def cmd_voidTraders(interact: discord.Interaction):
     description=ts.get(f"cmd.steel-path-reward.desc"),
 )
 async def cmd_steel_reward(interact: discord.Interaction):
-    await cmd_helper(interact, key=keys[6], parser_func=w_steelPath)
+    await cmd_helper(
+        interact, key=keys[6], parser_func=w_steelPath, isUserViewOnly=True
+    )
 
 
 # fissures command
@@ -512,6 +534,7 @@ async def cmd_fissures(interact: discord.Interaction):
         parser_func=w_fissures,
         isFollowUp=True,
         need_api_call=True,
+        isUserViewOnly=True,
     )
 
 
@@ -527,6 +550,7 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
         parser_func=w_duviriCycle,
         isFollowUp=True,
         need_api_call=True,
+        isUserViewOnly=True,
     )
 
 
@@ -536,7 +560,9 @@ async def cmd_temporal_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.deep-archimedea.desc"),
 )
 async def cmd_deep_archimedea(interact: discord.Interaction):
-    await cmd_helper(interact, key=keys[8], parser_func=w_deepArchimedea)
+    await cmd_helper(
+        interact, key=keys[8], parser_func=w_deepArchimedea, isUserViewOnly=True
+    )
 
 
 # temporal archimedea reward command
@@ -545,7 +571,9 @@ async def cmd_deep_archimedea(interact: discord.Interaction):
     description=ts.get(f"cmd.temporal-archimedea.desc"),
 )
 async def cmd_temporal_archimedea(interact: discord.Interaction):
-    await cmd_helper(interact, key=keys[9], parser_func=w_temporalArchimedia)
+    await cmd_helper(
+        interact, key=keys[9], parser_func=w_temporalArchimedia, isUserViewOnly=True
+    )
 
 
 # hex calendar reward command
@@ -565,7 +593,11 @@ async def cmd_calendar(
     interact: discord.Interaction, types: discord.app_commands.Choice[int]
 ):
     await cmd_helper(
-        interact, key=keys[11], parser_func=w_calendar, parser_args=types.name
+        interact,
+        key=keys[11],
+        parser_func=w_calendar,
+        parser_args=types.name,
+        isUserViewOnly=True,
     )
 
 
@@ -578,6 +610,7 @@ async def cmd_cambion(interact: discord.Interaction):
         parser_func=w_cambionCycle,
         isFollowUp=True,
         need_api_call=True,
+        isUserViewOnly=True,
     )
 
 
@@ -592,6 +625,7 @@ async def cmd_dailyDeals(interact: discord.Interaction):
         parser_func=w_dailyDeals,
         isFollowUp=True,
         need_api_call=True,
+        isUserViewOnly=True,
     )
 
 
@@ -606,6 +640,7 @@ async def cmd_invasions(interact: discord.Interaction):
         parser_func=w_invasions,
         isFollowUp=True,
         need_api_call=True,
+        isUserViewOnly=True,
     )
 
 
@@ -621,6 +656,7 @@ async def cmd_traders_item(interact: discord.Interaction):
         parser_func=w_voidTradersItem,
         isFollowUp=True,
         need_api_call=True,
+        isUserViewOnly=True,
     )
 
 
