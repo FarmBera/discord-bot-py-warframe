@@ -2,18 +2,17 @@ from translator import ts
 from variables.times import time_calculate_with_curr
 
 
-def w_sortie(sortie, *lang):
-    if sortie == False:
+def w_sortie(sortie):
+    if not sortie:
         return ts.get("general.error-cmd")
-
-    if sortie is None:
-        return None
 
     prefix: str = "cmd.sortie"
     mis_list = sortie["variants"]
 
     output_msg = f"# {ts.get(f'{prefix}.title')}\n\n"
-    output_msg += (f"- {ts.get(f'{prefix}.eta')}: {time_calculate_with_curr(sortie['expiry'])}\n\n")
+    output_msg += (
+        f"- {ts.get(f'{prefix}.eta')}: {time_calculate_with_curr(sortie['expiry'])}\n\n"
+    )
 
     idx = 1
     for item in mis_list:

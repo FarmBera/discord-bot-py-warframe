@@ -1,12 +1,9 @@
 from translator import ts
 
 
-def w_temporalArchimedia(temporal, *lang) -> str:
-    if temporal == False:
+def w_temporalArchimedia(temporal) -> str:
+    if not temporal:
         return ts.get("general.error-cmd")
-
-    if temporal is None:
-        return None
 
     prefix = "cmd.temporal-archimedea"
 

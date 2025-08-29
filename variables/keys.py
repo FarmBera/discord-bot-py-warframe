@@ -8,9 +8,8 @@ HELP_FILE_LOC: str = f"{fileprefix}help.md"
 ANNOUNCE_FILE_LOC: str = f"{fileprefix}announcement.md"
 PATCHNOTE_FILE_LOC: str = f"{fileprefix}patch-note.md"
 POLICY_FILE_LOC: str = f"{fileprefix}privacy-policy.md"
+FOOTER_FILE_LOC: str = f"{fileprefix}footer.md"
 
-TYPE_EMBED: str = "<class 'discord.embeds.Embed'>"
-TYPE_TUPLE: str = "<class 'tuple'>"
 
 MSG_BOT: str = "bot.self"
 

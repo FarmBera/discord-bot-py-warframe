@@ -3,7 +3,7 @@ import datetime as dt
 
 from translator import ts
 from variables.times import time_calculate_with_curr
-
+from module.return_err import err_embed
 
 duviri_color = {
     "joy": 0x377C82,
@@ -14,12 +14,9 @@ duviri_color = {
 }
 
 
-def w_duviriCycle(duviri, *lang):
-    if duviri == False:
-        return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
-
-    if duviri is None:
-        return None
+def w_duviriCycle(duviri):
+    if not duviri:
+        return err_embed("duviriCycle")
 
     output_msg: str = ""
 

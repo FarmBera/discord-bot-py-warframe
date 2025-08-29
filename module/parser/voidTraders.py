@@ -4,6 +4,8 @@ import random
 from translator import ts
 from module.discord_file import img_file
 from module.get_emoji import get_emoji
+from module.return_err import err_embed
+
 
 baro_img = ["baro-ki-teer", "baro"]  # VAR
 
@@ -19,12 +21,9 @@ def color_decision(t):
     return 0xFFA826
 
 
-def w_voidTraders(trader, *lang):
-    if trader == False:
-        return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
-
-    if trader is None:
-        return None
+def w_voidTraders(trader) -> tuple:
+    if not trader:
+        return err_embed("voidTraders")
 
     idx = 1
     length: int = len(trader)
@@ -66,7 +65,10 @@ def w_voidTraders(trader, *lang):
     return embed, f
 
 
-def w_voidTradersItem(trader, *lang):
+def w_voidTradersItem(trader, *lang) -> discord.Embed:
+    if not trader:
+        return err_embed("voidTraders")
+
     output_msg: str = ""
     pf = "cmd.void-traders-item."
 

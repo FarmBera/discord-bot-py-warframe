@@ -1,17 +1,12 @@
 import discord
 from translator import ts
 from module.discord_file import img_file
+from module.return_err import err_embed
 
 
-def w_cambionCycle(cambion, *lang):
-    if cambion == False:
-        return (
-            discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000),
-            None,
-        )
-
-    if cambion is None:
-        return None
+def w_cambionCycle(cambion) -> tuple:
+    if not cambion:
+        return err_embed("cambion cycle")
 
     def color_decision(s):
         return 0x97D4D9 if s == "vome" else 0xECB448

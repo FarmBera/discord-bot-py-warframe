@@ -1,16 +1,14 @@
 import discord
 import datetime as dt
 
-from translator import ts
+from translator import ts, language as lang
 from variables.times import JSON_DATE_PAT
+from module.return_err import err_embed
 
 
-def w_news(newses, *lang):
-    if newses == False:
-        return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
-
-    if newses is None:
-        return None
+def w_news(newses):
+    if not newses:
+        return err_embed("news")
 
     idx: int = 0
     LIMIT_OUTPUT_CNT: int = 20

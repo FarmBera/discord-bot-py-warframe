@@ -1,16 +1,14 @@
 from translator import ts
+from module.return_err import err_text
 
 
-def w_archonHunt(archon, *lang):
-    if archon == False:
-        return ts.get("general.error-cmd")
+def w_archonHunt(archon) -> str:
+    if not archon:
+        return err_text("archon hunt")
 
-    if archon is None:
-        return None
-
-    prefix: str = "cmd.archon-hunt"
-    output_msg = f"# {ts.get(f'{prefix}.title')}\n\n"
-    output_msg += f"{ts.get(f'{prefix}.eta')}: {archon['eta']}\n\n"
+    pf: str = "cmd.archon-hunt"
+    output_msg = f"# {ts.get(f'{pf}.title')}\n\n"
+    output_msg += f"{ts.get(f'{pf}.eta')}: {archon['eta']}\n\n"
 
     idx: int = 1
     for value in archon["missions"]:

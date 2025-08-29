@@ -4,6 +4,7 @@ from collections import defaultdict
 
 from translator import ts
 from variables.times import JSON_DATE_PAT
+from module.return_err import err_embed
 
 
 def formatDate(dd: str):
@@ -49,12 +50,9 @@ def singleInvasion(inv) -> str:
     return output_msg
 
 
-def w_invasions(invasions, *lang) -> discord.Embed:
-    if invasions == False:
-        return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
-
-    if invasions is None:
-        return None
+def w_invasions(invasions) -> discord.Embed:
+    if not invasions:
+        return err_embed("invasions")
 
     def getPlanet(inv) -> str:
         return inv["node"].split(" (")[-1].replace(")", "")

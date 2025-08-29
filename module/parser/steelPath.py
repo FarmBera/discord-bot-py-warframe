@@ -1,7 +1,7 @@
 import discord
 from translator import ts
 from module.discord_file import img_file
-
+from module.return_err import err_embed
 
 color_list = {
     "Umbra Forma Blueprint": 0x00FFFF,
@@ -26,15 +26,9 @@ img_list = {
 }
 
 
-def w_steelPath(steel, *lang):
-    if steel == False:
-        return (
-            discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000),
-            None,
-        )
-
-    if steel is None:
-        return None
+def w_steelPath(steel) -> tuple:
+    if not steel:
+        return err_embed("steelPath")
 
     pf: str = "cmd.steel-path-reward"
 

@@ -15,8 +15,7 @@ from variables.keys import (
     ANNOUNCE_FILE_LOC,
     PATCHNOTE_FILE_LOC,
     POLICY_FILE_LOC,
-    TYPE_EMBED,
-    TYPE_TUPLE,
+    FOOTER_FILE_LOC,
     MSG_BOT,
 )
 from module.api_request import API_Request
@@ -30,6 +29,7 @@ from module.set_obj import set_obj
 from module.cmd_obj_check import cmd_obj_check
 from module.get_emoji import get_emoji
 from module.open_file import open_file
+from module.return_err import err_embed
 
 from module.parser.alerts import w_alerts
 from module.parser.news import w_news
@@ -137,7 +137,10 @@ DATA_HANDLERS = {
 
 class DiscordBot(discord.Client):
     async def on_ready(self):
-        print(f"{color['yellow']}{ts.get('start.sync')}...{color['default']}", end="")
+        print(
+            f"{color['blue']}[info] {color['yellow']}{ts.get('start.sync')}...{color['default']}",
+            end="",
+        )
         await self.wait_until_ready()
         await tree.sync()
         await self.change_presence(
@@ -148,7 +151,7 @@ class DiscordBot(discord.Client):
             f"{color['cyan']}{ts.get('start.final')} <<{color['white']}{self.user}{color['cyan']}>>{color['default']}",
         )
 
-        save_log(cmd="bot.BOOTED", user=MSG_BOT, msg="Booted")
+        save_log(cmd="bot.BOOTED", user=MSG_BOT, msg="[info] Bot booted up.")  # VAR
 
         self.auto_send_msg_request.start()
         self.auto_noti.start()
@@ -156,7 +159,7 @@ class DiscordBot(discord.Client):
         print(f"{color['green']}{ts.get('start.coroutine')}{color['default']}")
 
     async def send_alert(self, value, channel_list):
-        if not channel_list or channel_list is None:
+        if not channel_list:
             channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]
 
         # send message
@@ -203,15 +206,15 @@ class DiscordBot(discord.Client):
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
     async def auto_send_msg_request(self):
-        setting = json_load(SETTING_FILE_LOC)  # open setting file
+        setting = json_load(SETTING_FILE_LOC)
         channels = yaml_open(CHANNEL_FILE_LOC)
 
         code = API_Request("auto_send_msg_request()")  # VAR
         if code != 200:
-            msg = f"[warn] response code error < {code} > Task Aborted. (from auto_send_msg_request)"
+            msg = f"[warn] response code error < {code} > Task Aborted. (from auto_send_msg_request)"  # VAR
             save_log(
                 type="warn",
-                cmd="auto_send_msg_request()",
+                cmd="auto_send_msg_request()",  # VAR
                 user=MSG_BOT,
                 msg=msg,
                 obj=code,
@@ -236,7 +239,6 @@ class DiscordBot(discord.Client):
 
             special_logic = handler.get("special_logic")
 
-            # parsing special case with missing item
             if special_logic == "handle_missing_items":  # alerts, news
                 prev_ids = {item["id"] for item in obj_prev}
                 new_ids = {item["id"] for item in obj_new}
@@ -253,7 +255,7 @@ class DiscordBot(discord.Client):
                     if missing_items:
                         notification = True
                         parsed_content = handler["parser"](missing_items)
-            # parsing special case: invasions
+
             elif special_logic == "handle_missing_invasions":  # invasions
                 prev_ids = {item["id"] for item in obj_prev}
                 # filter not completed invasion
@@ -272,7 +274,7 @@ class DiscordBot(discord.Client):
                 should_save_data = True
                 parsed_content = handler["parser"](obj_new)
 
-            # FINAL; fetch channel & send msg
+            # send msg
             if notification and parsed_content:
                 # isEnabled alerts
                 if not setting["noti"]["list"][key]:
@@ -286,10 +288,9 @@ class DiscordBot(discord.Client):
                 else:
                     print(
                         f"{color['red']}[err] target channel is Empty! > {target_ch}{color['default']}"
-                    )
+                    )  # VAR
 
-            # save data
-            if should_save_data:
+            if should_save_data:  # save data
                 set_obj(obj_new, key)
 
         return  # End Of auto_send_msg_request()
@@ -318,12 +319,10 @@ async def cmd_helper(
     need_api_call: bool = False,
     parser_args=None,
 ):
-    # delay response if needed
-    if isFollowUp:
+    if isFollowUp:  # delay response if needed
         await interact.response.defer()
 
-    # API request if needed
-    if need_api_call:
+    if need_api_call:  # API request if needed
         API_Request(f"cmd.{key}")
         set_obj(json_load()[key], key)
 
@@ -363,7 +362,7 @@ async def cmd_helper(
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        msg="[info] cmd used",
+        msg="[info] cmd used",  # VAR
         obj=log_obj,
     )
 
@@ -372,11 +371,28 @@ async def cmd_helper_txt(
     interact: discord.Interaction,
     file_name: str,
 ):
-    txt = open_file(file_name)
+    try:
+        txt1 = open_file(file_name)
+        txt2 = open_file(FOOTER_FILE_LOC)
+        txt = txt1 + txt2
+    except Exception as e:
+        msg: str = "open_file err in cmd_helper_txt"  # VAR
+        await interact.response.send_message(embed=err_embed(msg))
+        save_log(
+            type="err",
+            cmd="cmd_helper_txt",
+            time=interact.created_at,
+            user=interact.user,
+            guild=interact.guild,
+            channel=interact.channel,
+            msg=msg,
+            obj=e,
+        )
+        return
 
     # send message
     await interact.response.send_message(
-        embed=discord.Embed(description=txt, color=0xCEFF00)  # VAR
+        embed=discord.Embed(description=txt, color=0xCEFF00)  # VAR: color
     )
 
     save_log(
@@ -386,7 +402,7 @@ async def cmd_helper_txt(
         user=interact.user,
         guild=interact.guild,
         channel=interact.channel,
-        msg="[info] cmd used",
+        msg="[info] cmd used",  # VAR
         obj=txt,
     )
 

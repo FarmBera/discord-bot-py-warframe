@@ -1,21 +1,16 @@
 import discord
 from translator import ts
 from module.discord_file import img_file
+from module.return_err import err_embed
 
 
 cetus_color = {"day": 0xFFBB00, "night": 0x2B79FF}
 
 
 # cetus day/night state & cycle
-def w_cetusCycle(cetus, *lang):
-    if cetus == False:
-        return (
-            discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000),
-            None,
-        )
-
-    if cetus is None:
-        return None, None
+def w_cetusCycle(cetus) -> tuple:
+    if not cetus:
+        return err_embed("cetusCycle")
 
     STATE = cetus["state"]
 

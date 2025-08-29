@@ -1,12 +1,10 @@
 from translator import ts
+from module.return_err import err_text
 
 
-def w_deepArchimedea(deep, *lang) -> str:
-    if deep == False:
-        return ts.get("general.error-cmd")
-
-    if deep is None:
-        return None
+def w_deepArchimedea(deep) -> str:
+    if not deep:
+        return err_text("deepArchimedea")
 
     prefix = f"cmd.deep-archimedea"
 

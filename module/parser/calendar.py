@@ -3,6 +3,7 @@ import datetime as dt
 from translator import ts
 from variables.keys import cal_item
 from module.get_emoji import get_emoji
+from module.return_err import err_text
 
 
 def redef(prop):
@@ -12,12 +13,9 @@ def redef(prop):
         return prop
 
 
-def w_calendar(cal, typ, *lang) -> str:
-    if cal == False:
-        ts.get("general.error-cmd")
-
-    if cal is None:
-        return None
+def w_calendar(cal, typ) -> str:
+    if not cal:
+        return err_text("calendar")
 
     output_msg: str = f"# {ts.get('cmd.calendar.title')} ({typ if typ else ''})\n\n"
 

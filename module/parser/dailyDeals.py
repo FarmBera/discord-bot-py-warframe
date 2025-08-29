@@ -1,13 +1,11 @@
 import discord
 from translator import ts
+from module.return_err import err_embed
 
 
-def w_dailyDeals(deals, *lang):
-    if deals == False:
-        return discord.Embed(description=ts.get("general.error-cmd"), color=0xFF0000)
-
-    if deals is None:
-        return None
+def w_dailyDeals(deals) -> discord.Embed:
+    if not deals:
+        return err_embed("dailyDeals")
 
     pf = f"cmd.dailyDeals"
 

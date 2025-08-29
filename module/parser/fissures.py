@@ -49,7 +49,7 @@ railjack: list = [
 ]
 
 
-def w_fissures(fissures, *lang):
+def w_fissures(fissures) -> str:
     setting = json_load(SETTING_FILE_LOC)
     prefix = setting["fissures"]
     fav_mission = prefix["favMission"]  # var

@@ -1,24 +1,20 @@
 import discord
 from translator import ts
+from module.return_err import err_embed
 
 
 def color_decision(t):
-    if t:
-        return 0x4DD2FF
-    return 0xFFA826
+    return 0x4DD2FF if t else 0xFFA826
 
 
-def w_alerts(alerts, *lang):
-    if alerts == False:
-        return discord.Embed(
-            description=ts.get("general.error-cmd") + ": alert error",
-            color=0xFF0000,
-        )
-
-    if alerts is None or alerts == []:
+def w_alerts(alerts) -> discord.Embed:
+    if alerts == []:  # empty list
         return discord.Embed(
             description=ts.get("cmd.alerts.desc-none"), color=color_decision(alerts)
         )
+
+    if not alerts:
+        return err_embed("alert error")
 
     activated_count = len(alerts)
     output_msg = f"# {ts.get('cmd.alerts.title')}: {activated_count}\n\n"
