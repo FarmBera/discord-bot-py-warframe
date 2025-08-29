@@ -119,6 +119,7 @@ DATA_HANDLERS = {
     "invasions": {
         "parser": w_invasions,
         "special_logic": "handle_missing_invasions",
+        "channel_key": "invasions",
     },
 }
 
