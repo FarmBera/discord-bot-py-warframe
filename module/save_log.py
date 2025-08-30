@@ -2,7 +2,7 @@ import csv
 import datetime as dt
 
 from var.times import KST
-from var.color import color
+from var.color import C
 from var.keys import LOG_FILE_PATH
 
 threshold = 2  # VAR
@@ -43,5 +43,5 @@ def save_log(
         log_f.close()
     except Exception as e:
         print(
-            f"{color['red']}[err] Something wrong with saving file (save_log) >> {e}{color['default']}"
+            f"{C.red}[err] Something wrong with saving file (save_log) >> {e}{C.default}"
         )

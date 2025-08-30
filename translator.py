@@ -1,7 +1,7 @@
 import yaml
 
 from module.save_log import save_log
-from var.color import color
+from var.color import C
 from var.keys import MSG_BOT
 
 
@@ -13,7 +13,7 @@ class Translator:
             with open(f"locale/{self.lang}.yml", "r", encoding="utf-8") as f:
                 self.translations = yaml.safe_load(f)
         except FileNotFoundError:
-            msg = f"{color['yellow']}[warn]: Translation file for '{self.lang}' not found.{color['default']}"
+            msg = f"{C.yellow}[warn]: Translation file for '{self.lang}' not found.{C.default}"
             save_log(cmd="translator.py", user=MSG_BOT, msg=msg)
             print(msg)
             # retry with default language: English
@@ -21,7 +21,7 @@ class Translator:
                 with open("locale/en.yml", "r", encoding="utf-8") as f:
                     self.translations = yaml.safe_load(f)
             except FileNotFoundError:
-                msg = f"{color['red']}[warn]: Default translation file 'en.yml' also not found.{color['default']}"
+                msg = f"{C.red}[warn]: Default translation file 'en.yml' also not found.{C.default}"
                 save_log(type="error", cmd="translator.py", user=MSG_BOT, msg=msg)
                 print(msg)
 
@@ -44,7 +44,7 @@ class Translator:
 language = "en"  # temporary
 if language not in ["en", "ko"]:  # input check
     print(
-        f"{color['red']}Unknown string: {color['yellow']}'{language}'. {color['white']}will setup default lang: {color['cyan']}'en'{color['default']}"
+        f"{C.red}Unknown string: {C.yellow}'{language}'. {C.white}will setup default lang: {C.cyan}'en'{C.default}"
     )
     language = "en"
 ts = Translator(lang=language)

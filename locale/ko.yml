@@ -5,6 +5,9 @@ start:
   final: 로그인 완료!
   coroutine: 내부 코루틴 시작 완료!
 
+maintenance:
+  bot-status-msg: 서버 점검 중
+
 general:
   error-cmd: 내부 오류. 관리자에게 문의하세요.
 
@@ -112,7 +115,7 @@ cmd:
 
   calendar:
     cmd: 헥스캘린더
-    desc: 이번주 헥스 캘린더 할일/보상 목록 등을 가져옵니다 (모두 출력하는 읍션의 경우 텍스트 길이로 인한 오류 발생 가능)
+    desc: 이번주 헥스 캘린더 할일/보상 목록 등을 가져옵니다 ('모두' 읍션의 경우 텍스트 길이 제한으로 인한 오류 발생 가능)
     title: 헥스 캘린더
     choice-all: 모두
     choice-to-do: 할 일 목록
@@ -143,8 +146,8 @@ cmd:
     cmd: 보이드상인-물품
     desc: 바로 키 티어가 판매하는 물품 목록을 불러옵니다
 
-    not-yet: 상인이 아직 도착하지 않았습니다!
-    arrives-in: 다음 시간 뒤애 도착 예정
+    not-yet: 보이드 상인이 아직 도착하지 않았습니다!
+    arrives-in: 다음 시간 뒤에 도착 예정
 
     mods: 모드
     skin: 스킨

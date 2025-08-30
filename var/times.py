@@ -19,3 +19,12 @@ def time_calculate_with_curr(time_data: str) -> str:
     h, r = divmod(t.seconds, 3600)
     m = divmod(r, 60)
     return f"{'' if h == 0 else f'{h}h '}{m[0]}m"
+
+
+def time_format(t) -> str:
+    """
+    lang == 'ko'
+    """
+    h, r = divmod(t.seconds, 3600)
+    m = divmod(r, 60)
+    return f"{'' if h == 0 else f'{h}시간 '}{m[0]}분"

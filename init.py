@@ -1,7 +1,7 @@
 import os
 
 from translator import ts
-from var.color import color
+from var.color import C
 from module.api_request import API_Request
 from module.save_log import save_log
 from module.json_load import json_load
@@ -27,7 +27,7 @@ try:
     os.mkdir("json")
     print(f"{prefix}json")
 except:
-    msg = f"{color['yellow']}{prefix_err}'json'"
+    msg = f"{C.yellow}{prefix_err}'json'"
     save_log(cmd="init.py", user="console", msg=msg)
     print(msg)
 
@@ -35,14 +35,14 @@ try:
     os.mkdir("log")
     print(f"{prefix}json")
 except:
-    msg = f"{color['yellow']}{prefix_err}'log'"
+    msg = f"{C.yellow}{prefix_err}'log'"
     save_log(cmd="init.py", user="console", msg=msg)
     print(msg)
 
 obj_origin = json_load()
 for item in keys:
     if item in dir_json:
-        print(f"{color['green']}File exists > {item}.json")  # VAR
+        print(f"{C.green}File exists > {item}.json")  # VAR
         continue
 
     res = get_obj(item)
@@ -51,4 +51,4 @@ for item in keys:
     else:
         print(item)
 
-print(color["default"], end="")
+print(C.default, end="")
