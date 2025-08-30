@@ -70,17 +70,18 @@ DATA_HANDLERS = {
     },
     "cetusCycle": {
         "parser": w_cetusCycle,
-        "update_check": lambda prev, new: prev.get("state") != new.get("state"),
+        "update_check": lambda prev, new: prev["state"] != new["state"]
+        or prev["activation"] != new["activation"],
     },
     "sortie": {
         "parser": w_sortie,
-        "update_check": lambda prev, new: prev.get("id") != new.get("id"),
+        "update_check": lambda prev, new: prev["id"] != new["id"]
+        or prev["activation"] != new["activation"],
         "channel_key": "sortie",
     },
     "archonHunt": {
         "parser": w_archonHunt,
-        "update_check": lambda prev, new: prev.get("activation")
-        != new.get("activation"),
+        "update_check": lambda prev, new: prev["activation"] != new["activation"],
         "channel_key": "sortie",
     },
     # TODO: improve
@@ -90,39 +91,36 @@ DATA_HANDLERS = {
     },
     "steelPath": {
         "parser": w_steelPath,
-        "update_check": lambda prev, new: prev.get("currentReward")
-        != new.get("currentReward"),
+        "update_check": lambda prev, new: prev["currentReward"] != new["currentReward"],
     },
     "duviriCycle": {
         "parser": w_duviriCycle,
-        "update_check": lambda prev, new: prev.get("state") != new.get("state"),
+        "update_check": lambda prev, new: prev["state"] != new["state"]
+        or prev["activation"] != new["activation"],
     },
     "deepArchimedea": {
         "parser": w_deepArchimedea,
-        "update_check": lambda prev, new: prev.get("activation")
-        != new.get("activation"),
+        "update_check": lambda prev, new: prev["activation"] != new["activation"],
     },
     "temporalArchimedea": {
         "parser": w_temporalArchimedia,
-        "update_check": lambda prev, new: prev.get("activation")
-        != new.get("activation"),
+        "update_check": lambda prev, new: prev["activation"] != new["activation"],
     },
     "calendar": {
-        "parser": lambda data: w_calendar(data, ts.get("cmd.calendar.choice-prize")),
+        "parser": lambda data: w_calendar(data, ts.get("cmd.alendar.choice-prize")),
         "update_check": lambda prev, new: prev
         and new
-        and prev[0].get("activation") != new[0].get("activation"),
+        and prev[0]["activation"] != new[0]["activation"],
         "channel_key": "hex-cal",
     },
     "cambionCycle": {
         "parser": w_cambionCycle,
-        "update_check": lambda prev, new: prev.get("state") != new.get("state"),
+        "update_check": lambda prev, new: prev["state"] != new["state"]
+        or prev["activation"] != new["activation"],
     },
     "dailyDeals": {
         "parser": w_dailyDeals,
-        "update_check": lambda prev, new: prev
-        and new
-        and prev[0].get("item") != new[0].get("item"),
+        "update_check": lambda prev, new: prev[0]["item"] != new[0]["item"],
     },
     "invasions": {
         "parser": w_invasions,
@@ -272,9 +270,17 @@ class DiscordBot(discord.Client):
                     parsed_content = handler["parser"](missing_items)
             # parsing: default
             elif handler["update_check"](obj_prev, obj_new):
+                # tmep = handler["update_check"](obj_prev, obj_new)
+                # print(key, tmep)
+                # if not tmep:
+                #     continue
+
                 notification = True
                 should_save_data = True
                 parsed_content = handler["parser"](obj_new)
+
+            if should_save_data:  # save data
+                set_obj(obj_new, key)
 
             # send msg
             if notification and parsed_content:
@@ -293,9 +299,6 @@ class DiscordBot(discord.Client):
                     print(
                         f"{C.red}[err] target channel is Empty! > {target_ch}{C.default}"
                     )  # VAR
-
-            if should_save_data:  # save data
-                set_obj(obj_new, key)
 
         return  # End Of auto_send_msg_request()
 
@@ -860,7 +863,7 @@ async def console_input_listener():
         command = command.strip().lower()
 
         if command in ["maintenance", "main", "exit"]:
-            print(f"Console input detected! '{command}'")
+            print(f"[info] Console input detected! '{command}'")  # VAR
             return command
 
 
@@ -883,7 +886,6 @@ async def main_manager():
 
         elif bot_mode == "maintenance":
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}")
-
             intents = discord.Intents.default()
             intents.message_content = True
             current_bot = MaintanceBot(intents=intents)
