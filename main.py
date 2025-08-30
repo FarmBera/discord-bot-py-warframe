@@ -36,7 +36,7 @@ from module.open_file import open_file
 from module.return_err import err_embed
 from module.save_file import save_file
 
-from module.handler.handleVoidTrader import _check_void_trader_update
+from module.handler.handler_config import DATA_HANDLERS
 
 from module.parser.alerts import w_alerts
 from module.parser.news import w_news
@@ -56,78 +56,6 @@ from module.parser.invasions import w_invasions
 
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
-
-
-DATA_HANDLERS = {
-    "alerts": {
-        "parser": w_alerts,
-        "special_logic": "handle_missing_items",
-    },
-    "news": {
-        "parser": w_news,
-        "special_logic": "handle_missing_items",
-        "channel_key": "news",
-    },
-    "cetusCycle": {
-        "parser": w_cetusCycle,
-        "update_check": lambda prev, new: prev["state"] != new["state"]
-        or prev["activation"] != new["activation"],
-    },
-    "sortie": {
-        "parser": w_sortie,
-        "update_check": lambda prev, new: prev["id"] != new["id"]
-        or prev["activation"] != new["activation"],
-        "channel_key": "sortie",
-    },
-    "archonHunt": {
-        "parser": w_archonHunt,
-        "update_check": lambda prev, new: prev["activation"] != new["activation"],
-        "channel_key": "sortie",
-    },
-    # TODO: improve
-    "voidTraders": {
-        "parser": w_voidTraders,
-        "update_check": _check_void_trader_update,
-    },
-    "steelPath": {
-        "parser": w_steelPath,
-        "update_check": lambda prev, new: prev["currentReward"] != new["currentReward"],
-    },
-    "duviriCycle": {
-        "parser": w_duviriCycle,
-        "update_check": lambda prev, new: prev["state"] != new["state"]
-        or prev["activation"] != new["activation"],
-    },
-    "deepArchimedea": {
-        "parser": w_deepArchimedea,
-        "update_check": lambda prev, new: prev["activation"] != new["activation"],
-    },
-    "temporalArchimedea": {
-        "parser": w_temporalArchimedia,
-        "update_check": lambda prev, new: prev["activation"] != new["activation"],
-    },
-    "calendar": {
-        "parser": lambda data: w_calendar(data, ts.get("cmd.alendar.choice-prize")),
-        "update_check": lambda prev, new: prev
-        and new
-        and prev[0]["activation"] != new[0]["activation"],
-        "channel_key": "hex-cal",
-    },
-    "cambionCycle": {
-        "parser": w_cambionCycle,
-        "update_check": lambda prev, new: prev["state"] != new["state"]
-        or prev["activation"] != new["activation"],
-    },
-    "dailyDeals": {
-        "parser": w_dailyDeals,
-        "update_check": lambda prev, new: prev[0]["item"] != new[0]["item"],
-    },
-    "invasions": {
-        "parser": w_invasions,
-        "special_logic": "handle_missing_invasions",
-        "channel_key": "invasions",
-    },
-}
 
 
 class DiscordBot(discord.Client):
