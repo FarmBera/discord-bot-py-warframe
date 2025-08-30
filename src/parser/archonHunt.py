@@ -10,7 +10,7 @@ def w_archonHunt(archon) -> str:
     pf: str = "cmd.archon-hunt."
 
     # output_msg = f"# {ts.get(f'{pf}title')}\n\n"  # legacy title
-    output_msg = f"# {ts.get(f'{pf}{archon['boss']}')} {ts.get(f'{pf}hunt')}\n\n"
+    output_msg = f"# " + ts.get(f"{pf}{archon['boss']}") + f" {ts.get(f'{pf}hunt')}\n\n"
     output_msg += f"{ts.get(f'{pf}eta')}: "
     output_msg += f"{time_cal_with_curr(archon['expiry'])}\n\n"
 
