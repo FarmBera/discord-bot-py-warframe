@@ -454,7 +454,7 @@ async def cmd_helper_maintenance(interact: discord.Interaction):
 지금은 서버 점검 및 패치 작업으로 인하여 명령어를 사용할 수 없습니다.
 이용에 불편을 드려 죄송합니다.
 
-> 예상 소요 시간: {time_format(time_left)}
+> 종료까지 **{time_format(time_left)}** 남았습니다.
 > 예상 완료 시간: {dt.datetime.strftime(time_target,"%Y-%m-%d %H:%M")}
 
 패치 작업은 조기 종료 될 수 있으며, 또한 지연될 수 있음을 알립니다.
@@ -477,7 +477,6 @@ async def cmd_helper_maintenance(interact: discord.Interaction):
     )
 
 
-###### Command Functions ######
 async def register_main_commands(tree: discord.app_commands.CommandTree):
     # help command
     @tree.command(
@@ -877,7 +876,7 @@ async def main_manager():
 
     while bot_mode != "exit":
         if bot_mode == "main":
-            print(f"{C.cyan}[info] Starting Main Bot...{C.default}")
+            print(f"{C.cyan}[info] Starting Main Bot...{C.default}")  # VAR
             intents = discord.Intents.default()
             intents.message_content = True
             current_bot = DiscordBot(intents=intents)
@@ -885,7 +884,7 @@ async def main_manager():
             await register_main_commands(tree)
 
         elif bot_mode == "maintenance":
-            print(f"{C.magenta}Starting Maintenance Bot...{C.default}")
+            print(f"{C.magenta}Starting Maintenance Bot...{C.default}")  # VAR
             intents = discord.Intents.default()
             intents.message_content = True
             current_bot = MaintanceBot(intents=intents)
@@ -912,7 +911,9 @@ async def main_manager():
                 print(f"Switching Bot... '{bot_mode}' into '{new_mode}'")  # VAR
             bot_mode = new_mode
         else:
-            print(f"{C.red}[err] The Bot has unexpectedly terminated!{C.default}")
+            print(
+                f"{C.red}[err] The Bot has unexpectedly terminated!{C.default}"
+            )  # VAR
             # bot_mode = "exit"  # exit loop
 
         # quit currently running bot & skip to next loop
@@ -920,6 +921,15 @@ async def main_manager():
         await current_bot.close()
         for task in pending:  # cancel remaining task
             task.cancel()
+
+        if bot_mode != "exit":  # VAR
+            for i in range(4, 0, -1):
+                print(
+                    f"{C.yellow}[info] Executes in {i}s  ",
+                    end="\r",
+                    flush=True,
+                )  # VAR
+                await asyncio.sleep(0.98)
 
     print("[info] Exiting Program...")  # VAR
 
