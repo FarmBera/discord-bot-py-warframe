@@ -5,6 +5,7 @@ from src.translator import ts
 from src.utils.discord_file import img_file
 from src.utils.get_emoji import get_emoji
 from src.utils.return_err import err_embed
+from src.utils.formatter import time_cal_with_curr
 
 
 baro_img = ["baro-ki-teer", "baro"]  # VAR
@@ -33,10 +34,12 @@ def w_voidTraders(trader) -> tuple:
 
     for item in trader:
         if length >= 2:
-            output_msg += f"{idx}. {ts.get(f'{pf}tdr-name')}: {item['character']}\n\n"
+            output_msg += f"{idx}. {ts.get(f'{pf}tdr-name')}: {ts.trs(f'trs.{item['character']}')}\n\n"
             idx += 1
         else:
-            output_msg += f"- {ts.get(f'{pf}tdr-name')}: {item['character']}\n"
+            output_msg += (
+                f"- {ts.get(f'{pf}tdr-name')}: {ts.trs(f'trs.{item['character']}')}\n"
+            )
 
         status = item["active"]
 
@@ -52,7 +55,8 @@ def w_voidTraders(trader) -> tuple:
             output_msg += (
                 f"- {ts.get(f'{pf}status')}: ❌ *{ts.get(f'{pf}deactivate')}*\n"
             )
-            output_msg += f"- {ts.get(f'{pf}appear')} {item['startString']}\n"
+            # output_msg += f"- {ts.get(f'{pf}appear')} {item['startString']}\n"  # legacy
+            output_msg += f"- {ts.get(f'{pf}appear')} {time_cal_with_curr(item['activation'])}\n"
             output_msg += f"- {ts.get(f'{pf}place')}: "
 
         # appear location
@@ -65,6 +69,7 @@ def w_voidTraders(trader) -> tuple:
     return embed, f
 
 
+# TODO: 한글화
 def w_voidTradersItem(trader, *lang) -> discord.Embed:
     if not trader:
         return err_embed("voidTraders")

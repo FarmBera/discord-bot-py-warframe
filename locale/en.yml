@@ -1,15 +1,20 @@
 start:
   init: Starting bot...
   sync: Syncing
-  bot-status-msg: Alert Ready;
-  final: Logged on as
+  bot-status-msg: /help
+  final: Logged on! as
   coroutine: Internal Coroutine Started
 
 maintenance:
-  bot-status-msg: On Maintenance
+  bot-status-msg: Server Maintenance
 
 general:
   error-cmd: Internal Error. Please contact the administrator.
+
+time:
+  day: d
+  hour: h
+  min: m
 
 cmd:
   help:
@@ -60,6 +65,11 @@ cmd:
     desc: Get archon hunt missions this weekend
     title: Archon Hunt
     eta: Expires at
+    hunt: Hunt
+
+    Assassination: Assassination
+
+    Archon Amar: Archon Amar
 
   void-traders:
     cmd: voidtraders
@@ -126,6 +136,12 @@ cmd:
     cmd: cambioncycle
     desc: Get current cambion state
 
+    title: Cambiono  Cycle
+    exp: Expires in
+
+    fass: Fass
+    vome: Vome
+
   dailyDeals:
     cmd: dailydeals
     desc: Get today's hot deal item!
@@ -144,7 +160,7 @@ cmd:
 
   void-traders-item:
     cmd: voidtraders-item
-    desc: Get Baro Ki'Teer item list.
+    desc: Get Baro Ki'Teer selling item list.
 
     not-yet: Trader is NOT arrived yet!
     arrives-in: Arrives in

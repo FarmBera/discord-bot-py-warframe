@@ -37,7 +37,7 @@ def w_steelPath(steel) -> tuple:
     output_msg: str = f"# {ts.get(f'{pf}.title')}\n\n"
 
     # current reward
-    output_msg += f"- {ts.get(f'{pf}.curr-reward')}: **{cname}** ({current['cost']} {ts.get(f'{pf}.cost')})\n"
+    output_msg += f"- {ts.get(f'{pf}.curr-reward')}: **{ts.trs(f'trs.{cname}')}** ({current['cost']} {ts.get(f'{pf}.cost')})\n"
 
     # next week reward
     idx = 0
@@ -50,7 +50,7 @@ def w_steelPath(steel) -> tuple:
 
             # output
             item = steel["rotation"][idx]
-            output_msg += f"- {ts.get(f'{pf}.next')}: *{item['name']}* ({item['cost']} {ts.get(f'{pf}.cost')})"
+            output_msg += f"- {ts.get(f'{pf}.next')}: *{ts.trs(f'trs.{item['name']}')}* ({item['cost']} {ts.get(f'{pf}.cost')})"
             break
         else:
             idx += 1

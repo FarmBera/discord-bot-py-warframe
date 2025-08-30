@@ -2,7 +2,7 @@ import requests
 import json
 import datetime as dt
 
-from config.TOKEN import base_url, params, query
+from config.TOKEN import base_url, params, DEFAULT_JSON_PATH
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
 from src.utils.logging_utils import save_log
@@ -36,7 +36,7 @@ def check_request(est, response):
 
     # process response
     response = response.json()
-    fname = f"Warframe_{query}.json"  # file name to save
+    fname = DEFAULT_JSON_PATH  # file name to save
 
     # save received data to JSON file
     try:

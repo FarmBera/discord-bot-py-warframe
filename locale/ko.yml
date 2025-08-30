@@ -1,9 +1,9 @@
 start:
   init: 봇을 시작하는 중...
   sync: 동기화 중
-  bot-status-msg: /help
+  bot-status-msg: /도움말
   final: 로그인 완료!
-  coroutine: 내부 코루틴 시작 완료!
+  coroutine: "Internal Coroutine Started\n언어가 한국어로 설정되었습니다!"
 
 maintenance:
   bot-status-msg: 서버 점검 중
@@ -11,26 +11,31 @@ maintenance:
 general:
   error-cmd: 내부 오류. 관리자에게 문의하세요.
 
+time:
+  day: 일
+  hour: 시간
+  min: 분
+
 cmd:
   help:
     cmd: 도움말
-    desc: 봇 명령어 관련 도움말을 표시합니다
+    desc: 봇 명령어 관련 도움말을 표시합니다.
 
   announcement:
     cmd: 공지사항
-    desc: 봇 공지사항을 불러옵니다
+    desc: 봇 공지사항을 불러옵니다.
 
   patch-note:
     cmd: 패치노트
-    desc: 봇의 최근 업데이트 내역을 불러옵니다
+    desc: 봇의 최근 업데이트 내역을 불러옵니다.
 
   privacy-policy:
     cmd: 개인정보-처리방침
-    desc: 봇의 개인정보 처리방침에 대하여...
+    desc: 봇의 개인정보 처리방침에 대하여
 
   alerts:
     cmd: 얼럿
-    desc: 현채 활성화된 얼럿 미션을 가져옵니다
+    desc: 현재 활성화된 얼럿 미션을 가져옵니다
     desc-none: "### 현재 활성화된 얼럿 미션이 없습니다!"
     title: 활성화된 얼럿
     credit: 크레딧
@@ -45,7 +50,7 @@ cmd:
     desc: 현재 지구의 시터스 시간 및 상태를 불러옵니다
     title: 시터스 낮/밤 상태
     current: 현재 상태
-    endin: 종료 시간
+    endin: 종료까지
     night: 밤
     day: 낮
 
@@ -59,7 +64,12 @@ cmd:
     cmd: 집정관사냥
     desc: 이번주 집정관 사냥 미션을 불러옵니다
     title: 집정관 사냥 미션 목록
-    eta: 만료일
+    eta: 종료까지 남은 시간
+    hunt: 토벌
+
+    Assassination: 결전
+
+    Archon Amar: 집정관 아미르
 
   void-traders:
     cmd: 보이드상인
@@ -85,8 +95,8 @@ cmd:
   fissures:
     cmd: 보이드균열
     desc: "현채 활성화된 보이드 균열 중 빠른 클리어가 가능한 미션 목록을 가져옵니다 (예: 섬멸, 생포)"
-    title: 빠른클 성유물 목록
-    fiss: 보이드 균열
+    title: 빠른클 가능한 성유물 목록
+    fiss: 균열
     steel: "**[강길]**"
     remain: 남음
 
@@ -95,11 +105,11 @@ cmd:
     desc: 현재 두비리 상태를 가져옵니다
     title: 두비리 주기
     state: 상태
-    expire: 만료일
+    expire: 만료까지
 
     joy: 기쁨 (Joy)
     anger: 화남 (Anger)
-    envy: 부러움 (Envy)
+    envy: 질투의 나선 (Envy)
     sorrow: 슬픔 (Sorrow)
     fear: 두려움 (Fear)
 
@@ -126,6 +136,12 @@ cmd:
     cmd: 캠비온주기
     desc: 현재 데이모스의 캠비온 퇴적지 주기를 가져옵니다
 
+    title: 캠비온 퇴적지 주기
+    exp: 만료까지
+
+    fass: 파스
+    vome: 봄
+
   dailyDeals:
     cmd: 일일특가
     desc: 오늘의 특가 품목을 가져옵니다
@@ -138,7 +154,7 @@ cmd:
     desc: 현재 활성화된 침공 미션 목록을 가져옵니다
     title: 침공
     at: at
-    completion: 진행상황
+    completion: 진행 상황
     atk-from: "공격자:"
     eta: 시작한지
 
@@ -159,3 +175,70 @@ cmd:
     relic: 성유물
     keys: 키
     other: 기타
+
+trs:
+  # keyword
+  blueprint: 설계도
+
+  # mission
+  alchemy: 연금술
+  arena: 아레나 # (rathuum and the index)
+  ascension: ascension
+  assassination: 암살
+  assault: assault
+  capture: 생포
+  defection: defection
+  defense: 방어
+  mirror defense: 거울상 방어
+  disruption: 교란
+  excavation: 발굴
+  exterminate: 섬멸
+  extermination: 섬멸
+  free roam/bounty: free roam/bounty # (plains of eidolon, orb vallis, & cambion drift)
+  heist: heist
+  isolation vault: 격리 금고
+  hijack: 탈취
+  infested salvage: infested salvage
+  interception: 감청
+  junction: junction
+  mobile defense: 이동 방어
+  netracells: 네트라셀
+  orphix: orphix # (exclusive to railjack)
+  pursuit: pursuit # (exclusive to archwing)
+  rescue: 구출
+  rush: rush # (exclusive to archwing)
+  sabotage: 파괴공작
+  hive sabotage: hive sabotage
+  orokin sabotage: orokin sabotage
+  reactor sabotage: reactor sabotage
+  sealab sabotage: sealab sabotage
+  sanctuary onslaught: 생츄어리 맹습
+  skirmish: skirmish # (exclusive to railjack)
+  shrine defense: shrine defense
+  spy: 첩보활동
+  survival: 생존
+  void armageddon: 보이드 아마겟돈 # (exclusive to zariman ten zero)
+  void cascade: void cascade # (exclusive to zariman ten zero)
+  void flood: 보이드 홍수 # (exclusive to zariman ten zero)
+  volatile: volatile # (exclusive to railjack)
+
+  # void relics
+  lith: 리스
+  meso: 메소
+  neo: 네오
+  axi: 액시
+  requiem: 레퀴엠
+  omnia: 옴니아
+
+  # items
+  umbra forma blueprint: 움브라 포르마 설계도
+  "50,000 kuva": "50,000 쿠바"
+  kitgun riven mod: 키트건 리벤 모드
+  3x forma: 포르마 3개
+  zaw riven mod: 조우 리벤 모드
+  "30,000 endo": "30,000 엔도"
+  rifle riven mod: 소총 리벤 모드
+  shotgun riven mod: 샷건 리벤 모드
+
+  # name
+  "baro ki'teer": 바로 키 티어

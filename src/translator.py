@@ -4,9 +4,14 @@ from src.utils.logging_utils import save_log
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
 
+LANG_CODE = ["en", "ko"]
+
 
 class Translator:
-    def __init__(self, lang="en"):
+    EN: str = LANG_CODE[0]
+    KO: str = LANG_CODE[1]
+
+    def __init__(self, lang=EN):
         self.lang = lang
         self.translations = {}
         try:
@@ -18,7 +23,7 @@ class Translator:
             print(msg)
             # retry with default language: English
             try:
-                with open("locale/en.yml", "r", encoding="utf-8") as f:
+                with open(f"locale/{self.EN}.yml", "r", encoding="utf-8") as f:
                     self.translations = yaml.safe_load(f)
             except FileNotFoundError:
                 msg = f"{C.red}[warn]: Default translation file 'en.yml' also not found.{C.default}"
@@ -36,15 +41,31 @@ class Translator:
                 value = value[k]
             return value.format(**kwargs) if kwargs else value
         except (KeyError, TypeError):
-            return key
+            return keys[-1]
+
+    def trs(self, key, **kwargs):
+        """
+        receive SPECIAL keys (not officialy translated text in API) and return translated text (ex: 'main_screen.title')
+        """
+        if language == self.EN:
+            return key.split(".")[-1]
+
+        keys = key.lower().split(".")
+        value = self.translations
+        try:
+            for k in keys:
+                value = value[k]
+            return value.format(**kwargs) if kwargs else value
+        except (KeyError, TypeError):
+            return keys[-1]
 
 
 # language initialize
 language = input("Select Language (en/ko) >> ")
-# language = "en"  # temporary
-if language not in ["en", "ko"]:  # input check
+# language = LANG_CODE[0]  # temporary
+if language not in [LANG_CODE[0], LANG_CODE[1]]:  # input check
     print(
-        f"{C.red}Unknown string: {C.yellow}'{language}'. {C.white}will setup default lang: {C.cyan}'en'{C.default}"
+        f"{C.red}Unknown string: {C.yellow}'{language}'. {C.white}will setup default lang: {C.cyan}{LANG_CODE[0]}{C.default}"
     )
-    language = "en"
+    language = LANG_CODE[0]
 ts = Translator(lang=language)

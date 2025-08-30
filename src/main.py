@@ -6,10 +6,10 @@ import sys
 import logging
 
 
-from src.translator import ts, language
+from src.translator import ts
 from config.TOKEN import TOKEN as BOT_TOKEN
 from config.TOKEN import DEFAULT_JSON_PATH
-from src.constants.times import alert_times, JSON_DATE_PAT, time_format
+from src.constants.times import alert_times, JSON_DATE_PAT
 from src.constants.color import C
 from src.constants.keys import (
     keys,
@@ -35,6 +35,7 @@ from src.utils.data_manager import cmd_obj_check
 from src.utils.file_io import open_file
 from src.utils.return_err import err_embed
 from src.utils.file_io import save_file
+from src.utils.formatter import time_format
 
 from src.handler.handler_config import DATA_HANDLERS
 
@@ -282,7 +283,7 @@ async def cmd_helper(
     isFollowUp: bool = False,
     need_api_call: bool = False,
     parser_args=None,
-    isUserViewOnly: bool = False,
+    isUserViewOnly: bool = True,
 ):
     if isFollowUp:  # delay response if needed
         await interact.response.defer(ephemeral=isUserViewOnly)
@@ -415,15 +416,19 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
     )
     async def cmd_help(interact: discord.Interaction):
-        await cmd_helper_txt(interact, file_name=HELP_FILE_LOC, isUserViewOnly=True)
+        await cmd_helper_txt(interact, file_name=HELP_FILE_LOC)
 
     # announcement command
     @tree.command(
         name=ts.get(f"cmd.announcement.cmd"),
         description=f"{ts.get('cmd.announcement.desc')}",
     )
-    async def cmd_announcement(interact: discord.Interaction):
-        await cmd_helper_txt(interact, file_name=ANNOUNCE_FILE_LOC)
+    async def cmd_announcement(
+        interact: discord.Interaction, is_user_view_only: bool = True
+    ):
+        await cmd_helper_txt(
+            interact, file_name=ANNOUNCE_FILE_LOC, isUserViewOnly=is_user_view_only
+        )
 
     # patch-note command
     @tree.command(
@@ -439,7 +444,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
         description=f"{ts.get('cmd.privacy-policy.desc')}",
     )
     async def cmd_privacy_policy(interact: discord.Interaction):
-        await cmd_helper_txt(interact, file_name=POLICY_FILE_LOC, isUserViewOnly=True)
+        await cmd_helper_txt(interact, file_name=POLICY_FILE_LOC)
 
     # news command
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
@@ -449,7 +454,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             key=keys[1],
             parser_func=w_news,
             parser_args=number_of_news,
-            isUserViewOnly=True,
         )
 
     # alerts command
@@ -458,7 +462,9 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     )
     async def cmd_alerts(interact: discord.Interaction):
         await cmd_helper(
-            interact=interact, key=keys[0], parser_func=w_alerts, isUserViewOnly=True
+            interact=interact,
+            key=keys[0],
+            parser_func=w_alerts,
         )
 
     # cetus command (cetusCycle)
@@ -470,7 +476,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             parser_func=w_cetusCycle,
             isFollowUp=True,
             need_api_call=True,
-            isUserViewOnly=True,
         )
 
     # sortie command
@@ -479,7 +484,9 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     )
     async def cmd_sortie(interact: discord.Interaction):
         await cmd_helper(
-            interact, key=keys[3], parser_func=w_sortie, isUserViewOnly=True
+            interact,
+            key=keys[3],
+            parser_func=w_sortie,
         )
 
     # archon hunt command
@@ -488,7 +495,9 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     )
     async def cmd_archon_hunt(interact: discord.Interaction):
         await cmd_helper(
-            interact, key=keys[4], parser_func=w_archonHunt, isUserViewOnly=True
+            interact,
+            key=keys[4],
+            parser_func=w_archonHunt,
         )
 
     # void traders command
@@ -503,7 +512,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             parser_func=w_voidTraders,
             isFollowUp=True,
             need_api_call=True,
-            isUserViewOnly=True,
         )
 
     # steel path reward command
@@ -513,7 +521,9 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     )
     async def cmd_steel_reward(interact: discord.Interaction):
         await cmd_helper(
-            interact, key=keys[6], parser_func=w_steelPath, isUserViewOnly=True
+            interact,
+            key=keys[6],
+            parser_func=w_steelPath,
         )
 
     # fissures command
@@ -527,7 +537,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             parser_func=w_fissures,
             isFollowUp=True,
             need_api_call=True,
-            isUserViewOnly=True,
         )
 
     # duviriCycle command
@@ -542,7 +551,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             parser_func=w_duviriCycle,
             isFollowUp=True,
             need_api_call=True,
-            isUserViewOnly=True,
         )
 
     # deep archimedea command
@@ -552,7 +560,9 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     )
     async def cmd_deep_archimedea(interact: discord.Interaction):
         await cmd_helper(
-            interact, key=keys[8], parser_func=w_deepArchimedea, isUserViewOnly=True
+            interact,
+            key=keys[8],
+            parser_func=w_deepArchimedea,
         )
 
     # temporal archimedea reward command
@@ -561,9 +571,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
         description=ts.get(f"cmd.temporal-archimedea.desc"),
     )
     async def cmd_temporal_archimedea(interact: discord.Interaction):
-        await cmd_helper(
-            interact, key=keys[9], parser_func=w_temporalArchimedia, isUserViewOnly=True
-        )
+        await cmd_helper(interact, key=keys[9], parser_func=w_temporalArchimedia)
 
     # hex calendar reward command
     @tree.command(
@@ -594,7 +602,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             key=keys[11],
             parser_func=w_calendar,
             parser_args=types.name,
-            isUserViewOnly=True,
         )
 
     # cambion command (cambionCycle)
@@ -608,7 +615,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             parser_func=w_cambionCycle,
             isFollowUp=True,
             need_api_call=True,
-            isUserViewOnly=True,
         )
 
     # dailyDeals command
@@ -622,7 +628,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             parser_func=w_dailyDeals,
             isFollowUp=True,
             need_api_call=True,
-            isUserViewOnly=True,
         )
 
     # invasions command
@@ -636,7 +641,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             parser_func=w_invasions,
             isFollowUp=True,
             need_api_call=True,
-            isUserViewOnly=True,
         )
 
     # voidTrader item command
@@ -651,7 +655,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             parser_func=w_voidTradersItem,
             isFollowUp=True,
             need_api_call=True,
-            isUserViewOnly=True,
         )
 
 
@@ -793,12 +796,15 @@ async def console_input_listener():
     wait for console input and returns the specified keyword when it is entered.
     """
     while True:
-        command = await asyncio.to_thread(sys.stdin.readline)
-        command = command.strip().lower()
+        cmd = await asyncio.to_thread(sys.stdin.readline)
+        cmd = cmd.strip().lower()
 
-        if command in ["maintenance", "main", "exit"]:
-            print(f"[info] Console input detected! '{command}'")  # VAR
-            return command
+        if cmd in ["maintenance", "main", "exit"]:
+            print(f"[info] Console input detected! '{cmd}'")  # VAR
+            return cmd
+
+
+ERR_COUNT: int = 0
 
 
 async def main_manager():
@@ -849,6 +855,19 @@ async def main_manager():
             print(
                 f"{C.red}[err] The Bot has unexpectedly terminated!{C.default}"
             )  # VAR
+
+            ERR_COUNT += 1
+            for i in range(5, 0, -1):
+                print(
+                    f"{C.red}[err] Unexpect Error. Retry in {i}s ",
+                    end="\r",
+                    flush=True,
+                )  # VAR
+                await asyncio.sleep(1.0)
+            print(f"{C.yellow}Retrying #{ERR_COUNT}{C.default}")
+
+            if ERR_COUNT > 20:
+                raise KeyboardInterrupt("ERROR")
             # bot_mode = "exit"  # exit loop
 
         # quit currently running bot & skip to next loop

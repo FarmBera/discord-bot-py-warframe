@@ -3,7 +3,7 @@ import os
 from src.translator import ts
 from src.constants.color import C
 from src.utils.api_request import API_Request
-from utils.logging_utils import save_log
+from src.utils.logging_utils import save_log
 from src.utils.file_io import json_load
 from src.utils.data_manager import get_obj
 from src.utils.data_manager import set_obj
@@ -43,7 +43,7 @@ obj_origin = json_load()
 for item in keys:
     if item in dir_json:
         print(f"{C.green}File exists > {item}.json")  # VAR
-        continue
+        # continue
 
     res = get_obj(item)
     if not res or res is None:
