@@ -1,2 +1,2 @@
 clear
-python3 main.py
+python3 -m src.main
