@@ -16,15 +16,17 @@ def w_archonHunt(archon) -> str:
 
     # TODO: ADD MSG: you can obtain 'shard kind' in this week
 
-    value = archon["missions"]
-    output_msg += f"1. {ts.trs(f"trs.{value[0]['type']}")} - {value[0]['node']}\n"
-    output_msg += f"2. {ts.trs(f"trs.{value[1]['type']}")} - {value[1]['node']}\n"
-    output_msg += f"3. {ts.get(f"{pf}{value[2]['type']}")} - {value[2]['node']}\n"
+    idx: int = 1
+    for value in archon["missions"]:
+        if idx == 3:
+            output_msg += (
+                f"{idx}. " + ts.get(f"{pf}{value['type']}") + f" - {value['node']}\n"
+            )
+        else:
+            output_msg += (
+                f"{idx}. " + ts.trs(f"trs.{value['type']}") + f" - {value['node']}\n"
+            )
 
-    # legacy body
-    # idx: int = 1
-    # for value in archon["missions"]:
-    #     output_msg += f"{idx}. {ts.get(f"{pf}{value['type']}")} - {value['node']}\n"
-    #     idx += 1
+        idx += 1
 
     return output_msg
