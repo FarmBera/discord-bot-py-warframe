@@ -40,8 +40,8 @@ class Translator:
 
 
 # language initialize
-# language = input("Select Language (en/ko) >> ")  # TEMPORARYˇ
-language = "en"  # temporary
+language = input("Select Language (en/ko) >> ")
+# language = "en"  # temporary
 if language not in ["en", "ko"]:  # input check
     print(
         f"{C.red}Unknown string: {C.yellow}'{language}'. {C.white}will setup default lang: {C.cyan}'en'{C.default}"
