@@ -42,7 +42,6 @@ def w_steelPath(steel) -> tuple:
     # next week reward
     idx = 0
     for item in steel["rotation"]:
-        # next week item
         if item["name"] == cname:
             idx += 1
             if idx >= len(steel["rotation"]):  # fix index overflow
@@ -50,7 +49,11 @@ def w_steelPath(steel) -> tuple:
 
             # output
             item = steel["rotation"][idx]
-            output_msg += f"- {ts.get(f'{pf}.next')}: *{ts.trs(f'trs.{item['name']}')}* ({item['cost']} {ts.get(f'{pf}.cost')})"
+            output_msg += (
+                f"- {ts.get(f'{pf}.next')}: *"
+                + ts.trs(f"trs.{item['name']}")
+                + f"* ({item['cost']} {ts.get(f'{pf}.cost')})"
+            )
             break
         else:
             idx += 1

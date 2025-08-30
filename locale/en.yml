@@ -58,7 +58,7 @@ cmd:
     cmd: sortie
     desc: "Today's Sortie missions"
     title: Today's Sortie
-    eta: ETA
+    eta: Expires in
 
   archon-hunt:
     cmd: archonhunt

@@ -334,7 +334,7 @@ async def cmd_helper(
 
 
 async def cmd_helper_txt(
-    interact: discord.Interaction, file_name: str, isUserViewOnly: bool = False
+    interact: discord.Interaction, file_name: str, isUserViewOnly: bool = True
 ):
     try:
         txt1 = open_file(file_name)
