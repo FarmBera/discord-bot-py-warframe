@@ -1,9 +1,9 @@
 import discord
 import datetime as dt
 
-from translator import ts
-from var.times import time_calculate_with_curr
-from module.return_err import err_embed
+from src.translator import ts
+from src.constants.times import time_calculate_with_curr
+from src.utils.return_err import err_embed
 
 duviri_color = {
     "joy": 0x377C82,

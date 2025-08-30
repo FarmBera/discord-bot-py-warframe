@@ -2,9 +2,9 @@ import discord
 import datetime as dt
 from collections import defaultdict
 
-from translator import ts
-from var.times import JSON_DATE_PAT
-from module.return_err import err_embed
+from src.translator import ts
+from src.constants.times import JSON_DATE_PAT
+from src.utils.return_err import err_embed
 
 
 def formatDate(dd: str):

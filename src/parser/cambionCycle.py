@@ -1,8 +1,8 @@
 import discord
-from translator import ts
-from var.times import time_calculate_with_curr
-from module.discord_file import img_file
-from module.return_err import err_embed
+from src.translator import ts
+from src.constants.times import time_calculate_with_curr
+from src.utils.discord_file import img_file
+from src.utils.return_err import err_embed
 
 
 def w_cambionCycle(cambion) -> tuple:

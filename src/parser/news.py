@@ -1,9 +1,9 @@
 import discord
 import datetime as dt
 
-from translator import ts, language as lang
-from var.times import JSON_DATE_PAT
-from module.return_err import err_embed
+from src.translator import ts, language as lang
+from src.constants.times import JSON_DATE_PAT
+from src.utils.return_err import err_embed
 
 
 def w_news(newses, LIMIT_OUTPUT_CNT: int = 20):

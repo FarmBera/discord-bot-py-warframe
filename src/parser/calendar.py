@@ -1,9 +1,9 @@
 import datetime as dt
 
-from translator import ts
-from var.keys import cal_item
-from module.get_emoji import get_emoji
-from module.return_err import err_text
+from src.translator import ts
+from src.constants.keys import cal_item
+from src.utils.get_emoji import get_emoji
+from src.utils.return_err import err_text
 
 
 def redef(prop):

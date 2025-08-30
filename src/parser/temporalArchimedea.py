@@ -1,4 +1,4 @@
-from translator import ts
+from src.translator import ts
 
 
 def w_temporalArchimedia(temporal) -> str:

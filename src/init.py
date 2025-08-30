@@ -1,13 +1,13 @@
 import os
 
-from translator import ts
-from var.color import C
-from module.api_request import API_Request
-from module.save_log import save_log
-from module.json_load import json_load
-from module.get_obj import get_obj
-from module.set_obj import set_obj
-from var.keys import keys
+from src.translator import ts
+from src.constants.color import C
+from src.utils.api_request import API_Request
+from utils.logging_utils import save_log
+from src.utils.file_io import json_load
+from src.utils.data_manager import get_obj
+from src.utils.data_manager import set_obj
+from src.constants.keys import keys
 
 
 print("API Requesting...")

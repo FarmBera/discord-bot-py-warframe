@@ -1,7 +1,7 @@
 import discord
-from translator import ts
-from module.discord_file import img_file
-from module.return_err import err_embed
+from src.translator import ts
+from src.utils.discord_file import img_file
+from src.utils.return_err import err_embed
 
 color_list = {
     "Umbra Forma Blueprint": 0x00FFFF,

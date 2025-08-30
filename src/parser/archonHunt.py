@@ -1,5 +1,5 @@
-from translator import ts
-from module.return_err import err_text
+from src.translator import ts
+from src.utils.return_err import err_text
 
 
 def w_archonHunt(archon) -> str:

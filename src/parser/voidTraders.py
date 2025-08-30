@@ -1,10 +1,10 @@
 import discord
 import random
 
-from translator import ts
-from module.discord_file import img_file
-from module.get_emoji import get_emoji
-from module.return_err import err_embed
+from src.translator import ts
+from src.utils.discord_file import img_file
+from src.utils.get_emoji import get_emoji
+from src.utils.return_err import err_embed
 
 
 baro_img = ["baro-ki-teer", "baro"]  # VAR

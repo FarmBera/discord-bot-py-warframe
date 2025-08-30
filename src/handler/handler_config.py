@@ -1,20 +1,20 @@
-from translator import ts
+from src.translator import ts
 
-from module.parser.alerts import w_alerts
-from module.parser.news import w_news
-from module.parser.cetusCycle import w_cetusCycle
-from module.parser.sortie import w_sortie
-from module.parser.archonHunt import w_archonHunt
-from module.parser.voidTraders import w_voidTraders, w_voidTradersItem
-from module.parser.steelPath import w_steelPath
-from module.parser.duviriCycle import w_duviriCycle
-from module.parser.deepArchimedea import w_deepArchimedea
-from module.parser.temporalArchimedea import w_temporalArchimedia
-from module.parser.fissures import w_fissures
-from module.parser.calendar import w_calendar
-from module.parser.cambionCycle import w_cambionCycle
-from module.parser.dailyDeals import w_dailyDeals
-from module.parser.invasions import w_invasions
+from src.parser.alerts import w_alerts
+from src.parser.news import w_news
+from src.parser.cetusCycle import w_cetusCycle
+from src.parser.sortie import w_sortie
+from src.parser.archonHunt import w_archonHunt
+from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
+from src.parser.steelPath import w_steelPath
+from src.parser.duviriCycle import w_duviriCycle
+from src.parser.deepArchimedea import w_deepArchimedea
+from src.parser.temporalArchimedea import w_temporalArchimedia
+from src.parser.fissures import w_fissures
+from src.parser.calendar import w_calendar
+from src.parser.cambionCycle import w_cambionCycle
+from src.parser.dailyDeals import w_dailyDeals
+from src.parser.invasions import w_invasions
 
 
 def _check_void_trader_update(prev, new):

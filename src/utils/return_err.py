@@ -1,5 +1,5 @@
 import discord
-from translator import ts
+from src.translator import ts
 
 
 def err_text(err_code: str) -> str:

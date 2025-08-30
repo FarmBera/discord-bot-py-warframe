@@ -6,12 +6,12 @@ import sys
 import logging
 
 
-from translator import ts, language
-from TOKEN import TOKEN as BOT_TOKEN
-from TOKEN import DEFAULT_JSON_PATH
-from var.times import alert_times, JSON_DATE_PAT, time_format
-from var.color import C
-from var.keys import (
+from src.translator import ts, language
+from config.TOKEN import TOKEN as BOT_TOKEN
+from config.TOKEN import DEFAULT_JSON_PATH
+from src.constants.times import alert_times, JSON_DATE_PAT, time_format
+from src.constants.color import C
+from src.constants.keys import (
     keys,
     SETTING_FILE_LOC,
     CHANNEL_FILE_LOC,
@@ -24,35 +24,35 @@ from var.keys import (
     DELTA_TIME_LOC,
     MSG_BOT,
 )
-from module.api_request import API_Request
-from module.save_log import save_log
+from src.utils.api_request import API_Request
+from src.utils.logging_utils import save_log
 
-from module.yaml_open import yaml_open
-from module.json_load import json_load
-from module.get_obj import get_obj
-from module.set_obj import set_obj
-from module.cmd_obj_check import cmd_obj_check
-from module.open_file import open_file
-from module.return_err import err_embed
-from module.save_file import save_file
+from src.utils.file_io import yaml_open
+from src.utils.file_io import json_load
+from src.utils.data_manager import get_obj
+from src.utils.data_manager import set_obj
+from src.utils.data_manager import cmd_obj_check
+from src.utils.file_io import open_file
+from src.utils.return_err import err_embed
+from src.utils.file_io import save_file
 
-from module.handler.handler_config import DATA_HANDLERS
+from src.handler.handler_config import DATA_HANDLERS
 
-from module.parser.alerts import w_alerts
-from module.parser.news import w_news
-from module.parser.cetusCycle import w_cetusCycle
-from module.parser.sortie import w_sortie
-from module.parser.archonHunt import w_archonHunt
-from module.parser.voidTraders import w_voidTraders, w_voidTradersItem
-from module.parser.steelPath import w_steelPath
-from module.parser.duviriCycle import w_duviriCycle
-from module.parser.deepArchimedea import w_deepArchimedea
-from module.parser.temporalArchimedea import w_temporalArchimedia
-from module.parser.fissures import w_fissures
-from module.parser.calendar import w_calendar
-from module.parser.cambionCycle import w_cambionCycle
-from module.parser.dailyDeals import w_dailyDeals
-from module.parser.invasions import w_invasions
+from src.parser.alerts import w_alerts
+from src.parser.news import w_news
+from src.parser.cetusCycle import w_cetusCycle
+from src.parser.sortie import w_sortie
+from src.parser.archonHunt import w_archonHunt
+from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
+from src.parser.steelPath import w_steelPath
+from src.parser.duviriCycle import w_duviriCycle
+from src.parser.deepArchimedea import w_deepArchimedea
+from src.parser.temporalArchimedea import w_temporalArchimedia
+from src.parser.fissures import w_fissures
+from src.parser.calendar import w_calendar
+from src.parser.cambionCycle import w_cambionCycle
+from src.parser.dailyDeals import w_dailyDeals
+from src.parser.invasions import w_invasions
 
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
@@ -271,7 +271,7 @@ class MaintanceBot(discord.Client):
 # init discord bot
 tree = None
 
-# commands
+# commands helper
 
 
 async def cmd_helper(
@@ -403,6 +403,9 @@ async def cmd_helper_maintenance(interact: discord.Interaction):
         channel=interact.channel,
         msg="[info] cmd used in maintenance mode",  # VAR
     )
+
+
+# register commands
 
 
 async def register_main_commands(tree: discord.app_commands.CommandTree):
@@ -779,6 +782,9 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     )
     async def cmd_traders_item(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
+
+
+# main thread
 
 
 async def console_input_listener():

@@ -1,5 +1,5 @@
-from translator import ts
-from var.times import time_calculate_with_curr
+from src.translator import ts
+from src.constants.times import time_calculate_with_curr
 
 
 def w_sortie(sortie):

@@ -2,10 +2,10 @@ import requests
 import json
 import datetime as dt
 
-from TOKEN import base_url, params, query
-from var.color import C
-from var.keys import MSG_BOT
-from module.save_log import save_log
+from config.TOKEN import base_url, params, query
+from src.constants.color import C
+from src.constants.keys import MSG_BOT
+from src.utils.logging_utils import save_log
 
 
 response = None

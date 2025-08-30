@@ -1,11 +1,11 @@
 import discord
 import datetime as dt
 
-from translator import ts
-from var.keys import SETTING_FILE_LOC
-from var.times import time_calculate_with_curr
-from module.json_load import json_load
-from module.get_emoji import get_emoji
+from src.translator import ts
+from src.constants.keys import SETTING_FILE_LOC
+from src.constants.times import time_calculate_with_curr
+from src.utils.file_io import json_load
+from src.utils.get_emoji import get_emoji
 
 railjack: list = [
     # veil proxima

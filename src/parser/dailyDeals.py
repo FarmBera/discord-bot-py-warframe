@@ -1,6 +1,6 @@
 import discord
-from translator import ts
-from module.return_err import err_embed
+from src.translator import ts
+from src.utils.return_err import err_embed
 
 
 def w_dailyDeals(deals) -> discord.Embed:
