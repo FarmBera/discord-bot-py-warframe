@@ -30,7 +30,8 @@
         "missionTemp": [
             "Excavation"
         ],
-        "tierExcept": [],
+        "tierExcept": [
+        ],
         "tierTemp": [
             "Requiem"
         ]
