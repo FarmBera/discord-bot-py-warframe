@@ -3,7 +3,7 @@ import random
 
 from src.translator import ts
 from src.utils.discord_file import img_file
-from src.utils.get_emoji import get_emoji
+from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
 from src.utils.formatter import time_cal_with_curr
 

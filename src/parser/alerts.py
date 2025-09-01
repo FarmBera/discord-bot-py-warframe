@@ -14,7 +14,7 @@ def w_alerts(alerts) -> discord.Embed:
         )
 
     if not alerts:
-        return err_embed("alert error")
+        return err_embed("alert obj error")
 
     activated_count = len(alerts)
     output_msg = f"# {ts.get('cmd.alerts.title')}: {activated_count}\n\n"

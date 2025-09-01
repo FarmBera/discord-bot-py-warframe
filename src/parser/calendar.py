@@ -2,7 +2,7 @@ import datetime as dt
 
 from src.translator import ts
 from src.constants.keys import cal_item
-from src.utils.get_emoji import get_emoji
+from src.utils.emoji import get_emoji
 from src.utils.return_err import err_text
 
 
