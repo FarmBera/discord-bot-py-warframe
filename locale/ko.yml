@@ -138,7 +138,7 @@ cmd:
     choice-prize: 보상(상품)
 
   cambion:
-    cmd: 캠비온주기
+    cmd: 캠비온퇴적지주기
     desc: 현재 데이모스의 캠비온 퇴적지 주기를 가져옵니다
 
     title: 캠비온 퇴적지 주기
@@ -168,7 +168,7 @@ cmd:
     desc: 바로 키 티어가 판매하는 물품 목록을 불러옵니다
 
     not-yet: 보이드 상인이 아직 도착하지 않았습니다!
-    arrives-in: 다음 시간 뒤에 도착 예정
+    arrives-in: "다음 시간 뒤에 도착 예정:"
 
     mods: 모드
     skin: 스킨

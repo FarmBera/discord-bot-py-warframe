@@ -72,7 +72,7 @@ def w_voidTraders(trader) -> tuple:
 
 
 # TODO: 한글화
-def w_voidTradersItem(trader, *lang) -> discord.Embed:
+def w_voidTradersItem(trader) -> discord.Embed:
     if not trader:
         return err_embed("voidTraders")
 
@@ -84,7 +84,7 @@ def w_voidTradersItem(trader, *lang) -> discord.Embed:
 
         if item["inventory"] == []:
             listItem.append(
-                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} {item['startString']}"
+                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} {time_cal_with_curr(item['activation'])}"
             )
 
         for jtem in item["inventory"]:
@@ -117,7 +117,7 @@ def w_voidTradersItem(trader, *lang) -> discord.Embed:
 
         listItem.sort()
 
-        output_msg += f"# {item['character']} at {item['location']}\n\n"
+        output_msg += f"# {ts.trs(item['character'])} at {item['location']}\n\n"
         for jtem in listItem:
             output_msg += f"- {jtem}\n"
         output_msg += "\n"

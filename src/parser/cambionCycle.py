@@ -18,7 +18,7 @@ def w_cambionCycle(cambion) -> tuple:
 
     output_msg = f"""### {ts.get(f'{pf}title')}
 
-# {ts.get(f'{pf}{status}')}
+# < {ts.get(f'{pf}{status}')} >
 
 - {ts.get(f'{pf}exp')} {time_cal_with_curr(cambion['expiry'])} ({cambion['timeLeft']})
 """

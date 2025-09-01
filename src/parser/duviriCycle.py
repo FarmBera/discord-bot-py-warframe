@@ -22,13 +22,13 @@ def w_duviriCycle(duviri):
 
     output_msg: str = ""
 
-    output_msg += f"# {ts.get(f'{pf}title')}\n\n"
-    output_msg += (
-        f"- {ts.get(f'{pf}state')}: < **" + ts.get(f"{pf}{duviri['state']}") + "** >\n"
-    )
-    output_msg += (
-        f"- {ts.get(f'{pf}expire')} {time_cal_with_curr(duviri['expiry'])}"
-    )
+    output_msg += f"""### {ts.get(f'{pf}title')}\n\n
+
+# < {ts.get(f"{pf}{duviri['state']}")} >
+
+- {ts.get(f'{pf}expire')} {time_cal_with_curr(duviri['expiry'])}
+"""
+    # - {ts.get(f'{pf}state')}: < **" + ts.get(f"{pf}{duviri['state']}") + "** >
 
     embed = discord.Embed(description=output_msg, color=duviri_color[duviri["state"]])
 
