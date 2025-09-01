@@ -67,6 +67,8 @@ cmd:
     eta: Expires at
     hunt: Hunt
 
+    shardname: Archon Shard
+
     Assassination: Assassination
 
     Archon Amar: Archon Amar
@@ -95,8 +97,11 @@ cmd:
   fissures:
     cmd: voidfissures
     desc: Get available void fissures with fast-run available (like Exterminate, Capture)
-    title: Fast Void Fissures
     fiss: Fissure
+
+    choice-all: All Fissures
+    choice-fast: Fast Available Fissures
+
     steel: "**[Steel Path]**"
     remain: left
 

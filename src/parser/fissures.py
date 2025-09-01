@@ -5,7 +5,8 @@ from src.translator import ts
 from src.constants.keys import SETTING_FILE_LOC
 from src.utils.formatter import time_cal_with_curr
 from src.utils.file_io import json_load
-from src.utils.get_emoji import get_emoji
+from src.utils.emoji import get_emoji
+from src.utils.formatter import txt_length_check
 
 railjack: list = [
     # veil proxima
@@ -49,40 +50,53 @@ railjack: list = [
 ]
 
 
-# TODO: fissures 전체/빠른클 나눠서 하기 & 레일잭 포함 여부도
-def w_fissures(fissures) -> str:
+# TODO: 검색 기능 추가
+def w_fissures(fissures, args) -> str:
     setting = json_load(SETTING_FILE_LOC)
     prefix = setting["fissures"]
     fav_mission = prefix["favMission"]  # var
-    tier_except = prefix["tierExcept"]  # var
+    tier_exclude = prefix["tierExcept"]  # var
     include_railjack_node: bool = prefix["IncludeRailjack"]
+
+    if isinstance(args, tuple):
+        choice, include_railjack_node = args
 
     output_msg: str = ""
     normal = []  # normal fissures
     steel_path = []  # steel path fissures
 
     pf: str = "cmd.fissures."
-    output_msg += f"# {ts.get(f'{pf}title')}\n\n"
 
+    # process fissures
     for item in fissures:
         if item["expired"]:
             continue
 
-        if item["tier"] in tier_except:
-            continue
+        # choice: fast available
+        if choice == ts.get(f"{pf}choice-fast"):
+            if item["tier"] in tier_exclude:
+                continue
 
-        # except railjack node
+            if item["missionKey"] not in fav_mission:
+                continue
+
+        # other choices...
+
+        # TODO: fix not working includes
         if not include_railjack_node:
             if item["node"].split(" (")[0].lower() in railjack:
                 continue
 
-        if item["missionKey"] in fav_mission:
-            if item["isHard"]:  # steel path
-                steel_path.append(item)
-            else:  # normal
-                normal.append(item)
+        if item["isHard"]:  # steel path
+            steel_path.append(item)
+        else:  # normal
+            normal.append(item)
 
-    for item in normal + steel_path:
+    integrated_fiss: list = normal + steel_path
+
+    output_msg += f"# {choice}: {len(integrated_fiss)}\n\n"
+
+    for item in integrated_fiss:
         """
         Extermination - Neo Fissure **[Steel Path]**
         53m left / Neso (Neptune) - Corpus
@@ -95,4 +109,4 @@ def w_fissures(fissures) -> str:
         output_msg += f"""{ts.trs(f'trs.{item["missionKey"]}')} - {o_emoji} {ts.trs(f'trs.{o_tier}')} {ts.get(f'{pf}fiss')} {o_isSteel}
 {exp_time} {ts.get(f'{pf}remain')} / {item['node']} - {item['enemy']}\n\n"""
 
-    return output_msg
+    return txt_length_check(output_msg)

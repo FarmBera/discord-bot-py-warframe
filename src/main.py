@@ -530,11 +530,26 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     @tree.command(
         name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")
     )
-    async def cmd_fissures(interact: discord.Interaction):
+    @discord.app_commands.choices(
+        types=[
+            discord.app_commands.Choice(
+                name=ts.get("cmd.fissures.choice-fast"), value=1
+            ),
+            discord.app_commands.Choice(
+                name=ts.get("cmd.fissures.choice-all"), value=2
+            ),
+        ]
+    )
+    async def cmd_fissures(
+        interact: discord.Interaction,
+        types: discord.app_commands.Choice[int],
+        is_include_railjack_node: bool = False,
+    ):
         await cmd_helper(
             interact,
             key=keys[10],
             parser_func=w_fissures,
+            parser_args=(types.name, is_include_railjack_node),
             isFollowUp=True,
             need_api_call=True,
         )
@@ -729,7 +744,21 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     @tree.command(
         name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")
     )
-    async def cmd_fissures(interact: discord.Interaction):
+    @discord.app_commands.choices(
+        types=[
+            discord.app_commands.Choice(
+                name=ts.get("cmd.fissures.choice-fast"), value=1
+            ),
+            discord.app_commands.Choice(
+                name=ts.get("cmd.fissures.choice-all"), value=2
+            ),
+        ]
+    )
+    async def cmd_fissures(
+        interact: discord.Interaction,
+        types: discord.app_commands.Choice[int],
+        is_include_railjack_node: bool = False,
+    ):
         await cmd_helper_maintenance(interact)
 
     @tree.command(

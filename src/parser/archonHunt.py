@@ -1,6 +1,14 @@
 from src.translator import ts
 from src.utils.return_err import err_text
 from src.utils.formatter import time_cal_with_curr
+from src.utils.emoji import get_emoji
+
+
+shard_list: dict = {
+    "Archon Boreal": "Azure",  # blue shard
+    "Archon Amar": "Crimson",  # red shard
+    "Archon Nira": "Amber",  # yellow shard
+}
 
 
 def w_archonHunt(archon) -> str:
@@ -8,14 +16,16 @@ def w_archonHunt(archon) -> str:
         return err_text("archon hunt")
 
     pf: str = "cmd.archon-hunt."
+    shard: str = shard_list[archon["boss"]]
 
-    # output_msg = f"# {ts.get(f'{pf}title')}\n\n"  # legacy title
+    # title
     output_msg = f"# " + ts.get(f"{pf}{archon['boss']}") + f" {ts.get(f'{pf}hunt')}\n\n"
+    # eta
     output_msg += f"{ts.get(f'{pf}eta')}: "
-    output_msg += f"{time_cal_with_curr(archon['expiry'])}\n\n"
-
-    # TODO: ADD MSG: you can obtain 'shard kind' in this week
-
+    output_msg += f"{time_cal_with_curr(archon['expiry'])}\n"
+    # additional msg
+    output_msg += f"You can obtain {get_emoji(shard)} **{ts.trs(f'trs.{shard}')} {ts.get(f'{pf}shardname')}** in this week!\n\n"
+    # print missions
     idx: int = 1
     for value in archon["missions"]:
         if idx == 3:
@@ -26,7 +36,6 @@ def w_archonHunt(archon) -> str:
             output_msg += (
                 f"{idx}. " + ts.trs(f"trs.{value['type']}") + f" - {value['node']}\n"
             )
-
         idx += 1
 
     return output_msg

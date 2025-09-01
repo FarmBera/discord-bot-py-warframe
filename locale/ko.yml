@@ -67,6 +67,8 @@ cmd:
     eta: 종료까지 남은 시간
     hunt: 토벌
 
+    shardname: 집정관 샤드
+
     Assassination: 결전
 
     Archon Amar: 집정관 아미르
@@ -95,8 +97,11 @@ cmd:
   fissures:
     cmd: 보이드균열
     desc: "현채 활성화된 보이드 균열 중 빠른 클리어가 가능한 미션 목록을 가져옵니다 (예: 섬멸, 생포)"
-    title: 빠른클 가능한 성유물 목록
     fiss: 균열
+
+    choice-all: 모든 성유물 균열
+    choice-fast: 빠른클 가능한 균열 목록
+
     steel: "**[강길]**"
     remain: 남음
 
@@ -183,44 +188,50 @@ trs:
   # mission
   alchemy: 연금술
   arena: 아레나 # (rathuum and the index)
-  ascension: ascension
+  ascension: 상승
   assassination: 암살
-  assault: assault
+  assault: 맹공
   capture: 생포
-  defection: defection
+  defection: 탈주
   defense: 방어
   mirror defense: 거울상 방어
   disruption: 교란
   excavation: 발굴
   exterminate: 섬멸
   extermination: 섬멸
-  free roam/bounty: free roam/bounty # (plains of eidolon, orb vallis, & cambion drift)
+  free roam: 자유 탐험 # (plains of eidolon, orb vallis, & cambion drift)
+  free roam/bounty: 자유 탐험 # (plains of eidolon, orb vallis, & cambion drift)
   heist: heist
   isolation vault: 격리 금고
   hijack: 탈취
-  infested salvage: infested salvage
+  infested salvage: 인페스티드 인양
   interception: 감청
   junction: junction
   mobile defense: 이동 방어
   netracells: 네트라셀
-  orphix: orphix # (exclusive to railjack)
-  pursuit: pursuit # (exclusive to archwing)
+  orphix: 오르픽스 # (exclusive to railjack)
+  pursuit: 추적 # (exclusive to archwing)
   rescue: 구출
-  rush: rush # (exclusive to archwing)
+  rush: 돌진 # (exclusive to archwing)
   sabotage: 파괴공작
   hive sabotage: hive sabotage
   orokin sabotage: orokin sabotage
   reactor sabotage: reactor sabotage
   sealab sabotage: sealab sabotage
   sanctuary onslaught: 생츄어리 맹습
-  skirmish: skirmish # (exclusive to railjack)
+  skirmish: 접전 # (exclusive to railjack)
   shrine defense: shrine defense
   spy: 첩보활동
   survival: 생존
-  void armageddon: 보이드 아마겟돈 # (exclusive to zariman ten zero)
-  void cascade: void cascade # (exclusive to zariman ten zero)
+  void armageddon: 보이드 대격전 # (exclusive to zariman ten zero)
+  void cascade: 보이드 범람 # (exclusive to zariman ten zero)
   void flood: 보이드 홍수 # (exclusive to zariman ten zero)
-  volatile: volatile # (exclusive to railjack)
+  volatile: 격변 # (exclusive to railjack)
+
+  # shard
+  azure: 청색
+  crimson: 적색
+  amber: 황색
 
   # void relics
   lith: 리스

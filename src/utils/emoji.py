@@ -51,15 +51,15 @@ def get_emoji(item: str):
         return "<:VioletArchonShard:1407864652175642665>"
 
     # 5; void relics
-    elif "axi" in item:
+    elif item in ["axi", "액시"]:
         return "<:AxiRelic:1408056877992116355>"
-    elif "lith" in item:
+    elif item in ["lith", "리스"]:
         return "<:LithRelic:1408056882051944489>"
-    elif "meso" in item:
+    elif item in ["meso",'메소']:
         return "<:MesoRelic:1408056873747484713>"
-    elif "neo" in item:
+    elif item in ["neo",'네오']:
         return "<:NeoRelic:1408056875735584818>"
-    elif "requiem" in item:
+    elif item in ["requiem",'레퀴엠']:
         return "<:RequiemRelic:1408056880206577705>"
 
     # 5; 3 day boosters

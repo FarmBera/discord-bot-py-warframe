@@ -4,12 +4,15 @@ from src.utils.logging_utils import save_log
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
 
-LANG_CODE = ["en", "ko"]
+
+class Lang:
+    EN: str = "en"
+    KO: str = "ko"
 
 
 class Translator:
-    EN: str = LANG_CODE[0]
-    KO: str = LANG_CODE[1]
+    EN: str = Lang.EN
+    KO: str = Lang.KO
 
     def __init__(self, lang=EN):
         self.lang = lang
@@ -43,12 +46,15 @@ class Translator:
         except (KeyError, TypeError):
             return keys[-1]
 
+    # TODO: 인자 하나만 받게 수정
     def trs(self, key, **kwargs):
         """
         receive SPECIAL keys (not officialy translated text in API) and return translated text (ex: 'main_screen.title')
         """
+        t_key = key.split(".")[-1]
+
         if language == self.EN:
-            return key.split(".")[-1]
+            return t_key
 
         keys = key.lower().split(".")
         value = self.translations
@@ -57,15 +63,16 @@ class Translator:
                 value = value[k]
             return value.format(**kwargs) if kwargs else value
         except (KeyError, TypeError):
-            return keys[-1]
+            return t_key
 
 
 # language initialize
 language = input("Select Language (en/ko) >> ")
-# language = LANG_CODE[0]  # temporary
-if language not in [LANG_CODE[0], LANG_CODE[1]]:  # input check
+# language = Lang.EN  # temporary
+# language = Lang.KO  # temporary
+if language not in [Lang.EN, Lang.KO]:  # input check
     print(
-        f"{C.red}Unknown string: {C.yellow}'{language}'. {C.white}will setup default lang: {C.cyan}{LANG_CODE[0]}{C.default}"
+        f"{C.red}Unknown string: {C.yellow}'{language}'. {C.white}will setup default lang: {C.cyan}{Lang.EN}{C.default}"
     )
-    language = LANG_CODE[0]
+    language = Lang.EN
 ts = Translator(lang=language)
