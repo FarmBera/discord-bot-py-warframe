@@ -45,10 +45,10 @@ for item in keys:
         print(f"{C.green}File exists > {item}.json")  # VAR
         # continue
 
-    res = get_obj(item)
-    if not res or res is None:
-        set_obj(obj_origin[item], item)
-    else:
-        print(item)
+    # res = get_obj(item)
+    # if not res or res is None:
+    set_obj(obj_origin[item], item)
+    # else:
+    print(f"{C.cyan}{item}")
 
 print(C.default, end="")
