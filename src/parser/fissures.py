@@ -82,7 +82,6 @@ def w_fissures(fissures, args) -> str:
 
         # other choices...
 
-        # TODO: fix not working includes
         if not include_railjack_node:
             if item["node"].split(" (")[0].lower() in railjack:
                 continue
@@ -106,7 +105,7 @@ def w_fissures(fissures, args) -> str:
         o_isSteel = ts.get(f"{pf}steel") if item["isHard"] else ""
         exp_time = time_cal_with_curr(item["expiry"])
 
-        output_msg += f"""{ts.trs(f'trs.{item["missionKey"]}')} - {o_emoji} {ts.trs(f'trs.{o_tier}')} {ts.get(f'{pf}fiss')} {o_isSteel}
+        output_msg += f"""{ts.trs(item["missionKey"])} - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
 {exp_time} {ts.get(f'{pf}remain')} / {item['node']} - {item['enemy']}\n\n"""
 
     return txt_length_check(output_msg)

@@ -35,18 +35,12 @@ def w_voidTraders(trader) -> tuple:
     for item in trader:
         if length >= 2:
             output_msg += (
-                f"{idx}. {ts.get(f'{pf}tdr-name')}: "
-                + ts.trs(f"trs.{item['character']}")
-                + "\n\n"
+                f"{idx}. {ts.get(f'{pf}tdr-name')}: {ts.trs(item['character'])}\n\n"
             )
 
             idx += 1
         else:
-            output_msg += (
-                f"- {ts.get(f'{pf}tdr-name')}: "
-                + ts.trs(f"trs.{item['character']}")
-                + "\n"
-            )
+            output_msg += f"- {ts.get(f'{pf}tdr-name')}: {ts.trs(item['character'])}\n"
 
         status = item["active"]
 
@@ -62,7 +56,6 @@ def w_voidTraders(trader) -> tuple:
             output_msg += (
                 f"- {ts.get(f'{pf}status')}: ❌ *{ts.get(f'{pf}deactivate')}*\n"
             )
-            # output_msg += f"- {ts.get(f'{pf}appear')} {item['startString']}\n"  # legacy
             output_msg += (
                 f"- {ts.get(f'{pf}appear')} {time_cal_with_curr(item['activation'])}\n"
             )

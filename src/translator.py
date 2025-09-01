@@ -47,23 +47,20 @@ class Translator:
             return keys[-1]
 
     # TODO: 인자 하나만 받게 수정
-    def trs(self, key, **kwargs):
+    def trs(self, key):
         """
         receive SPECIAL keys (not officialy translated text in API) and return translated text (ex: 'main_screen.title')
         """
-        t_key = key.split(".")[-1]
-
         if language == self.EN:
-            return t_key
+            return key
 
-        keys = key.lower().split(".")
         value = self.translations
         try:
-            for k in keys:
+            for k in ["trs", key.lower()]:
                 value = value[k]
-            return value.format(**kwargs) if kwargs else value
+            return value
         except (KeyError, TypeError):
-            return t_key
+            return key
 
 
 # language initialize

@@ -24,7 +24,7 @@ def w_archonHunt(archon) -> str:
     output_msg += f"{ts.get(f'{pf}eta')}: "
     output_msg += f"{time_cal_with_curr(archon['expiry'])}\n"
     # additional msg
-    output_msg += f"You can obtain {get_emoji(shard)} **{ts.trs(f'trs.{shard}')} {ts.get(f'{pf}shardname')}** in this week!\n\n"
+    output_msg += f"You can obtain {get_emoji(shard)} **{ts.trs(shard)} {ts.get(f'{pf}shardname')}** in this week!\n\n"
     # print missions
     idx: int = 1
     for value in archon["missions"]:
@@ -33,9 +33,7 @@ def w_archonHunt(archon) -> str:
                 f"{idx}. " + ts.get(f"{pf}{value['type']}") + f" - {value['node']}\n"
             )
         else:
-            output_msg += (
-                f"{idx}. " + ts.trs(f"trs.{value['type']}") + f" - {value['node']}\n"
-            )
+            output_msg += f"{idx}. {ts.trs(value['type'])} - {value['node']}\n"
         idx += 1
 
     return output_msg
