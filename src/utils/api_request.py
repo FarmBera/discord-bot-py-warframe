@@ -14,12 +14,12 @@ def send_request(args):
 
     # API Request
     try:
-        response = requests.get(base_url, params=params, timeout=15)
+        response = requests.get(base_url, params=params, timeout=60)
     except Exception as e:
         elapsed_time = dt.datetime.now() - start_time
 
         msg = f"[err] API request failed! ({elapsed_time})"
-        print(C.red, msg, C.default, sep="")
+        print(dt.datetime.now(), C.red, msg, C.default, sep="")
         save_log(type="err", cmd="send_request()", user=MSG_BOT, msg=msg, obj=e)
         return None
 
@@ -29,7 +29,7 @@ def send_request(args):
         elapsed_time = dt.datetime.now() - start_time
 
         msg = f"[warn] response code is not 200 >> {res_code} ({elapsed_time})"
-        print(C.red, msg, C.default, sep="")
+        print(dt.datetime.now(), C.red, msg, C.default, sep="")
         save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=res_code)
         return res_code
 
@@ -38,7 +38,7 @@ def send_request(args):
         elapsed_time = dt.datetime.now() - start_time
 
         msg = f"[err] response is Empty! > {res_code} ({elapsed_time})"
-        print(C.red, msg, C.default, sep="")
+        print(dt.datetime.now(), C.red, msg, C.default, sep="")
         save_log(type="api", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=response)
         return res_code
 
@@ -49,7 +49,7 @@ def send_request(args):
         elapsed_time = dt.datetime.now() - start_time
 
         msg = f"[err] JSON Decode ERROR"
-        print(C.red, msg, C.default, elapsed_time, sep="")
+        print(dt.datetime.now(), C.red, msg, C.default, elapsed_time, sep="")
         save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=e)
         return res_code
 
@@ -60,7 +60,7 @@ def send_request(args):
     except Exception as e:
         elapsed_time = dt.datetime.now() - start_time
         msg = f"[err] Error on saving file! {elapsed_time}"
-        print(C.red, msg, C.default, sep="")
+        print(dt.datetime.now(), C.red, msg, C.default, sep="")
         save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=e)
         return res_code
 

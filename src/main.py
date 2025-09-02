@@ -82,7 +82,7 @@ class DiscordBot(discord.Client):
 
         print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
-    async def send_alert(self, value, channel_list, setting=None):
+    async def send_alert(self, value, channel_list=None, setting=None):
         if not setting:
             setting = json_load(SETTING_FILE_LOC)
         if not setting["noti"]["isEnabled"]:
@@ -225,9 +225,7 @@ class DiscordBot(discord.Client):
     # sortie alert
     @tasks.loop(time=alert_times)
     async def auto_noti(self):
-        await self.send_alert(
-            w_sortie(get_obj(keys[3])), yaml_open(CHANNEL_FILE_LOC)["sortie"]
-        )
+        await self.send_alert(w_sortie(get_obj(keys[3])))
 
 
 class MaintanceBot(discord.Client):
