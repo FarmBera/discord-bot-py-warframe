@@ -48,8 +48,8 @@ def send_request(args):
     except Exception as e:
         elapsed_time = dt.datetime.now() - start_time
 
-        msg = f"[err] JSON Decode ERROR"
-        print(dt.datetime.now(), C.red, msg, C.default, elapsed_time, sep="")
+        msg = f"[err] JSON Decode ERROR ({elapsed_time})"
+        print(dt.datetime.now(), C.red, msg, C.default, sep="")
         save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=e)
         return res_code
 
@@ -59,6 +59,7 @@ def send_request(args):
             json.dump(response, json_file, ensure_ascii=False, indent=2)
     except Exception as e:
         elapsed_time = dt.datetime.now() - start_time
+
         msg = f"[err] Error on saving file! {elapsed_time}"
         print(dt.datetime.now(), C.red, msg, C.default, sep="")
         save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=e)
