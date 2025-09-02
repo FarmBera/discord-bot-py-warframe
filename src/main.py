@@ -140,15 +140,6 @@ class DiscordBot(discord.Client):
 
         code = API_Request("auto_send_msg_request()")  # VAR
         if code != 200:
-            msg = f"[warn] response code error < {code} > Task Aborted. (from auto_send_msg_request)"  # VAR
-            save_log(
-                type="warn",
-                cmd="auto_send_msg_request()",  # VAR
-                user=MSG_BOT,
-                msg=msg,
-                obj=code,
-            )
-            print(C.yellow, msg, C.default, sep="")
             return
 
         latest_data = json_load(DEFAULT_JSON_PATH)
