@@ -42,9 +42,10 @@ def singleInvasion(inv) -> str:
     # date
     date = formatDate(inv["activation"])
     if date[0:1] == "S":
-        output_msg += f"{date}\n\n"
+        output_msg += f"{date}"
     else:
-        output_msg += f"{ts.get(f'{pf}eta')} {date} {ts.get(f'{pf}eta1')}\n\n"
+        output_msg += f"{ts.get(f'{pf}eta')} {date} {ts.get(f'{pf}eta1')}"
+    output_msg += "\n"
 
     # item
     if not inv["vsInfestation"]:
