@@ -211,14 +211,14 @@ class DiscordBot(discord.Client):
                 # fetch channel
                 ch_key = handler.get("channel_key", "channel")
                 target_ch = channels.get(ch_key)
-                if target_ch:  # send msg
-                    await self.send_alert(
-                        parsed_content, channel_list=target_ch, setting=setting
-                    )
-                else:
-                    print(
-                        f"{C.red}[err] target channel is Empty! > {target_ch}{C.default}"
-                    )  # VAR
+                # if target_ch:  # send msg
+                await self.send_alert(
+                    parsed_content, channel_list=target_ch, setting=setting
+                )
+                # else:
+                #     print(
+                #         f"{C.red}[err] target channel is Empty! > {target_ch}{C.default}"
+                #     )  # VAR
 
         return  # End Of auto_send_msg_request()
 
