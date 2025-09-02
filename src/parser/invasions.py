@@ -16,7 +16,7 @@ def formatDate(dd: str) -> str:
     h, r = divmod(t.seconds, 3600)
     m = divmod(r, 60)
 
-    if h <= 0 and m <= 5:
+    if h <= 0 and m[0] <= 5:
         return "Started Now"
 
     out = []
@@ -34,7 +34,7 @@ def singleInvasion(inv) -> str:
     dfd = inv["defender"]
 
     pf = "cmd.invasions."
-    # title
+    # title / progress
     output_msg = f"""### {ts.get(f'{pf}title')} {ts.get(f'{pf}at')} *{inv['node']}*
 
 {ts.get(f'{pf}completion')}: **{(inv['completion']):.1f}%** ({ts.get(f'{pf}atk-from')} {atk})
@@ -44,7 +44,7 @@ def singleInvasion(inv) -> str:
     if date[0:1] == "S":
         output_msg += f"{date}\n\n"
     else:
-        output_msg += f"{ts.get(f'{pf}eta')} {date}\n\n"
+        output_msg += f"{ts.get(f'{pf}eta')} {date} {ts.get(f'{pf}eta1')}\n\n"
 
     # item
     if not inv["vsInfestation"]:

@@ -56,9 +56,7 @@ def w_voidTraders(trader) -> tuple:
             output_msg += (
                 f"- {ts.get(f'{pf}status')}: ❌ *{ts.get(f'{pf}deactivate')}*\n"
             )
-            output_msg += (
-                f"- {ts.get(f'{pf}appear')} {time_cal_with_curr(item['activation'])}\n"
-            )
+            output_msg += f"- {ts.get(f'{pf}app1')}{time_cal_with_curr(item['activation'])} {ts.get(f'{pf}app2')}\n"
             output_msg += f"- {ts.get(f'{pf}place')}: "
 
         # appear location
@@ -84,7 +82,7 @@ def w_voidTradersItem(trader) -> discord.Embed:
 
         if item["inventory"] == []:
             listItem.append(
-                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} {time_cal_with_curr(item['activation'])}"
+                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} {time_cal_with_curr(item['activation'])} {ts.get(f'{pf}arrives-in1')}"
             )
 
         for jtem in item["inventory"]:

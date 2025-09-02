@@ -5,7 +5,7 @@ from src.parser.news import w_news
 from src.parser.cetusCycle import w_cetusCycle
 from src.parser.sortie import w_sortie
 from src.parser.archonHunt import w_archonHunt
-from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
+from src.parser.voidTraders import w_voidTraders
 from src.parser.steelPath import w_steelPath
 from src.parser.duviriCycle import w_duviriCycle
 from src.parser.deepArchimedea import w_deepArchimedea

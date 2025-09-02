@@ -684,7 +684,9 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
         name=ts.get(f"cmd.announcement.cmd"),
         description=f"{ts.get('cmd.announcement.desc')}",
     )
-    async def cmd_announcement(interact: discord.Interaction):
+    async def cmd_announcement(
+        interact: discord.Interaction, is_user_view_only: bool = True
+    ):
         await cmd_helper_maintenance(interact)
 
     @tree.command(
@@ -785,6 +787,22 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     @tree.command(
         name=ts.get(f"cmd.calendar.cmd"),
         description=ts.get(f"cmd.calendar.desc"),
+    )
+    @discord.app_commands.choices(
+        types=[
+            discord.app_commands.Choice(
+                name=ts.get("cmd.calendar.choice-all"), value=1
+            ),
+            discord.app_commands.Choice(
+                name=ts.get("cmd.calendar.choice-to-do"), value=2
+            ),
+            discord.app_commands.Choice(
+                name=ts.get("cmd.calendar.choice-over"), value=3
+            ),
+            discord.app_commands.Choice(
+                name=ts.get("cmd.calendar.choice-prize"), value=4
+            ),
+        ]
     )
     async def cmd_calendar(
         interact: discord.Interaction, types: discord.app_commands.Choice[int]

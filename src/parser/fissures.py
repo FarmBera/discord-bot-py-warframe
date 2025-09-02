@@ -93,7 +93,8 @@ def w_fissures(fissures, args) -> str:
 
     integrated_fiss: list = normal + steel_path
 
-    output_msg += f"# {choice}: {len(integrated_fiss)}\n\n"
+    # create output msg
+    output_msg += f"# {choice}: {len(integrated_fiss)}{ts.get(f'{pf}cnt')}\n\n"
 
     for item in integrated_fiss:
         """
@@ -105,7 +106,7 @@ def w_fissures(fissures, args) -> str:
         o_isSteel = ts.get(f"{pf}steel") if item["isHard"] else ""
         exp_time = time_cal_with_curr(item["expiry"])
 
-        output_msg += f"""{ts.trs(item["missionKey"])} - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
+        output_msg += f"""**{ts.trs(item["missionKey"])}** - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
 {exp_time} {ts.get(f'{pf}remain')} / {item['node']} - {item['enemy']}\n\n"""
 
     return txt_length_check(output_msg)

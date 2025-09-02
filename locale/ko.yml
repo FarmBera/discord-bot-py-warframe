@@ -67,7 +67,9 @@ cmd:
     eta: 종료까지 남은 시간
     hunt: 토벌
 
+    obt1: 이번주에는
     shardname: 집정관 샤드
+    obt2: 를 얻을 수 있습니다!
 
     Assassination: 결전
 
@@ -76,20 +78,43 @@ cmd:
   void-traders:
     cmd: 보이드상인
     desc: 보이드 상인이 언제, 어디서 등장할지 알려줍니다
-    title: 보이드 상인 상태
+    title: 보이드 상인 현황
+
     tdr-name: 상인
     status: 상태
+
     activate: "[활성화됨](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    deactivate: 비활성화됨
     end: 종료 시간
     location: 위치
-    appear: 등장 시간
+
+    deactivate: 비활성화됨
+    app1: ""
+    app2: "후 등장 예정"
     place: 등장 예정 위치
+
+  void-traders-item:
+    cmd: 보이드상인-물품
+    desc: 바로 키 티어가 판매하는 물품 목록을 불러옵니다
+
+    not-yet: 보이드 상인이 아직 도착하지 않았습니다!
+    arrives-in: ""
+    arrives-in1: "후 도착 예정"
+
+    mods: 모드
+    skin: 스킨
+    deco: 장식품
+    weapon: 무기
+    booster: 부스터
+    glyph: 글리프
+    music: 음악
+    relic: 성유물
+    keys: 키
+    other: 기타
 
   steel-path-reward:
     cmd: 강길에센스
     desc: 주간 태신의 강길 에센스 교환 물품을 가져옵니다
-    title: 강철의 길 보상
+    title: 주간 에센스 교환 보상
     curr-reward: 현재 보상
     cost: 개
     next: 다음주
@@ -100,7 +125,8 @@ cmd:
     fiss: 균열
 
     choice-all: 모든 성유물 균열
-    choice-fast: 빠른클 가능한 균열 목록
+    choice-fast: 빠른클 가능한 균열
+    cnt: 개
 
     steel: "**[강길]**"
     remain: 남음
@@ -112,7 +138,7 @@ cmd:
     state: 상태
     expire: 만료까지
 
-    joy: 기쁨 (Joy)
+    joy: 기쁨의 나선 (Joy)
     anger: 화남 (Anger)
     envy: 질투의 나선 (Envy)
     sorrow: 슬픔 (Sorrow)
@@ -153,6 +179,7 @@ cmd:
     title: 오늘의 특가
     remain: 개 남았습니다
     exp: 마감까지
+    exp1: 남았습니다!
 
   invasions:
     cmd: 침공
@@ -162,24 +189,9 @@ cmd:
     completion: 진행 상황
     atk-from: "공격자:"
     eta: 시작한지
+    eta1: 지남
 
-  void-traders-item:
-    cmd: 보이드상인-물품
-    desc: 바로 키 티어가 판매하는 물품 목록을 불러옵니다
-
-    not-yet: 보이드 상인이 아직 도착하지 않았습니다!
-    arrives-in: "다음 시간 뒤에 도착 예정:"
-
-    mods: 모드
-    skin: 스킨
-    deco: 장식품
-    weapon: 무기
-    booster: 부스터
-    glyph: 글리프
-    music: 음악
-    relic: 성유물
-    keys: 키
-    other: 기타
+  # void-traders-item:
 
 trs:
   # keyword
@@ -253,3 +265,6 @@ trs:
 
   # name
   "baro ki'teer": 바로 키 티어
+
+  # sortie
+  # "Enhanced Enemy Shields": 강화된 적 실드

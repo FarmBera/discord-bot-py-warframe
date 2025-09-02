@@ -67,7 +67,9 @@ cmd:
     eta: Expires at
     hunt: Hunt
 
+    obt1: You can obtain
     shardname: Archon Shard
+    obt2: in this week!
 
     Assassination: Assassination
 
@@ -77,14 +79,37 @@ cmd:
     cmd: voidtraders
     desc: Get when & where Baro Ki'Teer arrives
     title: Void Traders Status
+
     tdr-name: Trader
     status: Status
+
     activate: "[Activated](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    deactivate: Deactivated
     end: Ends at
     location: Location
-    appear: Appears in
+
+    deactivate: Deactivated
+    app1: Appears in
+    app2: ""
     place: Coming to
+
+  void-traders-item:
+    cmd: voidtraders-item
+    desc: Get Baro Ki'Teer selling item list.
+
+    not-yet: Trader is NOT arrived yet!
+    arrives-in: Arrives in
+    arrives-in1: ""
+
+    mods: Mods
+    skin: Skin
+    deco: Deco
+    weapon: Weapon
+    booster: Booster
+    glyph: Glyph
+    music: Music
+    relic: Relic
+    keys: Key
+    other: Other
 
   steel-path-reward:
     cmd: steelpathreward
@@ -101,6 +126,7 @@ cmd:
 
     choice-all: All Fissures
     choice-fast: Fast Available Fissures
+    cnt: ""
 
     steel: "**[Steel Path]**"
     remain: left
@@ -153,6 +179,7 @@ cmd:
     title: Daily Deal
     remain: Qty remain!
     exp: expires in
+    exp1: ""
 
   invasions:
     cmd: invasions
@@ -162,21 +189,4 @@ cmd:
     completion: Progress
     atk-from: "ATK:"
     eta: Started before
-
-  void-traders-item:
-    cmd: voidtraders-item
-    desc: Get Baro Ki'Teer selling item list.
-
-    not-yet: Trader is NOT arrived yet!
-    arrives-in: Arrives in
-
-    mods: Mods
-    skin: Skin
-    deco: Deco
-    weapon: Weapon
-    booster: Booster
-    glyph: Glyph
-    music: Music
-    relic: Relic
-    keys: Key
-    other: Other
+    eta1: ""
