@@ -64,7 +64,7 @@ def send_request(args):
         save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=e)
         return res_code
 
-    elapsed_time = dt.datetime.now()
+    elapsed_time = dt.datetime.now() - start_time
     msg = f"[info] API request successful. ({elapsed_time}) {args}"
     # print(C.red, msg, C.default, sep="")
     save_log(type="api", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=res_code)
