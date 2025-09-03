@@ -75,7 +75,12 @@ class DiscordBot(discord.Client):
             f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default}",
         )
 
-        save_log(cmd="bot.BOOTED", user=MSG_BOT, msg="[info] Bot booted up.")  # VAR
+        save_log(
+            cmd="bot.BOOTED",
+            user=MSG_BOT,
+            msg="[info] Bot booted up.",
+            obj=dt.datetime.now(),
+        )  # VAR
 
         self.auto_send_msg_request.start()
         self.auto_noti.start()
@@ -255,6 +260,7 @@ class MaintanceBot(discord.Client):
             cmd="bot.BOOTED",
             user=MSG_BOT,
             msg="[info] Bot booted up with maintance mode",
+            obj=dt.datetime.now(),
         )  # VAR
 
 
@@ -330,8 +336,9 @@ async def cmd_helper_txt(
         txt2 = open_file(FOOTER_FILE_LOC)
         txt = txt1 + txt2
     except Exception as e:
-        msg: str = "open_file err in cmd_helper_txt"  # VAR
+        msg: str = "[err] open_file err in cmd_helper_txt"  # VAR
         await interact.response.send_message(embed=err_embed(msg), ephemeral=True)
+        print(C.red, msg, C.default, sep="")
         save_log(
             type="err",
             cmd="cmd_helper_txt",

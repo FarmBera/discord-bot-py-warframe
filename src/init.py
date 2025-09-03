@@ -27,17 +27,17 @@ try:
     os.mkdir("json")
     print(f"{prefix}json")
 except:
-    msg = f"{C.yellow}{prefix_err}'json'"
+    msg = f"{prefix_err}'json'"
     save_log(cmd="init.py", user="console", msg=msg)
-    print(msg)
+    print(C.yellow, msg)
 
 try:
     os.mkdir("log")
     print(f"{prefix}json")
 except:
-    msg = f"{C.yellow}{prefix_err}'log'"
+    msg = f"{prefix_err}'log'"
     save_log(cmd="init.py", user="console", msg=msg)
-    print(msg)
+    print(C.yellow, msg)
 
 obj_origin = json_load()
 for item in keys:
