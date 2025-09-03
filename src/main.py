@@ -143,8 +143,7 @@ class DiscordBot(discord.Client):
         setting = json_load(SETTING_FILE_LOC)
         channels = yaml_open(CHANNEL_FILE_LOC)
 
-        code = API_Request("auto_send_msg_request()")  # VAR
-        if code != 200:
+        if API_Request("auto_send_msg_request()") != 200:
             return
 
         latest_data = json_load(DEFAULT_JSON_PATH)
@@ -153,10 +152,6 @@ class DiscordBot(discord.Client):
         for key, handler in DATA_HANDLERS.items():
             obj_prev = get_obj(key)
             obj_new = latest_data[key]
-
-            # if not obj_new or not obj_prev:
-            #     if obj_new: set_obj(obj_new, key)
-            #     continue
 
             notification: bool = False
             parsed_content = None
@@ -178,6 +173,19 @@ class DiscordBot(discord.Client):
                         item for item in obj_new if item["id"] in newly_added_ids
                     ]
                     if missing_items:
+                        try:
+                            parsed_content = handler["parser"](obj_new)
+                        except Exception as e:
+                            msg = f"[err] Data parsing error in {handler['parser']}"
+                            print(dt.datetime.now(), C.red, msg, C.default)
+                            save_log(
+                                type="err",
+                                cmd="auto_send_msg_request()",
+                                user=MSG_BOT,
+                                msg=msg,
+                                obj=e,
+                            )
+                            return
                         notification = True
                         parsed_content = handler["parser"](missing_items)
 
@@ -190,19 +198,39 @@ class DiscordBot(discord.Client):
                     if item["id"] not in prev_ids and not item.get("completed", False)
                 ]
                 if missing_items:
+                    try:
+                        parsed_content = handler["parser"](obj_new)
+                    except Exception as e:
+                        msg = f"[err] Data parsing error in {handler['parser']}"
+                        print(dt.datetime.now(), C.red, msg, C.default)
+                        save_log(
+                            type="err",
+                            cmd="auto_send_msg_request()",
+                            user=MSG_BOT,
+                            msg=msg,
+                            obj=e,
+                        )
+                        return
                     notification = True
                     should_save_data = True
-                    parsed_content = handler["parser"](missing_items)
+
             # parsing: default
             elif handler["update_check"](obj_prev, obj_new):
-                # tmep = handler["update_check"](obj_prev, obj_new)
-                # print(key, tmep)
-                # if not tmep:
-                #     continue
-
+                try:
+                    parsed_content = handler["parser"](obj_new)
+                except Exception as e:
+                    msg = f"[err] Data parsing error in {handler['parser']}"
+                    print(dt.datetime.now(), C.red, msg, C.default)
+                    save_log(
+                        type="err",
+                        cmd="auto_send_msg_request()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
+                    )
+                    return
                 notification = True
                 should_save_data = True
-                parsed_content = handler["parser"](obj_new)
 
             if should_save_data:  # save data
                 set_obj(obj_new, key)
@@ -216,14 +244,9 @@ class DiscordBot(discord.Client):
                 # fetch channel
                 ch_key = handler.get("channel_key", "channel")
                 target_ch = channels.get(ch_key)
-                # if target_ch:  # send msg
                 await self.send_alert(
                     parsed_content, channel_list=target_ch, setting=setting
                 )
-                # else:
-                #     print(
-                #         f"{C.red}[err] target channel is Empty! > {target_ch}{C.default}"
-                #     )  # VAR
 
         return  # End Of auto_send_msg_request()
 
