@@ -23,6 +23,19 @@ from src.constants.keys import (
     STARTED_TIME_FILE_LOC,
     DELTA_TIME_LOC,
     MSG_BOT,
+    ALERTS,
+    NEWS,
+    CETUSCYCLE,
+    SORTIE,
+    ARCHONHUNT,
+    VOIDTRADERS,
+    STEELPATH,
+    DUVIRICYCLE,
+    FISSURES,
+    CALENDAR,
+    CAMBIONCYCLE,
+    DAILYDEALS,
+    INVASIONS,
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
@@ -57,6 +70,8 @@ from src.parser.invasions import w_invasions
 
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
+
+tree = None
 
 
 class DiscordBot(discord.Client):
@@ -264,7 +279,7 @@ class DiscordBot(discord.Client):
     # sortie alert
     @tasks.loop(time=alert_times)
     async def auto_noti(self):
-        await self.send_alert(w_sortie(get_obj(keys[3])))
+        await self.send_alert(w_sortie(get_obj(SORTIE)))
 
 
 class MaintanceBot(discord.Client):
@@ -296,10 +311,6 @@ class MaintanceBot(discord.Client):
             msg="[info] Bot booted up with maintance mode",
             obj=dt.datetime.now(),
         )  # VAR
-
-
-# init discord bot
-tree = None
 
 
 # commands helper
@@ -481,7 +492,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_news(interact: discord.Interaction, number_of_news: int = 20):
         await cmd_helper(
             interact,
-            key=keys[1],
+            key=NEWS,
             parser_func=w_news,
             parser_args=number_of_news,
         )
@@ -493,7 +504,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_alerts(interact: discord.Interaction):
         await cmd_helper(
             interact=interact,
-            key=keys[0],
+            key=ALERTS,
             parser_func=w_alerts,
         )
 
@@ -502,7 +513,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_cetus(interact: discord.Interaction):
         await cmd_helper(
             interact=interact,
-            key=keys[2],
+            key=CETUSCYCLE,
             parser_func=w_cetusCycle,
             isFollowUp=True,
             need_api_call=True,
@@ -515,7 +526,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_sortie(interact: discord.Interaction):
         await cmd_helper(
             interact,
-            key=keys[3],
+            key=SORTIE,
             parser_func=w_sortie,
         )
 
@@ -526,7 +537,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_archon_hunt(interact: discord.Interaction):
         await cmd_helper(
             interact,
-            key=keys[4],
+            key=ARCHONHUNT,
             parser_func=w_archonHunt,
         )
 
@@ -538,7 +549,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_voidTraders(interact: discord.Interaction):
         await cmd_helper(
             interact,
-            key=keys[5],
+            key=VOIDTRADERS,
             parser_func=w_voidTraders,
             isFollowUp=True,
             need_api_call=True,
@@ -552,7 +563,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_steel_reward(interact: discord.Interaction):
         await cmd_helper(
             interact,
-            key=keys[6],
+            key=STEELPATH,
             parser_func=w_steelPath,
         )
 
@@ -577,7 +588,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     ):
         await cmd_helper(
             interact,
-            key=keys[10],
+            key=FISSURES,
             parser_func=w_fissures,
             parser_args=(types.name, is_include_railjack_node),
             isFollowUp=True,
@@ -589,34 +600,14 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
         name=ts.get(f"cmd.duviri-cycle.cmd"),
         description=ts.get(f"cmd.duviri-cycle.desc"),
     )
-    async def cmd_temporal_archimedea(interact: discord.Interaction):
+    async def cmd_duviri_cycle(interact: discord.Interaction):
         await cmd_helper(
             interact,
-            key=keys[7],
+            key=DUVIRICYCLE,
             parser_func=w_duviriCycle,
             isFollowUp=True,
             need_api_call=True,
         )
-
-    # deep archimedea command
-    @tree.command(
-        name=ts.get(f"cmd.deep-archimedea.cmd"),
-        description=ts.get(f"cmd.deep-archimedea.desc"),
-    )
-    async def cmd_deep_archimedea(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=keys[8],
-            parser_func=w_deepArchimedea,
-        )
-
-    # temporal archimedea reward command
-    @tree.command(
-        name=ts.get(f"cmd.temporal-archimedea.cmd"),
-        description=ts.get(f"cmd.temporal-archimedea.desc"),
-    )
-    async def cmd_temporal_archimedea(interact: discord.Interaction):
-        await cmd_helper(interact, key=keys[9], parser_func=w_temporalArchimedia)
 
     # hex calendar reward command
     @tree.command(
@@ -644,7 +635,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     ):
         await cmd_helper(
             interact,
-            key=keys[11],
+            key=CALENDAR,
             parser_func=w_calendar,
             parser_args=types.name,
         )
@@ -656,7 +647,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_cambion(interact: discord.Interaction):
         await cmd_helper(
             interact,
-            key=keys[12],
+            key=CAMBIONCYCLE,
             parser_func=w_cambionCycle,
             isFollowUp=True,
             need_api_call=True,
@@ -669,7 +660,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_dailyDeals(interact: discord.Interaction):
         await cmd_helper(
             interact,
-            key=keys[13],
+            key=DAILYDEALS,
             parser_func=w_dailyDeals,
             isFollowUp=True,
             need_api_call=True,
@@ -682,7 +673,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_invasions(interact: discord.Interaction):
         await cmd_helper(
             interact,
-            key=keys[14],
+            key=INVASIONS,
             parser_func=w_invasions,
             isFollowUp=True,
             need_api_call=True,
@@ -696,7 +687,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_traders_item(interact: discord.Interaction):
         await cmd_helper(
             interact,
-            key=keys[5],
+            key=VOIDTRADERS,
             parser_func=w_voidTradersItem,
             isFollowUp=True,
             need_api_call=True,
@@ -797,7 +788,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
         name=ts.get(f"cmd.duviri-cycle.cmd"),
         description=ts.get(f"cmd.duviri-cycle.desc"),
     )
-    async def cmd_temporal_archimedea(interact: discord.Interaction):
+    async def cmd_duviri_cycle(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
     @tree.command(
@@ -867,6 +858,8 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
 
 # main thread
 
+ERR_COUNT: int = 0
+
 
 async def console_input_listener():
     """
@@ -879,9 +872,6 @@ async def console_input_listener():
         if cmd in ["maintenance", "main", "exit"]:
             print(f"[info] Console input detected! '{cmd}'")  # VAR
             return cmd
-
-
-ERR_COUNT: int = 0
 
 
 async def main_manager():

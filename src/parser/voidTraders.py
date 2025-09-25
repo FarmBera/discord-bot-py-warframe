@@ -69,7 +69,7 @@ def w_voidTraders(trader) -> tuple:
     return embed, f
 
 
-# TODO: 한글화
+# todo-delay: 한글화
 def w_voidTradersItem(trader) -> discord.Embed:
     if not trader:
         return err_embed("voidTraders")
