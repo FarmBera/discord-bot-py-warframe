@@ -25,9 +25,8 @@ def w_alerts(alerts) -> discord.Embed:
         node = dd["node"]  # node name
         type = dd["type"]  # mission type
 
-        output_msg += f"{idx}. {dd['reward']['asString']}\n".replace(
-            "cr", f" {ts.get('cmd.alerts.credit')}"
-        )
+        # TODO: format
+        output_msg += f"{idx}. {dd['reward']['items']} + {dd['reward']['credits']} {ts.get('cmd.alerts.credit')}\n"
         output_msg += f"{type} at {node}\n\n"
         idx += 1
 
