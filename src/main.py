@@ -150,8 +150,20 @@ class DiscordBot(discord.Client):
 
         # check for new content & send alert
         for key, handler in DATA_HANDLERS.items():
-            obj_prev = get_obj(key)
-            obj_new = latest_data[key]
+            try:
+                obj_prev = get_obj(key)
+                obj_new = latest_data[key]
+            except Exception as e:
+                msg = f"[err] Error with loading original data"
+                print(dt.datetime.now(), C.red, key, msg, C.default)
+                save_log(
+                    type="err",
+                    cmd="auto_send_msg_request()",
+                    user=MSG_BOT,
+                    msg=msg,
+                    obj=e,
+                )
+                continue
 
             notification: bool = False
             parsed_content = None
@@ -185,9 +197,8 @@ class DiscordBot(discord.Client):
                                 msg=msg,
                                 obj=e,
                             )
-                            return
+                            continue
                         notification = True
-                        parsed_content = handler["parser"](missing_items)
 
             elif special_logic == "handle_missing_invasions":  # invasions
                 prev_ids = {item["id"] for item in obj_prev}
@@ -210,7 +221,7 @@ class DiscordBot(discord.Client):
                             msg=msg,
                             obj=e,
                         )
-                        return
+                        continue
                     notification = True
                     should_save_data = True
 
@@ -228,7 +239,7 @@ class DiscordBot(discord.Client):
                         msg=msg,
                         obj=e,
                     )
-                    return
+                    continue
                 notification = True
                 should_save_data = True
 

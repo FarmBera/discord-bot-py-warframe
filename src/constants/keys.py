@@ -25,8 +25,8 @@ keys: list = [
     "voidTraders",  # 5
     "steelPath",  # 6
     "duviriCycle",  # 7
-    "deepArchimedea",  # 8
-    "temporalArchimedea",  # 9
+    # "deepArchimedea",  # 8
+    # "temporalArchimedea",  # 9
     "fissures",  # 10
     "calendar",  # 11
     "cambionCycle",  # 12

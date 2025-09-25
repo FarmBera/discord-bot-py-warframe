@@ -75,19 +75,19 @@ DATA_HANDLERS = {
         "update_check": lambda prev, new: prev["state"] != new["state"]
         or prev["activation"] != new["activation"],
     },
-    "deepArchimedea": {
-        "parser": w_deepArchimedea,
-        "update_check": lambda prev, new: prev["activation"] != new["activation"],
-    },
-    "temporalArchimedea": {
-        "parser": w_temporalArchimedia,
-        "update_check": lambda prev, new: prev["activation"] != new["activation"],
-    },
+    # "deepArchimedea": {
+    #     "parser": w_deepArchimedea,
+    #     "update_check": lambda prev, new: prev["activation"] != new["activation"],
+    # },
+    # "temporalArchimedea": {
+    #     "parser": w_temporalArchimedia,
+    #     "update_check": lambda prev, new: prev["activation"] != new["activation"],
+    # },
     "calendar": {
         "parser": lambda data: w_calendar(data, ts.get("cmd.alendar.choice-prize")),
         "update_check": lambda prev, new: prev
         and new
-        and prev[0]["activation"] != new[0]["activation"],
+        and prev["activation"] != new["activation"],
         "channel_key": "hex-cal",
     },
     "cambionCycle": {

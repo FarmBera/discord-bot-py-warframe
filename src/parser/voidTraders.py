@@ -42,7 +42,7 @@ def w_voidTraders(trader) -> tuple:
         else:
             output_msg += f"- {ts.get(f'{pf}tdr-name')}: {ts.trs(item['character'])}\n"
 
-        status = item["active"]
+        status: bool = bool(item["inventory"])
 
         # OO appeared
         if status:
