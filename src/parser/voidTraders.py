@@ -42,7 +42,7 @@ def w_voidTraders(trader) -> tuple:
         else:
             output_msg += f"- {ts.get(f'{pf}tdr-name')}: {ts.trs(item['character'])}\n"
 
-        status = item["active"]
+        status: bool = bool(item["inventory"])
 
         # OO appeared
         if status:
@@ -69,7 +69,7 @@ def w_voidTraders(trader) -> tuple:
     return embed, f
 
 
-# TODO: 한글화
+# todo-delay: 한글화
 def w_voidTradersItem(trader) -> discord.Embed:
     if not trader:
         return err_embed("voidTraders")

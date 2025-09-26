@@ -50,7 +50,7 @@ railjack: list = [
 ]
 
 
-# TODO: 검색 기능 추가
+# todo-delay: 검색 기능 추가
 def w_fissures(fissures, args) -> str:
     setting = json_load(SETTING_FILE_LOC)
     prefix = setting["fissures"]

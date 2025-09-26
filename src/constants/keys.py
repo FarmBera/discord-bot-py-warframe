@@ -16,22 +16,38 @@ DELTA_TIME_LOC: str = f"{filePfx}m-delta.md"
 
 MSG_BOT: str = "bot.self"
 
+ALERTS = "alerts"
+NEWS = "news"
+CETUSCYCLE = "cetusCycle"
+SORTIE = "sortie"
+ARCHONHUNT = "archonHunt"
+VOIDTRADERS = "voidTraders"
+STEELPATH = "steelPath"
+DUVIRICYCLE = "duviriCycle"
+DEEPARCHIMEDEA = "deepArchimedea"
+TEMPORALARCHIMEDEA = "temporalArchimedea"
+FISSURES = "fissures"
+CALENDAR = "calendar"
+CAMBIONCYCLE = "cambionCycle"
+DAILYDEALS = "dailyDeals"
+INVASIONS = "invasions"
+
 keys: list = [
-    "alerts",  # 0
-    "news",  # 1
-    "cetusCycle",  # 2
-    "sortie",  # 3
-    "archonHunt",  # 4
-    "voidTraders",  # 5
-    "steelPath",  # 6
-    "duviriCycle",  # 7
-    "deepArchimedea",  # 8
-    "temporalArchimedea",  # 9
-    "fissures",  # 10
-    "calendar",  # 11
-    "cambionCycle",  # 12
-    "dailyDeals",  # 13
-    "invasions",  # 14
+    ALERTS,  # 0
+    NEWS,  # 1
+    CETUSCYCLE,  # 2
+    SORTIE,  # 3
+    ARCHONHUNT,  # 4
+    VOIDTRADERS,  # 5
+    STEELPATH,  # 6
+    DUVIRICYCLE,  # 7
+    # DEEPARCHIMEDEA,  # 8
+    # TEMPORALARCHIMEDEA,  # 9
+    FISSURES,  # 10
+    CALENDAR,  # 11
+    CAMBIONCYCLE,  # 12
+    DAILYDEALS,  # 13
+    INVASIONS,  # 14
 ]
 
 cal_item: dict = {
