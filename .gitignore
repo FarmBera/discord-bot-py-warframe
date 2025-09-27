@@ -12,6 +12,7 @@ docs
 *test*
 channel.yml
 TOKEN.py
+script/scp-log-file.sh
 # settings
 .markdownlint.json
 *_pc*.json
