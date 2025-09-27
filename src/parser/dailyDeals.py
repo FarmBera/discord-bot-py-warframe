@@ -17,7 +17,7 @@ def w_dailyDeals(deals) -> discord.Embed:
 
 - ~~{item['originalPrice']}~~ --> **{item['salePrice']}**
 - **{item['total'] - item['sold']}** {ts.get(f'{pf}remain')} ({item['sold']}/{item['total']})
-- {ts.get(f'{pf}exp')} **{time_cal_with_curr(item['expiry'])}** ({item['eta']}) {ts.get(f'{pf}exp1')}
+- {ts.get(f'{pf}exp')} **{time_cal_with_curr(item['expiry'])}** {ts.get(f'{pf}exp1')}
 """
 
     return discord.Embed(description=output_msg)
