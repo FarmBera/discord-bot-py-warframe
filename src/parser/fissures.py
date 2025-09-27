@@ -3,6 +3,7 @@ import datetime as dt
 
 from src.translator import ts
 from src.constants.keys import SETTING_FILE_LOC
+from src.constants.times import JSON_DATE_PAT
 from src.utils.formatter import time_cal_with_curr
 from src.utils.file_io import json_load
 from src.utils.emoji import get_emoji
@@ -50,6 +51,13 @@ railjack: list = [
 ]
 
 
+def is_expired_fiss(arg_time) -> bool:
+    t_now: dt.datetime = dt.datetime.now()
+    t_expired: dt.datetime = dt.datetime.strptime(arg_time, JSON_DATE_PAT)
+
+    return True if t_now < t_expired else False
+
+
 # todo-delay: 검색 기능 추가
 def w_fissures(fissures, args) -> str:
     setting = json_load(SETTING_FILE_LOC)
@@ -69,7 +77,7 @@ def w_fissures(fissures, args) -> str:
 
     # process fissures
     for item in fissures:
-        if item["expired"]:
+        if is_expired_fiss(item["expiry"]):
             continue
 
         # choice: fast available
@@ -77,7 +85,7 @@ def w_fissures(fissures, args) -> str:
             if item["tier"] in tier_exclude:
                 continue
 
-            if item["missionKey"] not in fav_mission:
+            if item["missionType"] not in fav_mission:
                 continue
 
         # other choices...
@@ -106,7 +114,7 @@ def w_fissures(fissures, args) -> str:
         o_isSteel = ts.get(f"{pf}steel") if item["isHard"] else ""
         exp_time = time_cal_with_curr(item["expiry"])
 
-        output_msg += f"""**{ts.trs(item["missionKey"])}** - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
+        output_msg += f"""**{ts.trs(item["missionType"])}** - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
 {exp_time} {ts.get(f'{pf}remain')} / {item['node']} - {item['enemy']}\n\n"""
 
     return txt_length_check(output_msg)

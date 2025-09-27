@@ -12,7 +12,6 @@ from config.TOKEN import DEFAULT_JSON_PATH
 from src.constants.times import alert_times, JSON_DATE_PAT
 from src.constants.color import C
 from src.constants.keys import (
-    keys,
     SETTING_FILE_LOC,
     CHANNEL_FILE_LOC,
     HELP_FILE_LOC,
@@ -617,7 +616,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     @discord.app_commands.choices(
         types=[
             discord.app_commands.Choice(
-                name=ts.get("cmd.calendar.choice-all"), value=1
+                name=ts.get("cmd.calendar.choice-prize"), value=1
             ),
             discord.app_commands.Choice(
                 name=ts.get("cmd.calendar.choice-to-do"), value=2
@@ -626,7 +625,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
                 name=ts.get("cmd.calendar.choice-over"), value=3
             ),
             discord.app_commands.Choice(
-                name=ts.get("cmd.calendar.choice-prize"), value=4
+                name=ts.get("cmd.calendar.choice-all"), value=4
             ),
         ]
     )
@@ -812,7 +811,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     @discord.app_commands.choices(
         types=[
             discord.app_commands.Choice(
-                name=ts.get("cmd.calendar.choice-all"), value=1
+                name=ts.get("cmd.calendar.choice-prize"), value=1
             ),
             discord.app_commands.Choice(
                 name=ts.get("cmd.calendar.choice-to-do"), value=2
@@ -821,7 +820,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
                 name=ts.get("cmd.calendar.choice-over"), value=3
             ),
             discord.app_commands.Choice(
-                name=ts.get("cmd.calendar.choice-prize"), value=4
+                name=ts.get("cmd.calendar.choice-all"), value=4
             ),
         ]
     )

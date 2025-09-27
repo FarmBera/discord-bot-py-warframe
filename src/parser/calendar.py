@@ -2,6 +2,7 @@ import datetime as dt
 
 from src.translator import ts
 from src.constants.keys import cal_item
+from src.constants.times import JSON_DATE_PAT
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_text
 
@@ -11,6 +12,14 @@ def redef(prop):
         return cal_item[prop]
     except:
         return prop
+
+
+def convert_365d(date) -> str:
+    return str(dt.datetime.strptime(date, JSON_DATE_PAT).timetuple().tm_yday)
+
+
+def convert_simple_date(date) -> str:
+    return dt.datetime.strftime(dt.datetime.strptime(date, JSON_DATE_PAT), "%Y-%m-%d")
 
 
 def w_calendar(cal, typ) -> str:
@@ -24,7 +33,7 @@ def w_calendar(cal, typ) -> str:
     type_prize = ts.get("cmd.calendar.choice-prize")
     type_over = ts.get("cmd.calendar.choice-over")
 
-    for item in cal[0]["days"]:
+    for item in cal["days"]:
         t = item["events"]
 
         if len(t) <= 0:  # empty objects
@@ -52,11 +61,9 @@ def w_calendar(cal, typ) -> str:
                 output.append(override_info)
 
         if output:
-            output_msg += (
-                f"{dt.date(1999, 1, 1) + dt.timedelta(days=item['day'] - 1)} "  # VAR
-            )
-            # output_msg += f"Day {item['day']} "
-            output_msg += t[0]["type"]
+            o_date = item["date"]
+            output_msg += f"Day {convert_365d(o_date)}"
+            output_msg += f" - {t[0]['type']} ({convert_simple_date(o_date)})"
             output_msg += "".join(output)
             output_msg += "\n\n"
 

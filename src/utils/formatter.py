@@ -12,7 +12,7 @@ def time_cal_with_curr(time_data: str) -> str:
         dt.datetime.now() - dt.timedelta(hours=9)
     )
     if t.total_seconds() < 0:
-        return "Event End!"
+        return "**Event End!**"
 
     d = t.days
     h, r = divmod(t.seconds, 3600)

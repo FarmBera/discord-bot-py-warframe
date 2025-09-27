@@ -15,9 +15,10 @@ def getBaroImg():
     return baro_img[random.randrange(0, len(baro_img))]
 
 
-def color_decision(t):
-    for item in t:
-        if item["active"]:
+def color_decision(arg):
+    for item in arg:
+        # if inventory is not empty
+        if item["inventory"]:
             return 0x4DD2FF
     return 0xFFA826
 
@@ -82,7 +83,7 @@ def w_voidTradersItem(trader) -> discord.Embed:
 
         if item["inventory"] == []:
             listItem.append(
-                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} {time_cal_with_curr(item['activation'])} {ts.get(f'{pf}arrives-in1')}"
+                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} **{time_cal_with_curr(item['activation'])}** {ts.get(f'{pf}arrives-in1')}"
             )
 
         for jtem in item["inventory"]:
