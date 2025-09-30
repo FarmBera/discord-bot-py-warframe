@@ -15,5 +15,5 @@ After processing response, notify (send latest content messages) to discord serv
 
 - Dev Env: Python v3.13.3
 - Runtime Env
-    - option 1 [tested] Debian Linux - Python v3.11.2
-    - option 2 [tested] Android Termux - Python v3.12.11
+    - option 1 [tested] Ubuntu based Linux - Python v3.12.3
+    - option 2 [tested] Android Termux App - Python v3.12.11
