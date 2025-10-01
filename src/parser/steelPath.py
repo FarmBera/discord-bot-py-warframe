@@ -6,23 +6,27 @@ from src.utils.return_err import err_embed
 color_list = {
     "Umbra Forma Blueprint": 0x00FFFF,
     "50,000 Kuva": 0xB02121,
-    "Kitgun Riven Mod": 0xA11EE3,
     "3x Forma": 0xA11EE3,
-    "Zaw Riven Mod": 0xA11EE3,
     "30,000 Endo": 0xFBFF24,
+    "Kitgun Riven Mod": 0xA11EE3,
+    "Zaw Riven Mod": 0xA11EE3,
     "Rifle Riven Mod": 0xA11EE3,
     "Shotgun Riven Mod": 0xA11EE3,
+    "주 무기 리벤 모드": 0xA11EE3,
+    "산탄총 리벤 모드": 0xA11EE3,
 }
 
 img_list = {
     "Umbra Forma Blueprint": "umbra-forma",
     "50,000 Kuva": "kuva",
-    "Kitgun Riven Mod": "riven-mod",
     "3x Forma": "forma",
-    "Zaw Riven Mod": "riven-mod",
     "30,000 Endo": "endo",
+    "Kitgun Riven Mod": "riven-mod",
+    "Zaw Riven Mod": "riven-mod",
     "Rifle Riven Mod": "riven-mod",
     "Shotgun Riven Mod": "riven-mod",
+    "주 무기 리벤 모드": "riven-mod",
+    "산탄총 리벤 모드": "riven-mod",
 }
 
 
