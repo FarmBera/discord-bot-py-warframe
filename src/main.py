@@ -36,7 +36,7 @@ from src.constants.keys import (
     DAILYDEALS,
     INVASIONS,
 )
-from src.utils.api_request import API_Request
+from src.utils.api_request import API_Request, API_MarketSearch
 from src.utils.logging_utils import save_log
 
 from src.utils.file_io import yaml_open
@@ -466,8 +466,11 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
     async def cmd_announcement(
         interact: discord.Interaction, is_user_view_only: bool = True
     ):
+        # TODO: only I can send public messages
         await cmd_helper_txt(
-            interact, file_name=ANNOUNCE_FILE_LOC, isUserViewOnly=is_user_view_only
+            interact,
+            file_name=ANNOUNCE_FILE_LOC,
+            isUserViewOnly=True,
         )
 
     # patch-note command
@@ -690,6 +693,43 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
             parser_func=w_voidTradersItem,
             isFollowUp=True,
             need_api_call=True,
+        )
+
+    # search-warframe-market commnad
+    @tree.command(
+        name=ts.get(f"cmd.search-market.cmd"),
+        description=ts.get(f"cmd.search-market.desc"),
+    )
+    async def search_market(interact: discord.Interaction, item_name: str):
+        await interact.response.defer(ephemeral=True)
+
+        result = API_MarketSearch(
+            req_source="market", query="items", item_name=item_name.replace(" ", "_")
+        )
+        result = sorted(result, key=lambda x: x["platinum"])
+        idx: int = 0
+        output_msg = f"### Market Search Result: {item_name}"
+        for item in result:
+            if item["order_type"] != "sell":
+                continue
+
+            idx += 1
+            if idx > 7:
+                break
+
+            output_msg += f"- **{item['platinum']} P** : {item['quantity']} qty ({item['user']['ingame_name']})\n"
+
+        await interact.followup.send(output_msg, ephemeral=True)
+
+        save_log(
+            type="cmd",
+            cmd=f"cmd.search-market",
+            time=interact.created_at,
+            user=interact.user,
+            guild=interact.guild,
+            channel=interact.channel,
+            msg="[info] cmd used",  # VAR
+            obj=output_msg,
         )
 
 

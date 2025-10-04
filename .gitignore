@@ -1,5 +1,6 @@
 # directory
 img-tmp
+data
 json
 log
 tmp
@@ -15,7 +16,6 @@ TOKEN.py
 script/scp-*.sh
 # settings
 .markdownlint.json
-*_pc*.json
 
 # python virtual env
 bin/

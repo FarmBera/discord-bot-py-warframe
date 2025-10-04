@@ -2,19 +2,39 @@ import requests
 import json
 import datetime as dt
 
-from config.TOKEN import base_url, params, DEFAULT_JSON_PATH
+from config.TOKEN import (
+    base_url_warframe,
+    base_url_market,
+    params_warframe,
+    params_market,
+    DEFAULT_JSON_PATH,
+    DEFAULT_MARKET_JSON_PATH,
+)
+from src.utils.file_io import json_load
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
 from src.utils.logging_utils import save_log
 
 
-def send_request(args):
+def send_request(res_source: str, query: str = ""):
     start_time = dt.datetime.now()
     response = None
 
+    # setup base_url
+    if query:
+        # market api
+        base_url = f"{base_url_market}/{query}"
+        param = params_market
+        JSON_PATH = DEFAULT_MARKET_JSON_PATH
+    else:
+        # warframe api
+        base_url = base_url_warframe
+        param = params_warframe
+        JSON_PATH = DEFAULT_JSON_PATH
+
     # API Request
     try:
-        response = requests.get(base_url, params=params, timeout=60)
+        response = requests.get(base_url, params=param, timeout=60)
     except Exception as e:
         elapsed_time = dt.datetime.now() - start_time
 
@@ -59,7 +79,7 @@ def send_request(args):
 
     # save data
     try:
-        with open(DEFAULT_JSON_PATH, "w", encoding="utf-8") as json_file:
+        with open(JSON_PATH, "w", encoding="utf-8") as json_file:
             json.dump(response, json_file, ensure_ascii=False, indent=2)
     except Exception as e:
         elapsed_time = dt.datetime.now() - start_time
@@ -71,7 +91,7 @@ def send_request(args):
         return res_code
 
     elapsed_time = dt.datetime.now() - start_time
-    msg = f"[info] API request successful. {args}"
+    msg = f"[info] API request successful. {res_source}"
     # print(C.red, msg, C.default, sep="")
     save_log(
         type="api",
@@ -84,6 +104,24 @@ def send_request(args):
     return res_code
 
 
-# usage
+# usage for main api
 def API_Request(args: str = "Unknown Source"):
     return send_request(args)
+
+
+# usage for market api
+def API_MarketSearch(req_source: str, query: str, item_name: str):
+    item_name = item_name.replace(" ", "_")
+    send_request(req_source, f"{query}/{item_name}/orders")
+
+    # open saved file
+    response = json_load(DEFAULT_MARKET_JSON_PATH)
+
+    # returns only 'ingame' stocks (ignores online, offline)
+    ingame_orders = []
+    for item in response["payload"]["orders"]:
+        if item["user"]["status"] != "ingame":
+            continue
+        ingame_orders.append(item)
+
+    return ingame_orders
