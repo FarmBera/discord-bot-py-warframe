@@ -50,7 +50,9 @@ def w_voidTraders(trader) -> tuple:
             output_msg += (
                 f"- {ts.get(f'{pf}status')}: ✅ **{ts.get(f'{pf}activate')}**\n"
             )
-            output_msg += f"- {ts.get(f'{pf}end')} {item['endString']}\n"
+            output_msg += (
+                f"- {ts.get(f'{pf}end')} {time_cal_with_curr(item['expiry'])}\n"
+            )
             output_msg += f"- {ts.get(f'{pf}location')}: "
         # XX NOT appeared
         else:

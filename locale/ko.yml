@@ -191,7 +191,9 @@ cmd:
     eta: 시작한지
     eta1: 지남
 
-  # void-traders-item:
+  search-market:
+    cmd: 마켓검색
+    desc: "'Warframe Market' 에서 특정 아이템을 검색하여 가장 저렴한 가격 몇개만 보여줍니다."
 
 trs:
   # keyword

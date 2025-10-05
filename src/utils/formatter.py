@@ -28,7 +28,7 @@ def time_cal_with_curr(time_data: str) -> str:
     return " ".join(output)
 
 
-def time_format(t) -> str:
+def time_format(t: dt.timedelta) -> str:
     h, r = divmod(t.seconds, 3600)
     m = divmod(r, 60)
     return f"{'' if h == 0 else f'{h}{H} '}{m[0]}{M}"

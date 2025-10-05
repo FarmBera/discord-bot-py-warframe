@@ -190,3 +190,7 @@ cmd:
     atk-from: "ATK:"
     eta: Started before
     eta1: ""
+
+  search-market:
+    cmd: search-market
+    desc: Search specific item in 'Warframe Market' and shows its sell price
