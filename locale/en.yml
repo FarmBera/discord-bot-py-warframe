@@ -191,9 +191,13 @@ cmd:
     eta: Started before
     eta1: ""
 
-  search-market:
-    cmd: search-market
+  market-search:
+    cmd: market-search
     desc: Search specific item in 'Warframe Market' and shows its sell price
+
+  market-help:
+    cmd: market-help
+    desc: Show guide to use command 'market-search'
 
   vallis:
     cmd: valliscycle

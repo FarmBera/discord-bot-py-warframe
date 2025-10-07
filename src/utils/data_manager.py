@@ -12,7 +12,7 @@ def set_obj(obj, filename: str) -> bool:
 
 def cmd_obj_check(name):
     obj = get_obj(name)
-    if obj is None:  # or not obj:
+    if not obj:  # or not obj:
         print(f"{C.red}[err] Unknown '{name}' command. (from cmd_obj_check){C.default}")
         return False
 

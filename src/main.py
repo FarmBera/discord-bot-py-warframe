@@ -7,13 +7,14 @@ import logging
 
 
 from src.translator import ts, language as lang
-from config.TOKEN import TOKEN as BOT_TOKEN, DEFAULT_MARKET_JSON_PATH
-from config.TOKEN import DEFAULT_JSON_PATH
+from config.TOKEN import TOKEN as BOT_TOKEN, DEFAULT_JSON_PATH
 from src.constants.times import alert_times, JSON_DATE_PAT
 from src.constants.color import C
 from src.constants.keys import (
+    # config file
     SETTING_FILE_LOC,
     CHANNEL_FILE_LOC,
+    # docs file
     HELP_FILE_LOC,
     ANNOUNCE_FILE_LOC,
     PATCHNOTE_FILE_LOC,
@@ -21,8 +22,11 @@ from src.constants.keys import (
     FOOTER_FILE_LOC,
     STARTED_TIME_FILE_LOC,
     DELTA_TIME_LOC,
+    MARKET_HELP_FILE,
+    # other var
     fileExt,
     MSG_BOT,
+    # cmd obj
     ALERTS,
     NEWS,
     CETUSCYCLE,
@@ -36,19 +40,15 @@ from src.constants.keys import (
     CAMBIONCYCLE,
     DAILYDEALS,
     INVASIONS,
+    MARKET_SEARCH,
     VALLISCYCLE,
 )
 from src.utils.api_request import API_Request, API_MarketSearch
 from src.utils.logging_utils import save_log
 
-from src.utils.file_io import yaml_open
-from src.utils.file_io import json_load
-from src.utils.data_manager import get_obj
-from src.utils.data_manager import set_obj
-from src.utils.data_manager import cmd_obj_check
-from src.utils.file_io import open_file
+from src.utils.file_io import yaml_open, json_load, open_file, save_file
+from src.utils.data_manager import get_obj, set_obj, cmd_obj_check
 from src.utils.return_err import err_embed
-from src.utils.file_io import save_file
 from src.utils.formatter import time_format
 
 from src.handler.handler_config import DATA_HANDLERS
@@ -69,6 +69,7 @@ from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
 from src.parser.invasions import w_invasions
 from src.parser.vallisCycle import w_vallisCycle
+from src.parser.marketsearch import w_market_search
 
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
@@ -333,6 +334,8 @@ async def cmd_helper(
     need_api_call: bool = False,
     parser_args=None,
     isUserViewOnly: bool = True,
+    isMarketQuery: bool = False,
+    marketQuery: str = "",
 ) -> None:
     if isFollowUp:  # delay response if needed
         await interact.response.defer(ephemeral=isUserViewOnly)
@@ -344,6 +347,8 @@ async def cmd_helper(
     # load objects
     if parser_args:
         obj = parser_func(cmd_obj_check(key), parser_args)
+    elif isMarketQuery:
+        obj = parser_func(marketQuery)
     else:
         obj = parser_func(cmd_obj_check(key))
 
@@ -705,59 +710,27 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
             need_api_call=True,
         )
 
-    # search-warframe-market commnad
+    # search 'warframe.market' commnad
     @tree.command(
-        name=ts.get(f"cmd.search-market.cmd"),
-        description=ts.get(f"cmd.search-market.desc"),
+        name=ts.get(f"cmd.market-search.cmd"),
+        description=ts.get(f"cmd.market-search.desc"),
     )
-    async def search_market(interact: discord.Interaction, item_name: str):
-        await interact.response.defer(ephemeral=True)
-
-        result = API_MarketSearch(
-            req_source="market", query="items", item_name=item_name.replace(" ", "_")
+    async def cmd_market_search(interact: discord.Interaction, item_name: str):
+        await cmd_helper(
+            interact,
+            key=MARKET_SEARCH,
+            parser_func=w_market_search,
+            isMarketQuery=True,
+            marketQuery=item_name,
         )
 
-        # if result not found
-        if result != 200:
-            output_msg = f"No Result Found: **{item_name}**"
-            await interact.followup.send(output_msg, ephemeral=True)
-            return
-
-        result = json_load(DEFAULT_MARKET_JSON_PATH)
-        ingame_orders = []
-        output_msg = ""
-
-        # categorize only 'ingame' stocks (ignores online, offline)
-        for item in result["payload"]["orders"]:
-            if item["user"]["status"] != "ingame":
-                continue
-            ingame_orders.append(item)
-
-        ingame_orders = sorted(ingame_orders, key=lambda x: x["platinum"])
-        idx: int = 0
-        output_msg = f"### Market Search Result: {item_name}\n"
-        for item in ingame_orders:
-            if item["order_type"] != "sell":
-                continue
-
-            idx += 1
-            if idx > 7:
-                break
-
-            output_msg += f"- **{item['platinum']} P** : {item['quantity']} qty ({item['user']['ingame_name']})\n"
-
-        await interact.followup.send(output_msg, ephemeral=True)
-
-        save_log(
-            type="cmd",
-            cmd=f"cmd.search-market",
-            time=interact.created_at,
-            user=interact.user,
-            guild=interact.guild,
-            channel=interact.channel,
-            msg="[info] cmd used",  # VAR
-            obj=output_msg,
-        )
+    # 'warframe.market' search guide commnad
+    @tree.command(
+        name=ts.get(f"cmd.market-help.cmd"),
+        description=ts.get(f"cmd.market-help.desc"),
+    )
+    async def cmd_market_help(interact: discord.Interaction):
+        await cmd_helper_txt(interact, MARKET_HELP_FILE)
 
     # vallisCycle command
     @tree.command(
@@ -936,10 +909,17 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         await cmd_helper_maintenance(interact)
 
     @tree.command(
-        name=ts.get(f"cmd.search-market.cmd"),
-        description=ts.get(f"cmd.search-market.desc"),
+        name=ts.get(f"cmd.market-search.cmd"),
+        description=ts.get(f"cmd.market-search.desc"),
     )
     async def search_market(interact: discord.Interaction, item_name: str):
+        await cmd_helper_maintenance(interact)
+
+    @tree.command(
+        name=ts.get(f"cmd.market-help.cmd"),
+        description=ts.get(f"cmd.market-help.desc"),
+    )
+    async def cmd_market_help(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
     @tree.command(

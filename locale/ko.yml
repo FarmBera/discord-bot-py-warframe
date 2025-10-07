@@ -191,9 +191,13 @@ cmd:
     eta: 시작한지
     eta1: 지남
 
-  search-market:
+  market-search:
     cmd: 마켓검색
     desc: "'Warframe Market' 에서 특정 아이템을 검색하여 가장 저렴한 가격 몇개만 보여줍니다."
+
+  market-help:
+    cmd: 마켓도움말
+    desc: "'마켓검색' 명령어에 대한 도움말을 표시합니다."
 
   vallis:
     cmd: 오브협곡주기

@@ -13,6 +13,7 @@ POLICY_FILE_LOC: str = f"{filePfx}privacy-policy{fileExt}"
 FOOTER_FILE_LOC: str = f"{filePfx}footer{fileExt}"
 STARTED_TIME_FILE_LOC: str = f"{filePfx}m-started_time{fileExt}"
 DELTA_TIME_LOC: str = f"{filePfx}m-delta{fileExt}"
+MARKET_HELP_FILE: str = f"{filePfx}market-help{fileExt}"
 
 
 MSG_BOT: str = "bot.self"
@@ -32,6 +33,7 @@ CALENDAR = "calendar"
 CAMBIONCYCLE = "cambionCycle"
 DAILYDEALS = "dailyDeals"
 INVASIONS = "invasions"
+MARKET_SEARCH = "market-search"
 VALLISCYCLE = "vallisCycle"
 
 keys: list = [

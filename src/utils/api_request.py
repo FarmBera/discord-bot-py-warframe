@@ -94,7 +94,7 @@ def send_request(res_source: str, query: str = ""):
     # print(C.red, msg, C.default, sep="")
     save_log(
         type="api",
-        cmd="API_REQUEST()",
+        cmd="API-Market" if query else "API_REQUEST()",
         user=MSG_BOT,
         msg=msg,
         obj=f"{res_code} / ({elapsed_time})",
