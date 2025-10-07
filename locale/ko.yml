@@ -195,6 +195,16 @@ cmd:
     cmd: 마켓검색
     desc: "'Warframe Market' 에서 특정 아이템을 검색하여 가장 저렴한 가격 몇개만 보여줍니다."
 
+  vallis:
+    cmd: 오브협곡주기
+    desc: 현재 오브 협곡 상태를 가져옵니다
+
+    title: 오브 협곡 주기
+    exp: 만료까지
+
+    warm: 따뜻함
+    cold: 추움
+
 trs:
   # keyword
   blueprint: 설계도

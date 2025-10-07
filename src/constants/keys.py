@@ -32,6 +32,7 @@ CALENDAR = "calendar"
 CAMBIONCYCLE = "cambionCycle"
 DAILYDEALS = "dailyDeals"
 INVASIONS = "invasions"
+VALLISCYCLE = "vallisCycle"
 
 keys: list = [
     ALERTS,  # 0
@@ -49,6 +50,7 @@ keys: list = [
     CAMBIONCYCLE,  # 12
     DAILYDEALS,  # 13
     INVASIONS,  # 14
+    VALLISCYCLE,
 ]
 
 cal_item: dict = {

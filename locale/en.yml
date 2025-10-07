@@ -167,7 +167,7 @@ cmd:
     cmd: cambioncycle
     desc: Get current cambion state
 
-    title: Cambiono  Cycle
+    title: Cambion Cycle
     exp: Expires in
 
     fass: Fass
@@ -194,3 +194,13 @@ cmd:
   search-market:
     cmd: search-market
     desc: Search specific item in 'Warframe Market' and shows its sell price
+
+  vallis:
+    cmd: valliscycle
+    desc: Get current orb vallis state
+
+    title: Orb Vallis Cycle
+    exp: Expires in
+
+    warm: Warm
+    cold: Cold

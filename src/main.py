@@ -36,6 +36,7 @@ from src.constants.keys import (
     CAMBIONCYCLE,
     DAILYDEALS,
     INVASIONS,
+    VALLISCYCLE,
 )
 from src.utils.api_request import API_Request, API_MarketSearch
 from src.utils.logging_utils import save_log
@@ -67,6 +68,7 @@ from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
 from src.parser.invasions import w_invasions
+from src.parser.vallisCycle import w_vallisCycle
 
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
@@ -757,6 +759,20 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
             obj=output_msg,
         )
 
+    # vallisCycle command
+    @tree.command(
+        name=ts.get(f"cmd.vallis.cmd"),
+        description=ts.get(f"cmd.vallis.desc"),
+    )
+    async def cmd_vallis(interact: discord.Interaction):
+        await cmd_helper(
+            interact,
+            key=VALLISCYCLE,
+            parser_func=w_vallisCycle,
+            isFollowUp=True,
+            need_api_call=True,
+        )
+
 
 async def register_maintenance_commands(tree: discord.app_commands.CommandTree) -> None:
     @tree.command(
@@ -924,6 +940,13 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         description=ts.get(f"cmd.search-market.desc"),
     )
     async def search_market(interact: discord.Interaction, item_name: str):
+        await cmd_helper_maintenance(interact)
+
+    @tree.command(
+        name=ts.get(f"cmd.vallis.cmd"),
+        description=ts.get(f"cmd.vallis.desc"),
+    )
+    async def cmd_vallis(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
 
