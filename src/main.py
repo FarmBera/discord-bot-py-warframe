@@ -6,7 +6,7 @@ import sys
 import logging
 
 
-from src.translator import ts
+from src.translator import ts, language as lang
 from config.TOKEN import TOKEN as BOT_TOKEN, DEFAULT_MARKET_JSON_PATH
 from config.TOKEN import DEFAULT_JSON_PATH
 from src.constants.times import alert_times, JSON_DATE_PAT
@@ -21,6 +21,7 @@ from src.constants.keys import (
     FOOTER_FILE_LOC,
     STARTED_TIME_FILE_LOC,
     DELTA_TIME_LOC,
+    fileExt,
     MSG_BOT,
     ALERTS,
     NEWS,
@@ -383,8 +384,8 @@ async def cmd_helper_txt(
     interact: discord.Interaction, file_name: str, isUserViewOnly: bool = True
 ) -> None:
     try:
-        txt1 = open_file(file_name)
-        txt2 = open_file(FOOTER_FILE_LOC)
+        txt1 = open_file(file_name.replace(fileExt, f"-{lang}{fileExt}"))
+        txt2 = open_file(FOOTER_FILE_LOC.replace(fileExt, f"-{lang}{fileExt}"))
         txt = txt1 + txt2
     except Exception as e:
         msg: str = "[err] open_file err in cmd_helper_txt"  # VAR
