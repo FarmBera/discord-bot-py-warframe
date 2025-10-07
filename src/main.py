@@ -6,8 +6,8 @@ import sys
 import logging
 
 
-from src.translator import ts
-from config.TOKEN import TOKEN as BOT_TOKEN
+from src.translator import ts, language as lang
+from config.TOKEN import TOKEN as BOT_TOKEN, DEFAULT_MARKET_JSON_PATH
 from config.TOKEN import DEFAULT_JSON_PATH
 from src.constants.times import alert_times, JSON_DATE_PAT
 from src.constants.color import C
@@ -21,6 +21,7 @@ from src.constants.keys import (
     FOOTER_FILE_LOC,
     STARTED_TIME_FILE_LOC,
     DELTA_TIME_LOC,
+    fileExt,
     MSG_BOT,
     ALERTS,
     NEWS,
@@ -101,7 +102,7 @@ class DiscordBot(discord.Client):
 
         print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
-    async def send_alert(self, value, channel_list=None, setting=None):
+    async def send_alert(self, value, channel_list=None, setting=None) -> None:
         if not setting:
             setting = json_load(SETTING_FILE_LOC)
         if not setting["noti"]["isEnabled"]:
@@ -153,7 +154,7 @@ class DiscordBot(discord.Client):
 
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
-    async def auto_send_msg_request(self):
+    async def auto_send_msg_request(self) -> None:
         setting = json_load(SETTING_FILE_LOC)
         channels = yaml_open(CHANNEL_FILE_LOC)
 
@@ -277,8 +278,15 @@ class DiscordBot(discord.Client):
 
     # sortie alert
     @tasks.loop(time=alert_times)
-    async def auto_noti(self):
-        await self.send_alert(w_sortie(get_obj(SORTIE)))
+    async def auto_noti(self) -> None:
+        ch_list = yaml_open("config/channel")
+
+        try:
+            ch_list = ch_list["sortie"]
+        except Exception:
+            ch_list = ch_list["channel"]
+
+        await self.send_alert(w_sortie(get_obj(SORTIE)), ch_list)
 
 
 class MaintanceBot(discord.Client):
@@ -323,7 +331,7 @@ async def cmd_helper(
     need_api_call: bool = False,
     parser_args=None,
     isUserViewOnly: bool = True,
-):
+) -> None:
     if isFollowUp:  # delay response if needed
         await interact.response.defer(ephemeral=isUserViewOnly)
 
@@ -374,10 +382,10 @@ async def cmd_helper(
 
 async def cmd_helper_txt(
     interact: discord.Interaction, file_name: str, isUserViewOnly: bool = True
-):
+) -> None:
     try:
-        txt1 = open_file(file_name)
-        txt2 = open_file(FOOTER_FILE_LOC)
+        txt1 = open_file(file_name.replace(fileExt, f"-{lang}{fileExt}"))
+        txt2 = open_file(FOOTER_FILE_LOC.replace(fileExt, f"-{lang}{fileExt}"))
         txt = txt1 + txt2
     except Exception as e:
         msg: str = "[err] open_file err in cmd_helper_txt"  # VAR
@@ -413,7 +421,7 @@ async def cmd_helper_txt(
     )
 
 
-async def cmd_helper_maintenance(interact: discord.Interaction):
+async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
     time_target = dt.datetime.strptime(
         open_file(STARTED_TIME_FILE_LOC), JSON_DATE_PAT
     ) + dt.timedelta(minutes=int(open_file(DELTA_TIME_LOC)))
@@ -450,7 +458,7 @@ async def cmd_helper_maintenance(interact: discord.Interaction):
 # register commands
 
 
-async def register_main_commands(tree: discord.app_commands.CommandTree):
+async def register_main_commands(tree: discord.app_commands.CommandTree) -> None:
     # help command
     @tree.command(
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
@@ -706,10 +714,27 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
         result = API_MarketSearch(
             req_source="market", query="items", item_name=item_name.replace(" ", "_")
         )
-        result = sorted(result, key=lambda x: x["platinum"])
+
+        # if result not found
+        if result != 200:
+            output_msg = f"No Result Found: **{item_name}**"
+            await interact.followup.send(output_msg, ephemeral=True)
+            return
+
+        result = json_load(DEFAULT_MARKET_JSON_PATH)
+        ingame_orders = []
+        output_msg = ""
+
+        # categorize only 'ingame' stocks (ignores online, offline)
+        for item in result["payload"]["orders"]:
+            if item["user"]["status"] != "ingame":
+                continue
+            ingame_orders.append(item)
+
+        ingame_orders = sorted(ingame_orders, key=lambda x: x["platinum"])
         idx: int = 0
-        output_msg = f"### Market Search Result: {item_name}"
-        for item in result:
+        output_msg = f"### Market Search Result: {item_name}\n"
+        for item in ingame_orders:
             if item["order_type"] != "sell":
                 continue
 
@@ -733,7 +758,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree):
         )
 
 
-async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
+async def register_maintenance_commands(tree: discord.app_commands.CommandTree) -> None:
     @tree.command(
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
     )
@@ -894,13 +919,20 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree):
     async def cmd_traders_item(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
+    @tree.command(
+        name=ts.get(f"cmd.search-market.cmd"),
+        description=ts.get(f"cmd.search-market.desc"),
+    )
+    async def search_market(interact: discord.Interaction, item_name: str):
+        await cmd_helper_maintenance(interact)
+
 
 # main thread
 
 ERR_COUNT: int = 0
 
 
-async def console_input_listener():
+async def console_input_listener() -> None:
     """
     wait for console input and returns the specified keyword when it is entered.
     """
@@ -913,7 +945,7 @@ async def console_input_listener():
             return cmd
 
 
-async def main_manager():
+async def main_manager() -> None:
     """
     manage bot state, and switch bot status depends on console input
     """
@@ -922,18 +954,16 @@ async def main_manager():
     bot_mode = "main"  # init mode
 
     while bot_mode != "exit":
+        intents = discord.Intents.default()
+        intents.message_content = True
         if bot_mode == "main":
-            print(f"{C.cyan}[info] Starting Main Bot...{C.default}")  # VAR
-            intents = discord.Intents.default()
-            intents.message_content = True
+            print(f"{C.cyan}[info] Starting Main Bot...{C.default}", end=" ")  # VAR
             current_bot = DiscordBot(intents=intents)
             tree = discord.app_commands.CommandTree(current_bot)
             await register_main_commands(tree)
 
         elif bot_mode == "maintenance":
-            print(f"{C.magenta}Starting Maintenance Bot...{C.default}")  # VAR
-            intents = discord.Intents.default()
-            intents.message_content = True
+            print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
             current_bot = MaintanceBot(intents=intents)
             tree = discord.app_commands.CommandTree(current_bot)
             await register_maintenance_commands(tree)
@@ -941,6 +971,7 @@ async def main_manager():
         else:
             break
 
+        print("Creating Task...")
         # create execution task: bot run / console input handler
         bot_task = asyncio.create_task(current_bot.start(BOT_TOKEN))
         console_task = asyncio.create_task(console_input_listener())
@@ -962,7 +993,6 @@ async def main_manager():
                 f"{C.red}[err] The Bot has unexpectedly terminated!{C.default}"
             )  # VAR
 
-            ERR_COUNT += 1
             for i in range(5, 0, -1):
                 print(
                     f"{C.red}[err] Unexpect Error. Retry in {i}s ",
@@ -971,9 +1001,6 @@ async def main_manager():
                 )  # VAR
                 await asyncio.sleep(1.0)
             print(f"{C.yellow}Retrying #{ERR_COUNT}{C.default}")
-
-            if ERR_COUNT > 20:
-                raise KeyboardInterrupt("ERROR")
             # bot_mode = "exit"  # exit loop
 
         # quit currently running bot & skip to next loop
@@ -999,3 +1026,8 @@ if __name__ == "__main__":
         asyncio.run(main_manager())
     except KeyboardInterrupt:
         print(f"\n{C.yellow}Force Quitted!")  # VAR
+    except Exception as e:
+        ERR_COUNT += 1
+        print(f"Continuously Error #{ERR_COUNT} >> {e}")
+        if ERR_COUNT > 20:
+            exit()

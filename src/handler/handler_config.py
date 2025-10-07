@@ -76,9 +76,7 @@ DATA_HANDLERS = {
     },
     "calendar": {
         "parser": lambda data: w_calendar(data, ts.get("cmd.alendar.choice-prize")),
-        "update_check": lambda prev, new: prev
-        and new
-        and prev["activation"] != new["activation"],
+        "update_check": lambda prev, new: prev["activation"] != new["activation"],
         "channel_key": "hex-cal",
     },
     "cambionCycle": {

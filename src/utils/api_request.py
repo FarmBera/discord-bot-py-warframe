@@ -20,14 +20,12 @@ def send_request(res_source: str, query: str = ""):
     start_time = dt.datetime.now()
     response = None
 
-    # setup base_url
-    if query:
-        # market api
+    # setup variables
+    if query:  # market api
         base_url = f"{base_url_market}/{query}"
         param = params_market
         JSON_PATH = DEFAULT_MARKET_JSON_PATH
-    else:
-        # warframe api
+    else:  # warframe api
         base_url = base_url_warframe
         param = params_warframe
         JSON_PATH = DEFAULT_JSON_PATH
@@ -51,8 +49,9 @@ def send_request(res_source: str, query: str = ""):
 
         msg = f"[warn] response code is not 200"
         obj = f"{res_code} / {elapsed_time}"
-        print(dt.datetime.now(), C.red, msg, res_code, elapsed_time, C.default)
         save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=obj)
+        if not query:
+            print(dt.datetime.now(), C.red, msg, res_code, elapsed_time, C.default)
         return res_code
 
     # check response (is not empty or err value)
@@ -112,16 +111,4 @@ def API_Request(args: str = "Unknown Source"):
 # usage for market api
 def API_MarketSearch(req_source: str, query: str, item_name: str):
     item_name = item_name.replace(" ", "_")
-    send_request(req_source, f"{query}/{item_name}/orders")
-
-    # open saved file
-    response = json_load(DEFAULT_MARKET_JSON_PATH)
-
-    # returns only 'ingame' stocks (ignores online, offline)
-    ingame_orders = []
-    for item in response["payload"]["orders"]:
-        if item["user"]["status"] != "ingame":
-            continue
-        ingame_orders.append(item)
-
-    return ingame_orders
+    return send_request(req_source, f"{query}/{item_name}/orders")

@@ -1,17 +1,18 @@
 filePfx: str = "docs/"
 configPfx: str = "config/"
+fileExt: str = ".md"
 
 LOG_FILE_PATH: str = "log/log.csv"
 SETTING_FILE_LOC: str = f"{configPfx}setting.json"
 CHANNEL_FILE_LOC: str = f"{configPfx}channel"
 
-HELP_FILE_LOC: str = f"{filePfx}help.md"
-ANNOUNCE_FILE_LOC: str = f"{filePfx}announcement.md"
-PATCHNOTE_FILE_LOC: str = f"{filePfx}patch-note.md"
-POLICY_FILE_LOC: str = f"{filePfx}privacy-policy.md"
-FOOTER_FILE_LOC: str = f"{filePfx}footer.md"
-STARTED_TIME_FILE_LOC: str = f"{filePfx}m-started_time.md"
-DELTA_TIME_LOC: str = f"{filePfx}m-delta.md"
+HELP_FILE_LOC: str = f"{filePfx}help{fileExt}"
+ANNOUNCE_FILE_LOC: str = f"{filePfx}announcement{fileExt}"
+PATCHNOTE_FILE_LOC: str = f"{filePfx}patch-note{fileExt}"
+POLICY_FILE_LOC: str = f"{filePfx}privacy-policy{fileExt}"
+FOOTER_FILE_LOC: str = f"{filePfx}footer{fileExt}"
+STARTED_TIME_FILE_LOC: str = f"{filePfx}m-started_time{fileExt}"
+DELTA_TIME_LOC: str = f"{filePfx}m-delta{fileExt}"
 
 
 MSG_BOT: str = "bot.self"
