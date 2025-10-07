@@ -278,7 +278,13 @@ class DiscordBot(discord.Client):
     # sortie alert
     @tasks.loop(time=alert_times)
     async def auto_noti(self) -> None:
-        ch_list = yaml_open("config/channel")["sortie"]
+        ch_list = yaml_open("config/channel")
+
+        try:
+            ch_list = ch_list["sortie"]
+        except Exception:
+            ch_list = ch_list["channel"]
+
         await self.send_alert(w_sortie(get_obj(SORTIE)), ch_list)
 
 
