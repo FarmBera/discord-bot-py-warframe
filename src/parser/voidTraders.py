@@ -59,7 +59,7 @@ def w_voidTraders(trader) -> tuple:
             output_msg += (
                 f"- {ts.get(f'{pf}status')}: ❌ *{ts.get(f'{pf}deactivate')}*\n"
             )
-            output_msg += f"- {ts.get(f'{pf}app1')}{time_cal_with_curr(item['activation'])} {ts.get(f'{pf}app2')}\n"
+            output_msg += f"- {ts.get(f'{pf}app1')} {time_cal_with_curr(item['activation'])} {ts.get(f'{pf}app2')}\n"
             output_msg += f"- {ts.get(f'{pf}place')}: "
 
         # appear location
