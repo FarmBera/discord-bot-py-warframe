@@ -7,8 +7,6 @@ from src.constants.times import JSON_DATE_PAT
 from src.utils.return_err import err_embed
 from src.utils.formatter import D, H, M
 
-SPECIAL_LIST = ["exilus", "orokin", "reactor"]
-
 
 def formatDate(dd: str) -> str:
     t = dt.datetime.strptime(dd, JSON_DATE_PAT) + dt.timedelta(hours=9)

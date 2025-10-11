@@ -24,6 +24,7 @@ from src.constants.keys import (
     DELTA_TIME_LOC,
     MARKET_HELP_FILE,
     # other var
+    SPECIAL_ITEM_LIST,
     fileExt,
     MSG_BOT,
     # cmd obj
@@ -224,11 +225,22 @@ class DiscordBot(discord.Client):
                 missed_ids = [
                     item["id"] for item in obj_new if item["id"] not in prev_ids
                 ]
-                # filter new invasinos
+                # filter new invasions
                 missing_invasions = [
                     item for item in obj_new if item["id"] in missed_ids
                 ]
-                if missing_invasions:
+
+                # filter invasions which having special items
+                special_invasions = []
+                for inv in missing_invasions:
+                    special_item_exist: bool = True
+                    for item in inv["rewardTypes"]:
+                        if item in SPECIAL_ITEM_LIST:
+                            special_item_exist = True
+                    if special_item_exist:
+                        special_invasions.append(inv)
+
+                if special_invasions:
                     try:
                         parsed_content = handler["parser"](obj_new)
                     except Exception as e:

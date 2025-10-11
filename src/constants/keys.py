@@ -61,3 +61,5 @@ cal_item: dict = {
     "Exilus Adapter": "Exilus Warframe Adapter",
     # "[PH] Calendar Kill Enemies With Melee Medium Desc": "kill Enemies With Melee Weapons",
 }
+
+SPECIAL_ITEM_LIST = ["exilus", "orokin", "reactor"]
