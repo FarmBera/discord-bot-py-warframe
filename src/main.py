@@ -206,7 +206,7 @@ class DiscordBot(discord.Client):
                         try:
                             parsed_content = handler["parser"](obj_new)
                         except Exception as e:
-                            msg = f"[err] Data parsing error in {handler['parser']}"
+                            msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                             print(dt.datetime.now(), C.red, msg, C.default)
                             save_log(
                                 type="err",
@@ -219,18 +219,20 @@ class DiscordBot(discord.Client):
                         notification = True
 
             elif special_logic == "handle_missing_invasions":  # invasions
-                prev_ids = {item["id"] for item in obj_prev}
-                # filter not completed invasion
-                missing_items = [
-                    item
-                    for item in obj_new
-                    if item["id"] not in prev_ids and not item.get("completed", False)
+                prev_ids = [item["id"] for item in obj_prev]
+                # check newly added invasions
+                missed_ids = [
+                    item["id"] for item in obj_new if item["id"] not in prev_ids
                 ]
-                if missing_items:
+                # filter new invasinos
+                missing_invasions = [
+                    item for item in obj_new if item["id"] in missed_ids
+                ]
+                if missing_invasions:
                     try:
                         parsed_content = handler["parser"](obj_new)
                     except Exception as e:
-                        msg = f"[err] Data parsing error in {handler['parser']}"
+                        msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                         print(dt.datetime.now(), C.red, msg, C.default)
                         save_log(
                             type="err",
@@ -248,7 +250,7 @@ class DiscordBot(discord.Client):
                 try:
                     parsed_content = handler["parser"](obj_new)
                 except Exception as e:
-                    msg = f"[err] Data parsing error in {handler['parser']}"
+                    msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                     print(dt.datetime.now(), C.red, msg, C.default)
                     save_log(
                         type="err",

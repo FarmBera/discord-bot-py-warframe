@@ -7,6 +7,8 @@ from src.constants.times import JSON_DATE_PAT
 from src.utils.return_err import err_embed
 from src.utils.formatter import D, H, M
 
+SPECIAL_LIST = ["exilus", "orokin", "reactor"]
+
 
 def formatDate(dd: str) -> str:
     t = dt.datetime.strptime(dd, JSON_DATE_PAT) + dt.timedelta(hours=9)
@@ -29,6 +31,10 @@ def formatDate(dd: str) -> str:
     return " ".join(out)
 
 
+def getPlanet(inv) -> str:
+    return inv["node"].split(" (")[-1].replace(")", "")
+
+
 def singleInvasion(inv) -> str:
     atk = inv["attacker"]
     dfd = inv["defender"]
@@ -49,9 +55,13 @@ def singleInvasion(inv) -> str:
 
     # item
     if not inv["vsInfestation"]:
-        output_msg += f"- {atk['faction']} - **{atk['reward']['countedItems'][0]['type']}**\n"
+        output_msg += (
+            f"- {atk['faction']} - **{atk['reward']['countedItems'][0]['type']}**\n"
+        )
 
-    output_msg += f"- {dfd['faction']} - **{dfd['reward']['countedItems'][0]['type']}**\n\n"
+    output_msg += (
+        f"- {dfd['faction']} - **{dfd['reward']['countedItems'][0]['type']}**\n\n"
+    )
 
     return output_msg
 
@@ -59,9 +69,6 @@ def singleInvasion(inv) -> str:
 def w_invasions(invasions) -> discord.Embed:
     if not invasions:
         return err_embed("invasions")
-
-    def getPlanet(inv) -> str:
-        return inv["node"].split(" (")[-1].replace(")", "")
 
     mission_per_planets = defaultdict(list)
 
