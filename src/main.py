@@ -233,13 +233,14 @@ class DiscordBot(discord.Client):
                 # filter invasions which having special items
                 special_invasions = []
                 for inv in missing_invasions:
-                    special_item_exist: bool = True
+                    special_item_exist: bool = False
                     for item in inv["rewardTypes"]:
                         if item in SPECIAL_ITEM_LIST:
                             special_item_exist = True
                     if special_item_exist:
                         special_invasions.append(inv)
 
+                # send invasino alert if exists
                 if special_invasions:
                     try:
                         parsed_content = handler["parser"](obj_new)
@@ -291,7 +292,8 @@ class DiscordBot(discord.Client):
                     parsed_content, channel_list=target_ch, setting=setting
                 )
 
-        return  # End Of auto_send_msg_request()
+        return  # End Of auto_send_msg_request()ㄹ
+    
 
     # sortie alert
     @tasks.loop(time=alert_times)

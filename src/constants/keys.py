@@ -62,4 +62,4 @@ cal_item: dict = {
     # "[PH] Calendar Kill Enemies With Melee Medium Desc": "kill Enemies With Melee Weapons",
 }
 
-SPECIAL_ITEM_LIST = ["exilus", "orokin", "reactor"]
+SPECIAL_ITEM_LIST = ["exilus", "orokin", "reactor", "forma"]
