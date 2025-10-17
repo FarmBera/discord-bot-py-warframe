@@ -13,7 +13,7 @@ docs
 *test*
 channel.yml
 TOKEN.py
-script/scp-*.sh
+# script/scp-*.sh
 # settings
 .markdownlint.json
 

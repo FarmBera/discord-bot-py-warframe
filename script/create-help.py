@@ -1,9 +1,13 @@
 from src.utils.file_io import yaml_open
 
+lang_cmd = input("Language for cmd (en/ko) > ")
+lang_desc = input("Language for desc (en/ko) > ")
+
+
 print()
 
-cmds = yaml_open("locale/ko")
-krms = yaml_open("locale/ko")
+cmds = yaml_open(f"locale/{lang_cmd}")
+krms = yaml_open(f"locale/{lang_desc}")
 
 e = cmds["cmd"]
 k = krms["cmd"]

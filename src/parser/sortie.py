@@ -17,7 +17,7 @@ def w_sortie(sortie):
     idx = 1
     for item in mis_list:
         output_msg += f"{idx}. **{ts.trs(item['missionType'])}** "
-        output_msg += f"at {item['node']} - {item['modifier']}\n"
+        output_msg += f"at {item['node']} - *{item['modifier']}*\n"
         idx += 1
 
     return output_msg

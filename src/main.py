@@ -24,6 +24,7 @@ from src.constants.keys import (
     DELTA_TIME_LOC,
     MARKET_HELP_FILE,
     # other var
+    SPECIAL_ITEM_LIST,
     fileExt,
     MSG_BOT,
     # cmd obj
@@ -206,7 +207,7 @@ class DiscordBot(discord.Client):
                         try:
                             parsed_content = handler["parser"](obj_new)
                         except Exception as e:
-                            msg = f"[err] Data parsing error in {handler['parser']}"
+                            msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                             print(dt.datetime.now(), C.red, msg, C.default)
                             save_log(
                                 type="err",
@@ -219,18 +220,32 @@ class DiscordBot(discord.Client):
                         notification = True
 
             elif special_logic == "handle_missing_invasions":  # invasions
-                prev_ids = {item["id"] for item in obj_prev}
-                # filter not completed invasion
-                missing_items = [
-                    item
-                    for item in obj_new
-                    if item["id"] not in prev_ids and not item.get("completed", False)
+                prev_ids = [item["id"] for item in obj_prev]
+                # check newly added invasions
+                missed_ids = [
+                    item["id"] for item in obj_new if item["id"] not in prev_ids
                 ]
-                if missing_items:
+                # filter new invasions
+                missing_invasions = [
+                    item for item in obj_new if item["id"] in missed_ids
+                ]
+
+                # filter invasions which having special items
+                special_invasions = []
+                for inv in missing_invasions:
+                    special_item_exist: bool = False
+                    for item in inv["rewardTypes"]:
+                        if item in SPECIAL_ITEM_LIST:
+                            special_item_exist = True
+                    if special_item_exist:
+                        special_invasions.append(inv)
+
+                # send invasino alert if exists
+                if special_invasions:
                     try:
                         parsed_content = handler["parser"](obj_new)
                     except Exception as e:
-                        msg = f"[err] Data parsing error in {handler['parser']}"
+                        msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                         print(dt.datetime.now(), C.red, msg, C.default)
                         save_log(
                             type="err",
@@ -248,7 +263,7 @@ class DiscordBot(discord.Client):
                 try:
                     parsed_content = handler["parser"](obj_new)
                 except Exception as e:
-                    msg = f"[err] Data parsing error in {handler['parser']}"
+                    msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                     print(dt.datetime.now(), C.red, msg, C.default)
                     save_log(
                         type="err",
@@ -277,7 +292,8 @@ class DiscordBot(discord.Client):
                     parsed_content, channel_list=target_ch, setting=setting
                 )
 
-        return  # End Of auto_send_msg_request()
+        return  # End Of auto_send_msg_request()ㄹ
+    
 
     # sortie alert
     @tasks.loop(time=alert_times)
