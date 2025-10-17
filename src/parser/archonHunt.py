@@ -23,7 +23,7 @@ def w_archonHunt(archon) -> str:
     # eta
     output_msg += f"{ts.get(f'{pf}eta')}: "
     output_msg += f"{time_cal_with_curr(archon['expiry'])}\n"
-    # additional msg
+    # additional msg (obtain shard)
     output_msg += f"{ts.get(f'{pf}obt1')} {get_emoji(shard)} **{ts.trs(shard)} {ts.get(f'{pf}shardname')}** {ts.get(f'{pf}obt2')}\n\n"
     # print missions
     idx: int = 1

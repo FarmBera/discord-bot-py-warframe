@@ -13,7 +13,7 @@ from src.constants.keys import keys
 print("API Requesting...")
 RESPONSE_CODE = API_Request('init')
 if RESPONSE_CODE != 200:
-    raise ValueError("Response code is NOT 200!")
+    raise ValueError("Response code is NOT 200! Aborted!")
 print(f"Done! Code: {RESPONSE_CODE}")
 
 dir_base = os.getcwd()

@@ -27,7 +27,7 @@ def w_alerts(alerts) -> discord.Embed:
 
         # TODO: format
         output_msg += f"{idx}. {", ".join(dd['reward']['items'])} + {dd['reward']['credits']:,} {ts.get('cmd.alerts.credit')}\n"
-        output_msg += f"{ts.trs(type)} at {node}\n\n"
+        output_msg += f"**{ts.trs(type)}** at {node}\n\n"
         idx += 1
 
     return discord.Embed(description=output_msg, color=color_decision(alerts))
