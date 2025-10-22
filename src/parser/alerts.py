@@ -33,6 +33,10 @@ def w_alerts(alerts) -> discord.Embed:
         reward = " + ".join(
             [f"{int(ms['missionReward']['credits']):,} {ts.get('cmd.alerts.credit')}"]
             + [getLanguage(item) for item in ms["missionReward"].get("items", [])]
+            + [
+                f"{getLanguage(item['ItemType'])} x{item['ItemCount']}"
+                for item in ms["missionReward"].get("countedItems", [])
+            ]
         )
 
         enemy_lvl = f"{ms['minEnemyLevel']}-{ms['maxEnemyLevel']}"
