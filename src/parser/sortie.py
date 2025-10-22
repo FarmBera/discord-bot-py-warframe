@@ -1,23 +1,33 @@
 from src.translator import ts
-from src.utils.formatter import time_cal_with_curr
+from src.constants.times import convert_remain
+from src.utils.data_manager import getMissionType, getSolNode, getSortieMod
 
 
 def w_sortie(sortie):
     if not sortie:
         return ts.get("general.error-cmd")
 
+    sortie = sortie[0]
     prefix: str = "cmd.sortie"
-    mis_list = sortie["variants"]
 
-    output_msg = f"# {ts.get(f'{prefix}.title')}\n\n"
+    # id = dd["_id"]["$oid"]
+    # activation = int(dd["Activation"]["$date"]["$numberLong"])
+    expiry = int(sortie["Expiry"]["$date"]["$numberLong"])
 
-    output_msg += f"- {ts.get(f'{prefix}.eta')}: "
-    output_msg += f"{time_cal_with_curr(sortie['expiry'])}\n\n"
+    # title
+    output_msg: str = f"# {ts.get(f'{prefix}.title')}\n\n"
+    # expiry
+    output_msg += f"- {ts.get(f'{prefix}.eta')}: {convert_remain(expiry)}\n\n"
 
+    # mission list
     idx = 1
-    for item in mis_list:
-        output_msg += f"{idx}. **{ts.trs(item['missionType'])}** "
-        output_msg += f"at {item['node']} - *{item['modifier']}*\n"
+    for i in sortie["Variants"]:
+        miss_type = getMissionType(i["missionType"])
+        node = getSolNode(i["node"])
+        mod_type = getSortieMod(i["modifierType"])
+
+        output_msg += f"{idx}. **{ts.trs(miss_type)}** "
+        output_msg += f"at {node} - *{mod_type}*\n"
         idx += 1
 
     return output_msg

@@ -1,6 +1,8 @@
 import discord
 from src.translator import ts
+from src.constants.times import convert_remain
 from src.utils.return_err import err_embed
+from src.utils.data_manager import getLanguage, getMissionType, getSolNode
 
 
 def color_decision(t):
@@ -20,14 +22,30 @@ def w_alerts(alerts) -> discord.Embed:
     output_msg = f"# {ts.get('cmd.alerts.title')}: {activated_count}\n\n"
 
     idx = 1
-    for item in alerts:
-        dd = item["mission"]  # tmp var
-        node = dd["node"]  # node name
-        type = dd["type"]  # mission type
+    for i in alerts:
+        ms = i["MissionInfo"]
+        # id = (i["_id"]["$oid"],)
+        # activation = int(i["Activation"]["$date"]["$numberLong"])
+        # tag = i["Tag"]
+        expiry = convert_remain(int(i["Expiry"]["$date"]["$numberLong"]))
+        mission_location = getSolNode(ms["location"])
+        mission_type = getMissionType(ms["missionType"])
+        reward = " + ".join(
+            [f"{int(ms['missionReward']['credits']):,} {ts.get('cmd.alerts.credit')}"]
+            + [getLanguage(item) for item in ms["missionReward"].get("items", [])]
+            + [
+                f"{getLanguage(item['ItemType'])} x{item['ItemCount']}"
+                for item in ms["missionReward"].get("countedItems", [])
+            ]
+        )
 
-        # TODO: format
-        output_msg += f"{idx}. {", ".join(dd['reward']['items'])} + {dd['reward']['credits']:,} {ts.get('cmd.alerts.credit')}\n"
-        output_msg += f"**{ts.trs(type)}** at {node}\n\n"
+        enemy_lvl = f"{ms['minEnemyLevel']}-{ms['maxEnemyLevel']}"
+        max_wave = ms["maxWaveNum"]
+
+        output_msg += f"{idx}. {reward}\n"
+        output_msg += f"- **{ts.trs(mission_type)}** at {mission_location}\n"
+        output_msg += f"- lvl: {enemy_lvl} / Max Wave : {max_wave}\n"
+        output_msg += f"- Expires in {expiry}\n\n"
         idx += 1
 
     return discord.Embed(description=output_msg, color=color_decision(alerts))

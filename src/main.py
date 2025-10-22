@@ -48,7 +48,7 @@ from src.utils.api_request import API_Request, API_MarketSearch
 from src.utils.logging_utils import save_log
 
 from src.utils.file_io import yaml_open, json_load, open_file, save_file
-from src.utils.data_manager import get_obj, set_obj, cmd_obj_check
+from src.utils.data_manager import get_obj, set_obj, cmd_obj_check, getLanguage
 from src.utils.return_err import err_embed
 from src.utils.formatter import time_format
 
@@ -174,7 +174,7 @@ class DiscordBot(discord.Client):
                 obj_new = latest_data[key]
             except Exception as e:
                 msg = f"[err] Error with loading original data"
-                print(dt.datetime.now(), C.red, key, msg, C.default)
+                print(dt.datetime.now(), C.red, key, msg, e, C.default)
                 save_log(
                     type="err",
                     cmd="auto_send_msg_request()",
@@ -191,8 +191,8 @@ class DiscordBot(discord.Client):
             special_logic = handler.get("special_logic")
 
             if special_logic == "handle_missing_items":  # alerts, news
-                prev_ids = {item["id"] for item in obj_prev}
-                new_ids = {item["id"] for item in obj_new}
+                prev_ids = {item["_id"]["$oid"] for item in obj_prev}
+                new_ids = {item["_id"]["$oid"] for item in obj_new}
 
                 if prev_ids != new_ids:
                     should_save_data = True
@@ -201,14 +201,16 @@ class DiscordBot(discord.Client):
                 newly_added_ids = new_ids - prev_ids
                 if newly_added_ids:
                     missing_items = [
-                        item for item in obj_new if item["id"] in newly_added_ids
+                        item
+                        for item in obj_new
+                        if item["_id"]["$oid"] in newly_added_ids
                     ]
                     if missing_items:
                         try:
-                            parsed_content = handler["parser"](obj_new)
+                            parsed_content = handler["parser"](missing_items)
                         except Exception as e:
                             msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                            print(dt.datetime.now(), C.red, msg, C.default)
+                            print(dt.datetime.now(), C.red, msg, e, C.default)
                             save_log(
                                 type="err",
                                 cmd="auto_send_msg_request()",
@@ -220,33 +222,48 @@ class DiscordBot(discord.Client):
                         notification = True
 
             elif special_logic == "handle_missing_invasions":  # invasions
-                prev_ids = [item["id"] for item in obj_prev]
-                # check newly added invasions
+                prev_ids_set = {item["_id"]["$oid"] for item in obj_prev}
+
+                # extract missing ids (new invasion's id)
                 missed_ids = [
-                    item["id"] for item in obj_new if item["id"] not in prev_ids
+                    item["_id"]["$oid"]
+                    for item in obj_new
+                    if item["_id"]["$oid"] not in prev_ids_set
                 ]
-                # filter new invasions
+                # filter new invasions obj
                 missing_invasions = [
-                    item for item in obj_new if item["id"] in missed_ids
+                    item for item in obj_new if item["_id"]["$oid"] in missed_ids
                 ]
 
                 # filter invasions which having special items
                 special_invasions = []
                 for inv in missing_invasions:
                     special_item_exist: bool = False
-                    for item in inv["rewardTypes"]:
-                        if item in SPECIAL_ITEM_LIST:
-                            special_item_exist = True
+
+                    item_list = [
+                        getLanguage(item["ItemType"]).lower()
+                        for reward in [
+                            inv.get("AttackerReward"),
+                            inv.get("DefenderReward"),
+                        ]
+                        if isinstance(reward, dict) and "countedItems" in reward
+                        for item in reward["countedItems"]
+                    ]
+
+                    for item in item_list:
+                        for se in SPECIAL_ITEM_LIST:
+                            if se in item:
+                                special_item_exist = True
                     if special_item_exist:
                         special_invasions.append(inv)
 
-                # send invasino alert if exists
-                if special_invasions:
+                # send invasions alert if exists
+                if special_invasions:  # missing_invasions:
                     try:
-                        parsed_content = handler["parser"](obj_new)
+                        parsed_content = handler["parser"](missing_invasions)
                     except Exception as e:
                         msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                        print(dt.datetime.now(), C.red, msg, C.default)
+                        print(dt.datetime.now(), C.red, msg, e, C.default)
                         save_log(
                             type="err",
                             cmd="auto_send_msg_request()",
@@ -293,7 +310,6 @@ class DiscordBot(discord.Client):
                 )
 
         return  # End Of auto_send_msg_request()ㄹ
-    
 
     # sortie alert
     @tasks.loop(time=alert_times)
@@ -524,10 +540,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
     async def cmd_news(interact: discord.Interaction, number_of_news: int = 20):
         await cmd_helper(
-            interact,
-            key=NEWS,
-            parser_func=w_news,
-            parser_args=number_of_news,
+            interact, key=NEWS, parser_func=w_news, parser_args=number_of_news
         )
 
     # alerts command
@@ -535,44 +548,26 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc")
     )
     async def cmd_alerts(interact: discord.Interaction):
-        await cmd_helper(
-            interact=interact,
-            key=ALERTS,
-            parser_func=w_alerts,
-        )
+        await cmd_helper(interact=interact, key=ALERTS, parser_func=w_alerts)
 
     # cetus command (cetusCycle)
     @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
     async def cmd_cetus(interact: discord.Interaction):
-        await cmd_helper(
-            interact=interact,
-            key=CETUSCYCLE,
-            parser_func=w_cetusCycle,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact=interact, key=CETUSCYCLE, parser_func=w_cetusCycle)
 
     # sortie command
     @tree.command(
         name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc")
     )
     async def cmd_sortie(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=SORTIE,
-            parser_func=w_sortie,
-        )
+        await cmd_helper(interact, key=SORTIE, parser_func=w_sortie)
 
     # archon hunt command
     @tree.command(
         name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
     )
     async def cmd_archon_hunt(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=ARCHONHUNT,
-            parser_func=w_archonHunt,
-        )
+        await cmd_helper(interact, key=ARCHONHUNT, parser_func=w_archonHunt)
 
     # void traders command
     @tree.command(
@@ -580,13 +575,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.void-traders.desc"),
     )
     async def cmd_voidTraders(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=VOIDTRADERS,
-            parser_func=w_voidTraders,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=VOIDTRADERS, parser_func=w_voidTraders)
 
     # steel path reward command
     @tree.command(
@@ -594,11 +583,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.steel-path-reward.desc"),
     )
     async def cmd_steel_reward(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=STEELPATH,
-            parser_func=w_steelPath,
-        )
+        await cmd_helper(interact, key=STEELPATH, parser_func=w_steelPath)
 
     # fissures command
     @tree.command(
@@ -624,8 +609,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
             key=FISSURES,
             parser_func=w_fissures,
             parser_args=(types.name, is_include_railjack_node),
-            isFollowUp=True,
-            need_api_call=True,
         )
 
     # duviriCycle command
@@ -634,13 +617,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.duviri-cycle.desc"),
     )
     async def cmd_duviri_cycle(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=DUVIRICYCLE,
-            parser_func=w_duviriCycle,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=DUVIRICYCLE, parser_func=w_duviriCycle)
 
     # hex calendar reward command
     @tree.command(
@@ -667,10 +644,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         interact: discord.Interaction, types: discord.app_commands.Choice[int]
     ):
         await cmd_helper(
-            interact,
-            key=CALENDAR,
-            parser_func=w_calendar,
-            parser_args=types.name,
+            interact, key=CALENDAR, parser_func=w_calendar, parser_args=types.name
         )
 
     # cambion command (cambionCycle)
@@ -678,39 +652,21 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
     )
     async def cmd_cambion(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=CAMBIONCYCLE,
-            parser_func=w_cambionCycle,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=CAMBIONCYCLE, parser_func=w_cambionCycle)
 
     # dailyDeals command
     @tree.command(
         name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
     )
     async def cmd_dailyDeals(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=DAILYDEALS,
-            parser_func=w_dailyDeals,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=DAILYDEALS, parser_func=w_dailyDeals)
 
     # invasions command
     @tree.command(
         name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
     )
     async def cmd_invasions(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=INVASIONS,
-            parser_func=w_invasions,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=INVASIONS, parser_func=w_invasions)
 
     # voidTrader item command
     @tree.command(
@@ -718,13 +674,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.void-traders-item.desc"),
     )
     async def cmd_traders_item(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=VOIDTRADERS,
-            parser_func=w_voidTradersItem,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=VOIDTRADERS, parser_func=w_voidTradersItem)
 
     # search 'warframe.market' commnad
     @tree.command(
@@ -754,13 +704,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.vallis.desc"),
     )
     async def cmd_vallis(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=VALLISCYCLE,
-            parser_func=w_vallisCycle,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)
 
 
 async def register_maintenance_commands(tree: discord.app_commands.CommandTree) -> None:

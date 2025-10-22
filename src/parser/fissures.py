@@ -3,11 +3,11 @@ import datetime as dt
 
 from src.translator import ts
 from src.constants.keys import SETTING_FILE_LOC
-from src.constants.times import JSON_DATE_PAT
-from src.utils.formatter import time_cal_with_curr
+from src.constants.times import convert_remain
 from src.utils.file_io import json_load
 from src.utils.emoji import get_emoji
 from src.utils.formatter import txt_length_check
+from src.utils.data_manager import getFissure, getSolNode, getMissionType, getNodeEnemy
 
 railjack: list = [
     # veil proxima
@@ -53,9 +53,9 @@ railjack: list = [
 
 def is_expired_fiss(arg_time) -> bool:
     t_now: dt.datetime = dt.datetime.now()
-    t_expired: dt.datetime = dt.datetime.strptime(arg_time, JSON_DATE_PAT)
+    t_expired: dt.datetime = dt.datetime.fromtimestamp(arg_time / 1000)
 
-    return True if t_now < t_expired else False
+    return True if t_now > t_expired else False
 
 
 # todo-delay: 검색 기능 추가
@@ -66,8 +66,11 @@ def w_fissures(fissures, args) -> str:
     tier_exclude = prefix["tierExcept"]  # var
     include_railjack_node: bool = prefix["IncludeRailjack"]
 
+    choice: str = ""
     if isinstance(args, tuple):
         choice, include_railjack_node = args
+    else:
+        choice = args
 
     output_msg: str = ""
     normal = []  # normal fissures
@@ -77,24 +80,28 @@ def w_fissures(fissures, args) -> str:
 
     # process fissures
     for item in fissures:
-        if is_expired_fiss(item["expiry"]):
+        if is_expired_fiss(int(item["Expiry"]["$date"]["$numberLong"])):
             continue
+
+        node = getSolNode(item["Node"])
+        tier = getFissure(item["Modifier"])
+        miss_type = getMissionType(item["MissionType"])
 
         # choice: fast available
         if choice == ts.get(f"{pf}choice-fast"):
-            if item["tier"] in tier_exclude:
+            if tier in tier_exclude:
                 continue
 
-            if item["missionType"] not in fav_mission:
+            if not miss_type in fav_mission:
                 continue
 
         # other choices...
 
         if not include_railjack_node:
-            if item["node"].split(" (")[0].lower() in railjack:
+            if node.lower() in railjack:
                 continue
 
-        if item["isHard"]:  # steel path
+        if item.get("Hard"):  # steel path
             steel_path.append(item)
         else:  # normal
             normal.append(item)
@@ -109,12 +116,15 @@ def w_fissures(fissures, args) -> str:
         Extermination - Neo Fissure **[Steel Path]**
         53m left / Neso (Neptune) - Corpus
         """
-        o_tier = item["tier"]
+        o_tier = getFissure(item["Modifier"])
+        o_type = getMissionType(item["MissionType"])
+        o_node = getSolNode(item["Node"])
+        o_enemy = getNodeEnemy(item["Node"])
         o_emoji = get_emoji(o_tier)
-        o_isSteel = ts.get(f"{pf}steel") if item["isHard"] else ""
-        exp_time = time_cal_with_curr(item["expiry"])
+        o_isSteel = ts.get(f"{pf}steel") if item.get("Hard") else ""
+        exp_time = convert_remain(int(item["Expiry"]["$date"]["$numberLong"]))
 
-        output_msg += f"""**{ts.trs(item["missionType"])}** - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
-{exp_time} {ts.get(f'{pf}remain')} / {item['node']} - {item['enemy']}\n\n"""
+        output_msg += f"""**{ts.trs(o_type)}** - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
+{exp_time} {ts.get(f'{pf}remain')} / {o_node} - {o_enemy}\n\n"""
 
     return txt_length_check(output_msg)
