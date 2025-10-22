@@ -31,39 +31,96 @@ fissureModifiers = json_load(f"data/{lang}/fissureModifiers.json")
 
 
 def getSolNode(node: str) -> str:
-    """return node name & planet"""
+    """return node name & planet
+
+    Args:
+        node (str): solNodes like 'SolNode22'
+
+    Returns:
+        str: return solNode's name and planet like 'Tessera (Venus)'
+    """
     return solNodes.get(node, {}).get("value", node)
 
 
 def getNodeEnemy(node: str) -> str:
-    """return node's enemy factions"""
+    """return node's enemy factions
+
+    Args:
+        node (str): solNodes like 'SolNode22'
+
+    Returns:
+        str: return solNode's enemy faction like 'Corpus'
+    """
     return solNodes.get(node, {}).get("enemy", f"unknown: {node}")
 
 
 def getMissionType(miss: str) -> str:
-    """return mission type"""
+    """return mission type
+
+    Args:
+        miss (str): mission code like 'MT_CAPTURE'
+
+    Returns:
+        str: Capture
+    """
     return missionTypes.get(miss, {}).get("value", miss)
 
 
 def getSortieMod(modifier: str) -> str:
-    """return sortie modifier title"""
+    """return sortie modifier title
+
+    Args:
+        modifier (str): modifier code like 'SORTIE_MODIFIER_LOW_ENERGY'
+
+    Returns:
+        str: return simple sortie modifier description like 'Energy Reduction'
+    """
     return sortieData.get("modifierTypes", {}).get(modifier, modifier)
 
 
 def getSortieModDesc(modifier: str) -> str:
-    """return sortie modifier descriptions"""
+    """return sortie modifier descriptions
+
+    Args:
+        modifier (str): modifier code like 'SORTIE_MODIFIER_LOW_ENERGY'
+
+    Returns:
+        str: return detailed sortie modifier description like 'Maximum Warframe Energy capacity is quartered. Energy Siphon is less effective.'
+    """
     return sortieData.get("modifierDescriptions", {}).get(modifier, modifier)
 
 
 def getLanguage(data: str) -> str:
+    """convert /Lotus path into item name etc
+
+    Args:
+        data (str): item name with game path like '/lotus/storeitems/types/items/miscitems/formaumbra'
+
+    Returns:
+        str: return real ingame item name like 'Umbra Forma'
+    """
     return languages.get(data, {}).get("value", data)
 
 
 def getFactions(factions: str) -> str:
-    """return enemy factions"""
+    """return enemy factions data
+
+    Args:
+        factions (str): enemy faction code like 'FC_SENTIENT'
+
+    Returns:
+        str: return ingame name like 'Sentient'
+    """
     return factionsData.get(factions, {}).get("value", factions)
 
 
 def getFissure(fiss: str) -> str:
-    """return fissuress"""
+    """return fissure name
+
+    Args:
+        fiss (str): fissure code like 'VoidT2'
+
+    Returns:
+        str: return fissure name like 'Meso'
+    """
     return fissureModifiers.get(fiss, {}).get("value", fiss)

@@ -16,7 +16,18 @@ from src.constants.keys import MSG_BOT
 from src.utils.logging_utils import save_log
 
 
-def send_request(res_source: str, query: str = ""):
+def send_request(res_source: str, query: str = "") -> int | None:
+    """send API request and return response if return code exists
+
+    Args:
+        res_source (str): API request code source
+        query (str, optional): additional URL query. market api usage only! Defaults to "".
+
+    Returns:
+        int: api request success and response code exist
+        None: failed to request api
+    """
+
     start_time = dt.datetime.now()
     response = None
 
@@ -107,11 +118,30 @@ def send_request(res_source: str, query: str = ""):
 
 
 # usage for main api
-def API_Request(args: str = "Unknown Source"):
+def API_Request(args: str = "Unknown Source") -> int | None:
+    """API request function for Warframe status
+
+    Args:
+        args (str, optional): code position of the api request. Defaults to "Unknown Source".
+
+    Returns:
+        int: api request success and response code exist
+        None: failed to request api
+    """
     return send_request(args)
 
 
 # usage for market api
 def API_MarketSearch(req_source: str, query: str, item_name: str):
+    """API request function for warframe.market search
+
+    Args:
+        req_source (str): code position of the api request (for debugging)
+        query (str): fixed name
+        item_name (str): item name to search
+
+    Returns:
+        _type_: _description_
+    """
     item_name = item_name.replace(" ", "_")
     return send_request(req_source, f"{query}/{item_name}/orders")
