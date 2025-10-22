@@ -540,10 +540,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
     async def cmd_news(interact: discord.Interaction, number_of_news: int = 20):
         await cmd_helper(
-            interact,
-            key=NEWS,
-            parser_func=w_news,
-            parser_args=number_of_news,
+            interact, key=NEWS, parser_func=w_news, parser_args=number_of_news
         )
 
     # alerts command
@@ -551,44 +548,26 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc")
     )
     async def cmd_alerts(interact: discord.Interaction):
-        await cmd_helper(
-            interact=interact,
-            key=ALERTS,
-            parser_func=w_alerts,
-        )
+        await cmd_helper(interact=interact, key=ALERTS, parser_func=w_alerts)
 
     # cetus command (cetusCycle)
     @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
     async def cmd_cetus(interact: discord.Interaction):
-        await cmd_helper(
-            interact=interact,
-            key=CETUSCYCLE,
-            parser_func=w_cetusCycle,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact=interact, key=CETUSCYCLE, parser_func=w_cetusCycle)
 
     # sortie command
     @tree.command(
         name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc")
     )
     async def cmd_sortie(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=SORTIE,
-            parser_func=w_sortie,
-        )
+        await cmd_helper(interact, key=SORTIE, parser_func=w_sortie)
 
     # archon hunt command
     @tree.command(
         name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
     )
     async def cmd_archon_hunt(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=ARCHONHUNT,
-            parser_func=w_archonHunt,
-        )
+        await cmd_helper(interact, key=ARCHONHUNT, parser_func=w_archonHunt)
 
     # void traders command
     @tree.command(
@@ -596,13 +575,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.void-traders.desc"),
     )
     async def cmd_voidTraders(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=VOIDTRADERS,
-            parser_func=w_voidTraders,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=VOIDTRADERS, parser_func=w_voidTraders)
 
     # steel path reward command
     @tree.command(
@@ -610,11 +583,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.steel-path-reward.desc"),
     )
     async def cmd_steel_reward(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=STEELPATH,
-            parser_func=w_steelPath,
-        )
+        await cmd_helper(interact, key=STEELPATH, parser_func=w_steelPath)
 
     # fissures command
     @tree.command(
@@ -640,8 +609,6 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
             key=FISSURES,
             parser_func=w_fissures,
             parser_args=(types.name, is_include_railjack_node),
-            isFollowUp=True,
-            need_api_call=True,
         )
 
     # duviriCycle command
@@ -650,13 +617,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.duviri-cycle.desc"),
     )
     async def cmd_duviri_cycle(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=DUVIRICYCLE,
-            parser_func=w_duviriCycle,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=DUVIRICYCLE, parser_func=w_duviriCycle)
 
     # hex calendar reward command
     @tree.command(
@@ -683,10 +644,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         interact: discord.Interaction, types: discord.app_commands.Choice[int]
     ):
         await cmd_helper(
-            interact,
-            key=CALENDAR,
-            parser_func=w_calendar,
-            parser_args=types.name,
+            interact, key=CALENDAR, parser_func=w_calendar, parser_args=types.name
         )
 
     # cambion command (cambionCycle)
@@ -694,39 +652,21 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
     )
     async def cmd_cambion(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=CAMBIONCYCLE,
-            parser_func=w_cambionCycle,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=CAMBIONCYCLE, parser_func=w_cambionCycle)
 
     # dailyDeals command
     @tree.command(
         name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
     )
     async def cmd_dailyDeals(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=DAILYDEALS,
-            parser_func=w_dailyDeals,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=DAILYDEALS, parser_func=w_dailyDeals)
 
     # invasions command
     @tree.command(
         name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
     )
     async def cmd_invasions(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=INVASIONS,
-            parser_func=w_invasions,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=INVASIONS, parser_func=w_invasions)
 
     # voidTrader item command
     @tree.command(
@@ -734,13 +674,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.void-traders-item.desc"),
     )
     async def cmd_traders_item(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=VOIDTRADERS,
-            parser_func=w_voidTradersItem,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=VOIDTRADERS, parser_func=w_voidTradersItem)
 
     # search 'warframe.market' commnad
     @tree.command(
@@ -770,13 +704,7 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         description=ts.get(f"cmd.vallis.desc"),
     )
     async def cmd_vallis(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=VALLISCYCLE,
-            parser_func=w_vallisCycle,
-            isFollowUp=True,
-            need_api_call=True,
-        )
+        await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)
 
 
 async def register_maintenance_commands(tree: discord.app_commands.CommandTree) -> None:
