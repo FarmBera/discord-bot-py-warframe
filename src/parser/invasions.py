@@ -44,9 +44,9 @@ def singleInvasion(inv) -> str:
     # item
     # if not inv["vsInfestation"]:
     if inv["AttackerReward"]:  # vs Infestation
-        output_msg += f"- {getFactions(inv['Faction'])} - **{getLanguage(inv['AttackerReward']['countedItems'][0]['ItemType'])}**\n"
+        output_msg += f"- {getFactions(inv['Faction'])} - **{getLanguage(inv['AttackerReward']['countedItems'][0]['ItemType'].lower())}**\n"
 
-    output_msg += f"- {getFactions(inv['DefenderFaction'])} - **{getLanguage(inv['DefenderReward']['countedItems'][0]['ItemType'])}**\n\n"
+    output_msg += f"- {getFactions(inv['DefenderFaction'])} - **{getLanguage(inv['DefenderReward']['countedItems'][0]['ItemType'].lower())}**\n\n"
 
     return output_msg
 
