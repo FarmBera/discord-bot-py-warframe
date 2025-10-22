@@ -48,7 +48,7 @@ from src.utils.api_request import API_Request, API_MarketSearch
 from src.utils.logging_utils import save_log
 
 from src.utils.file_io import yaml_open, json_load, open_file, save_file
-from src.utils.data_manager import get_obj, set_obj, cmd_obj_check
+from src.utils.data_manager import get_obj, set_obj, cmd_obj_check, getLanguage
 from src.utils.return_err import err_embed
 from src.utils.formatter import time_format
 
@@ -174,7 +174,7 @@ class DiscordBot(discord.Client):
                 obj_new = latest_data[key]
             except Exception as e:
                 msg = f"[err] Error with loading original data"
-                print(dt.datetime.now(), C.red, key, msg, C.default)
+                print(dt.datetime.now(), C.red, key, msg, e, C.default)
                 save_log(
                     type="err",
                     cmd="auto_send_msg_request()",
@@ -207,10 +207,10 @@ class DiscordBot(discord.Client):
                     ]
                     if missing_items:
                         try:
-                            parsed_content = handler["parser"](obj_new)
+                            parsed_content = handler["parser"](missing_items)
                         except Exception as e:
                             msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                            print(dt.datetime.now(), C.red, msg, C.default)
+                            print(dt.datetime.now(), C.red, msg, e, C.default)
                             save_log(
                                 type="err",
                                 cmd="auto_send_msg_request()",
@@ -222,14 +222,15 @@ class DiscordBot(discord.Client):
                         notification = True
 
             elif special_logic == "handle_missing_invasions":  # invasions
-                prev_ids = [item["_id"]["$oid"] for item in obj_prev]
-                # check newly added invasions
+                prev_ids_set = {item["_id"]["$oid"] for item in obj_prev}
+
+                # extract missing ids (new invasion's id)
                 missed_ids = [
                     item["_id"]["$oid"]
                     for item in obj_new
-                    if item["_id"]["$oid"] not in prev_ids
+                    if item["_id"]["$oid"] not in prev_ids_set
                 ]
-                # filter new invasions
+                # filter new invasions obj
                 missing_invasions = [
                     item for item in obj_new if item["_id"]["$oid"] in missed_ids
                 ]
@@ -238,19 +239,31 @@ class DiscordBot(discord.Client):
                 special_invasions = []
                 for inv in missing_invasions:
                     special_item_exist: bool = False
-                    for item in inv["rewardTypes"]:
-                        if item in SPECIAL_ITEM_LIST:
-                            special_item_exist = True
+
+                    item_list = [
+                        getLanguage(item["ItemType"]).lower()
+                        for reward in [
+                            inv.get("AttackerReward"),
+                            inv.get("DefenderReward"),
+                        ]
+                        if isinstance(reward, dict) and "countedItems" in reward
+                        for item in reward["countedItems"]
+                    ]
+
+                    for item in item_list:
+                        for se in SPECIAL_ITEM_LIST:
+                            if se in item:
+                                special_item_exist = True
                     if special_item_exist:
                         special_invasions.append(inv)
 
-                # send invasino alert if exists
-                if special_invasions:
+                # send invasions alert if exists
+                if special_invasions:  # missing_invasions:
                     try:
-                        parsed_content = handler["parser"](obj_new)
+                        parsed_content = handler["parser"](missing_invasions)
                     except Exception as e:
                         msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                        print(dt.datetime.now(), C.red, msg, C.default)
+                        print(dt.datetime.now(), C.red, msg, e, C.default)
                         save_log(
                             type="err",
                             cmd="auto_send_msg_request()",
