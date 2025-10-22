@@ -1,5 +1,16 @@
 from src.translator import ts
 
+from src.constants.keys import (
+    ALERTS,
+    NEWS,
+    SORTIE,
+    ARCHONHUNT,
+    VOIDTRADERS,
+    CALENDAR,
+    DAILYDEALS,
+    INVASIONS,
+)
+
 from src.parser.alerts import w_alerts
 from src.parser.news import w_news
 from src.parser.cetusCycle import w_cetusCycle
@@ -29,66 +40,64 @@ def _check_void_trader_update(prev, new):
         return prev != new
         # perform a simple comparison. data structure is diff than normal
 
-    return (prev_data.get("activation"), prev_data.get("active")) != (
-        new_data.get("activation"),
-        new_data.get("active"),
-    )
+    return prev_data.get("Activation") != new_data.get("Activation")
 
 
 DATA_HANDLERS = {
-    "alerts": {
+    ALERTS: {
         "parser": w_alerts,
         "special_logic": "handle_missing_items",
     },
-    "news": {
+    NEWS: {
         "parser": w_news,
         "special_logic": "handle_missing_items",
         "channel_key": "news",
     },
-    "cetusCycle": {
-        "parser": w_cetusCycle,
-        "update_check": lambda prev, new: prev["state"] != new["state"]
-        or prev["activation"] != new["activation"],
-    },
-    "sortie": {
+    # "cetusCycle": {
+    #     "parser": w_cetusCycle,
+    #     "update_check": lambda prev, new: prev["state"] != new["state"]
+    #     or prev["activation"] != new["activation"],
+    # },
+    SORTIE: {
         "parser": w_sortie,
-        "update_check": lambda prev, new: prev["id"] != new["id"]
-        or prev["activation"] != new["activation"],
+        "update_check": lambda prev, new: prev[0]["_id"]["$oid"]
+        != new[0]["_id"]["$oid"]
+        or prev[0]["Activation"]["$date"] != new[0]["Activation"]["$date"],
         "channel_key": "sortie",
     },
-    "archonHunt": {
+    ARCHONHUNT: {
         "parser": w_archonHunt,
-        "update_check": lambda prev, new: prev["activation"] != new["activation"],
+        "update_check": lambda prev, new: prev[0]["Activation"] != new[0]["Activation"],
         "channel_key": "sortie",
     },
-    "voidTraders": {
+    VOIDTRADERS: {
         "parser": w_voidTraders,
         "update_check": _check_void_trader_update,
     },
-    "steelPath": {
-        "parser": w_steelPath,
-        "update_check": lambda prev, new: prev["currentReward"] != new["currentReward"],
-    },
-    "duviriCycle": {
-        "parser": w_duviriCycle,
-        "update_check": lambda prev, new: prev["state"] != new["state"]
-        or prev["activation"] != new["activation"],
-    },
-    "calendar": {
-        "parser": lambda data: w_calendar(data, ts.get("cmd.calendar.choice-prize")),
-        "update_check": lambda prev, new: prev["activation"] != new["activation"],
-        "channel_key": "hex-cal",
-    },
-    "cambionCycle": {
-        "parser": w_cambionCycle,
-        "update_check": lambda prev, new: prev["state"] != new["state"]
-        or prev["activation"] != new["activation"],
-    },
-    "dailyDeals": {
+    # "steelPath": {
+    #     "parser": w_steelPath,
+    #     "update_check": lambda prev, new: prev["currentReward"] != new["currentReward"],
+    # },
+    # "duviriCycle": {
+    #     "parser": w_duviriCycle,
+    #     "update_check": lambda prev, new: prev["state"] != new["state"]
+    #     or prev["activation"] != new["activation"],
+    # },
+    # CALENDAR: {
+    #     "parser": lambda data: w_calendar(data, ts.get("cmd.calendar.choice-prize")),
+    #     "update_check": lambda prev, new: prev["activation"] != new["activation"],
+    #     "channel_key": "hex-cal",
+    # },
+    # "cambionCycle": {
+    #     "parser": w_cambionCycle,
+    #     "update_check": lambda prev, new: prev["state"] != new["state"]
+    #     or prev["activation"] != new["activation"],
+    # },
+    DAILYDEALS: {
         "parser": w_dailyDeals,
-        "update_check": lambda prev, new: prev[0]["item"] != new[0]["item"],
+        "update_check": lambda prev, new: prev[0]["StoreItem"] != new[0]["StoreItem"],
     },
-    "invasions": {
+    INVASIONS: {
         "parser": w_invasions,
         "special_logic": "handle_missing_invasions",
         "channel_key": "invasions",

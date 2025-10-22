@@ -2,28 +2,51 @@ import discord
 import random
 
 from src.translator import ts
+from src.constants.times import timeNow, convert_remain
 from src.utils.discord_file import img_file
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
 from src.utils.formatter import time_cal_with_curr
+from src.utils.data_manager import getSolNode
 
 
 baro_img = ["baro-ki-teer", "baro"]  # VAR
+baro_active: bool
 
 
 def getBaroImg():
     return baro_img[random.randrange(0, len(baro_img))]
 
 
+def isBaroActive(act, exp) -> bool:
+    curr: int = timeNow()
+
+    t_list = [act, exp]
+
+    for i in range(2):
+        ts_str = str(t_list[i])
+        # conert milliseconds to seconds
+        if len(ts_str) == 13:
+            t_list[i] = int(ts_str) / 1000
+        else:
+            t_list[i] = int(ts_str)
+
+    act, exp = t_list
+    return True if act < curr and curr < exp else False
+
+
 def color_decision(arg):
-    for item in arg:
-        # if inventory is not empty
-        if item["inventory"]:
+    global baro_active
+
+    for i in arg:
+        if baro_active:
             return 0x4DD2FF
     return 0xFFA826
 
 
 def w_voidTraders(trader) -> tuple:
+    global baro_active
+
     if not trader:
         return err_embed("voidTraders")
 
@@ -33,37 +56,38 @@ def w_voidTraders(trader) -> tuple:
 
     output_msg: str = f"# {ts.get(f'{pf}title')}\n\n"
 
-    for item in trader:
+    for td in trader:
+        t_act: int = int(td["Activation"]["$date"]["$numberLong"])
+        t_exp: int = int(td["Expiry"]["$date"]["$numberLong"])
+
         if length >= 2:
             output_msg += (
-                f"{idx}. {ts.get(f'{pf}tdr-name')}: {ts.trs(item['character'])}\n\n"
+                f"{idx}. {ts.get(f'{pf}tdr-name')}: {ts.trs(td['Character'])}\n\n"
             )
 
             idx += 1
         else:
-            output_msg += f"- {ts.get(f'{pf}tdr-name')}: {ts.trs(item['character'])}\n"
+            output_msg += f"- {ts.get(f'{pf}tdr-name')}: {ts.trs(td['Character'])}\n"
 
-        status: bool = bool(item["inventory"])
+        baro_active = isBaroActive(t_act, t_exp)
 
         # OO appeared
-        if status:
+        if baro_active:
             output_msg += (
                 f"- {ts.get(f'{pf}status')}: ✅ **{ts.get(f'{pf}activate')}**\n"
             )
-            output_msg += (
-                f"- {ts.get(f'{pf}end')} {time_cal_with_curr(item['expiry'])}\n"
-            )
+            output_msg += f"- {ts.get(f'{pf}end')} {convert_remain(t_exp)}\n"
             output_msg += f"- {ts.get(f'{pf}location')}: "
         # XX NOT appeared
         else:
             output_msg += (
                 f"- {ts.get(f'{pf}status')}: ❌ *{ts.get(f'{pf}deactivate')}*\n"
             )
-            output_msg += f"- {ts.get(f'{pf}app1')} {time_cal_with_curr(item['activation'])} {ts.get(f'{pf}app2')}\n"
+            output_msg += f"- {ts.get(f'{pf}app1')} {convert_remain(t_act)} {ts.get(f'{pf}app2')}\n"
             output_msg += f"- {ts.get(f'{pf}place')}: "
 
         # appear location
-        output_msg += f"{item['location']}\n\n"
+        output_msg += f"{getSolNode(td['Node'])}\n"
 
     f = img_file(getBaroImg())
     embed = discord.Embed(description=output_msg, color=color_decision(trader))

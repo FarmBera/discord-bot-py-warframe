@@ -18,41 +18,41 @@ MARKET_HELP_FILE: str = f"{filePfx}market-help{fileExt}"
 
 MSG_BOT: str = "bot.self"
 
-ALERTS = "alerts"
-NEWS = "news"
+ALERTS = "Alerts"
+NEWS = "Events"
 CETUSCYCLE = "cetusCycle"
-SORTIE = "sortie"
-ARCHONHUNT = "archonHunt"
-VOIDTRADERS = "voidTraders"
+SORTIE = "Sorties"
+ARCHONHUNT = "LiteSorties"
+VOIDTRADERS = "VoidTraders"
 STEELPATH = "steelPath"
 DUVIRICYCLE = "duviriCycle"
 DEEPARCHIMEDEA = "deepArchimedea"
 TEMPORALARCHIMEDEA = "temporalArchimedea"
-FISSURES = "fissures"
+FISSURES = "ActiveMissions"
 CALENDAR = "calendar"
 CAMBIONCYCLE = "cambionCycle"
-DAILYDEALS = "dailyDeals"
-INVASIONS = "invasions"
+DAILYDEALS = "DailyDeals"
+INVASIONS = "Invasions"
 MARKET_SEARCH = "market-search"
 VALLISCYCLE = "vallisCycle"
 
 keys: list = [
     ALERTS,  # 0
     NEWS,  # 1
-    CETUSCYCLE,  # 2
+    # CETUSCYCLE,  # 2
     SORTIE,  # 3
     ARCHONHUNT,  # 4
     VOIDTRADERS,  # 5
-    STEELPATH,  # 6
-    DUVIRICYCLE,  # 7
+    # STEELPATH,  # 6
+    # DUVIRICYCLE,  # 7
     # DEEPARCHIMEDEA,  # 8
     # TEMPORALARCHIMEDEA,  # 9
     FISSURES,  # 10
-    CALENDAR,  # 11
-    CAMBIONCYCLE,  # 12
+    # CALENDAR,  # 11
+    # CAMBIONCYCLE,  # 12
     DAILYDEALS,  # 13
     INVASIONS,  # 14
-    VALLISCYCLE,
+    # VALLISCYCLE,
 ]
 
 cal_item: dict = {

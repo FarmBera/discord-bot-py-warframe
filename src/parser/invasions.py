@@ -1,50 +1,40 @@
 import discord
 import datetime as dt
 from collections import defaultdict
+import re
 
 from src.translator import ts
-from src.constants.times import JSON_DATE_PAT
+from src.constants.times import convert_remain
 from src.utils.return_err import err_embed
-from src.utils.formatter import D, H, M
+from src.utils.data_manager import getFactions, getLanguage, getSolNode
 
 
-def formatDate(dd: str) -> str:
-    t = dt.datetime.strptime(dd, JSON_DATE_PAT) + dt.timedelta(hours=9)
-    t = dt.datetime.now() - t
+def get_percent(numerator: int, denominator: int) -> str:
+    # fix div into 0
+    if denominator == 0:
+        return "0.0%"
 
-    d = t.days
-    h, r = divmod(t.seconds, 3600)
-    m = divmod(r, 60)
-
-    if h <= 0 and m[0] <= 5:
-        return "Started Now"
-
-    out = []
-    if d > 0:
-        out.append(f"{d}{D}")
-    if h > 0:
-        out.append(f"{h}{H}")
-    out.append(f"{m[0]}{M}")
-
-    return " ".join(out)
+    return f"{(abs(numerator) / denominator) * 100:.1f}%"
 
 
 def getPlanet(inv) -> str:
-    return inv["node"].split(" (")[-1].replace(")", "")
+    t = getSolNode(inv["Node"])
+    return re.findall(r"\((.*?)\)", t)[0]
 
 
 def singleInvasion(inv) -> str:
-    atk = inv["attacker"]
-    dfd = inv["defender"]
+    i_node = getSolNode(inv["Node"])
+    i_status_perc = get_percent(inv["Count"], inv["Goal"])
+    i_fact = getFactions(inv["AttackerMissionInfo"]["faction"])
 
     pf = "cmd.invasions."
     # title / progress
-    output_msg = f"""### {ts.get(f'{pf}title')} {ts.get(f'{pf}at')} *{inv['node']}*
+    output_msg = f"""### {ts.get(f'{pf}title')} {ts.get(f'{pf}at')} *{i_node}*
 
-{ts.get(f'{pf}completion')}: **{(inv['completion']):.1f}%** ({ts.get(f'{pf}atk-from')} {atk['faction']})
+{ts.get(f'{pf}completion')}: **{i_status_perc}** ({ts.get(f'{pf}atk-from')} {i_fact})
 """
     # date
-    date = formatDate(inv["activation"])
+    date = convert_remain(int(inv["Activation"]["$date"]["$numberLong"]))
     if date[0:1] == "S":
         output_msg += f"{date}"
     else:
@@ -52,14 +42,11 @@ def singleInvasion(inv) -> str:
     output_msg += "\n"
 
     # item
-    if not inv["vsInfestation"]:
-        output_msg += (
-            f"- {atk['faction']} - **{atk['reward']['countedItems'][0]['type']}**\n"
-        )
+    # if not inv["vsInfestation"]:
+    if inv["AttackerReward"]:  # vs Infestation
+        output_msg += f"- {getFactions(inv['Faction'])} - **{getLanguage(inv['AttackerReward']['countedItems'][0]['ItemType'])}**\n"
 
-    output_msg += (
-        f"- {dfd['faction']} - **{dfd['reward']['countedItems'][0]['type']}**\n\n"
-    )
+    output_msg += f"- {getFactions(inv['DefenderFaction'])} - **{getLanguage(inv['DefenderReward']['countedItems'][0]['ItemType'])}**\n\n"
 
     return output_msg
 
@@ -71,7 +58,7 @@ def w_invasions(invasions) -> discord.Embed:
     mission_per_planets = defaultdict(list)
 
     for inv in invasions:
-        if inv.get("completed"):
+        if inv.get("Completed"):
             continue
 
         planet = getPlanet(inv)

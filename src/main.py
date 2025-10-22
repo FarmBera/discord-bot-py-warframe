@@ -191,8 +191,8 @@ class DiscordBot(discord.Client):
             special_logic = handler.get("special_logic")
 
             if special_logic == "handle_missing_items":  # alerts, news
-                prev_ids = {item["id"] for item in obj_prev}
-                new_ids = {item["id"] for item in obj_new}
+                prev_ids = {item["_id"]["$oid"] for item in obj_prev}
+                new_ids = {item["_id"]["$oid"] for item in obj_new}
 
                 if prev_ids != new_ids:
                     should_save_data = True
@@ -201,7 +201,9 @@ class DiscordBot(discord.Client):
                 newly_added_ids = new_ids - prev_ids
                 if newly_added_ids:
                     missing_items = [
-                        item for item in obj_new if item["id"] in newly_added_ids
+                        item
+                        for item in obj_new
+                        if item["_id"]["$oid"] in newly_added_ids
                     ]
                     if missing_items:
                         try:
@@ -220,14 +222,16 @@ class DiscordBot(discord.Client):
                         notification = True
 
             elif special_logic == "handle_missing_invasions":  # invasions
-                prev_ids = [item["id"] for item in obj_prev]
+                prev_ids = [item["_id"]["$oid"] for item in obj_prev]
                 # check newly added invasions
                 missed_ids = [
-                    item["id"] for item in obj_new if item["id"] not in prev_ids
+                    item["_id"]["$oid"]
+                    for item in obj_new
+                    if item["_id"]["$oid"] not in prev_ids
                 ]
                 # filter new invasions
                 missing_invasions = [
-                    item for item in obj_new if item["id"] in missed_ids
+                    item for item in obj_new if item["_id"]["$oid"] in missed_ids
                 ]
 
                 # filter invasions which having special items
@@ -293,7 +297,6 @@ class DiscordBot(discord.Client):
                 )
 
         return  # End Of auto_send_msg_request()ㄹ
-    
 
     # sortie alert
     @tasks.loop(time=alert_times)
