@@ -2,22 +2,22 @@
     "noti": {
         "isEnabled": true,
         "list": {
-            "alerts": true,
-            "news": true,
+            "Alerts": true,
+            "Events": true,
             "cetusCycle": false,
-            "sortie": false,
-            "archonHunt": true,
-            "voidTraders": true,
+            "Sorties": false,
+            "LiteSorties": true,
+            "VoidTraders": true,
             "steelPath": true,
             "duviriCycle": false,
             "deepArchimedea": false,
             "temporalArchimedea": false,
-            "fissures": false,
+            "ActiveMissions": false,
             "calendar": true,
             "cambionCycle": false,
-            "dailyDeals": true,
+            "DailyDeals": true,
             "voidTraderItem": false,
-            "invasions": true
+            "Invasions": true
         }
     },
     "fissures": {
