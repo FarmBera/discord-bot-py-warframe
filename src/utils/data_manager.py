@@ -99,7 +99,8 @@ def getLanguage(data: str) -> str:
     Returns:
         str: return real ingame item name like 'Umbra Forma'
     """
-    return languages.get(data, {}).get("value", data)
+    result = languages.get(data, {}).get("value")
+    return result if result else languages.get(data.lower(), {}).get("value", data)
 
 
 def getFactions(factions: str) -> str:
