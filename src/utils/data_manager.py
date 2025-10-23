@@ -90,7 +90,7 @@ def getSortieModDesc(modifier: str) -> str:
     return sortieData.get("modifierDescriptions", {}).get(modifier, modifier)
 
 
-def getLanguage(data: str) -> str:
+def getLanguage(data: str, query1: str = "value") -> str:
     """convert /Lotus path into item name etc
 
     Args:
@@ -99,8 +99,8 @@ def getLanguage(data: str) -> str:
     Returns:
         str: return real ingame item name like 'Umbra Forma'
     """
-    result = languages.get(data, {}).get("value")
-    return result if result else languages.get(data.lower(), {}).get("value", data)
+    result = languages.get(data, {}).get(query1)
+    return result if result else languages.get(data.lower(), {}).get(query1, data)
 
 
 def getFactions(factions: str) -> str:
