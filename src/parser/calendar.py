@@ -5,21 +5,13 @@ from src.constants.keys import cal_item
 from src.constants.times import JSON_DATE_PAT
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_text
+from src.utils.data_manager import getLanguage
 
-
-def redef(prop):
-    try:
-        return cal_item[prop]
-    except:
-        return prop
-
-
-def convert_365d(date) -> str:
-    return str(dt.datetime.strptime(date, JSON_DATE_PAT).timetuple().tm_yday)
-
-
-def convert_simple_date(date) -> str:
-    return dt.datetime.strftime(dt.datetime.strptime(date, JSON_DATE_PAT), "%Y-%m-%d")
+cal_type: dict = {
+    "CET_CHALLENGE": "To Do",
+    "CET_REWARD": "Big Prize",
+    "CET_UPGRADE": "Override",
+}
 
 
 def w_calendar(cal, typ) -> str:
@@ -33,7 +25,7 @@ def w_calendar(cal, typ) -> str:
     type_prize = ts.get("cmd.calendar.choice-prize")
     type_over = ts.get("cmd.calendar.choice-over")
 
-    for item in cal["days"]:
+    for item in cal["Days"]:
         t = item["events"]
 
         if len(t) <= 0:  # empty objects
@@ -45,25 +37,26 @@ def w_calendar(cal, typ) -> str:
             e_type = jtem["type"]
 
             # to do
-            if (typ in [type_all, type_todo]) and e_type == "To Do":
-                output.append(f": {redef(jtem['challenge']['description'])}")
+            if (typ in [type_all, type_todo]) and e_type == "CET_CHALLENGE":  # var
+                output.append(f": {getLanguage(jtem['challenge'],'desc')}")
 
             # big prize
-            elif (typ in [type_all, type_prize]) and e_type == "Big Prize!":
+            elif (typ in [type_all, type_prize]) and e_type == "CET_REWARD":  # var
                 tt = jtem["reward"]
-                output.append(f"\n- {get_emoji(tt)} {redef(tt)}")
+                output.append(f"\n- {get_emoji(tt)} {getLanguage(tt)}")
 
             # override
-            elif (typ in [type_all, type_over]) and e_type == "Override":
-                title = jtem["upgrade"]["title"]
-                description = jtem["upgrade"]["description"]
-                override_info = f"\n- {title}: {description}"
+            elif (typ in [type_all, type_over]) and e_type == "CET_UPGRADE":  # var
+                desc = jtem["upgrade"]
+                override_info = (
+                    f"\n- **{getLanguage(desc)}**: {getLanguage(desc,'desc')}"
+                )
                 output.append(override_info)
 
         if output:
-            o_date = item["date"]
-            output_msg += f"Day {convert_365d(o_date)}"
-            output_msg += f" - {t[0]['type']} ({convert_simple_date(o_date)})"
+            o_date = item["day"]
+            output_msg += f"Day {o_date}"
+            output_msg += f" - {cal_type.get(t[0]['type'])}"
             output_msg += "".join(output)
             output_msg += "\n\n"
 
