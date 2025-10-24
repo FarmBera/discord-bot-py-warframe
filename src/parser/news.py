@@ -60,13 +60,15 @@ def w_news(newses, LIMIT_OUTPUT_CNT: int = 30):
     news_news = news_news[::-1]
     news_community = news_community[::-1]
 
-    output_msg += "## InGame News\n\n"
-    for item in news_news:
-        output_msg += f"- [{item.title}]({item.link})\n"
+    if news_news:
+        output_msg += "## InGame News\n\n"
+        for item in news_news:
+            output_msg += f"- [{item.title}]({item.link})\n"
 
-    output_msg += "\n## Community News\n\n"
-    for item in news_community:
-        output_msg += f"- [{item.title}]({item.link})\n"
+    if news_community:
+        output_msg += "\n## Community News\n\n"
+        for item in news_community:
+            output_msg += f"- [{item.title}]({item.link})\n"
 
         # idx += 1
         # if idx >= LIMIT_OUTPUT_CNT:
