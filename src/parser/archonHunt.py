@@ -4,9 +4,7 @@ from src.utils.return_err import err_text
 from src.utils.emoji import get_emoji
 from src.utils.data_manager import getMissionType, getSolNode
 
-boss_list: dict = {
-    "SORTIE_BOSS_BOREAL": "Boreal",
-}
+
 shard_list: dict = {
     "SORTIE_BOSS_BOREAL": "Azure",  # blue shard
     "Archon Amar": "Crimson",  # red shard

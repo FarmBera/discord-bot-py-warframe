@@ -35,7 +35,7 @@ def time_format(t: dt.timedelta) -> str:
 
 
 def txt_length_check(txt):
-    threshold: int = 2000
+    threshold: int = 4095
 
     return txt[0:threshold] if len(txt) > threshold else txt
 
@@ -81,3 +81,13 @@ def add_space(text: str) -> str:
         result_list.append(current_char)
 
     return "".join(result_list)
+
+
+def extract_last_part(text: str) -> str:
+    """
+    Extracts the substring that comes after the last forward slash ('/').
+    """
+    # Splits the string by '/' from the right, only once.
+    # e.g., "/a/b/c" becomes ['/a/b', 'c']
+    # Then, it returns the last element of the resulting list.
+    return text.rsplit("/", 1)[-1]

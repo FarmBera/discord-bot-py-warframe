@@ -110,7 +110,7 @@ class DiscordBot(discord.Client):
                 await channel.send(value)
 
     # auto api request & check new contents
-    @tasks.loop(minutes=5.0)
+    @tasks.loop(minutes=5.0)  # var
     async def auto_send_msg_request(self) -> None:
         setting = json_load(SETTING_FILE_LOC)
         channels = yaml_open(CHANNEL_FILE_LOC)
