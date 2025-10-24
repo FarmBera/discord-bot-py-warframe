@@ -22,7 +22,9 @@ def w_archonHunt(archon) -> str:
 
     # title
     output_msg = (
-        f"# Archon " + ts.get(f"{pf}{archon['Boss']}") + f" {ts.get(f'{pf}hunt')}\n\n"
+        f"# {ts.get(f'{pf}archon')} "
+        + ts.get(f"{pf}{archon['Boss']}")
+        + f" {ts.get(f'{pf}hunt')}\n\n"
     )
     # eta
     output_msg += f"{ts.get(f'{pf}eta')}: "

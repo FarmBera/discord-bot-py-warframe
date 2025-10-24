@@ -9,10 +9,12 @@ def w_news(newses, LIMIT_OUTPUT_CNT: int = 30):
     if not newses:
         return err_embed("news")
 
+    pf: str = "cmd.news."
+
     # idx: int = 0
     output_msg: str = ""
 
-    output_msg += f"# {ts.get('cmd.news.title')}\n\n"
+    output_msg += f"# {ts.get(f'{pf}title')}\n\n"
 
     news_news = []
     news_community = []
@@ -61,12 +63,12 @@ def w_news(newses, LIMIT_OUTPUT_CNT: int = 30):
     news_community = news_community[::-1]
 
     if news_news:
-        output_msg += "## InGame News\n\n"
+        output_msg += f"## {ts.get(f'{pf}ingame')}\n\n"
         for item in news_news:
             output_msg += f"- [{item.title}]({item.link})\n"
 
     if news_community:
-        output_msg += "\n## Community News\n\n"
+        output_msg += f"\n## {ts.get(f'{pf}comu')}\n\n"
         for item in news_community:
             output_msg += f"- [{item.title}]({item.link})\n"
 

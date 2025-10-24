@@ -45,6 +45,9 @@ cmd:
     desc: Get Latest Warframe News
     title: Warframe Latest News
 
+    ingame: InGame News
+    comu: Community News
+
   cetus:
     cmd: cetuscycle
     desc: Get current Cetus Time & next state
@@ -73,12 +76,17 @@ cmd:
 
     Assassination: Assassination
 
-    Archon Amar: Archon Amar
+    archon: Archon
+
+    SORTIE_BOSS_BOREAL: Boreal
+    SORTIE_BOSS_AMAR: Amar
+    SORTIE_BOSS_NIRA: Nira
+    SORTIE_BOSS_PAAZUL: Paazul
 
   void-traders:
     cmd: voidtraders
     desc: Get when & where Baro Ki'Teer arrives
-    title: Void Traders Status
+    title: Baro Ki'Teer Status
 
     tdr-name: Trader
     status: Status

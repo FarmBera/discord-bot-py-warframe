@@ -2,8 +2,8 @@ start:
   init: 봇을 시작하는 중...
   sync: 동기화 중
   bot-status-msg: /도움말
-  final: 로그인 완료!
-  coroutine: "Internal Coroutine Started\n언어가 한국어로 설정되었습니다!"
+  final: 다음으로 로그인 완료!
+  coroutine: "Internal Coroutine Started - 언어가 한국어로 설정되었습니다!"
 
 maintenance:
   bot-status-msg: 서버 점검 중
@@ -45,6 +45,9 @@ cmd:
     desc: 최신 워프레임 뉴스를 불러옵니다
     title: 최신 워프레임 뉴스
 
+    ingame: 게임 뉴스
+    comu: 커뮤니티 뉴스
+
   cetus:
     cmd: 시터스주기
     desc: 현재 지구의 시터스 시간 및 상태를 불러옵니다
@@ -73,12 +76,17 @@ cmd:
 
     Assassination: 결전
 
-    Archon Amar: 집정관 아미르
+    archon: 집정관
+
+    SORTIE_BOSS_BOREAL: 보리얼
+    SORTIE_BOSS_AMAR: 아마르
+    SORTIE_BOSS_NIRA: 나이라
+    SORTIE_BOSS_PAAZUL: 파줄
 
   void-traders:
-    cmd: 보이드상인
+    cmd: 바로키티어
     desc: 보이드 상인이 언제, 어디서 등장할지 알려줍니다
-    title: 보이드 상인 현황
+    title: 바로 키 티어 현황
 
     tdr-name: 상인
     status: 상태
@@ -93,7 +101,7 @@ cmd:
     place: 등장 예정 위치
 
   void-traders-item:
-    cmd: 보이드상인-물품
+    cmd: 바로키티어-물품
     desc: 바로 키 티어가 판매하는 물품 목록을 불러옵니다
 
     not-yet: 보이드 상인이 아직 도착하지 않았습니다!
