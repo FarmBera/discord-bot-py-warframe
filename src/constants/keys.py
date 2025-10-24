@@ -1,5 +1,6 @@
 filePfx: str = "docs/"
 configPfx: str = "config/"
+JSON: str = "api_cache"
 fileExt: str = ".md"
 
 LOG_FILE_PATH: str = "log/log.csv"

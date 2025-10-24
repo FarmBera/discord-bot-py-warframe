@@ -1,20 +1,21 @@
 # directory
-img-tmp
-data
-json
-log
-tmp
-
-# personal file
 .obsidian
 .vscode
 archive
 docs
+img-tmp
+data
+log
+tmp
+
+# exclude pattern
 *test*
+*cache*
+
+# personal file
 channel.yml
 TOKEN.py
-# script/scp-*.sh
-# settings
+
 .markdownlint.json
 
 # python virtual env

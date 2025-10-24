@@ -1,14 +1,15 @@
 from src.utils.file_io import json_load, json_save
 from src.constants.color import C
 from src.translator import language as lang
+from src.constants.keys import JSON
 
 
 def get_obj(json_name: str):
-    return json_load(f"json/{json_name}.json")
+    return json_load(f"{JSON}/{json_name}.json")
 
 
 def set_obj(obj, filename: str) -> bool:
-    return json_save(obj, f"json/{filename}.json")
+    return json_save(obj, f"{JSON}/{filename}.json")
 
 
 def cmd_obj_check(name):
