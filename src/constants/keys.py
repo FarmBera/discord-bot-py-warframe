@@ -30,7 +30,7 @@ DUVIRICYCLE = "duviriCycle"
 DEEPARCHIMEDEA = "deepArchimedea"
 TEMPORALARCHIMEDEA = "temporalArchimedea"
 FISSURES = "ActiveMissions"
-CALENDAR = "calendar"
+CALENDAR = "KnownCalendarSeasons"
 CAMBIONCYCLE = "cambionCycle"
 DAILYDEALS = "DailyDeals"
 INVASIONS = "Invasions"
@@ -49,18 +49,12 @@ keys: list = [
     # DEEPARCHIMEDEA,  # 8
     # TEMPORALARCHIMEDEA,  # 9
     FISSURES,  # 10
-    # CALENDAR,  # 11
+    CALENDAR,  # 11
     # CAMBIONCYCLE,  # 12
     DAILYDEALS,  # 13
     INVASIONS,  # 14
     # VALLISCYCLE,
 ]
 
-cal_item: dict = {
-    "Riven": "Riven Mod",
-    "Forma": "Forma Blueprint",
-    "Exilus Adapter": "Exilus Warframe Adapter",
-    # "[PH] Calendar Kill Enemies With Melee Medium Desc": "kill Enemies With Melee Weapons",
-}
 
 SPECIAL_ITEM_LIST = ["exilus", "orokin", "reactor", "forma"]

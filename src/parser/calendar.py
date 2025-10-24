@@ -1,8 +1,6 @@
 import datetime as dt
 
 from src.translator import ts
-from src.constants.keys import cal_item
-from src.constants.times import JSON_DATE_PAT
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_text
 from src.utils.data_manager import getLanguage
@@ -25,7 +23,7 @@ def w_calendar(cal, typ) -> str:
     type_prize = ts.get("cmd.calendar.choice-prize")
     type_over = ts.get("cmd.calendar.choice-over")
 
-    for item in cal["Days"]:
+    for item in cal[0]["Days"]:
         t = item["events"]
 
         if len(t) <= 0:  # empty objects
