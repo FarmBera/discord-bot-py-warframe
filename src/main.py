@@ -49,13 +49,15 @@ async def main_manager() -> None:
         if bot_mode == "main":
             print(f"{C.cyan}[info] Starting Main Bot...{C.default}", end=" ")  # VAR
             current_bot = DiscordBot(intents=intents)
-            current_bot.tree = discord.app_commands.CommandTree(current_bot)
+            tree = discord.app_commands.CommandTree(current_bot)
+            current_bot.tree = tree
             await register_main_commands(tree)
 
         elif bot_mode == "maintenance":
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
             current_bot = MaintanceBot(intents=intents)
             tree = discord.app_commands.CommandTree(current_bot)
+            current_bot.tree = tree
             await register_maintenance_commands(tree)
 
         else:
