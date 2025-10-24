@@ -6,12 +6,12 @@ from src.constants.times import timeNow, convert_remain
 from src.utils.discord_file import img_file
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
-from src.utils.formatter import time_cal_with_curr
-from src.utils.data_manager import getSolNode
+from src.utils.formatter import extract_last_part, add_space
+from src.utils.data_manager import getSolNode, getLanguage
 
 
 baro_img = ["baro-ki-teer", "baro"]  # VAR
-baro_active: bool
+baro_active: bool = False
 
 
 def getBaroImg():
@@ -107,14 +107,14 @@ def w_voidTradersItem(trader) -> discord.Embed:
     for item in trader:
         listItem: list = []
 
-        if item["inventory"] == []:
+        if item.get("Manifest", []) == []:
             listItem.append(
-                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} **{time_cal_with_curr(item['activation'])}** {ts.get(f'{pf}arrives-in1')}"
+                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} **{convert_remain(item['Activation']['$date']['$numberLong'])}** {ts.get(f'{pf}arrives-in1')}"
             )
 
-        for jtem in item["inventory"]:
+        for jtem in item["Manifest"]:
             itype: str = ""
-            k: str = jtem["uniqueName"].replace("/Lotus/StoreItems", "").lower()
+            k: str = jtem["ItemType"].replace("/Lotus/StoreItems", "").lower()
 
             if "/mods/" in k:
                 itype = ts.get(f"{pf}mods")
@@ -137,12 +137,16 @@ def w_voidTradersItem(trader) -> discord.Embed:
             else:
                 itype = ts.get(f"{pf}other")
 
-            out = f"{itype} / {jtem['item']} / {get_emoji('ducat')} {jtem['ducats']} {get_emoji('credit')} {int((jtem['credits'])):,}"
+            iname = getLanguage(jtem["ItemType"])
+            if "/lotus" in iname.lower():
+                iname = f"__{add_space(extract_last_part(iname))}__"
+
+            out = f"{itype} / {iname} / {get_emoji('ducat')} {jtem['PrimePrice']} {get_emoji('credit')} {int((jtem['RegularPrice'])):,}"
             listItem.append(out)
 
         listItem.sort()
 
-        output_msg += f"# {ts.trs(item['character'])} at {item['location']}\n\n"
+        output_msg += f"# {ts.trs(item['Character'])} at {getSolNode(item['Node'])}\n\n"
         for jtem in listItem:
             output_msg += f"- {jtem}\n"
         output_msg += "\n"
