@@ -1,5 +1,4 @@
 from src.translator import ts
-
 from src.constants.keys import (
     ALERTS,
     NEWS,
@@ -10,7 +9,6 @@ from src.constants.keys import (
     DAILYDEALS,
     INVASIONS,
 )
-
 from src.parser.alerts import w_alerts
 from src.parser.news import w_news
 from src.parser.cetusCycle import w_cetusCycle
@@ -19,8 +17,6 @@ from src.parser.archonHunt import w_archonHunt
 from src.parser.voidTraders import w_voidTraders
 from src.parser.steelPath import w_steelPath
 from src.parser.duviriCycle import w_duviriCycle
-from src.parser.deepArchimedea import w_deepArchimedea
-from src.parser.temporalArchimedea import w_temporalArchimedia
 from src.parser.fissures import w_fissures
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
@@ -40,7 +36,10 @@ def _check_void_trader_update(prev, new):
         return prev != new
         # perform a simple comparison. data structure is diff than normal
 
-    return prev_data.get("Activation") != new_data.get("Activation")
+    return (prev_data.get("Activation"), prev_data.get("Manifest")) != (
+        new_data.get("Activation"),
+        new_data.get("Manifest"),
+    )
 
 
 DATA_HANDLERS = {
@@ -83,11 +82,12 @@ DATA_HANDLERS = {
     #     "update_check": lambda prev, new: prev["state"] != new["state"]
     #     or prev["activation"] != new["activation"],
     # },
-    # CALENDAR: {
-    #     "parser": lambda data: w_calendar(data, ts.get("cmd.calendar.choice-prize")),
-    #     "update_check": lambda prev, new: prev["activation"] != new["activation"],
-    #     "channel_key": "hex-cal",
-    # },
+    CALENDAR: {
+        "parser": lambda data: w_calendar(data, ts.get("cmd.calendar.choice-prize")),
+        "update_check": lambda prev, new: prev[0]["Activation"]["$date"]["$numberLong"]
+        != new[0]["Activation"]["$date"]["$numberLong"],
+        "channel_key": "hex-cal",
+    },
     # "cambionCycle": {
     #     "parser": w_cambionCycle,
     #     "update_check": lambda prev, new: prev["state"] != new["state"]
