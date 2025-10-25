@@ -15,6 +15,7 @@ tmp
 # personal file
 channel.yml
 TOKEN.py
+script/sync.sh
 
 .markdownlint.json
 
