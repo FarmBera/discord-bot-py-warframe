@@ -228,6 +228,9 @@ class DiscordBot(discord.Client):
                     notification = True
                     should_save_data = True
 
+            elif special_logic == "handle_fissures":  # fissures
+                should_save_data = True
+
             # parsing: default
             elif handler["update_check"](obj_prev, obj_new):
                 try:

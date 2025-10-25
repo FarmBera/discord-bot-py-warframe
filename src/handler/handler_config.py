@@ -5,6 +5,7 @@ from src.constants.keys import (
     SORTIE,
     ARCHONHUNT,
     VOIDTRADERS,
+    FISSURES,
     CALENDAR,
     DAILYDEALS,
     INVASIONS,
@@ -17,7 +18,6 @@ from src.parser.archonHunt import w_archonHunt
 from src.parser.voidTraders import w_voidTraders
 from src.parser.steelPath import w_steelPath
 from src.parser.duviriCycle import w_duviriCycle
-from src.parser.fissures import w_fissures
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
@@ -82,6 +82,7 @@ DATA_HANDLERS = {
     #     "update_check": lambda prev, new: prev["state"] != new["state"]
     #     or prev["activation"] != new["activation"],
     # },
+    FISSURES: {"special_logic": "handle_fissures"},
     CALENDAR: {
         "parser": lambda data: w_calendar(data, ts.get("cmd.calendar.choice-prize")),
         "update_check": lambda prev, new: prev[0]["Activation"]["$date"]["$numberLong"]
