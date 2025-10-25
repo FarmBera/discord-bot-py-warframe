@@ -14,7 +14,9 @@ baro_img = ["baro-ki-teer", "baro"]  # VAR
 baro_active: bool = False
 
 
-def getBaroImg():
+def getBaroImg(name: str = "") -> str:
+    if name and "evil" in name.lower():
+        return "baro-evil"
     return baro_img[random.randrange(0, len(baro_img))]
 
 
@@ -89,7 +91,7 @@ def w_voidTraders(trader) -> tuple:
         # appear location
         output_msg += f"{getSolNode(td['Node'])}\n"
 
-    f = img_file(getBaroImg())
+    f = img_file(getBaroImg(trader[0]["Character"]))
     embed = discord.Embed(description=output_msg, color=color_decision(trader))
     embed.set_thumbnail(url="attachment://i.png")
 
