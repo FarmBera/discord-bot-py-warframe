@@ -31,8 +31,11 @@ def w_alerts(alerts) -> discord.Embed:
         mission_location = getSolNode(ms["location"])
         mission_type = getMissionType(ms["missionType"])
         reward = " + ".join(
+            # credit
             [f"{int(ms['missionReward']['credits']):,} {ts.get('cmd.alerts.credit')}"]
+            # single item
             + [getLanguage(item) for item in ms["missionReward"].get("items", [])]
+            # multiple item
             + [
                 f"{getLanguage(item['ItemType'])} x{item['ItemCount']}"
                 for item in ms["missionReward"].get("countedItems", [])
@@ -42,7 +45,7 @@ def w_alerts(alerts) -> discord.Embed:
         enemy_lvl = f"{ms['minEnemyLevel']}-{ms['maxEnemyLevel']}"
         max_wave = ms["maxWaveNum"]
 
-        output_msg += f"{idx}. {reward}\n"
+        output_msg += f"### {idx}. {reward}\n\n"
         output_msg += f"- **{ts.trs(mission_type)}** at {mission_location}\n"
         output_msg += f"- lvl: {enemy_lvl} / Max Wave : {max_wave}\n"
         output_msg += f"- Expires in {expiry}\n\n"
