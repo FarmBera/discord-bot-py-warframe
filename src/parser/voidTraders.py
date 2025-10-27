@@ -114,7 +114,7 @@ def w_voidTradersItem(trader) -> discord.Embed:
                 f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} **{convert_remain(item['Activation']['$date']['$numberLong'])}** {ts.get(f'{pf}arrives-in1')}"
             )
 
-        for jtem in item["Manifest"]:
+        for jtem in item.get("Manifest", []):
             itype: str = ""
             k: str = jtem["ItemType"].replace("/Lotus/StoreItems", "").lower()
 
