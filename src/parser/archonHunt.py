@@ -7,8 +7,8 @@ from src.utils.data_manager import getMissionType, getSolNode
 
 shard_list: dict = {
     "SORTIE_BOSS_BOREAL": "Azure",  # blue shard
-    "Archon Amar": "Crimson",  # red shard
-    "Archon Nira": "Amber",  # yellow shard
+    "SORTIE_BOSS_AMAR": "Crimson",  # red shard
+    "SORTIE_BOSS_NIRA": "Amber",  # yellow shard
 }
 
 
