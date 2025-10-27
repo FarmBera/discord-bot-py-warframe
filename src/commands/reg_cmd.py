@@ -100,9 +100,9 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         await cmd_helper(interact=interact, key=ALERTS, parser_func=w_alerts)
 
     # cetus command (cetusCycle)
-    @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
-    async def cmd_cetus(interact: discord.Interaction):
-        await cmd_helper(interact=interact, key=CETUSCYCLE, parser_func=w_cetusCycle)
+    # @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
+    # async def cmd_cetus(interact: discord.Interaction):
+    #     await cmd_helper(interact=interact, key=CETUSCYCLE, parser_func=w_cetusCycle)
 
     # sortie command
     @tree.command(
@@ -127,12 +127,12 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         await cmd_helper(interact, key=VOIDTRADERS, parser_func=w_voidTraders)
 
     # steel path reward command
-    @tree.command(
-        name=ts.get(f"cmd.steel-path-reward.cmd"),
-        description=ts.get(f"cmd.steel-path-reward.desc"),
-    )
-    async def cmd_steel_reward(interact: discord.Interaction):
-        await cmd_helper(interact, key=STEELPATH, parser_func=w_steelPath)
+    # @tree.command(
+    #     name=ts.get(f"cmd.steel-path-reward.cmd"),
+    #     description=ts.get(f"cmd.steel-path-reward.desc"),
+    # )
+    # async def cmd_steel_reward(interact: discord.Interaction):
+    #     await cmd_helper(interact, key=STEELPATH, parser_func=w_steelPath)
 
     # fissures command
     @tree.command(
@@ -161,12 +161,12 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         )
 
     # duviriCycle command
-    @tree.command(
-        name=ts.get(f"cmd.duviri-cycle.cmd"),
-        description=ts.get(f"cmd.duviri-cycle.desc"),
-    )
-    async def cmd_duviri_cycle(interact: discord.Interaction):
-        await cmd_helper(interact, key=DUVIRICYCLE, parser_func=w_duviriCycle)
+    # @tree.command(
+    #     name=ts.get(f"cmd.duviri-cycle.cmd"),
+    #     description=ts.get(f"cmd.duviri-cycle.desc"),
+    # )
+    # async def cmd_duviri_cycle(interact: discord.Interaction):
+    #     await cmd_helper(interact, key=DUVIRICYCLE, parser_func=w_duviriCycle)
 
     # hex calendar reward command
     @tree.command(
@@ -197,11 +197,11 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         )
 
     # cambion command (cambionCycle)
-    @tree.command(
-        name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
-    )
-    async def cmd_cambion(interact: discord.Interaction):
-        await cmd_helper(interact, key=CAMBIONCYCLE, parser_func=w_cambionCycle)
+    # @tree.command(
+    #     name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
+    # )
+    # async def cmd_cambion(interact: discord.Interaction):
+    #     await cmd_helper(interact, key=CAMBIONCYCLE, parser_func=w_cambionCycle)
 
     # dailyDeals command
     @tree.command(
@@ -248,9 +248,9 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
         await cmd_helper_txt(interact, MARKET_HELP_FILE)
 
     # vallisCycle command
-    @tree.command(
-        name=ts.get(f"cmd.vallis.cmd"),
-        description=ts.get(f"cmd.vallis.desc"),
-    )
-    async def cmd_vallis(interact: discord.Interaction):
-        await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)
+    # @tree.command(
+    #     name=ts.get(f"cmd.vallis.cmd"),
+    #     description=ts.get(f"cmd.vallis.desc"),
+    # )
+    # async def cmd_vallis(interact: discord.Interaction):
+    #     await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)

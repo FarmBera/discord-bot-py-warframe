@@ -44,9 +44,9 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     async def cmd_alerts(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
-    async def cmd_cetus(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+    # @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
+    # async def cmd_cetus(interact: discord.Interaction):
+    #     await cmd_helper_maintenance(interact)
 
     @tree.command(
         name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc")
@@ -67,12 +67,12 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     async def cmd_voidTraders(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    @tree.command(
-        name=ts.get(f"cmd.steel-path-reward.cmd"),
-        description=ts.get(f"cmd.steel-path-reward.desc"),
-    )
-    async def cmd_steel_reward(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+    # @tree.command(
+    #     name=ts.get(f"cmd.steel-path-reward.cmd"),
+    #     description=ts.get(f"cmd.steel-path-reward.desc"),
+    # )
+    # async def cmd_steel_reward(interact: discord.Interaction):
+    #     await cmd_helper_maintenance(interact)
 
     @tree.command(
         name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")
@@ -94,26 +94,12 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     ):
         await cmd_helper_maintenance(interact)
 
-    @tree.command(
-        name=ts.get(f"cmd.duviri-cycle.cmd"),
-        description=ts.get(f"cmd.duviri-cycle.desc"),
-    )
-    async def cmd_duviri_cycle(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
-
-    @tree.command(
-        name=ts.get(f"cmd.deep-archimedea.cmd"),
-        description=ts.get(f"cmd.deep-archimedea.desc"),
-    )
-    async def cmd_deep_archimedea(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
-
-    @tree.command(
-        name=ts.get(f"cmd.temporal-archimedea.cmd"),
-        description=ts.get(f"cmd.temporal-archimedea.desc"),
-    )
-    async def cmd_temporal_archimedea(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+    # @tree.command(
+    #     name=ts.get(f"cmd.duviri-cycle.cmd"),
+    #     description=ts.get(f"cmd.duviri-cycle.desc"),
+    # )
+    # async def cmd_duviri_cycle(interact: discord.Interaction):
+    #     await cmd_helper_maintenance(interact)
 
     @tree.command(
         name=ts.get(f"cmd.calendar.cmd"),
@@ -140,11 +126,11 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     ):
         await cmd_helper_maintenance(interact)
 
-    @tree.command(
-        name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
-    )
-    async def cmd_cambion(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+    # @tree.command(
+    #     name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
+    # )
+    # async def cmd_cambion(interact: discord.Interaction):
+    #     await cmd_helper_maintenance(interact)
 
     @tree.command(
         name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
@@ -179,9 +165,9 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     async def cmd_market_help(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    @tree.command(
-        name=ts.get(f"cmd.vallis.cmd"),
-        description=ts.get(f"cmd.vallis.desc"),
-    )
-    async def cmd_vallis(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+    # @tree.command(
+    #     name=ts.get(f"cmd.vallis.cmd"),
+    #     description=ts.get(f"cmd.vallis.desc"),
+    # )
+    # async def cmd_vallis(interact: discord.Interaction):
+    #     await cmd_helper_maintenance(interact)
