@@ -1,8 +1,8 @@
 import discord
 
 from src.translator import ts
-from commands.cmd_helper import cmd_helper
-from commands.cmd_helper_text import cmd_helper_txt
+from src.commands.cmd_helper import cmd_helper
+from src.commands.cmd_helper_text import cmd_helper_txt
 
 from src.constants.keys import (
     # docs file

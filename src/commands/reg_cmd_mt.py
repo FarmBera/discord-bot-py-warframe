@@ -1,7 +1,7 @@
 import discord
 
 from src.translator import ts
-from commands.cmd_maintenance import cmd_helper_maintenance
+from src.commands.cmd_maintenance import cmd_helper_maintenance
 
 
 async def register_maintenance_commands(tree: discord.app_commands.CommandTree) -> None:

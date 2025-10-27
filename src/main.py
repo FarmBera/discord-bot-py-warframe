@@ -8,8 +8,8 @@ from src.constants.color import C
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
 
-from commands.reg_cmd import register_main_commands
-from commands.reg_cmd_mt import register_maintenance_commands
+from src.commands.reg_cmd import register_main_commands
+from src.commands.reg_cmd_mt import register_maintenance_commands
 
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
