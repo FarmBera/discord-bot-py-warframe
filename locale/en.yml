@@ -67,7 +67,7 @@ cmd:
     cmd: archonhunt
     desc: Get archon hunt missions this weekend
     title: Archon Hunt
-    eta: Expires at
+    eta: Expires in
     hunt: Hunt
 
     obt1: You can obtain
@@ -92,7 +92,7 @@ cmd:
     status: Status
 
     activate: "[Activated](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    end: Ends at
+    end: Trader will leave in
     location: Location
 
     deactivate: Deactivated
@@ -186,7 +186,7 @@ cmd:
     desc: Get today's hot deal item!
     title: Daily Deal
     remain: Qty remain!
-    exp: expires in
+    exp: Expires in
     exp1: ""
 
   invasions:
@@ -196,8 +196,8 @@ cmd:
     at: at
     completion: Progress
     atk-from: "ATK:"
-    eta: Started before
-    eta1: ""
+    eta: Started
+    eta1: ago
 
   market-search:
     cmd: market-search
