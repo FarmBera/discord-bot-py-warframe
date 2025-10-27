@@ -13,11 +13,12 @@
             "deepArchimedea": false,
             "temporalArchimedea": false,
             "ActiveMissions": false,
-            "calendar": true,
+            "KnownCalendarSeasons": true,
             "cambionCycle": false,
             "DailyDeals": true,
             "voidTraderItem": false,
-            "Invasions": true
+            "Invasions": true,
+            "InvasionsSpecial": true
         }
     },
     "fissures": {
