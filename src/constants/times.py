@@ -34,21 +34,23 @@ def convert_remain(unix_timestamp):
         string that shows time diff
         (ex: "3d 4h 30m" or "4h 30m")
     """
+    from src.translator import ts
+
     try:
         ts_str = str(unix_timestamp)
 
         # convert milliseconds into seconds
         if len(ts_str) == 13:
-            ts = int(ts_str) / 1000
+            ts_int = int(ts_str) / 1000
         else:
-            ts = int(ts_str)
+            ts_int = int(ts_str)
 
     except (ValueError, TypeError):
         return "Wrong Timestamp Format"
 
     # convert into datetime obj
     now_dt = dt.datetime.now()
-    input_dt = dt.datetime.fromtimestamp(ts)
+    input_dt = dt.datetime.fromtimestamp(ts_int)
 
     # calculate time diff
     time_difference = abs(now_dt - input_dt)
@@ -61,10 +63,10 @@ def convert_remain(unix_timestamp):
 
     output: list = []
     if days > 0:
-        output.append(f"{days}d")
+        output.append(f"{days}{ts.get('time.day')}")
     if hours > 0:
-        output.append(f"{hours}h")
+        output.append(f"{hours}{ts.get('time.hour')}")
     if minutes > 0:
-        output.append(f"{minutes}m")
+        output.append(f"{minutes}{ts.get('time.min')}")
 
     return " ".join(output) if output else "Event End!"
