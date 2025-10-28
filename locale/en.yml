@@ -40,6 +40,10 @@ cmd:
     title: Activated Alert
     credit: Credit
 
+    lvl: lvl
+    waves: Max Wave
+    exp: Expires in
+
   news:
     cmd: news
     desc: Get Latest Warframe News

@@ -40,6 +40,10 @@ cmd:
     title: 활성화된 얼럿
     credit: 크레딧
 
+    lvl: 레벨
+    waves: 웨이브 수
+    exp: 만료까지
+
   news:
     cmd: 뉴스
     desc: 최신 워프레임 뉴스를 불러옵니다
@@ -164,7 +168,7 @@ cmd:
 
   calendar:
     cmd: 헥스캘린더
-    desc: 이번주 헥스 캘린더 할일/보상 목록 등을 가져옵니다 ('모두' 읍션의 경우 텍스트 길이 제한으로 인한 오류 발생 가능)
+    desc: 이번주 헥스 캘린더 할일/보상 목록 등을 가져옵니다
     title: 헥스 캘린더
     choice-all: 모두
     choice-to-do: 할 일 목록
@@ -201,7 +205,7 @@ cmd:
 
   market-search:
     cmd: 마켓검색
-    desc: "'Warframe Market' 에서 특정 아이템을 검색하여 가장 저렴한 가격 몇개만 보여줍니다."
+    desc: "'Warframe Market' 에서 특정 아이템을 검색하여 가장 저렴한 매물 몇개만 보여줍니다."
 
   market-help:
     cmd: 마켓도움말
