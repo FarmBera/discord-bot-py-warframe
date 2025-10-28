@@ -18,6 +18,7 @@ def w_alerts(alerts) -> discord.Embed:
     if not alerts:
         return err_embed("alert obj error")
 
+    pf: str = "cmd.alerts."
     activated_count = len(alerts)
     output_msg = f"# {ts.get('cmd.alerts.title')}: {activated_count}\n\n"
 
@@ -46,9 +47,9 @@ def w_alerts(alerts) -> discord.Embed:
         max_wave = ms["maxWaveNum"]
 
         output_msg += f"### {idx}. {reward}\n\n"
-        output_msg += f"- **{ts.trs(mission_type)}** at {mission_location}\n"
-        output_msg += f"- lvl: {enemy_lvl} / Max Wave : {max_wave}\n"
-        output_msg += f"- Expires in {expiry}\n\n"
+        output_msg += f"- **{mission_type}** at {mission_location}\n"
+        output_msg += f"- {ts.get(f'{pf}lvl')}: {enemy_lvl} / {ts.get(f'{pf}waves')} : {max_wave}\n"
+        output_msg += f"- {ts.get(f'{pf}exp')} {expiry}\n\n"
         idx += 1
 
     return discord.Embed(description=output_msg, color=color_decision(alerts))

@@ -1,5 +1,4 @@
 import discord
-import datetime as dt
 from collections import defaultdict
 import re
 
@@ -13,13 +12,11 @@ def get_percent(numerator: int, denominator: int) -> str:
     # fix div into 0
     if denominator == 0:
         return "0.0%"
-
     return f"{(abs(numerator) / denominator) * 100:.1f}%"
 
 
 def getPlanet(inv) -> str:
-    t = getSolNode(inv["Node"])
-    return re.findall(r"\((.*?)\)", t)[0]
+    return re.findall(r"\((.*?)\)", getSolNode(inv["Node"]))[0]
 
 
 def singleInvasion(inv) -> str:
@@ -28,6 +25,7 @@ def singleInvasion(inv) -> str:
     i_fact = getFactions(inv["AttackerMissionInfo"]["faction"])
 
     pf = "cmd.invasions."
+
     # title / progress
     output_msg = f"""### {ts.get(f'{pf}title')} {ts.get(f'{pf}at')} *{i_node}*
 
@@ -42,8 +40,7 @@ def singleInvasion(inv) -> str:
     output_msg += "\n"
 
     # item
-    # if not inv["vsInfestation"]:
-    if inv["AttackerReward"]:  # vs Infestation
+    if inv["AttackerReward"]:  # is VS Infestation
         output_msg += f"- {getFactions(inv['Faction'])} - **{getLanguage(inv['AttackerReward']['countedItems'][0]['ItemType'].lower())}**\n"
 
     output_msg += f"- {getFactions(inv['DefenderFaction'])} - **{getLanguage(inv['DefenderReward']['countedItems'][0]['ItemType'].lower())}**\n\n"

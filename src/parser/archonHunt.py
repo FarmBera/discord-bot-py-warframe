@@ -41,7 +41,7 @@ def w_archonHunt(archon) -> str:
                 + f" - {getSolNode(value['node'])}\n"
             )
         else:
-            output_msg += f"{idx}. {ts.trs(getMissionType(value['missionType']))} - {getSolNode(value['node'])}\n"
+            output_msg += f"{idx}. {getMissionType(value['missionType'])} - {getSolNode(value['node'])}\n"
         idx += 1
 
     return output_msg

@@ -26,7 +26,7 @@ def w_sortie(sortie):
         node = getSolNode(i["node"])
         mod_type = getSortieMod(i["modifierType"])
 
-        output_msg += f"{idx}. **{ts.trs(miss_type)}** "
+        output_msg += f"{idx}. **{miss_type}** "
         output_msg += f"at {node} - *{mod_type}*\n"
         idx += 1
 
