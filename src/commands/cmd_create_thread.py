@@ -65,9 +65,30 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf_edit}title")):
             new_embed = await build_party_embed_from_db(interact.message.id, db)
             await interact.response.edit_message(embed=new_embed)
 
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="btn.edit.article",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"PartyEditModal -> Clicked Submit",
+                obj=f"{self.title_input.value}\n{self.mission_input.value}\n{self.desc_input.value}",
+            )
+
         except Exception as e:
             await interact.response.send_message(
                 f"{ts.get(f'{pf_edit}err')}: {e}", ephemeral=True
+            )
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event.err",
+                cmd="btn.edit.article",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"PartyEditModal -> Clicked Submit",
+                obj=f"{e}\nT:{self.title_input.value}\nTYP:{self.mission_input.value}\nDESC:{self.desc_input.value}",
             )
 
 
@@ -89,7 +110,7 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf_size}ui-title")):
             new_max_size_str = self.size_input.value
 
             # NaN || < 0
-            if not new_max_size_str.isdigit() or int(new_max_size_str) <= 0:
+            if not new_max_size_str.isdigit() or int(new_max_size_str) < 2:
                 await interact.response.send_message(
                     ts.get(f"{pf_size}err-low"), ephemeral=True
                 )
@@ -124,9 +145,30 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf_size}ui-title")):
             new_embed = await build_party_embed_from_db(interact.message.id, db)
             await interact.response.edit_message(embed=new_embed)
 
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="btn.edit.partysize",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"PartySizeModal -> Clicked Submit",
+                obj=new_max_size_str,
+            )
+
         except Exception as e:
             await interact.response.send_message(
                 f"{ts.get(f'{pf_edit}err')}: {e}", ephemeral=True
+            )
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event.err",
+                cmd="btn.edit.partysize",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"PartySizeModal -> Clicked Submit '{new_max_size_str}'",
+                obj=e,
             )
 
 
@@ -158,12 +200,41 @@ class ConfirmDeleteView(discord.ui.View):
             # 2. delete the thread
             await interact.channel.delete()
 
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="btn.confirm.delete",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"ConfirmDeleteView -> clicked yes",
+            )
+
         except discord.Forbidden:
             await interact.response.send_message(
                 ts.get(f"{pf_btn}err-del"), ephemeral=True
             )
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="btn.confirm.delete",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"ConfirmDeleteView -> clicked yes | but Forbidden",
+            )
         except Exception as e:
             await interact.response.send_message(f"{pf_size}err: {e}", ephemeral=True)
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="btn.confirm.delete",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"ConfirmDeleteView -> clicked yes | but ERR",
+                obj=e,
+            )
 
         self.value = True
         self.stop()
@@ -180,6 +251,16 @@ class ConfirmDeleteView(discord.ui.View):
         )
         self.value = False
         self.stop()
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.confirm.delete.cancel",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"ConfirmDeleteView -> clicked no",
+        )
 
 
 # define join/leave confirm view
@@ -223,6 +304,15 @@ class ConfirmJoinLeaveView(discord.ui.View):
                 await interact.response.edit_message(
                     content=ts.get(f"{pf_pv}joined"), view=None
                 )
+                await save_log(
+                    lock=interact.client.log_lock,
+                    type="event",
+                    cmd="btn.confirm.join",
+                    user=f"{interact.user.display_name}",
+                    guild=f"{interact.guild.name}",
+                    channel=f"{interact.channel.name}",
+                    msg=f"ConfirmJoinLeaveView -> action join",
+                )
 
             elif self.action == "leave":
                 cursor.execute(
@@ -233,6 +323,15 @@ class ConfirmJoinLeaveView(discord.ui.View):
                 # reply confirm chat
                 await interact.response.edit_message(
                     content=ts.get(f"{pf_pv}exited"), view=None
+                )
+                await save_log(
+                    lock=interact.client.log_lock,
+                    type="event",
+                    cmd="btn.confirm.leave",
+                    user=f"{interact.user.display_name}",
+                    guild=f"{interact.guild.name}",
+                    channel=f"{interact.channel.name}",
+                    msg=f"ConfirmJoinLeaveView -> action leave",
                 )
 
             # refresh party embed article
@@ -248,6 +347,17 @@ class ConfirmJoinLeaveView(discord.ui.View):
             else:
                 await interact.followup.send(f"오류: {e}", ephemeral=True)
 
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="btn.confirm.join",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"ConfirmJoinLeaveView -> action join or levae but ERR",
+                obj=e,
+            )
+
         self.value = True
         self.stop()
 
@@ -262,6 +372,16 @@ class ConfirmJoinLeaveView(discord.ui.View):
         )
         self.value = False
         self.stop()
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.confirm.delete.cancel",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"ConfirmJoinLeaveView -> clicked no",
+        )
 
 
 class PartyView(discord.ui.View):
@@ -299,6 +419,16 @@ class PartyView(discord.ui.View):
     async def join_party(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.main.join",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> join_party",
+        )
+
         db = interact.client.db
 
         party_data, participants_list = await self.fetch_party_data(interact)
@@ -350,6 +480,15 @@ class PartyView(discord.ui.View):
                 await interact.edit_original_response(
                     content=ts.get(f"{pf}pv-del-cancel"), view=None
                 )
+                await save_log(
+                    lock=interact.client.log_lock,
+                    type="event",
+                    cmd="btn.main.join_party",
+                    user=f"{interact.user.display_name}",
+                    guild=f"{interact.guild.name}",
+                    channel=f"{interact.channel.name}",
+                    msg=f"PartyView -> join_party -> TIME_OUT",
+                )
             except discord.errors.NotFound:
                 pass
 
@@ -363,6 +502,16 @@ class PartyView(discord.ui.View):
         custom_id="party_edit_size",
     )
     async def edit_size(self, interact: discord.Interaction, button: discord.ui.Button):
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.main.edit-size",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> edit_size",
+        )
+
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
             return
@@ -384,6 +533,16 @@ class PartyView(discord.ui.View):
     async def edit_content(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.main.edit-content",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> edit_content",
+        )
+
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
             return
@@ -429,6 +588,17 @@ class PartyView(discord.ui.View):
             else ts.get(f"{pf_pv}ing")
         )
 
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.main.toggle_close_party",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> toggle_close_party",
+            obj=new_status,
+        )
+
         cursor.execute(
             "UPDATE party SET status = ? WHERE id = ?", (new_status, party_data["id"])
         )
@@ -466,6 +636,16 @@ class PartyView(discord.ui.View):
     async def delete_party(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.main.delete_party",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> delete_party",
+        )
+
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
             return
@@ -487,11 +667,17 @@ class PartyView(discord.ui.View):
                 await interact.edit_original_response(
                     content=ts.get(f"{pf}pv-del-cancel"), view=None
                 )
+                await save_log(
+                    lock=interact.client.log_lock,
+                    type="event",
+                    cmd="btn.main.delete_party",
+                    user=f"{interact.user.display_name}",
+                    guild=f"{interact.guild.name}",
+                    channel=f"{interact.channel.name}",
+                    msg=f"PartyView -> delete_party -> TIME_OUT",
+                )
             except discord.errors.NotFound:
                 pass
-
-
-pf_pb: str = f"{pf}pb-"
 
 
 # embed creation helper function
@@ -506,7 +692,7 @@ def build_party_embed(data: dict) -> discord.Embed:
 
     participants_str = ", ".join(data["participants"])
     if not participants_str:
-        participants_str = ts.get(f"{pf_pb}no-player")
+        participants_str = ts.get(f"{pf}pb-no-player")
 
     description_field = ""
     if data.get("description"):
@@ -515,19 +701,20 @@ def build_party_embed(data: dict) -> discord.Embed:
     description = f"""
 ### {data['title']} {status_text}
 
-- **{ts.get(f'{pf_pb}host')}:** {data['host_mention']}
-- **{ts.get(f'{pf_pb}player-count')}:** {len(data['participants'])} / {data['max_users']}
-- **{ts.get(f'{pf_pb}player-joined')}:** {participants_str}
-- **{ts.get(f'{pf_pb}mission')}:** {data['mission']}
+- **{ts.get(f'{pf}pb-host')}:** {data['host_mention']}
+- **{ts.get(f'{pf}pb-player-count')}:** {len(data['participants'])} / {data['max_users']}
+- **{ts.get(f'{pf}pb-player-joined')}:** {participants_str}
+- **{ts.get(f'{pf}pb-mission')}:** {data['mission']}
+
 {description_field}
 
-{ts.get(f'{pf_pb}desc')}
+> {ts.get(f'{pf}pb-desc')}
 ```
 /w {data['game_nickname']}
 ```
 """
     embed = discord.Embed(description=description.strip(), color=color)
-    embed.set_footer(text=f"{ts.get(f'{pf_pb}pid')}: {data['id']}")
+    embed.set_footer(text=f"{ts.get(f'{pf}pb-pid')}: {data['id']}")
     return embed
 
 
@@ -587,6 +774,7 @@ async def cmd_create_thread_helper(
     db = db_conn
     db.row_factory = sqlite3.Row
 
+    RESULT: str = ""
     game_nickname = parseNickname(interact.user.display_name)
     ch_file = yaml_open(CHANNEL_FILE_LOC)["party"]
     target_channel = interact.client.get_channel(ch_file)
@@ -599,6 +787,7 @@ async def cmd_create_thread_helper(
             ephemeral=True,
         )
         number_of_user = 4
+        result += "low number\n"
 
     elif number_of_user > 4:
         await interact.followup.send(
@@ -606,6 +795,7 @@ async def cmd_create_thread_helper(
             ephemeral=True,
         )
         number_of_user = 4
+        result += "high humber\n"
 
     if target_channel and isinstance(target_channel, discord.TextChannel):
         try:
@@ -673,30 +863,36 @@ async def cmd_create_thread_helper(
             )
             db.commit()  # secondary commit (update ID info)
 
+            RESULT += "DONE!\n"
+
         except discord.Forbidden:
             await interact.followup.send(
                 ts.get(f"{pf}no-thread-permission"),
                 ephemeral=True,
             )
+            RESULT += "Forbidden\n"
         except discord.HTTPException as e:
             await interact.followup.send(
                 f"{ts.get(f'{pf}err-creation')}: {e}",
                 ephemeral=True,
             )
+            RESULT += "HTTPException\n"
         except Exception as e:
             await interact.followup.send(
                 f"{ts.get(f'{pf}err-unknown')}: {e}", ephemeral=True
             )
+            RESULT += f"{e}"
     else:
         await interact.followup.send(ts.get(f"{pf}not-found-ch"), ephemeral=True)
 
-    # save_log(
-    #     type="cmd",
-    #     cmd=f"cmd.",
-    #     time=interact.created_at,
-    #     user=interact.user,
-    #     guild=interact.guild,
-    #     channel=interact.channel,
-    #     msg="[info] cmd used",  # VAR
-    #     obj=None,
-    # )
+    await save_log(
+        lock=interact.client.log_lock,
+        type="cmd",
+        cmd=f"cmd.party",
+        time=interact.created_at,
+        user=interact.user,
+        guild=interact.guild,
+        channel=interact.channel,
+        msg="[info] cmd used",  # VAR
+        obj=f"{RESULT}T:{title}\nTYPE:{mission_type}\nDESC:{description}\n{number_of_user}",
+    )

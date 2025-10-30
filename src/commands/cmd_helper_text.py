@@ -22,7 +22,8 @@ async def cmd_helper_txt(
         msg: str = "[err] open_file err in cmd_helper_txt"  # VAR
         await interact.response.send_message(embed=err_embed(msg), ephemeral=True)
         print(C.red, msg, C.default, sep="")
-        save_log(
+        await save_log(
+            lock=interact.client.log_lock,
             type="err",
             cmd="cmd_helper_txt",
             time=interact.created_at,
@@ -40,7 +41,8 @@ async def cmd_helper_txt(
         ephemeral=isUserViewOnly,
     )
 
-    save_log(
+    await save_log(
+        lock=interact.client.log_lock,
         type="cmd",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         time=interact.created_at,

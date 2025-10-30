@@ -24,7 +24,7 @@ async def cmd_helper(
         await interact.response.defer(ephemeral=isUserViewOnly)
 
     if need_api_call:  # API request if needed
-        API_Request(f"cmd.{key}")
+        # await API_Request(lock=,f"cmd.{key}")
         set_obj(json_load()[key], key)
 
     # load objects
@@ -58,7 +58,8 @@ async def cmd_helper(
             await resp_head.send_message(obj, ephemeral=isUserViewOnly)
         log_obj = obj
 
-    save_log(
+    await save_log(
+        lock=interact.client.log_lock,
         type="cmd",
         cmd=f"cmd.{key}{f'-{parser_args}' if parser_args else ''}",
         time=interact.created_at,

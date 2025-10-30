@@ -3,6 +3,7 @@ start:
   sync: Syncing
   bot-status-msg: /help
   final: Logged on! as
+  final2: Ready to Use!
   coroutine: Internal Coroutine Started
 
 maintenance:

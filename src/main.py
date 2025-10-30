@@ -44,6 +44,8 @@ async def main_manager() -> None:
     """
     global tree
 
+    log_lock = asyncio.Lock()
+
     bot_mode = "main"  # init mode
 
     while bot_mode != "exit":
@@ -51,12 +53,12 @@ async def main_manager() -> None:
         intents.message_content = True
         if bot_mode == "main":
             print(f"{C.cyan}[info] Starting Main Bot...{C.default}", end=" ")  # VAR
-            current_bot = DiscordBot(intents=intents)
+            current_bot = DiscordBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
 
             db_conn = sqlite3.connect("db/party.db")
-            db_conn.execute("PRAGMA foreign_keys = ON;")
+            # db_conn.execute("PRAGMA foreign_keys = ON;")
             db_conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS party (
@@ -91,7 +93,7 @@ async def main_manager() -> None:
 
         elif bot_mode == "maintenance":
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
-            current_bot = MaintanceBot(intents=intents)
+            current_bot = MaintanceBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
             await register_maintenance_commands(tree)

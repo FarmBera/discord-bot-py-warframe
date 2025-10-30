@@ -3,6 +3,7 @@ start:
   sync: 동기화 중
   bot-status-msg: /도움말
   final: 다음으로 로그인 완료!
+  final2: 사용 준비 완료!
   coroutine: "Internal Coroutine Started - 언어가 한국어로 설정되었습니다!"
 
 maintenance:
@@ -240,7 +241,7 @@ cmd:
     # PartySizeModal
     p-size-modal-ui-title: 파티원 수 조절
     p-size-modal-label: 최대 파티원 수 (숫자만 입력)
-    p-size-modal-err-low: 숫자만 입력해야 하며 1 이상이어야 합니다.
+    p-size-modal-err-low: 숫자만 입력해야 하며, 파티원 수는 2명 이상이어야 합니다.
     p-size-modal-err-high-1: 최대 인원은 현재 인원
     p-size-modal-err-high-2: 보다 적을 수 없습니다.
     # ConfirmDeleteView
@@ -289,7 +290,7 @@ cmd:
     pb-player-count: 파티원 수
     pb-player-joined: 참여한 파티원
     pb-mission: 미션
-    pb-desc: "(우측 버튼을 클릭하면 클립보드로 복사됩니다.)\n(게임에서 채팅창에 붙여넣기하면 귓속말을 보낼 수 있습니다.)"
+    pb-desc: "게임에서 채팅창에 붙여넣으면 호스트에게 귓속말을 보낼 수 있습니다.\n> (우측 버튼을 클릭하면 클립보드로 복사됩니다.)
     pb-pid: 파티 ID
 
     # build_party_embed_from_db

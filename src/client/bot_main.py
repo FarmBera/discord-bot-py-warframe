@@ -1,6 +1,7 @@
 import discord
 from discord.ext import tasks
 import datetime as dt
+import asyncio
 
 from src.translator import ts
 from config.TOKEN import DEFAULT_JSON_PATH
@@ -29,10 +30,11 @@ from src.commands.cmd_create_thread import PartyView
 
 
 class DiscordBot(discord.Client):
-    def __init__(self, *, intents, **options):
+    def __init__(self, *, intents: discord.Intents, log_lock: asyncio.Lock, **options):
         super().__init__(intents=intents, **options)
         self.tree = None
         self.db = None
+        self.log_lock = log_lock
 
     async def setup_hook(self) -> None:
         self.add_view(PartyView())
@@ -51,10 +53,11 @@ class DiscordBot(discord.Client):
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
         print(
-            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default}",
+            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default} {ts.get(f'start.final2')}",
         )
 
-        save_log(
+        await save_log(
+            lock=self.log_lock,
             cmd="bot.BOOTED",
             user=MSG_BOT,
             msg="[info] Bot booted up.",
@@ -81,7 +84,8 @@ class DiscordBot(discord.Client):
 
             # embed type
             if isinstance(value, discord.Embed):
-                save_log(
+                await save_log(
+                    lock=self.log_lock,
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
@@ -95,7 +99,8 @@ class DiscordBot(discord.Client):
             # embed with file or thumbnail
             elif isinstance(value, tuple):
                 eb, f = value
-                save_log(
+                await save_log(
+                    lock=self.log_lock,
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
@@ -106,7 +111,8 @@ class DiscordBot(discord.Client):
                 await channel.send(embed=eb, file=f)
 
             else:  # string type
-                save_log(
+                await save_log(
+                    lock=self.log_lock,
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
@@ -122,7 +128,7 @@ class DiscordBot(discord.Client):
         setting = json_load(SETTING_FILE_LOC)
         channels = yaml_open(CHANNEL_FILE_LOC)
 
-        if API_Request("auto_send_msg_request()") != 200:
+        if await API_Request(self.log_lock, "auto_send_msg_request()") != 200:
             return
 
         latest_data = json_load(DEFAULT_JSON_PATH)
@@ -135,7 +141,8 @@ class DiscordBot(discord.Client):
             except Exception as e:
                 msg = f"[err] Error with loading original data"
                 print(dt.datetime.now(), C.red, key, msg, e, C.default)
-                save_log(
+                await save_log(
+                    lock=self.log_lock,
                     type="err",
                     cmd="auto_send_msg_request()",
                     user=MSG_BOT,
@@ -171,7 +178,8 @@ class DiscordBot(discord.Client):
                         except Exception as e:
                             msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                             print(dt.datetime.now(), C.red, msg, e, C.default)
-                            save_log(
+                            await save_log(
+                                lock=self.log_lock,
                                 type="err",
                                 cmd="auto_send_msg_request()",
                                 user=MSG_BOT,
@@ -224,7 +232,8 @@ class DiscordBot(discord.Client):
                     except Exception as e:
                         msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                         print(dt.datetime.now(), C.red, msg, e, C.default)
-                        save_log(
+                        await save_log(
+                            lock=self.log_lock,
                             type="err",
                             cmd="auto_send_msg_request()",
                             user=MSG_BOT,
@@ -245,7 +254,8 @@ class DiscordBot(discord.Client):
                 except Exception as e:
                     msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                     print(dt.datetime.now(), C.red, msg, C.default)
-                    save_log(
+                    await save_log(
+                        lock=self.log_lock,
                         type="err",
                         cmd="auto_send_msg_request()",
                         user=MSG_BOT,

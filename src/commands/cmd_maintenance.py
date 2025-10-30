@@ -32,7 +32,8 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
         ephemeral=True,
     )
 
-    save_log(
+    await save_log(
+        lock=interact.client.log_lock,
         type="cmd/maintenance",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         time=interact.created_at,

@@ -1,6 +1,7 @@
 import requests
 import json
 import datetime as dt
+import asyncio
 
 from config.TOKEN import (
     base_url_warframe,
@@ -16,7 +17,9 @@ from src.constants.keys import MSG_BOT
 from src.utils.logging_utils import save_log
 
 
-def send_request(res_source: str, query: str = "") -> int | None:
+async def send_request(
+    log_lock: asyncio.Lock, res_source: str, query: str = ""
+) -> int | None:
     """send API request and return response if return code exists
 
     Args:
@@ -53,7 +56,14 @@ def send_request(res_source: str, query: str = "") -> int | None:
         msg = f"[err] API request failed!"
         obj = f"{elapsed_time}/{e}"
         print(dt.datetime.now(), C.red, msg, elapsed_time, C.default)
-        save_log(type="err", cmd="send_request()", user=MSG_BOT, msg=msg, obj=obj)
+        await save_log(
+            lock=log_lock,
+            type="err",
+            cmd="send_request()",
+            user=MSG_BOT,
+            msg=msg,
+            obj=obj,
+        )
         return None
 
     # check response code
@@ -63,7 +73,14 @@ def send_request(res_source: str, query: str = "") -> int | None:
 
         msg = f"[warn] response code is not 200"
         obj = f"{res_code}/{elapsed_time}"
-        save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=obj)
+        await save_log(
+            lock=log_lock,
+            type="err",
+            cmd="API_REQUEST()",
+            user=MSG_BOT,
+            msg=msg,
+            obj=obj,
+        )
         if not query:
             print(dt.datetime.now(), C.red, msg, res_code, elapsed_time, C.default)
         return res_code
@@ -75,7 +92,14 @@ def send_request(res_source: str, query: str = "") -> int | None:
         msg = f"[err] response is Empty!"
         obj = f"{res_code}/{elapsed_time}/{response}"
         print(dt.datetime.now(), C.red, msg, res_code, elapsed_time, C.default)
-        save_log(type="api", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=obj)
+        await save_log(
+            lock=log_lock,
+            type="api",
+            cmd="API_REQUEST()",
+            user=MSG_BOT,
+            msg=msg,
+            obj=obj,
+        )
         return res_code
 
     # parse JSON
@@ -87,7 +111,14 @@ def send_request(res_source: str, query: str = "") -> int | None:
         msg = f"[err] JSON Decode ERROR ({elapsed_time})"
         obj = f"{elapsed_time}/{e}"
         print(dt.datetime.now(), C.red, msg, elapsed_time, C.default)
-        save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=obj)
+        await save_log(
+            lock=log_lock,
+            type="err",
+            cmd="API_REQUEST()",
+            user=MSG_BOT,
+            msg=msg,
+            obj=obj,
+        )
         return res_code
 
     # save data
@@ -100,13 +131,21 @@ def send_request(res_source: str, query: str = "") -> int | None:
         msg = f"[err] Error on saving file!"
         obj = f"{elapsed_time}/{e}"
         print(dt.datetime.now(), C.red, msg, elapsed_time, C.default)
-        save_log(type="err", cmd="API_REQUEST()", user=MSG_BOT, msg=msg, obj=obj)
+        await save_log(
+            lock=log_lock,
+            type="err",
+            cmd="API_REQUEST()",
+            user=MSG_BOT,
+            msg=msg,
+            obj=obj,
+        )
         return res_code
 
     elapsed_time = dt.datetime.now() - start_time
     msg = f"[info] API request successful. {res_source}"
     # print(C.red, msg, C.default, sep="")
-    save_log(
+    await save_log(
+        lock=log_lock,
         type="api",
         cmd="API-Market" if query else "API_REQUEST()",
         user=MSG_BOT,
@@ -118,7 +157,7 @@ def send_request(res_source: str, query: str = "") -> int | None:
 
 
 # usage for main api
-def API_Request(args: str = "Unknown Source") -> int | None:
+async def API_Request(lock: asyncio.Lock, args: str = "Unknown Source") -> int | None:
     """API request function for Warframe status
 
     Args:
@@ -128,7 +167,7 @@ def API_Request(args: str = "Unknown Source") -> int | None:
         int: api request success and response code exist
         None: failed to request api
     """
-    return send_request(args)
+    return await send_request(lock, args)
 
 
 # usage for market api
