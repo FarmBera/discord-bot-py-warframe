@@ -2,6 +2,7 @@
 .obsidian
 .vscode
 archive
+/db
 docs
 img-tmp
 data
@@ -11,6 +12,7 @@ tmp
 # exclude pattern
 *test*
 *cache*
+*.db
 
 # personal file
 channel.yml

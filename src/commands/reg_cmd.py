@@ -1,8 +1,11 @@
 import discord
+import sqlite3
 
 from src.translator import ts
 from src.commands.cmd_helper import cmd_helper
 from src.commands.cmd_helper_text import cmd_helper_txt
+from src.commands.cmd_create_thread import cmd_create_thread_helper
+
 
 from src.constants.keys import (
     # docs file
@@ -46,7 +49,10 @@ from src.parser.vallisCycle import w_vallisCycle
 from src.parser.marketsearch import w_market_search
 
 
-async def register_main_commands(tree: discord.app_commands.CommandTree) -> None:
+async def register_main_commands(
+    tree: discord.app_commands.CommandTree, db_conn: sqlite3.Connection
+) -> None:
+
     # help command
     @tree.command(
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
@@ -254,3 +260,31 @@ async def register_main_commands(tree: discord.app_commands.CommandTree) -> None
     # )
     # async def cmd_vallis(interact: discord.Interaction):
     #     await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)
+
+    @tree.command(
+        name=ts.get(f"cmd.party.cmd"),
+        description=ts.get("cmd.party.desc"),
+    )
+    @discord.app_commands.describe(
+        title=ts.get("cmd.party.title"),
+        # game_nickname="인게임 닉네임",
+        mission_type=ts.get(f"cmd.party.miss-types"),
+        descriptions=ts.get("cmd.party.descript"),
+        number_of_user=ts.get("cmd.party.nou"),
+    )
+    async def cmd_create_thread(
+        interact: discord.Interaction,
+        title: str,
+        # game_nickname: str,
+        mission_type: str,
+        descriptions: str = None,
+        number_of_user: int = 4,
+    ) -> None:
+        await cmd_create_thread_helper(
+            interact=interact,
+            db_conn=db_conn,
+            title=title,
+            number_of_user=number_of_user,
+            mission_type=mission_type,
+            description=descriptions,
+        )

@@ -18,6 +18,8 @@ async def cmd_helper(
     isMarketQuery: bool = False,
     marketQuery: str = "",
 ) -> None:
+    need_api_call = False
+
     if isFollowUp:  # delay response if needed
         await interact.response.defer(ephemeral=isUserViewOnly)
 

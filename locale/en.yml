@@ -220,3 +220,87 @@ cmd:
 
     warm: Warm
     cold: Cold
+
+  party:
+    # basic commands
+    cmd: create-party
+    desc: "Creates a new party listing."
+    title: Party Title
+    miss-types: Mission Name or Type
+    descript: (Optional) Description for the party listing
+    nou: Max party size (including yourself)
+
+    err: Error
+    # PartyEditModal
+    p-edit-modal-title: Edit Party Info
+    p-edit-modal-title-input: Title
+    p-edit-modal-mission-input: Mission
+    p-edit-modal-desc-input: Description
+    p-edit-modal-err: An error occurred while editing.
+    # PartySizeModal
+    p-size-modal-ui-title: Adjust Party Size
+    p-size-modal-label: Max party size (numbers only)
+    p-size-modal-err-low: "Please enter a number 1 or greater."
+    p-size-modal-err-high-1: "The max size cannot be less than the current number"
+    p-size-modal-err-high-2: "of members."
+    # ConfirmDeleteView
+    p-del-modal-btny: Yes (Continue)
+    p-del-modal-btnn: No (Cancel)
+    p-del-modal-err: "❌ Error"
+    p-del-modal-err-del: "❌ Error: I don't have permission to delete this thread."
+    p-del-modal-cancel: "The action has been canceled."
+
+    # PartyView
+
+    # join btn
+    pv-not-found: "Could not find party information. Please contact an admin."
+    pv-join-btn: "Join / Leave"
+    pv-host-exit-err: "The host cannot leave the party."
+    pv-exited: "You have left the party."
+    pv-full: "The party is full."
+    pv-joined: "You have joined the party!"
+    pv-confirm-exit: "Are you sure you want to leave the party?"
+    pv-confirm-join: "Are you sure you want to join the party?"
+
+    pv-done: Closed
+    pv-ing: Recruiting
+    pv-ing2: Open
+
+    # edit_size btn
+    pv-mod-label: Edit Size
+    pv-err-only-host: "Only the party host can change the size."
+
+    # edit_content btn
+    pv-mod-article: Edit Post
+    pv-err-mod-article: "Only the party host can edit the post."
+
+    # toggle_close_party btn
+    pv-err-only-status: "Only the party host can change the recruitment status."
+
+    # delete_party btn
+    pv-del-label: Delete Post
+    pv-del-only-host: "Only the party host can delete this post."
+    pv-del-confirm: "Are you sure you want to delete this listing and its thread?"
+    pv-del-cancel: "The action was canceled due to a timeout."
+
+    # build_party_embed
+    pb-no-player: "No members yet"
+    pb-host: Host
+    pb-player-count: Members
+    pb-player-joined: Current Members
+    pb-mission: Mission
+    pb-desc: "(Click the button to the right to copy to clipboard.)\n(Paste it in the in-game chat to send a whisper.)"
+    pb-pid: Party ID
+
+    # build_party_embed_from_db
+    pdb-not-found-party: "Could not find party information. Please contact an admin."
+
+    # cmd_create_thread_helper
+    pt-low: "Party size must be at least 2.\nAutomatically setting to 4."
+    pt-high: "Party size cannot exceed 4.\nAutomatically setting to 4."
+    pt-create: "Party listing (thread) has been created!"
+
+    no-thread-permission: "❌ Error: I don't have permission to create threads in this channel. Please contact an admin."
+    err-creation: "❌ Error: A problem occurred while creating the thread. Please contact an admin."
+    err-unknown: "❌ Unknown Error"
+    not-found-ch: "❌ Error: Could not find the specified text channel. Please contact an admin."

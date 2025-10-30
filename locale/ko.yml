@@ -221,6 +221,90 @@ cmd:
     warm: 따뜻함
     cold: 추움
 
+  party:
+    # basic commands
+    cmd: 파티생성
+    desc: "새로운 파티 구인 글을 생성합니다."
+    title: 파티 모집 제목
+    miss-types: 미션 이름 또는 종류
+    descript: (선택사항) 모집 글에 대한 세부설명
+    nou: 최대 파티원 수 (본인 포함)
+
+    err: 오류
+    # PartyEditodal
+    p-edit-modal-title: 파티 정보 수정
+    p-edit-modal-title-input: 제목
+    p-edit-modal-mission-input: 미션
+    p-edit-modal-desc-input: 기타 설명
+    p-edit-modal-err: 수정 중 오류 발생
+    # PartySizeModal
+    p-size-modal-ui-title: 파티원 수 조절
+    p-size-modal-label: 최대 파티원 수 (숫자만 입력)
+    p-size-modal-err-low: 숫자만 입력해야 하며 1 이상이어야 합니다.
+    p-size-modal-err-high-1: 최대 인원은 현재 인원
+    p-size-modal-err-high-2: 보다 적을 수 없습니다.
+    # ConfirmDeleteView
+    p-del-modal-btny: Yes (진행)
+    p-del-modal-btnn: No (취소)
+    p-del-modal-err: "❌ 오류"
+    p-del-modal-err-del: "❌ 오류: 스레드를 삭제할 권한이 없어요."
+    p-del-modal-cancel: 작업이 취소되었어요.
+
+    # PartyView
+
+    # join btn
+    pv-not-found: 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
+    pv-join-btn: "참가 / 탈퇴"
+    pv-host-exit-err: 호스트는 파티에서 탈퇴할 수 없어요.
+    pv-exited: 파티에서 탈퇴했어요.
+    pv-full: 파티가 꽉 찼습니다...
+    pv-joined: 파티에 참가했습니다!
+    pv-confirm-exit: 파티에서 탈퇴하시겠습니까?
+    pv-confirm-join: 파티에 참가하시겠습니까?
+
+    pv-done: 모집 완료
+    pv-ing: 모집 활성화
+    pv-ing2: 모집 중
+
+    # edit_size btn
+    pv-mod-label: 인원 수정
+    pv-err-only-host: 파티 호스트만 인원을 수정할 수 있어요.
+
+    # edit_content btn
+    pv-mod-article: 글 수정
+    pv-err-mod-article: 파티 호스트만 글을 수정할 수 있어요.
+
+    # toggle_close_party btn
+    pv-err-only-status: 파티 호스트만 모집 상태를 변경할 수 있어요.
+
+    # delete_party btn
+    pv-del-label: 글 삭제
+    pv-del-only-host: 파티 호스트만 이 글을 삭제할 수 있어요.
+    pv-del-confirm: 정말로 이 모집글 및 스레드를 삭제할까요?
+    pv-del-cancel: 시간이 초과되어 작업이 취소되었어요.
+
+    # build_party_embed
+    pb-no-player: 참가자 없음
+    pb-host: 호스트
+    pb-player-count: 파티원 수
+    pb-player-joined: 참여한 파티원
+    pb-mission: 미션
+    pb-desc: "(우측 버튼을 클릭하면 클립보드로 복사됩니다.)\n(게임에서 채팅창에 붙여넣기하면 귓속말을 보낼 수 있습니다.)"
+    pb-pid: 파티 ID
+
+    # build_party_embed_from_db
+    pdb-not-found-party: 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
+
+    # cmd_create_thread_helper
+    pt-low: "파티원 수는 2명 이상이어야 합니다.\n 4명으로 자동 조정됩니다"
+    pt-high: "파티원 수는 4명을 초과할 수 없어요.\n4명으로 자동 조정됩니다."
+    pt-create: 모집 글(스레드)을 생성했어요!
+
+    no-thread-permission: "❌ 오류: 해당 채널에 스레드를 생성할 권한이 없어요. 관리자에게 문의해주세요."
+    err-creation: "❌ 오류: 스레드를 생성하는 중 문제가 발생했어요. 관리자에게 문의해주세요."
+    err-unknown: "❌ 알 수 없는 오류"
+    not-found-ch: "❌ 오류: 지정된 텍스트 채널을 찾을 수 없어요. 관리자에게 문의해주세요."
+
 trs:
   # keyword
   blueprint: 설계도

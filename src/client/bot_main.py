@@ -25,11 +25,18 @@ from src.handler.handler_config import DATA_HANDLERS
 
 from src.parser.sortie import w_sortie
 
+from src.commands.cmd_create_thread import PartyView
+
 
 class DiscordBot(discord.Client):
     def __init__(self, *, intents, **options):
         super().__init__(intents=intents, **options)
         self.tree = None
+        self.db = None
+
+    async def setup_hook(self) -> None:
+        self.add_view(PartyView())
+        print(f"{C.green}Persistent Views successfully registered.{C.default}")
 
     async def on_ready(self):
         print(

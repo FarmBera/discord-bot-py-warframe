@@ -46,7 +46,6 @@ class Translator:
         except (KeyError, TypeError):
             return keys[-1]
 
-    # TODO: 인자 하나만 받게 수정
     def trs(self, key):
         """
         receive SPECIAL keys (not officialy translated text in API) and return translated text (ex: 'ts.trs(SEARCH_QUERY)')

@@ -2,6 +2,7 @@ import discord
 import asyncio
 import sys
 import logging
+import sqlite3
 
 from config.TOKEN import TOKEN as BOT_TOKEN
 from src.constants.color import C
@@ -33,6 +34,8 @@ async def console_input_listener() -> None:
         if cmd in ["maintenance", "main", "exit"]:
             print(f"[info] Console input detected! '{cmd}'")  # VAR
             return cmd
+        else:
+            print(f"\033[A\rUnknown Command > '{cmd}'")
 
 
 async def main_manager() -> None:
@@ -51,7 +54,40 @@ async def main_manager() -> None:
             current_bot = DiscordBot(intents=intents)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
-            await register_main_commands(tree)
+
+            db_conn = sqlite3.connect("db/party.db")
+            db_conn.execute("PRAGMA foreign_keys = ON;")
+            db_conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS party (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    thread_id INTEGER UNIQUE,
+                    message_id INTEGER UNIQUE,
+                    host_id INTEGER,
+                    title TEXT,
+                    mission_type TEXT,
+                    max_users INTEGER,
+                    description TEXT,
+                    game_nickname TEXT,
+                    status TEXT DEFAULT '모집중'
+                );
+            """
+            )
+            db_conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS participants (
+                    party_id INTEGER,
+                    user_id INTEGER,
+                    user_mention TEXT,
+                    PRIMARY KEY (party_id, user_id),
+                    FOREIGN KEY (party_id) REFERENCES party (id) ON DELETE CASCADE
+                );
+            """
+            )
+            db_conn.commit()
+            current_bot.db = db_conn
+
+            await register_main_commands(tree, db_conn)
 
         elif bot_mode == "maintenance":
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
