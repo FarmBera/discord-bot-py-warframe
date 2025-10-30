@@ -130,7 +130,9 @@ async def register_main_commands(
         description=ts.get(f"cmd.void-traders.desc"),
     )
     async def cmd_voidTraders(interact: discord.Interaction):
-        await cmd_helper(interact, key=VOIDTRADERS, parser_func=w_voidTraders)
+        await cmd_helper(
+            interact, isFollowUp=True, key=VOIDTRADERS, parser_func=w_voidTraders
+        )
 
     # steel path reward command
     # @tree.command(
