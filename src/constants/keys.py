@@ -58,3 +58,5 @@ keys: list = [
 
 
 SPECIAL_ITEM_LIST = ["exilus", "orokin", "reactor", "forma"]
+
+LFG_WEBHOOK_NAME: str = "warframe-lfg-bot"

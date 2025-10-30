@@ -2,7 +2,7 @@ import discord
 import sqlite3
 
 from src.translator import ts
-from src.constants.keys import CHANNEL_FILE_LOC
+from src.constants.keys import CHANNEL_FILE_LOC, LFG_WEBHOOK_NAME
 from src.utils.file_io import yaml_open
 from src.utils.logging_utils import save_log
 
@@ -64,6 +64,29 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf_edit}title")):
             # refresh Embed
             new_embed = await build_party_embed_from_db(interact.message.id, db)
             await interact.response.edit_message(embed=new_embed)
+
+            # edit thread title & webhook msg
+            if isinstance(interact.channel, discord.Thread):
+                thread_to_edit = interact.client.get_channel(interact.channel.id)
+                if thread_to_edit:
+                    new_thread_name = (
+                        f"[{self.mission_input.value}] {self.title_input.value}"
+                    )
+                    await thread_to_edit.edit(name=new_thread_name)
+
+                # edit webhook msg
+                try:  # get the webhook (used to create the thread)
+                    webhook_name = LFG_WEBHOOK_NAME
+                    webhooks = await interact.channel.parent.webhooks()
+                    webhook = discord.utils.get(webhooks, name=webhook_name)
+
+                    if webhook:  # edit msg using the webhook
+                        await webhook.edit_message(
+                            message_id=interact.channel.id,
+                            content=f"[{self.mission_input.value}] {self.title_input.value}",
+                        )
+                except discord.NotFound:
+                    pass  # started msg not found, maybe deleted manually
 
             await save_log(
                 lock=interact.client.log_lock,
@@ -191,14 +214,41 @@ class ConfirmDeleteView(discord.ui.View):
             db = interact.client.db
             cursor = db.cursor()
 
-            # 1. delete party info from DB
+            # edit webhook msg
+            try:
+                webhook_name = LFG_WEBHOOK_NAME
+                webhooks = await interact.channel.parent.webhooks()
+                webhook = discord.utils.get(webhooks, name=webhook_name)
+
+                if webhook:
+                    starter_message = await interact.channel.parent.fetch_message(
+                        interact.channel.id
+                    )
+                    if starter_message:
+                        await webhook.edit_message(
+                            message_id=interact.channel.id,
+                            content=f"{starter_message.content}\n> 모집 글이 삭제 되었습니다.",
+                        )
+                else:  #  if webhook is not found
+                    starter_message = await interact.channel.parent.fetch_message(
+                        interact.channel.id
+                    )
+                    await starter_message.edit(
+                        content=f"{starter_message.content}\n> 모집 글이 삭제 되었습니다."
+                    )
+            except discord.NotFound:
+                pass  # starter msg not found, maybe deleted manually
+
+            # delete thread
+            thread_to_delete = interact.client.get_channel(interact.channel.id)
+            if thread_to_delete:
+                await thread_to_delete.delete()
+
+            # delete party info from DB
             cursor.execute(
                 "DELETE FROM party WHERE thread_id = ?", (interact.channel.id,)
             )
             db.commit()
-
-            # 2. delete the thread
-            await interact.channel.delete()
 
             await save_log(
                 lock=interact.client.log_lock,
@@ -210,7 +260,7 @@ class ConfirmDeleteView(discord.ui.View):
                 msg=f"ConfirmDeleteView -> clicked yes",
             )
 
-        except discord.Forbidden:
+        except discord.Forbidden as e:
             await interact.response.send_message(
                 ts.get(f"{pf_btn}err-del"), ephemeral=True
             )
@@ -221,7 +271,7 @@ class ConfirmDeleteView(discord.ui.View):
                 user=f"{interact.user.display_name}",
                 guild=f"{interact.guild.name}",
                 channel=f"{interact.channel.name}",
-                msg=f"ConfirmDeleteView -> clicked yes | but Forbidden",
+                msg=f"ConfirmDeleteView -> clicked yes | but Forbidden\n{e}",
             )
         except Exception as e:
             await interact.response.send_message(f"{pf_size}err: {e}", ephemeral=True)
@@ -232,7 +282,7 @@ class ConfirmDeleteView(discord.ui.View):
                 user=f"{interact.user.display_name}",
                 guild=f"{interact.guild.name}",
                 channel=f"{interact.channel.name}",
-                msg=f"ConfirmDeleteView -> clicked yes | but ERR",
+                msg=f"ConfirmDeleteView -> clicked yes | but ERR\n{e}",
                 obj=e,
             )
 
@@ -823,11 +873,26 @@ async def cmd_create_thread_helper(
             )
             db.commit()  # fisrt commit (party creation)
 
-            thread_name = f"[{mission_type}] {title}"  # therad title
-            thread = await target_channel.create_thread(
-                name=thread_name,
-                type=discord.ChannelType.public_thread,
-                reason=f"Thread started by a {interact.user.display_name}",
+            # create a webhook
+            webhook_name = LFG_WEBHOOK_NAME
+            webhooks = await target_channel.webhooks()
+            webhook = discord.utils.get(webhooks, name=webhook_name)
+            if webhook is None:
+                webhook = await target_channel.create_webhook(name=webhook_name)
+
+            # send msg via webhook to impersonate the user
+            # msg: starting point of the thread.
+            thread_starter_msg = await webhook.send(
+                content=f"[{mission_type}] {title}",
+                username=interact.user.display_name,
+                avatar_url=interact.user.display_avatar.url,
+                wait=True,
+            )
+
+            # create thread from starter msg (webhook)
+            thread = await thread_starter_msg.create_thread(
+                name=f"[{mission_type}] {title}",
+                reason=f"Thread for {interact.user.display_name}'s party",
             )
 
             await interact.followup.send(
@@ -865,23 +930,23 @@ async def cmd_create_thread_helper(
 
             RESULT += "DONE!\n"
 
-        except discord.Forbidden:
+        except discord.Forbidden as e:
             await interact.followup.send(
                 ts.get(f"{pf}no-thread-permission"),
                 ephemeral=True,
             )
-            RESULT += "Forbidden\n"
+            RESULT += f"Forbidden {e}\n"
         except discord.HTTPException as e:
             await interact.followup.send(
-                f"{ts.get(f'{pf}err-creation')}: {e}",
+                f"{ts.get(f'{pf}err-creation')}",
                 ephemeral=True,
             )
-            RESULT += "HTTPException\n"
+            RESULT += f"HTTPException {e}\n"
         except Exception as e:
             await interact.followup.send(
-                f"{ts.get(f'{pf}err-unknown')}: {e}", ephemeral=True
+                f"{ts.get(f'{pf}err-unknown')}", ephemeral=True
             )
-            RESULT += f"{e}"
+            RESULT += f"ERROR {e}"
     else:
         await interact.followup.send(ts.get(f"{pf}not-found-ch"), ephemeral=True)
 
