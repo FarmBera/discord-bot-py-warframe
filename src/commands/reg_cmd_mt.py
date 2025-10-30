@@ -171,3 +171,24 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     # )
     # async def cmd_vallis(interact: discord.Interaction):
     #     await cmd_helper_maintenance(interact)
+
+    @tree.command(
+        name=ts.get(f"cmd.party.cmd"),
+        description=ts.get("cmd.party.desc"),
+    )
+    @discord.app_commands.describe(
+        title=ts.get("cmd.party.title"),
+        # game_nickname="인게임 닉네임",
+        mission_type=ts.get(f"cmd.party.miss-types"),
+        descriptions=ts.get("cmd.party.descript"),
+        number_of_user=ts.get("cmd.party.nou"),
+    )
+    async def cmd_create_thread(
+        interact: discord.Interaction,
+        title: str,
+        # game_nickname: str,
+        mission_type: str,
+        descriptions: str = None,
+        number_of_user: int = 4,
+    ) -> None:
+        await cmd_helper_maintenance(interact)
