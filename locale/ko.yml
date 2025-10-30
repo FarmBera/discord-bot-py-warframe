@@ -290,7 +290,7 @@ cmd:
     pb-player-count: 파티원 수
     pb-player-joined: 참여한 파티원
     pb-mission: 미션
-    pb-desc: "게임에서 채팅창에 붙여넣으면 호스트에게 귓속말을 보낼 수 있습니다.\n> (우측 버튼을 클릭하면 클립보드로 복사됩니다.)
+    pb-desc: "게임에서 채팅창에 붙여넣으면 호스트에게 귓속말을 보낼 수 있습니다.\n> (우측 버튼을 클릭하면 클립보드로 복사됩니다.)"
     pb-pid: 파티 ID
 
     # build_party_embed_from_db
