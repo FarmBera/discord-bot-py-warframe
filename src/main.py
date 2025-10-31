@@ -22,6 +22,12 @@ tree = None
 
 ERR_COUNT: int = 0
 
+CMD_MAIN: str = "main"
+CMD_MAINTENANCE: str = "maintenance"
+CMD_EXIT: str = "exit"
+
+EXIT_CMD: list = [CMD_EXIT, "ㄷ턋"]
+
 
 async def console_input_listener() -> None:
     """
@@ -31,7 +37,7 @@ async def console_input_listener() -> None:
         cmd = await asyncio.to_thread(sys.stdin.readline)
         cmd = cmd.strip().lower()
 
-        if cmd in ["maintenance", "main", "exit"]:
+        if cmd in [CMD_MAIN, CMD_MAINTENANCE] + EXIT_CMD:
             print(f"[info] Console input detected! '{cmd}'")  # VAR
             return cmd
         else:
@@ -46,12 +52,12 @@ async def main_manager() -> None:
 
     log_lock = asyncio.Lock()
 
-    bot_mode = "main"  # init mode
+    bot_mode = CMD_MAIN  # init mode
 
-    while bot_mode != "exit":
+    while bot_mode not in EXIT_CMD:
         intents = discord.Intents.default()
         intents.message_content = True
-        if bot_mode == "main":
+        if bot_mode == CMD_MAIN:
             print(f"{C.cyan}[info] Starting Main Bot...{C.default}", end=" ")  # VAR
             current_bot = DiscordBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
@@ -71,7 +77,9 @@ async def main_manager() -> None:
                     max_users INTEGER,
                     description TEXT,
                     game_nickname TEXT,
-                    status TEXT DEFAULT '모집중'
+                    status TEXT DEFAULT '모집중',
+                    created_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
+                    updated_at TIMESTAMP DEFAULT (datetime('now', 'localtime'))
                 );
             """
             )
@@ -81,9 +89,31 @@ async def main_manager() -> None:
                     party_id INTEGER,
                     user_id INTEGER,
                     user_mention TEXT,
+                    created_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
+                    updated_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
                     PRIMARY KEY (party_id, user_id),
                     FOREIGN KEY (party_id) REFERENCES party (id) ON DELETE CASCADE
                 );
+            """
+            )
+            db_conn.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS update_party_updated_at
+                AFTER UPDATE ON party
+                FOR EACH ROW
+                BEGIN
+                    UPDATE party SET updated_at = (datetime('now', 'localtime')) WHERE id = OLD.id;
+                END;
+            """
+            )
+            db_conn.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS update_participants_updated_at
+                AFTER UPDATE ON participants
+                FOR EACH ROW
+                BEGIN
+                    UPDATE participants SET updated_at = (datetime('now', 'localtime')) WHERE party_id = OLD.party_id AND user_id = OLD.user_id;
+                END;
             """
             )
             db_conn.commit()
@@ -91,7 +121,7 @@ async def main_manager() -> None:
 
             await register_main_commands(tree, db_conn)
 
-        elif bot_mode == "maintenance":
+        elif bot_mode == CMD_MAINTENANCE:
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
             current_bot = MaintanceBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
@@ -115,7 +145,7 @@ async def main_manager() -> None:
         if console_task in done:
             # get input command
             new_mode = console_task.result()
-            if new_mode != "exit":  # VAR
+            if new_mode not in EXIT_CMD:  # VAR
                 print(f"Switching Bot... '{bot_mode}' into '{new_mode}'")  # VAR
             bot_mode = new_mode
         else:
@@ -139,7 +169,7 @@ async def main_manager() -> None:
         for task in pending:  # cancel remaining task
             task.cancel()
 
-        if bot_mode != "exit":  # VAR
+        if bot_mode not in EXIT_CMD:  # VAR
             for i in range(4, 0, -1):
                 print(
                     f"{C.yellow}[info] Executes in {i}s  ",
