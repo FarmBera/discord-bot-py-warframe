@@ -341,6 +341,12 @@ class ConfirmJoinLeaveView(discord.ui.View):
     async def yes_button(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        # Get host_id to mention the host
+        party_info = self.db.execute(
+            "SELECT host_id FROM party WHERE id = ?", (self.party_id,)
+        ).fetchone()
+        host_mention = f"<@{party_info[0]}>, " if party_info else ""
+
         cursor = self.db.cursor()
 
         try:
@@ -354,6 +360,11 @@ class ConfirmJoinLeaveView(discord.ui.View):
                 await interact.response.edit_message(
                     content=ts.get(f"{pf_pv}joined"), view=None
                 )
+                # Send a public message to the thread channel
+                await self.original_message.channel.send(
+                    f"{host_mention}< {interact.user.display_name} > {ts.get(f'{pf}pc-joined')}"
+                )
+
                 await save_log(
                     lock=interact.client.log_lock,
                     type="event",
@@ -374,6 +385,11 @@ class ConfirmJoinLeaveView(discord.ui.View):
                 await interact.response.edit_message(
                     content=ts.get(f"{pf_pv}exited"), view=None
                 )
+                # Send a public message to the thread channel
+                await self.original_message.channel.send(
+                    f"{host_mention}< {interact.user.display_name} > {ts.get(f'{pf}pc-lefted')}"
+                )
+
                 await save_log(
                     lock=interact.client.log_lock,
                     type="event",

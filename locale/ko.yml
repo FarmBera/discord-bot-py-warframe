@@ -250,6 +250,9 @@ cmd:
     p-del-modal-err: "❌ 오류"
     p-del-modal-err-del: "❌ 오류: 스레드를 삭제할 권한이 없어요."
     p-del-modal-cancel: 작업이 취소되었어요.
+    # ConfirmJoinLeaveView
+    pc-joined: 님이 파티에 참여했습니다!
+    pc-lefted: 님이 파티에서 나갔습니다.
 
     # PartyView
 
