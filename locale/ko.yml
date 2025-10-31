@@ -3,8 +3,8 @@ start:
   sync: 동기화 중
   bot-status-msg: /도움말
   final: 다음으로 로그인 완료!
-  final2: 사용 준비 완료!
-  coroutine: "Internal Coroutine Started - 언어가 한국어로 설정되었습니다!"
+  final2: 사용 준비 완료! - 언어가 한국어로 설정되었습니다.
+  coroutine: "Internal Coroutine Started"
 
 maintenance:
   bot-status-msg: 서버 점검 중
@@ -251,6 +251,7 @@ cmd:
     p-del-modal-err: "❌ 오류"
     p-del-modal-err-del: "❌ 오류: 스레드를 삭제할 권한이 없어요."
     p-del-modal-cancel: 작업이 취소되었어요.
+    p-del-deleted: "> 모집 글이 삭제 되었습니다."
     # ConfirmJoinLeaveView
     pc-joined: 님이 파티에 참여했습니다!
     pc-lefted: 님이 파티에서 나갔습니다.
@@ -284,6 +285,8 @@ cmd:
 
     # toggle_close_party btn
     pv-err-only-status: 파티 호스트만 모집 상태를 변경할 수 있어요.
+    pv-tgl-done: "**모집**이 **완료**되었습니다."
+    pv-tgl-ing: 님이 파티를 생성했습니다!
 
     # delete_party btn
     pv-del-label: 글 삭제
@@ -312,6 +315,8 @@ cmd:
     err-creation: "❌ 오류: 스레드를 생성하는 중 문제가 발생했어요. 관리자에게 문의해주세요."
     err-unknown: "❌ 알 수 없는 오류"
     not-found-ch: "❌ 오류: 지정된 텍스트 채널을 찾을 수 없어요. 관리자에게 문의해주세요."
+
+    created-party: 님이 파티를 생성했습니다!
 
 trs:
   # keyword
