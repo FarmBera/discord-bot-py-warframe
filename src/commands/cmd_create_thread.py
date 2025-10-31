@@ -74,19 +74,19 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf_edit}title")):
                     )
                     await thread_to_edit.edit(name=new_thread_name)
 
-                # edit webhook msg
-                try:  # get the webhook (used to create the thread)
-                    webhook_name = LFG_WEBHOOK_NAME
-                    webhooks = await interact.channel.parent.webhooks()
-                    webhook = discord.utils.get(webhooks, name=webhook_name)
+            #     # edit webhook msg
+            #     try:  # get the webhook (used to create the thread)
+            #         webhook_name = LFG_WEBHOOK_NAME
+            #         webhooks = await interact.channel.parent.webhooks()
+            #         webhook = discord.utils.get(webhooks, name=webhook_name)
 
-                    if webhook:  # edit msg using the webhook
-                        await webhook.edit_message(
-                            message_id=interact.channel.id,
-                            content=f"[{self.mission_input.value}] {self.title_input.value}",
-                        )
-                except discord.NotFound:
-                    pass  # started msg not found, maybe deleted manually
+            #         if webhook:  # edit msg using the webhook
+            #             await webhook.edit_message(
+            #                 message_id=interact.channel.id,
+            #                 content=f"[{self.mission_input.value}] {self.title_input.value}",
+            #             )
+            #     except discord.NotFound:
+            #         pass  # started msg not found, maybe deleted manually
 
             await save_log(
                 lock=interact.client.log_lock,
@@ -233,15 +233,13 @@ class ConfirmDeleteView(discord.ui.View):
                     if starter_message:
                         await webhook.edit_message(
                             message_id=interact.channel.id,
-                            content=f"{starter_message.content}\n> 모집 글이 삭제 되었습니다.",
+                            content=ts.get(f"{pf}p-del-deleted"),
                         )
                 else:  #  if webhook is not found
                     starter_message = await interact.channel.parent.fetch_message(
                         interact.channel.id
                     )
-                    await starter_message.edit(
-                        content=f"{starter_message.content}\n> 모집 글이 삭제 되었습니다."
-                    )
+                    await starter_message.edit(content=ts.get(f"{pf}p-del-deleted"))
             except discord.NotFound:
                 pass  # starter msg not found, maybe deleted manually
 
@@ -719,12 +717,12 @@ class PartyView(discord.ui.View):
             webhooks = await interact.channel.parent.webhooks()
             webhook = discord.utils.get(webhooks, name=webhook_name)
 
-            original_content = f"[{party_data['mission_type']}] {party_data['title']}"
-
+            # original_content = f"[{party_data['mission_type']}] {party_data['title']}"
             if new_status == ts.get(f"{pf_pv}done"):
-                new_content = f"**[{ts.get(f'{pf_pv}done')}]** ~~{original_content}~~"
+                new_content = ts.get(f"{pf}pv-tgl-done")
+                # f"**[{ts.get(f'{pf_pv}done')}]** ~~{original_content}~~"
             else:
-                new_content = original_content
+                new_content = ts.get(f"{pf}pv-tgl-ing")
 
             if webhook:
                 await webhook.edit_message(
@@ -981,7 +979,7 @@ async def cmd_create_thread_helper(
             # send msg via webhook to impersonate the user
             # msg: starting point of the thread.
             thread_starter_msg = await webhook.send(
-                content=f"[{mission_type}] {title}",
+                content=ts.get(f"{pf}created-party"),
                 username=interact.user.display_name,
                 avatar_url=interact.user.display_avatar.url,
                 wait=True,
