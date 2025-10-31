@@ -52,7 +52,11 @@ async def main_manager() -> None:
 
     log_lock = asyncio.Lock()
 
-    bot_mode = CMD_MAIN  # init mode
+    # bot_mode = CMD_MAIN  # init mode
+    bot_mode = input("Starting Bot Mode > ").lower()
+    if not bot_mode:
+        print(f"\033[A\rUnknown Mode > '{bot_mode}'\033[A\r")
+        bot_mode = CMD_MAIN
 
     while bot_mode not in EXIT_CMD:
         intents = discord.Intents.default()

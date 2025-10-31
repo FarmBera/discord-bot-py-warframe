@@ -53,7 +53,7 @@ class DiscordBot(discord.Client):
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
         print(
-            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default} {ts.get(f'start.final2')}",
+            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.green} {ts.get(f'start.final2')}{C.default}",
         )
 
         await save_log(
@@ -128,8 +128,8 @@ class DiscordBot(discord.Client):
         setting = json_load(SETTING_FILE_LOC)
         channels = yaml_open(CHANNEL_FILE_LOC)
 
-        if await API_Request(self.log_lock, "auto_send_msg_request()") != 200:
-            return
+        # if await API_Request(self.log_lock, "auto_send_msg_request()") != 200:
+        #     return
 
         latest_data = json_load(DEFAULT_JSON_PATH)
 
