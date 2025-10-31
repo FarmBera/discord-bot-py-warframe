@@ -139,6 +139,12 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf_size}ui-title")):
                 )
                 return
 
+            if not new_max_size_str.isdigit() or int(new_max_size_str) > 4:
+                await interact.response.send_message(
+                    ts.get(f"{pf_size}err-high"), ephemeral=True
+                )
+                return
+
             new_max_size = int(new_max_size_str)
             db = interact.client.db
             cursor = db.cursor()
@@ -477,7 +483,7 @@ class PartyView(discord.ui.View):
 
         return dict(party_data), [dict(p) for p in participants_list]
 
-    @discord.ui.button(
+    @discord.ui.button(  # 참여하기
         label=ts.get(f"{pf_pv}join-btn"),
         style=discord.ButtonStyle.success,
         custom_id="party_join",
@@ -493,6 +499,64 @@ class PartyView(discord.ui.View):
             guild=f"{interact.guild.name}",
             channel=f"{interact.channel.name}",
             msg=f"PartyView -> join_party",
+        )
+
+        db = interact.client.db
+        party_data, participants_list = await self.fetch_party_data(interact)
+        if not party_data:
+            return
+
+        user_id = interact.user.id
+        is_participant = any(p["user_id"] == user_id for p in participants_list)
+
+        if is_participant:  # already joined
+            await interact.response.send_message(
+                ts.get(f"{pf_pv}already-joined"), ephemeral=True
+            )
+            return
+
+        # overflow: more than max_user
+        if len(participants_list) >= party_data["max_users"]:
+            await interact.response.send_message(ts.get(f"{pf_pv}full"), ephemeral=True)
+            return
+
+        view = ConfirmJoinLeaveView(
+            action="join",
+            db=db,
+            party_id=party_data["id"],
+            user_id=user_id,
+            user_mention=interact.user.mention,
+            original_message=interact.message,
+        )
+        await interact.response.send_message(
+            ts.get(f"{pf_pv}confirm-join"), view=view, ephemeral=True
+        )
+
+        timed_out = await view.wait()
+        if timed_out and view.value is None:
+            try:
+                await interact.edit_original_response(
+                    content=ts.get(f"{pf}pv-del-cancel"), view=None
+                )
+            except discord.errors.NotFound:
+                pass
+
+    @discord.ui.button(  # 탈퇴하기
+        label=ts.get(f"{pf_pv}leave-btn"),
+        style=discord.ButtonStyle.danger,
+        custom_id="party_leave",
+    )
+    async def leave_party(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.main.leave",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> leave_party",
         )
 
         db = interact.client.db
@@ -514,55 +578,34 @@ class PartyView(discord.ui.View):
         # check: is interacted user already joined
         is_participant = any(p["user_id"] == user_id for p in participants_list)
 
-        if is_participant:  # leave party
-            action = "leave"
-            prompt_msg = ts.get(f"{pf_pv}confirm-exit")
-        else:  # join party
-            # check party is full
-            if len(participants_list) >= party_data["max_users"]:
-                await interact.response.send_message(
-                    ts.get(f"{pf_pv}full"), ephemeral=True
-                )
-                return
-            action = "join"
-            prompt_msg = ts.get(f"{pf_pv}confirm-join")
+        if not is_participant:
+            await interact.response.send_message(
+                ts.get(f"{pf_pv}already-left"), ephemeral=True
+            )
+            return
 
-        # send confirm ui
         view = ConfirmJoinLeaveView(
-            action=action,
+            action="leave",
             db=db,
             party_id=party_id,
-            user_id=interact.user.id,
+            user_id=user_id,
             user_mention=interact.user.mention,
-            original_message=interact.message,  # deliver main embed msg
+            original_message=interact.message,
         )
-
-        await interact.response.send_message(prompt_msg, view=view, ephemeral=True)
+        await interact.response.send_message(
+            ts.get(f"{pf_pv}confirm-exit"), view=view, ephemeral=True
+        )
 
         timed_out = await view.wait()
         if timed_out and view.value is None:
             try:
-                # modify temporary confirm windows
                 await interact.edit_original_response(
                     content=ts.get(f"{pf}pv-del-cancel"), view=None
-                )
-                await save_log(
-                    lock=interact.client.log_lock,
-                    type="event",
-                    cmd="btn.main.join_party",
-                    user=f"{interact.user.display_name}",
-                    guild=f"{interact.guild.name}",
-                    channel=f"{interact.channel.name}",
-                    msg=f"PartyView -> join_party -> TIME_OUT",
                 )
             except discord.errors.NotFound:
                 pass
 
-        # refresh embed
-        new_embed = await build_party_embed_from_db(interact.message.id, db)
-        await interact.message.edit(embed=new_embed)
-
-    @discord.ui.button(
+    @discord.ui.button(  # 인원 수정
         label=ts.get(f"{pf_pv}mod-label"),
         style=discord.ButtonStyle.secondary,
         custom_id="party_edit_size",
@@ -591,7 +634,7 @@ class PartyView(discord.ui.View):
         modal = PartySizeModal(current_max=party_data["max_users"])
         await interact.response.send_modal(modal)
 
-    @discord.ui.button(
+    @discord.ui.button(  # 글 수정
         label=ts.get(f"{pf_pv}mod-article"),
         style=discord.ButtonStyle.secondary,
         custom_id="party_edit_content",
@@ -626,7 +669,7 @@ class PartyView(discord.ui.View):
         )
         await interact.response.send_modal(modal)
 
-    @discord.ui.button(
+    @discord.ui.button(  # 모집 완료
         label=ts.get(f"{pf_pv}done"),
         style=discord.ButtonStyle.primary,
         custom_id="party_toggle_close",
@@ -670,12 +713,47 @@ class PartyView(discord.ui.View):
         )
         db.commit()
 
+        # edit webhook msg
+        try:
+            webhook_name = LFG_WEBHOOK_NAME
+            webhooks = await interact.channel.parent.webhooks()
+            webhook = discord.utils.get(webhooks, name=webhook_name)
+
+            original_content = f"[{party_data['mission_type']}] {party_data['title']}"
+
+            if new_status == ts.get(f"{pf_pv}done"):
+                new_content = f"**[{ts.get(f'{pf_pv}done')}]** ~~{original_content}~~"
+            else:
+                new_content = original_content
+
+            if webhook:
+                await webhook.edit_message(
+                    message_id=interact.channel.id,
+                    content=new_content,
+                )
+            else:  # if webhook is not found
+                starter_message = await interact.channel.parent.fetch_message(
+                    interact.channel.id
+                )
+                if starter_message:
+                    await starter_message.edit(content=new_content)
+        except discord.NotFound:
+            pass  # starter msg not found, maybe deleted manually
+        except Exception as e:
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event.err",
+                msg=f"Failed to edit webhook message on party close toggle: {e}",
+            )
+
         # refresh embed
         new_embed = await build_party_embed_from_db(interact.message.id, db)
 
         # change button label & style
         join_btn = discord.utils.get(self.children, custom_id="party_join")
         edit_size_btn = discord.utils.get(self.children, custom_id="party_edit_size")
+        leave_btn = discord.utils.get(self.children, custom_id="party_leave")
+
         if new_status == ts.get(f"{pf_pv}done"):
             button.label = ts.get(f"{pf_pv}ing")
             button.style = discord.ButtonStyle.success
@@ -683,6 +761,8 @@ class PartyView(discord.ui.View):
                 join_btn.disabled = True
             if edit_size_btn:
                 edit_size_btn.disabled = True
+            if leave_btn:
+                leave_btn.disabled = True
 
         else:
             button.label = ts.get(f"{pf_pv}done")
@@ -691,10 +771,12 @@ class PartyView(discord.ui.View):
                 join_btn.disabled = False
             if edit_size_btn:
                 edit_size_btn.disabled = False
+            if leave_btn:
+                leave_btn.disabled = False
 
         await interact.response.edit_message(embed=new_embed, view=self)
 
-    @discord.ui.button(
+    @discord.ui.button(  # 글 삭제
         label=ts.get(f"{pf}pv-del-label"),
         style=discord.ButtonStyle.danger,
         custom_id="party_delete",
@@ -834,7 +916,7 @@ async def cmd_create_thread_helper(
     title: str,
     # game_nickname: str,
     mission_type: str,
-    description: str,
+    description: str = "(설명 없음)",
     number_of_user: int = 4,
 ) -> None:
     db = db_conn

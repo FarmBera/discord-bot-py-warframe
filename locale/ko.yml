@@ -241,7 +241,8 @@ cmd:
     # PartySizeModal
     p-size-modal-ui-title: 파티원 수 조절
     p-size-modal-label: 최대 파티원 수 (숫자만 입력)
-    p-size-modal-err-low: 숫자만 입력해야 하며, 파티원 수는 2명 이상이어야 합니다.
+    p-size-modal-err-low: 숫자만 입력해야 하며, 파티원 수는 2명 이상 4명 이하로 설정해주세요.
+    p-size-modal-err-high: 파티원은 4명을 초과할 수 없습니다.
     p-size-modal-err-high-1: 최대 인원은 현재 인원
     p-size-modal-err-high-2: 보다 적을 수 없습니다.
     # ConfirmDeleteView
@@ -258,13 +259,16 @@ cmd:
 
     # join btn
     pv-not-found: 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
-    pv-join-btn: "참가 / 탈퇴"
+    pv-join-btn: "참여하기"
+    pv-leave-btn: "탈퇴하기"
     pv-host-exit-err: 호스트는 파티에서 탈퇴할 수 없어요.
     pv-exited: 파티에서 탈퇴했어요.
     pv-full: 파티가 꽉 찼습니다...
     pv-joined: 파티에 참가했습니다!
     pv-confirm-exit: 파티에서 탈퇴하시겠습니까?
     pv-confirm-join: 파티에 참가하시겠습니까?
+    pv-already-joined: 이미 파티에 참여했습니다.
+    pv-already-left: 파티에 소속되어 있지 않습니다.
 
     pv-done: 모집 완료
     pv-ing: 모집 활성화
