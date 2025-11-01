@@ -66,13 +66,13 @@ async def register_main_commands(
         description=f"{ts.get('cmd.announcement.desc')}",
     )
     async def cmd_announcement(
-        interact: discord.Interaction, is_user_view_only: bool = True
+        interact: discord.Interaction, is_public_msg: bool = False
     ):
         # TODO: only I can send public messages
         await cmd_helper_txt(
             interact,
             file_name=ANNOUNCE_FILE_LOC,
-            isUserViewOnly=True,
+            isPublicMsg=is_public_msg,
         )
 
     # patch-note command
@@ -80,16 +80,25 @@ async def register_main_commands(
         name=ts.get(f"cmd.patch-note.cmd"),
         description=f"{ts.get('cmd.patch-note.desc')}",
     )
-    async def cmd_patch_note(interact: discord.Interaction):
-        await cmd_helper_txt(interact, file_name=PATCHNOTE_FILE_LOC)
+    async def cmd_patch_note(
+        interact: discord.Interaction, is_public_msg: bool = False
+    ):
+        await cmd_helper_txt(
+            interact, file_name=PATCHNOTE_FILE_LOC, isPublicMsg=is_public_msg
+        )
 
     # privacy-policy command
     @tree.command(
         name=ts.get(f"cmd.privacy-policy.cmd"),
         description=f"{ts.get('cmd.privacy-policy.desc')}",
     )
-    async def cmd_privacy_policy(interact: discord.Interaction):
-        await cmd_helper_txt(interact, file_name=POLICY_FILE_LOC)
+    async def cmd_privacy_policy(
+        interact: discord.Interaction, is_public_msg: bool = False
+    ):
+        # TODO: only I can send public messages
+        await cmd_helper_txt(
+            interact, file_name=POLICY_FILE_LOC, isPublicMsg=is_public_msg
+        )
 
     # news command
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
