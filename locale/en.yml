@@ -18,6 +18,9 @@ time:
   min: m
 
 cmd:
+  no-perm-title: Permission Denied
+  no-permission: "You do not have permission to send public messages.\nOnly authorized administrators can send them.\n\nIf you believe this is an error, please contact the bot developer."
+
   help:
     cmd: help
     desc: Help center about this Bot (command etc)
@@ -241,7 +244,8 @@ cmd:
     # PartySizeModal
     p-size-modal-ui-title: Adjust Party Size
     p-size-modal-label: Max party size (numbers only)
-    p-size-modal-err-low: "Please enter a number 1 or greater."
+    p-size-modal-err-low: "Please enter a number between 2 and 4."
+    p-size-modal-err-high: "Party size cannot exceed 4 members."
     p-size-modal-err-high-1: "The max size cannot be less than the current number"
     p-size-modal-err-high-2: "of members."
     # ConfirmDeleteView
@@ -250,18 +254,25 @@ cmd:
     p-del-modal-err: "❌ Error"
     p-del-modal-err-del: "❌ Error: I don't have permission to delete this thread."
     p-del-modal-cancel: "The action has been canceled."
+    p-del-deleted: "> The party listing has been deleted."
+    # ConfirmJoinLeaveView
+    pc-joined: "has joined the party!"
+    pc-lefted: "has left the party."
 
     # PartyView
 
     # join btn
     pv-not-found: "Could not find party information. Please contact an admin."
-    pv-join-btn: "Join / Leave"
+    pv-join-btn: "Join"
+    pv-leave-btn: "Leave"
     pv-host-exit-err: "The host cannot leave the party."
     pv-exited: "You have left the party."
     pv-full: "The party is full."
     pv-joined: "You have joined the party!"
     pv-confirm-exit: "Are you sure you want to leave the party?"
     pv-confirm-join: "Are you sure you want to join the party?"
+    pv-already-joined: "You are already in the party."
+    pv-already-left: "You are not in the party."
 
     pv-done: Closed
     pv-ing: Recruiting
@@ -277,6 +288,8 @@ cmd:
 
     # toggle_close_party btn
     pv-err-only-status: "Only the party host can change the recruitment status."
+    pv-tgl-done: "**Recruitment** is now **closed**."
+    pv-tgl-ing: "has created a party!"
 
     # delete_party btn
     pv-del-label: Delete Post
@@ -305,3 +318,5 @@ cmd:
     err-creation: "❌ Error: A problem occurred while creating the thread. Please contact an admin."
     err-unknown: "❌ Unknown Error"
     not-found-ch: "❌ Error: Could not find the specified text channel. Please contact an admin."
+
+    created-party: "has created a party!"

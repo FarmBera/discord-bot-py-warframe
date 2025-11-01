@@ -18,6 +18,9 @@ time:
   min: 분
 
 cmd:
+  no-perm-title: 권한 없음
+  no-permission: "공개 메시지를 보낼 권한이 없습니다.\n선택된 관리자만 전체 공개 메시지를 보낼 수 있습니다.\n\n오류라고 판단된다면 봇 개발자에게 문의해주세요."
+
   help:
     cmd: 도움말
     desc: 사용 가능한 명령어 및 관련 도움말을 표시합니다.
@@ -228,8 +231,8 @@ cmd:
     desc: "새로운 파티 구인 글을 생성합니다."
     title: 파티 모집 제목
     miss-types: 미션 이름 또는 종류
-    descript: (선택사항) 모집 글에 대한 세부설명
-    nou: 최대 파티원 수 (본인 포함)
+    descript: "[선택사항] 모집 글에 대한 세부설명"
+    nou: "[선택사항] 최대 파티원 수 (본인 포함)"
 
     err: 오류
     # PartyEditodal
@@ -244,7 +247,7 @@ cmd:
     p-size-modal-err-low: 숫자만 입력해야 하며, 파티원 수는 2명 이상 4명 이하로 설정해주세요.
     p-size-modal-err-high: 파티원은 4명을 초과할 수 없습니다.
     p-size-modal-err-high-1: 최대 인원은 현재 인원
-    p-size-modal-err-high-2: 보다 적을 수 없습니다.
+    p-size-modal-err-high-2: 보다 작을 수 없습니다.
     # ConfirmDeleteView
     p-del-modal-btny: Yes (진행)
     p-del-modal-btnn: No (취소)
