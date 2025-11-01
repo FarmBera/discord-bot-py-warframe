@@ -14,6 +14,7 @@ from config.TOKEN import (
 from src.utils.file_io import json_load
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
+from src.constants.times import timeNowDT
 from src.utils.logging_utils import save_log
 
 
@@ -31,7 +32,7 @@ async def send_request(
         None: failed to request api
     """
 
-    start_time = dt.datetime.now()
+    start_time = timeNowDT()
     response = None
 
     # setup variables
@@ -51,11 +52,11 @@ async def send_request(
         else:
             response = requests.get(base_url, timeout=60)
     except Exception as e:
-        elapsed_time = dt.datetime.now() - start_time
+        elapsed_time = timeNowDT() - start_time
 
         msg = f"[err] API request failed!"
         obj = f"{elapsed_time}/{e}"
-        print(dt.datetime.now(), C.red, msg, elapsed_time, C.default)
+        print(timeNowDT(), C.red, msg, elapsed_time, C.default)
         await save_log(
             lock=log_lock,
             type="err",
@@ -69,7 +70,7 @@ async def send_request(
     # check response code
     res_code: int = response.status_code
     if res_code != 200:
-        elapsed_time = dt.datetime.now() - start_time
+        elapsed_time = timeNowDT() - start_time
 
         msg = f"[warn] response code is not 200"
         obj = f"{res_code}/{elapsed_time}"
@@ -82,16 +83,16 @@ async def send_request(
             obj=obj,
         )
         if not query:
-            print(dt.datetime.now(), C.red, msg, res_code, elapsed_time, C.default)
+            print(timeNowDT(), C.red, msg, res_code, elapsed_time, C.default)
         return res_code
 
     # check response (is not empty or err value)
     if response is None:
-        elapsed_time = dt.datetime.now() - start_time
+        elapsed_time = timeNowDT() - start_time
 
         msg = f"[err] response is Empty!"
         obj = f"{res_code}/{elapsed_time}/{response}"
-        print(dt.datetime.now(), C.red, msg, res_code, elapsed_time, C.default)
+        print(timeNowDT(), C.red, msg, res_code, elapsed_time, C.default)
         await save_log(
             lock=log_lock,
             type="api",
@@ -106,11 +107,11 @@ async def send_request(
     try:
         response = response.json()
     except Exception as e:
-        elapsed_time = dt.datetime.now() - start_time
+        elapsed_time = timeNowDT() - start_time
 
         msg = f"[err] JSON Decode ERROR ({elapsed_time})"
         obj = f"{elapsed_time}/{e}"
-        print(dt.datetime.now(), C.red, msg, elapsed_time, C.default)
+        print(timeNowDT(), C.red, msg, elapsed_time, C.default)
         await save_log(
             lock=log_lock,
             type="err",
@@ -126,11 +127,11 @@ async def send_request(
         with open(JSON_PATH, "w", encoding="utf-8") as json_file:
             json.dump(response, json_file, ensure_ascii=False, indent=2)
     except Exception as e:
-        elapsed_time = dt.datetime.now() - start_time
+        elapsed_time = timeNowDT() - start_time
 
         msg = f"[err] Error on saving file!"
         obj = f"{elapsed_time}/{e}"
-        print(dt.datetime.now(), C.red, msg, elapsed_time, C.default)
+        print(timeNowDT(), C.red, msg, elapsed_time, C.default)
         await save_log(
             lock=log_lock,
             type="err",
@@ -141,7 +142,7 @@ async def send_request(
         )
         return res_code
 
-    elapsed_time = dt.datetime.now() - start_time
+    elapsed_time = timeNowDT() - start_time
     msg = f"[info] API request successful. {res_source}"
     # print(C.red, msg, C.default, sep="")
     await save_log(

@@ -5,7 +5,7 @@ import asyncio
 
 from src.translator import ts
 from config.TOKEN import DEFAULT_JSON_PATH
-from src.constants.times import alert_times
+from src.constants.times import alert_times, timeNowDT
 from src.constants.color import C
 from src.constants.keys import (
     # config file
@@ -61,7 +61,7 @@ class DiscordBot(discord.Client):
             cmd="bot.BOOTED",
             user=MSG_BOT,
             msg="[info] Bot booted up.",
-            obj=dt.datetime.now(),
+            obj=timeNowDT(),
         )  # VAR
 
         self.auto_send_msg_request.start()
@@ -140,7 +140,7 @@ class DiscordBot(discord.Client):
                 obj_new = latest_data[key]
             except Exception as e:
                 msg = f"[err] Error with loading original data"
-                print(dt.datetime.now(), C.red, key, msg, e, C.default)
+                print(timeNowDT(), C.red, key, msg, e, C.default)
                 await save_log(
                     lock=self.log_lock,
                     type="err",
@@ -177,7 +177,7 @@ class DiscordBot(discord.Client):
                             parsed_content = handler["parser"](missing_items)
                         except Exception as e:
                             msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                            print(dt.datetime.now(), C.red, msg, e, C.default)
+                            print(timeNowDT(), C.red, msg, e, C.default)
                             await save_log(
                                 lock=self.log_lock,
                                 type="err",
@@ -231,7 +231,7 @@ class DiscordBot(discord.Client):
                         parsed_content = handler["parser"](missing_invasions)
                     except Exception as e:
                         msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                        print(dt.datetime.now(), C.red, msg, e, C.default)
+                        print(timeNowDT(), C.red, msg, e, C.default)
                         await save_log(
                             lock=self.log_lock,
                             type="err",
@@ -253,7 +253,7 @@ class DiscordBot(discord.Client):
                     parsed_content = handler["parser"](obj_new)
                 except Exception as e:
                     msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                    print(dt.datetime.now(), C.red, msg, C.default)
+                    print(timeNowDT(), C.red, msg, C.default)
                     await save_log(
                         lock=self.log_lock,
                         type="err",

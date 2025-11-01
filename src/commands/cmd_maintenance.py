@@ -2,7 +2,7 @@ import discord
 import datetime as dt
 
 from src.translator import ts
-from src.constants.times import JSON_DATE_PAT
+from src.constants.times import JSON_DATE_PAT, timeNowDT
 from src.constants.keys import STARTED_TIME_FILE_LOC, DELTA_TIME_LOC
 from src.utils.logging_utils import save_log
 from src.utils.file_io import open_file
@@ -13,7 +13,7 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
     time_target = dt.datetime.strptime(
         open_file(STARTED_TIME_FILE_LOC), JSON_DATE_PAT
     ) + dt.timedelta(minutes=int(open_file(DELTA_TIME_LOC)))
-    time_left = time_target - dt.datetime.now()
+    time_left = time_target - timeNowDT()
 
     txt = f"""# 서버 점검 중
 

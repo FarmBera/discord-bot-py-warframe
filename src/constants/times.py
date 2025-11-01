@@ -16,6 +16,10 @@ def timeNow() -> int:
     return int(dt.datetime.now().timestamp())
 
 
+def timeNowDT() -> dt.datetime:
+    return dt.datetime.now()
+
+
 def unixToDatetime(timestamp: int) -> dt.datetime:
     if timestamp > 10**12:  # 밀리초(ms) 단위로 판단
         return dt.datetime.fromtimestamp(timestamp / 1000)
@@ -49,7 +53,7 @@ def convert_remain(unix_timestamp):
         return "Wrong Timestamp Format"
 
     # convert into datetime obj
-    now_dt = dt.datetime.now()
+    now_dt = timeNowDT()
     input_dt = dt.datetime.fromtimestamp(ts_int)
 
     # calculate time diff
