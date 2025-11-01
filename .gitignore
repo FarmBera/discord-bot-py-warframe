@@ -15,6 +15,7 @@ tmp
 *.db
 
 # personal file
+admin.yml
 channel.yml
 TOKEN.py
 script/sync.sh
