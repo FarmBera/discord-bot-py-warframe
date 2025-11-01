@@ -80,7 +80,7 @@ def w_market_search(name) -> discord.Embed:
     # create output msg
     idx: int = 0
     output_msg = f"## 검색 결과: [{item_name}](https://warframe.market/{lang}/items/{item_slug}?type=sell)\n"
-    output_msg += f"(파란색 링크를 클릭하면 마켓으로 이동합니다.)\n"
+    output_msg += f"> (파란색 링크를 클릭하면 마켓으로 이동합니다.)\n"
     for item in ingame_orders:
         if item["type"] != "sell":
             continue
