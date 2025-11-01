@@ -144,12 +144,12 @@ async def register_main_commands(
         )
 
     # steel path reward command
-    # @tree.command(
-    #     name=ts.get(f"cmd.steel-path-reward.cmd"),
-    #     description=ts.get(f"cmd.steel-path-reward.desc"),
-    # )
-    # async def cmd_steel_reward(interact: discord.Interaction):
-    #     await cmd_helper(interact, key=STEELPATH, parser_func=w_steelPath)
+    @tree.command(
+        name=ts.get(f"cmd.steel-path-reward.cmd"),
+        description=ts.get(f"cmd.steel-path-reward.desc"),
+    )
+    async def cmd_steel_reward(interact: discord.Interaction):
+        await cmd_helper(interact, key=STEELPATH, parser_func=w_steelPath)
 
     # fissures command
     @tree.command(

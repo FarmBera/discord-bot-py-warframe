@@ -67,12 +67,12 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     async def cmd_voidTraders(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
-    # @tree.command(
-    #     name=ts.get(f"cmd.steel-path-reward.cmd"),
-    #     description=ts.get(f"cmd.steel-path-reward.desc"),
-    # )
-    # async def cmd_steel_reward(interact: discord.Interaction):
-    #     await cmd_helper_maintenance(interact)
+    @tree.command(
+        name=ts.get(f"cmd.steel-path-reward.cmd"),
+        description=ts.get(f"cmd.steel-path-reward.desc"),
+    )
+    async def cmd_steel_reward(interact: discord.Interaction):
+        await cmd_helper_maintenance(interact)
 
     @tree.command(
         name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")

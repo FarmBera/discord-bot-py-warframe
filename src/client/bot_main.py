@@ -16,6 +16,7 @@ from src.constants.keys import (
     MSG_BOT,
     # cmd obj
     SORTIE,
+    STEELPATH,
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
@@ -66,6 +67,7 @@ class DiscordBot(discord.Client):
 
         self.auto_send_msg_request.start()
         self.auto_noti.start()
+        self.weekly_task.start()
 
         print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
@@ -295,3 +297,43 @@ class DiscordBot(discord.Client):
             ch_list = ch_list["channel"]
 
         await self.send_alert(w_sortie(get_obj(SORTIE)), ch_list)
+
+    # weekly reset task
+    @tasks.loop(time=dt.time(hour=9, minute=0))
+    async def weekly_task(self) -> None:
+        # weekday() returns integer: 0: Monday, 1: Tuesday, ..., 6: Sunday
+        if dt.datetime.now(dt.timezone.utc).weekday() != 0:
+            return
+
+        # update steelPath reward index
+        try:
+            steel_data: dict = get_obj(STEELPATH)
+            rotation_list: list = steel_data["rotation"]
+            curr_idx: int = steel_data["currentReward"]
+
+            # increment & save index
+            new_idx: int = (curr_idx + 1) % len(rotation_list)
+            steel_data["currentReward"] = new_idx
+
+            # save index
+            set_obj(steel_data, STEELPATH)
+            msg = f"[info] Steel Path reward index updated {curr_idx} -> {new_idx}"
+
+            await save_log(
+                lock=self.log_lock,
+                cmd="bot.WEEKLY_TASK",
+                user=MSG_BOT,
+                msg=msg,
+                obj=timeNowDT(),
+            )
+        except Exception as e:
+            msg = f"[err] Failed to update Steel Path reward index: {C.red}{e}"
+            print(C.yellow, msg, C.default)
+
+            await save_log(
+                lock=self.log_lock,
+                cmd="bot.WEEKLY_TASK",
+                user=MSG_BOT,
+                msg=msg,
+                obj=timeNowDT(),
+            )

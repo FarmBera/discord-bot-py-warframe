@@ -36,23 +36,26 @@ def w_steelPath(steel) -> tuple:
 
     pf: str = "cmd.steel-path-reward."
 
-    current = steel["currentReward"]
+    curr_idx: int = steel["currentReward"]
+    current: dict = steel["rotation"][curr_idx]
+
     cname: str = current["name"]
+    cost = current["cost"]
+
     output_msg: str = f"# {ts.get(f'{pf}title')}\n\n"
 
     # current reward
-    output_msg += f"- {ts.get(f'{pf}curr-reward')}: **{ts.trs(cname)}** ({current['cost']} {ts.get(f'{pf}cost')})\n"
+    output_msg += f"- {ts.get(f'{pf}curr-reward')}: **{ts.trs(cname)}** ({cost} {ts.get(f'{pf}cost')})\n"
 
     # next week reward
     idx = 0
-    for item in steel["rotation"]:
+    stl = steel["rotation"]
+    for item in stl:
         if item["name"] == cname:
-            idx += 1
-            if idx >= len(steel["rotation"]):  # fix index overflow
-                idx = 0
+            idx = (idx + 1) % len(stl)
 
             # output
-            item = steel["rotation"][idx]
+            item = stl[idx]
             output_msg += f"- {ts.get(f'{pf}next')}: *{ts.trs(item['name'])}* ({item['cost']} {ts.get(f'{pf}cost')})"
             break
         else:
