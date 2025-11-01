@@ -21,7 +21,7 @@ params_market: dict = {"Language": lang, "Platform": "pc"}
 
 async def send_request(
     log_lock: asyncio.Lock, res_source: str, query: str = ""
-) -> int | None:
+) -> requests.Response | None:
     """send API request and return response if return code exists
 
     Args:
@@ -54,7 +54,6 @@ async def send_request(
             response = requests.get(base_url, timeout=60)
     except Exception as e:
         elapsed_time = timeNowDT() - start_time
-
         msg = f"[err] API request failed!"
         obj = f"{elapsed_time}/{e}"
         print(timeNowDT(), C.red, msg, obj, elapsed_time, C.default)
@@ -85,7 +84,7 @@ async def send_request(
         )
         if not query:
             print(timeNowDT(), C.red, msg, res_code, elapsed_time, C.default)
-        return res_code
+        return response
 
     # check response (is not empty or err value)
     if response is None:
@@ -102,46 +101,27 @@ async def send_request(
             msg=msg,
             obj=obj,
         )
-        return res_code
-
-    # parse JSON
-    try:
-        response = response.json()
-    except Exception as e:
-        elapsed_time = timeNowDT() - start_time
-
-        msg = f"[err] JSON Decode ERROR ({elapsed_time})"
-        obj = f"{elapsed_time}/{e}"
-        print(timeNowDT(), C.red, msg, elapsed_time, C.default)
-        await save_log(
-            lock=log_lock,
-            type="err",
-            cmd="API_REQUEST()",
-            user=MSG_BOT,
-            msg=msg,
-            obj=obj,
-        )
-        return res_code
+        return None
 
     # save data
-    try:
-        with open(JSON_PATH, "w", encoding="utf-8") as json_file:
-            json.dump(response, json_file, ensure_ascii=False, indent=2)
-    except Exception as e:
-        elapsed_time = timeNowDT() - start_time
+    # try:
+    #     with open(JSON_PATH, "w", encoding="utf-8") as json_file:
+    #         json.dump(response, json_file, ensure_ascii=False, indent=2)
+    # except Exception as e:
+    #     elapsed_time = timeNowDT() - start_time
 
-        msg = f"[err] Error on saving file!"
-        obj = f"{elapsed_time}/{e}"
-        print(timeNowDT(), C.red, msg, elapsed_time, C.default)
-        await save_log(
-            lock=log_lock,
-            type="err",
-            cmd="API_REQUEST()",
-            user=MSG_BOT,
-            msg=msg,
-            obj=obj,
-        )
-        return res_code
+    #     msg = f"[err] Error on saving file!"
+    #     obj = f"{elapsed_time}/{e}"
+    #     print(timeNowDT(), C.red, msg, elapsed_time, C.default)
+    #     await save_log(
+    #         lock=log_lock,
+    #         type="err",
+    #         cmd="API_REQUEST()",
+    #         user=MSG_BOT,
+    #         msg=msg,
+    #         obj=obj,
+    #     )
+    #     return response
 
     elapsed_time = timeNowDT() - start_time
     msg = f"[info] API request successful. {res_source}"
@@ -155,7 +135,7 @@ async def send_request(
         obj=f"{res_code}/{elapsed_time}",
     )
 
-    return res_code
+    return response
 
 
 # usage for main api

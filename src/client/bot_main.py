@@ -1,6 +1,7 @@
 import discord
 from discord.ext import tasks
 import datetime as dt
+import requests
 import asyncio
 
 from src.translator import ts
@@ -130,10 +131,14 @@ class DiscordBot(discord.Client):
         setting = json_load(SETTING_FILE_LOC)
         channels = yaml_open(CHANNEL_FILE_LOC)
 
-        # if await API_Request(self.log_lock, "auto_send_msg_request()") != 200:
-        #     return
+        latest_data: requests.Response = await API_Request(
+            self.log_lock, "auto_send_msg_request()"
+        )
 
-        latest_data = json_load(DEFAULT_JSON_PATH)
+        if not latest_data or latest_data.status_code != 200:
+            return
+
+        latest_data = latest_data.json()
 
         # check for new content & send alert
         for key, handler in DATA_HANDLERS.items():
