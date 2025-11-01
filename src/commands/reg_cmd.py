@@ -68,7 +68,6 @@ async def register_main_commands(
     async def cmd_announcement(
         interact: discord.Interaction, is_public_msg: bool = False
     ):
-        # TODO: only I can send public messages
         await cmd_helper_txt(
             interact,
             file_name=ANNOUNCE_FILE_LOC,
@@ -95,7 +94,6 @@ async def register_main_commands(
     async def cmd_privacy_policy(
         interact: discord.Interaction, is_public_msg: bool = False
     ):
-        # TODO: only I can send public messages
         await cmd_helper_txt(
             interact, file_name=POLICY_FILE_LOC, isPublicMsg=is_public_msg
         )
