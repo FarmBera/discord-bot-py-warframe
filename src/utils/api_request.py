@@ -3,11 +3,10 @@ import json
 import datetime as dt
 import asyncio
 
+from src.translator import language as lang
 from config.TOKEN import (
     base_url_warframe,
     base_url_market,
-    # params_warframe,
-    params_market,
     DEFAULT_JSON_PATH,
     DEFAULT_MARKET_JSON_PATH,
 )
@@ -16,6 +15,8 @@ from src.constants.color import C
 from src.constants.keys import MSG_BOT
 from src.constants.times import timeNowDT
 from src.utils.logging_utils import save_log
+
+params_market: dict = {"Language": lang, "Platform": "pc"}
 
 
 async def send_request(
@@ -56,7 +57,7 @@ async def send_request(
 
         msg = f"[err] API request failed!"
         obj = f"{elapsed_time}/{e}"
-        print(timeNowDT(), C.red, msg, elapsed_time, C.default)
+        print(timeNowDT(), C.red, msg, obj, elapsed_time, C.default)
         await save_log(
             lock=log_lock,
             type="err",
@@ -172,7 +173,7 @@ async def API_Request(lock: asyncio.Lock, args: str = "Unknown Source") -> int |
 
 
 # usage for market api
-def API_MarketSearch(req_source: str, query: str, item_name: str):
+def API_MarketSearch(item_name: str):
     """API request function for warframe.market search
 
     Args:
@@ -183,5 +184,32 @@ def API_MarketSearch(req_source: str, query: str, item_name: str):
     Returns:
         _type_: _description_
     """
-    item_name = item_name.replace(" ", "_")
-    return send_request(req_source, f"{query}/{item_name}/orders")
+    response: requests.Response = None
+
+    # API Request
+    try:
+        # orders/item/{slug}
+        response = requests.get(
+            url=f"{base_url_market}orders/item/{item_name}",
+            headers=params_market,
+            timeout=60,
+        )
+    except Exception as e:
+        msg = f"[err] API request failed! (from API_MarketSearch)"
+        print(timeNowDT(), C.yellow, msg, C.red, e, C.default)
+        return None
+
+    # check response code
+    res_code: int = response.status_code
+    if res_code != 200:
+        msg = f"[warn] response code is not 200 (from API_MarketSearch)"
+        print(C.red, res_code, msg, C.default)
+        return response
+
+    # check response (is not empty)
+    if response is None:
+        msg = f"[err] response is Empty!"
+        print(C.red, msg, C.default)
+        return response
+
+    return response

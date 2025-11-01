@@ -18,14 +18,12 @@ async def cmd_helper(
     isMarketQuery: bool = False,
     marketQuery: str = "",
 ) -> None:
-    need_api_call = False
-
     if isFollowUp:  # delay response if needed
         await interact.response.defer(ephemeral=isUserViewOnly)
 
-    if need_api_call:  # API request if needed
-        # await API_Request(lock=,f"cmd.{key}")
-        set_obj(json_load()[key], key)
+    # if need_api_call:  # API request if needed
+    #     # await API_Request(lock=,f"cmd.{key}")
+    #     set_obj(json_load()[key], key)
 
     # load objects
     if parser_args:
