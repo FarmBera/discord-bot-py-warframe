@@ -1,4 +1,7 @@
-filePfx: str = "docs/"
+from config.config import language as lang
+
+
+filePfx: str = f"docs/{lang}/"
 configPfx: str = "config/"
 JSON: str = "api_cache"
 fileExt: str = ".md"

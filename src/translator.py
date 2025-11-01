@@ -1,13 +1,9 @@
 import yaml
 
+from config.config import Lang, language
 from src.utils.logging_utils import save_log
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
-
-
-class Lang:
-    EN: str = "en"
-    KO: str = "ko"
 
 
 class Translator:
@@ -62,10 +58,7 @@ class Translator:
             return key
 
 
-# language initialize
-language = input("Select Language (en/ko) >> ")
-# language = Lang.EN  # temporary
-# language = Lang.KO  # temporary
+# initialize language
 if language not in [Lang.EN, Lang.KO]:  # input check
     print(
         f"{C.red}Unknown string: {C.yellow}'{language}'. {C.white}will setup default lang: {C.cyan}{Lang.EN}{C.default}"
