@@ -119,10 +119,8 @@ async def register_main_commands(
         1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
-    async def cmd_news(interact: discord.Interaction, number_of_news: int = 20):
-        await cmd_helper(
-            interact, key=NEWS, parser_func=w_news, parser_args=number_of_news
-        )
+    async def cmd_news(interact: discord.Interaction):
+        await cmd_helper(interact, key=NEWS, parser_func=w_news)
 
     # alerts command
     @discord.app_commands.checks.cooldown(
