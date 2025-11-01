@@ -21,6 +21,10 @@ cmd:
   no-perm-title: 권한 없음
   no-permission: "공개 메시지를 보낼 권한이 없습니다.\n선택된 관리자만 전체 공개 메시지를 보낼 수 있습니다.\n\n오류라고 판단된다면 봇 개발자에게 문의해주세요."
 
+  err-cooldown:
+    title: 재사용 대기시간
+    desc: 이 명령어를 다시 사용하려면 {time}초 더 기다려야 합니다.
+
   help:
     cmd: 도움말
     desc: 사용 가능한 명령어 및 관련 도움말을 표시합니다.
@@ -93,14 +97,14 @@ cmd:
 
   void-traders:
     cmd: 바로키티어
-    desc: 보이드 상인이 언제, 어디서 등장할지 알려줍니다
+    desc: 바로 키 티어가 언제, 어디서 등장할지 알려줍니다
     title: 바로 키 티어 현황
 
     tdr-name: 상인
     status: 상태
 
     activate: "[활성화됨](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    end: 종료 시간
+    end: 상인이 떠날 때 까지
     location: 위치
 
     deactivate: 비활성화됨
@@ -288,7 +292,7 @@ cmd:
 
     # toggle_close_party btn
     pv-err-only-status: 파티 호스트만 모집 상태를 변경할 수 있어요.
-    pv-tgl-done: "**모집**이 **완료**되었습니다."
+    pv-tgl-done: "**모집**이 **완료**된 파티입니다."
     pv-tgl-ing: 님이 파티를 생성했습니다!
 
     # delete_party btn

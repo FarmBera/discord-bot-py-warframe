@@ -49,11 +49,18 @@ from src.parser.vallisCycle import w_vallisCycle
 from src.parser.marketsearch import w_market_search
 
 
+DEFAULT_COOLDOWN_TIME = 10.0
+PARTY_COOLDOWN_TIME = 60.0
+
+
 async def register_main_commands(
     tree: discord.app_commands.CommandTree, db_conn: sqlite3.Connection
 ) -> None:
 
     # help command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
     )
@@ -61,6 +68,9 @@ async def register_main_commands(
         await cmd_helper_txt(interact, file_name=HELP_FILE_LOC)
 
     # announcement command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.announcement.cmd"),
         description=f"{ts.get('cmd.announcement.desc')}",
@@ -75,6 +85,9 @@ async def register_main_commands(
         )
 
     # patch-note command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.patch-note.cmd"),
         description=f"{ts.get('cmd.patch-note.desc')}",
@@ -87,6 +100,9 @@ async def register_main_commands(
         )
 
     # privacy-policy command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.privacy-policy.cmd"),
         description=f"{ts.get('cmd.privacy-policy.desc')}",
@@ -99,6 +115,9 @@ async def register_main_commands(
         )
 
     # news command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
     async def cmd_news(interact: discord.Interaction, number_of_news: int = 20):
         await cmd_helper(
@@ -106,6 +125,9 @@ async def register_main_commands(
         )
 
     # alerts command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc")
     )
@@ -118,6 +140,9 @@ async def register_main_commands(
     #     await cmd_helper(interact=interact, key=CETUSCYCLE, parser_func=w_cetusCycle)
 
     # sortie command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc")
     )
@@ -125,6 +150,9 @@ async def register_main_commands(
         await cmd_helper(interact, key=SORTIE, parser_func=w_sortie)
 
     # archon hunt command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
     )
@@ -132,6 +160,9 @@ async def register_main_commands(
         await cmd_helper(interact, key=ARCHONHUNT, parser_func=w_archonHunt)
 
     # void traders command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.void-traders.cmd"),
         description=ts.get(f"cmd.void-traders.desc"),
@@ -142,6 +173,9 @@ async def register_main_commands(
         )
 
     # steel path reward command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.steel-path-reward.cmd"),
         description=ts.get(f"cmd.steel-path-reward.desc"),
@@ -150,6 +184,9 @@ async def register_main_commands(
         await cmd_helper(interact, key=STEELPATH, parser_func=w_steelPath)
 
     # fissures command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.fissures.cmd"), description=ts.get(f"cmd.fissures.desc")
     )
@@ -184,6 +221,9 @@ async def register_main_commands(
     #     await cmd_helper(interact, key=DUVIRICYCLE, parser_func=w_duviriCycle)
 
     # hex calendar reward command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.calendar.cmd"),
         description=ts.get(f"cmd.calendar.desc"),
@@ -219,6 +259,9 @@ async def register_main_commands(
     #     await cmd_helper(interact, key=CAMBIONCYCLE, parser_func=w_cambionCycle)
 
     # dailyDeals command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
     )
@@ -226,6 +269,9 @@ async def register_main_commands(
         await cmd_helper(interact, key=DAILYDEALS, parser_func=w_dailyDeals)
 
     # invasions command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
     )
@@ -233,6 +279,9 @@ async def register_main_commands(
         await cmd_helper(interact, key=INVASIONS, parser_func=w_invasions)
 
     # voidTrader item command
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.void-traders-item.cmd"),
         description=ts.get(f"cmd.void-traders-item.desc"),
@@ -241,6 +290,9 @@ async def register_main_commands(
         await cmd_helper(interact, key=VOIDTRADERS, parser_func=w_voidTradersItem)
 
     # search 'warframe.market' commnad
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.market-search.cmd"),
         description=ts.get(f"cmd.market-search.desc"),
@@ -255,6 +307,9 @@ async def register_main_commands(
         )
 
     # 'warframe.market' search guide commnad
+    @discord.app_commands.checks.cooldown(
+        1, DEFAULT_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.market-help.cmd"),
         description=ts.get(f"cmd.market-help.desc"),
@@ -270,6 +325,9 @@ async def register_main_commands(
     # async def cmd_vallis(interact: discord.Interaction):
     #     await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)
 
+    @discord.app_commands.checks.cooldown(
+        1, PARTY_COOLDOWN_TIME, key=lambda i: (i.guild_id, i.user.id)
+    )
     @tree.command(
         name=ts.get(f"cmd.party.cmd"),
         description=ts.get("cmd.party.desc"),

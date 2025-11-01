@@ -6,6 +6,7 @@ import sqlite3
 
 from config.TOKEN import TOKEN as BOT_TOKEN
 from src.constants.color import C
+from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
 
@@ -66,6 +67,24 @@ async def main_manager() -> None:
             current_bot = DiscordBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
+
+            @tree.error
+            async def on_app_command_error(
+                interact: discord.Interaction,
+                error: discord.app_commands.AppCommandError,
+            ):
+                if isinstance(error, discord.app_commands.CommandOnCooldown):
+                    pf = "cmd.err-cooldown."
+                    embed = discord.Embed(
+                        title=ts.get(f"{pf}title"),
+                        description=ts.get(f"{pf}desc").format(
+                            time=f"{error.retry_after:.0f}"
+                        ),
+                        color=0xFF0000,
+                    )
+                    await interact.response.send_message(embed=embed, ephemeral=True)
+                else:  # other type of error
+                    print(f"Unhandled app command error: {error}")
 
             db_conn = sqlite3.connect("db/party.db")
             # db_conn.execute("PRAGMA foreign_keys = ON;")
