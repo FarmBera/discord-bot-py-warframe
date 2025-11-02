@@ -104,7 +104,7 @@ cmd:
     status: 상태
 
     activate: "[활성화됨](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    end: 상인이 떠날 때 까지
+    end: 상인이 떠나기까지
     location: 위치
 
     deactivate: 비활성화됨

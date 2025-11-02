@@ -21,6 +21,10 @@ cmd:
   no-perm-title: Permission Denied
   no-permission: "You do not have permission to send public messages.\nOnly authorized administrators can send them.\n\nIf you believe this is an error, please contact the bot developer."
 
+  err-cooldown:
+    title: Cooldown
+    desc: You must wait {time} more second(s) to use this command again.
+
   help:
     cmd: help
     desc: Help center about this Bot (command etc)
