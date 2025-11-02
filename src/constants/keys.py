@@ -24,7 +24,7 @@ PATCHNOTE_FILE_LOC: str = f"{filePfx}patch-note{fileExt}"
 POLICY_FILE_LOC: str = f"{filePfx}privacy-policy{fileExt}"
 FOOTER_FILE_LOC: str = f"{filePfx}footer{fileExt}"
 STARTED_TIME_FILE_LOC: str = f"{filePfx}m-started_time{fileExt}"
-DELTA_TIME_LOC: str = f"{filePfx}m-delta{fileExt}"
+DELTA_TIME_LOC: str = f"docs/m-delta{fileExt}"
 MARKET_HELP_FILE: str = f"{filePfx}market-help{fileExt}"
 
 
