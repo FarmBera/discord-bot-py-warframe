@@ -302,6 +302,7 @@ async def register_main_commands(
             interact,
             key=MARKET_SEARCH,
             parser_func=w_market_search,
+            isFollowUp=True,
             isMarketQuery=True,
             marketQuery=item_name,
         )
