@@ -6,10 +6,14 @@ configPfx: str = "config/"
 JSON: str = "api_cache"
 fileExt: str = ".md"
 
+# json file location
+DEFAULT_JSON_PATH: str = f"data/Warframe.json"
+DEFAULT_MARKET_JSON_PATH: str = f"data/market-search.json"
+# other file location
 LOG_FILE_PATH: str = "log/log.csv"
 SETTING_FILE_LOC: str = f"{configPfx}setting.json"
 CHANNEL_FILE_LOC: str = f"{configPfx}channel"
-
+# docs file list
 HELP_FILE_LOC: str = f"{filePfx}help{fileExt}"
 ANNOUNCE_FILE_LOC: str = f"{filePfx}announcement{fileExt}"
 PATCHNOTE_FILE_LOC: str = f"{filePfx}patch-note{fileExt}"
@@ -21,6 +25,7 @@ MARKET_HELP_FILE: str = f"{filePfx}market-help{fileExt}"
 
 
 MSG_BOT: str = "bot.self"
+
 
 ALERTS = "Alerts"
 NEWS = "Events"

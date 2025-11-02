@@ -42,7 +42,10 @@ def w_news(newses, LIMIT_OUTPUT_CNT: int = 50):
 
         t_url = item["Prop"].replace(" ", "")
         if not t_url:
-            t_url = str(item["Links"][0]["Link"]).replace(" ", "")
+            if not item.get("Links"):
+                t_url = ""
+            elif item["Links"]:
+                t_url = str(item["Links"][0]["Link"]).replace(" ", "")
 
         t_img = item.get("ImageUrl")
 
@@ -82,12 +85,13 @@ def w_news(newses, LIMIT_OUTPUT_CNT: int = 50):
         description=output_msg,
         color=0x00FFFF,
     )
-    img_url = news_news[0].img
-    embed.set_image(
-        url=(
-            img_url
-            if img_url
-            else "https://cdn.warframestat.us/genesis/img/news-placeholder.png"
-        )
-    )
+    # set embed thumb
+    img_url = None
+    if news_news:
+        img_url = news_news[0].img
+    elif news_community:
+        img_url = news_community[0].img
+    if img_url:
+        embed.set_image(url=img_url)
+
     return embed

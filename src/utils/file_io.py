@@ -2,7 +2,7 @@ import json
 import yaml
 
 from src.constants.color import C
-from config.TOKEN import DEFAULT_JSON_PATH
+from src.constants.keys import DEFAULT_JSON_PATH
 
 # general files
 

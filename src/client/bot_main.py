@@ -4,8 +4,8 @@ import datetime as dt
 import requests
 import asyncio
 
+from config.config import Lang
 from src.translator import ts
-from config.TOKEN import DEFAULT_JSON_PATH
 from src.constants.times import alert_times, timeNowDT
 from src.constants.color import C
 from src.constants.keys import (
@@ -146,7 +146,7 @@ class DiscordBot(discord.Client):
                 obj_prev = get_obj(key)
                 obj_new = latest_data[key]
             except Exception as e:
-                msg = f"[err] Error with loading original data"
+                msg = f"[err] Error with loading original data (from auto_send_msg_request/DATA_HANDLERS for loop)"
                 print(timeNowDT(), C.red, key, msg, e, C.default)
                 await save_log(
                     lock=self.log_lock,
@@ -164,7 +164,30 @@ class DiscordBot(discord.Client):
 
             special_logic = handler.get("special_logic")
 
-            if special_logic == "handle_missing_items":  # alerts, news
+            if (
+                special_logic == "handle_missing_items"
+                or special_logic == "handle_new_news"
+            ):  # alerts, news
+                if special_logic == "handle_new_news":  # news process
+                    news_old: list = []
+                    news_new: list = []
+
+                    # extract selected language only
+                    for item in obj_prev:
+                        for msg in item["Messages"]:
+                            if msg["LanguageCode"] in [Lang.EN, Lang.KO]:
+                                news_old.append(item)
+                                break
+                    for item in obj_new:
+                        for msg in item["Messages"]:
+                            if msg["LanguageCode"] in [Lang.EN, Lang.KO]:
+                                news_new.append(item)
+                                break
+
+                    obj_prev = news_old
+                    obj_new = news_new
+                # end of news process
+
                 prev_ids = {item["_id"]["$oid"] for item in obj_prev}
                 new_ids = {item["_id"]["$oid"] for item in obj_new}
 
@@ -289,7 +312,7 @@ class DiscordBot(discord.Client):
                     parsed_content, channel_list=target_ch, setting=setting
                 )
 
-        return  # End Of auto_send_msg_request()ㄹ
+        return  # End Of auto_send_msg_request()
 
     # sortie alert
     @tasks.loop(time=alert_times)

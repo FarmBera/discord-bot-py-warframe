@@ -49,7 +49,7 @@ DATA_HANDLERS = {
     },
     NEWS: {
         "parser": w_news,
-        "special_logic": "handle_missing_items",
+        "special_logic": "handle_new_news",
         "channel_key": "news",
     },
     # "cetusCycle": {

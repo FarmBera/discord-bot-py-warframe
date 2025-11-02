@@ -7,51 +7,40 @@ from src.translator import language as lang
 from config.TOKEN import (
     base_url_warframe,
     base_url_market,
-    DEFAULT_JSON_PATH,
-    DEFAULT_MARKET_JSON_PATH,
 )
 from src.utils.file_io import json_load
 from src.constants.color import C
-from src.constants.keys import MSG_BOT
+from src.constants.keys import MSG_BOT  # , DEFAULT_JSON_PATH, DEFAULT_MARKET_JSON_PATH
 from src.constants.times import timeNowDT
 from src.utils.logging_utils import save_log
 
 params_market: dict = {"Language": lang, "Platform": "pc"}
 
 
-async def send_request(
-    log_lock: asyncio.Lock, res_source: str, query: str = ""
-) -> requests.Response | None:
-    """send API request and return response if return code exists
+# async def send_request(
+#     log_lock: asyncio.Lock, res_source: str, query: str = ""
+# ) -> requests.Response | None:
+#     pass
+
+
+# usage for main api
+async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"):
+    """API request function for Warframe status
 
     Args:
-        res_source (str): API request code source
-        query (str, optional): additional URL query. market api usage only! Defaults to "".
+        log_lock (asyncio.Lock): Lock for log system. Requred!
+        res_source (str, optional): code position of the api request. Defaults to "Unknown Source".
 
     Returns:
-        int: api request success and response code exist
+
         None: failed to request api
     """
-
     start_time = timeNowDT()
     response = None
 
-    # setup variables
-    if query:  # market api
-        base_url = f"{base_url_market}/{query}"
-        param = params_market
-        JSON_PATH = DEFAULT_MARKET_JSON_PATH
-    else:  # warframe api
-        base_url = base_url_warframe
-        param = None
-        JSON_PATH = DEFAULT_JSON_PATH
-
     # API Request
     try:
-        if param:
-            response = requests.get(base_url, params=param, timeout=60)
-        else:
-            response = requests.get(base_url, timeout=60)
+        response = requests.get(base_url_warframe, timeout=60)
     except Exception as e:
         elapsed_time = timeNowDT() - start_time
         msg = f"[err] API request failed!"
@@ -82,8 +71,7 @@ async def send_request(
             msg=msg,
             obj=obj,
         )
-        if not query:
-            print(timeNowDT(), C.red, msg, res_code, elapsed_time, C.default)
+        print(timeNowDT(), C.red, msg, res_code, elapsed_time, C.default)
         return response
 
     # check response (is not empty or err value)
@@ -129,27 +117,13 @@ async def send_request(
     await save_log(
         lock=log_lock,
         type="api",
-        cmd="API-Market" if query else "API_REQUEST()",
+        cmd="API_REQUEST()",
         user=MSG_BOT,
         msg=msg,
         obj=f"{res_code}/{elapsed_time}",
     )
 
     return response
-
-
-# usage for main api
-async def API_Request(lock: asyncio.Lock, args: str = "Unknown Source") -> int | None:
-    """API request function for Warframe status
-
-    Args:
-        args (str, optional): code position of the api request. Defaults to "Unknown Source".
-
-    Returns:
-        int: api request success and response code exist
-        None: failed to request api
-    """
-    return await send_request(lock, args)
 
 
 # usage for market api
