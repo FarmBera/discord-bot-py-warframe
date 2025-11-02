@@ -63,8 +63,10 @@ async def register_main_commands(
     @tree.command(
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
     )
-    async def cmd_help(interact: discord.Interaction):
-        await cmd_helper_txt(interact, file_name=HELP_FILE_LOC)
+    async def cmd_help(interact: discord.Interaction, is_public_msg: bool = False):
+        await cmd_helper_txt(
+            interact, file_name=HELP_FILE_LOC, isPublicMsg=is_public_msg
+        )
 
     # announcement command
     @discord.app_commands.checks.cooldown(
@@ -342,7 +344,7 @@ async def register_main_commands(
         title: str,
         # game_nickname: str,
         mission_type: str,
-        descriptions: str = None,
+        descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
         await cmd_create_thread_helper(

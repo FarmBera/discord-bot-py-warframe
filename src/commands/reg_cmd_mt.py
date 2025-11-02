@@ -1,7 +1,17 @@
 import discord
 
 from src.translator import ts
-from src.constants.keys import COOLDOWN_DEFAULT, COOLDOWN_PARTY
+from src.constants.keys import (
+    # cooldown
+    COOLDOWN_DEFAULT,
+    COOLDOWN_PARTY,
+    # docs
+    HELP_FILE_LOC,
+    ANNOUNCE_FILE_LOC,
+    POLICY_FILE_LOC,
+)
+
+from src.commands.cmd_helper_text import cmd_helper_txt
 from src.commands.cmd_maintenance import cmd_helper_maintenance
 
 
@@ -12,8 +22,8 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     @tree.command(
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
     )
-    async def cmd_help(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+    async def cmd_help(interact: discord.Interaction, is_public_msg: bool = False):
+        await cmd_helper_txt(interact, file_name=HELP_FILE_LOC)
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -23,9 +33,9 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         description=f"{ts.get('cmd.announcement.desc')}",
     )
     async def cmd_announcement(
-        interact: discord.Interaction, is_user_view_only: bool = True
+        interact: discord.Interaction, is_public_msg: bool = False
     ):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_txt(interact, file_name=ANNOUNCE_FILE_LOC)
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -34,7 +44,9 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         name=ts.get(f"cmd.patch-note.cmd"),
         description=f"{ts.get('cmd.patch-note.desc')}",
     )
-    async def cmd_patch_note(interact: discord.Interaction):
+    async def cmd_patch_note(
+        interact: discord.Interaction, is_public_msg: bool = False
+    ):
         await cmd_helper_maintenance(interact)
 
     @discord.app_commands.checks.cooldown(
@@ -44,14 +56,16 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         name=ts.get(f"cmd.privacy-policy.cmd"),
         description=f"{ts.get('cmd.privacy-policy.desc')}",
     )
-    async def cmd_privacy_policy(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+    async def cmd_privacy_policy(
+        interact: discord.Interaction, is_public_msg: bool = False
+    ):
+        await cmd_helper_txt(interact, file_name=POLICY_FILE_LOC)
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
-    async def cmd_news(interact: discord.Interaction, number_of_news: int = 20):
+    async def cmd_news(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
 
     @discord.app_commands.checks.cooldown(
