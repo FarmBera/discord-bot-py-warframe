@@ -21,9 +21,9 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
 이용에 불편을 드려 죄송합니다.
 
 > 종료까지 약 **{time_format(time_left)}** 남았습니다.
-> 예상 완료 시간: {dt.datetime.strftime(time_target,"%Y-%m-%d %H:%M")}
+> 예상 완료 시간: {dt.datetime.strftime(time_target,"%Y년 %m월 %d일, %H시 %M분")}
 
-패치 작업은 조기 종료 될 수 있으며, 또한 지연될 수 있음을 알립니다.
+점검은 조기 종료 될 수 있으며, 또한 지연될 수 있음을 알립니다.
 """
 
     # send message
