@@ -1,5 +1,9 @@
 from config.config import language as lang
 
+# commands cooldown time (sec)
+COOLDOWN_DEFAULT: float = 10.0
+COOLDOWN_PARTY: float = 60.0
+COOLDOWN_BTN: float = COOLDOWN_PARTY
 
 filePfx: str = f"docs/{lang}/"
 configPfx: str = "config/"
@@ -27,23 +31,23 @@ MARKET_HELP_FILE: str = f"{filePfx}market-help{fileExt}"
 MSG_BOT: str = "bot.self"
 
 
-ALERTS = "Alerts"
-NEWS = "Events"
-CETUSCYCLE = "cetusCycle"
-SORTIE = "Sorties"
-ARCHONHUNT = "LiteSorties"
-VOIDTRADERS = "VoidTraders"
-STEELPATH = "steelPath"
-DUVIRICYCLE = "duviriCycle"
-DEEPARCHIMEDEA = "deepArchimedea"
-TEMPORALARCHIMEDEA = "temporalArchimedea"
-FISSURES = "ActiveMissions"
-CALENDAR = "KnownCalendarSeasons"
-CAMBIONCYCLE = "cambionCycle"
-DAILYDEALS = "DailyDeals"
-INVASIONS = "Invasions"
-MARKET_SEARCH = "market-search"
-VALLISCYCLE = "vallisCycle"
+ALERTS: str = "Alerts"
+NEWS: str = "Events"
+CETUSCYCLE: str = "cetusCycle"
+SORTIE: str = "Sorties"
+ARCHONHUNT: str = "LiteSorties"
+VOIDTRADERS: str = "VoidTraders"
+STEELPATH: str = "steelPath"
+DUVIRICYCLE: str = "duviriCycle"
+DEEPARCHIMEDEA: str = "deepArchimedea"
+TEMPORALARCHIMEDEA: str = "temporalArchimedea"
+FISSURES: str = "ActiveMissions"
+CALENDAR: str = "KnownCalendarSeasons"
+CAMBIONCYCLE: str = "cambionCycle"
+DAILYDEALS: str = "DailyDeals"
+INVASIONS: str = "Invasions"
+MARKET_SEARCH: str = "market-search"
+VALLISCYCLE: str = "vallisCycle"
 
 keys: list = [
     ALERTS,  # 0
@@ -65,6 +69,6 @@ keys: list = [
 ]
 
 
-SPECIAL_ITEM_LIST = ["exilus", "orokin", "reactor", "forma"]
+SPECIAL_ITEM_LIST: list = ["exilus", "orokin", "reactor", "forma"]
 
 LFG_WEBHOOK_NAME: str = "warframe-lfg-bot"
