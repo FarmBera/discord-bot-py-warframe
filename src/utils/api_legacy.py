@@ -1,0 +1,44 @@
+import requests
+import datetime as dt
+
+from config.TOKEN import base_url_warframe
+from src.constants.color import C
+
+
+# usage for main api
+def API_Request() -> requests.Response | None:
+    """Legacy API request function for `init` script
+
+    Returns:
+        requests.Response: API Response object
+        None: failed to request API
+    """
+
+    start_time = dt.datetime.now()
+    response: requests.Response = None
+
+    # API Request
+    try:
+        response = requests.get(base_url_warframe, timeout=60)
+    except Exception as e:
+        elapsed_time = dt.datetime.now() - start_time
+        msg = f"[err] API request failed! ({elapsed_time})\n{e}"
+        print(dt.datetime.now(), C.red, msg, C.default)
+        return None
+
+    # check response (is not empty or err value)
+    if not response:
+        elapsed_time = dt.datetime.now() - start_time
+        msg = f"[err] response is Empty! > ({res_code}/{elapsed_time})\n{response}"
+        print(dt.datetime.now(), C.red, msg, res_code, elapsed_time, C.default)
+        return None
+
+    # check response code
+    res_code: int = response.status_code
+    if res_code != 200:
+        elapsed_time = dt.datetime.now() - start_time
+        msg = f"[warn] response code is not 200 > {res_code} / {response.elapsed} ({elapsed_time})"
+        print(dt.datetime.now(), C.red, msg, res_code, elapsed_time, C.default)
+        return None
+
+    return response
