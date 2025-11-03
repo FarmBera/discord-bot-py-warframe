@@ -8,33 +8,39 @@ from src.utils.file_io import json_load
 THRESHOLD: int = 7
 SLUGS: list = json_load("data/market-item-list.json")["data"]
 
+_market_item_names = sorted([item["i18n"][lang]["name"] for item in SLUGS])
+
+
+def get_market_item_names() -> list[str]:
+    return _market_item_names
+
 
 def w_market_search(name) -> discord.Embed:
-    # rename input name
-    iname: list = []
-    for item in name.split(" "):
-        # en pattern
-        if item in ["p", "pr", "pri", "prim"]:
-            iname.append("prime")
-        elif item in ["c", "ch", "cha", "chas", "chass", "chassi"]:
-            iname.append("chassis")
-        elif item in ["s", "sy", "sys", "syst"]:
-            iname.append("systems")
-        elif item in ["n", "ne", "neu", "neur", "neuro", "neurop"]:
-            iname.append("neuroptics")
-        elif item in ["b", "bl", "bp", "blue", "bluep"]:
-            iname.append("blueprint")
+    if name not in _market_item_names:
+        # rename input name
+        iname: list = []
+        for item in name.split(" "):
+            # en pattern
+            if item in ["p", "pr", "pri", "prim"]:
+                iname.append("prime")
+            elif item in ["c", "ch", "cha", "chas", "chass", "chassi"]:
+                iname.append("chassis")
+            elif item in ["s", "sy", "sys", "syst"]:
+                iname.append("systems")
+            elif item in ["n", "ne", "neu", "neur", "neuro", "neurop"]:
+                iname.append("neuroptics")
+            elif item in ["b", "bl", "bp", "blue", "bluep"]:
+                iname.append("blueprint")
 
-        # ko pattern
-        # TODO: korean pattern
+            # pattern not found
+            else:
+                iname.append(item)
 
-        # pattern not found
-        else:
-            iname.append(item)
+        item_slug: str = " ".join(iname)
+    else:
+        item_slug = name
 
-    item_slug: str = " ".join(iname)
-
-    # find slug data
+        # find slug data
     flag: bool = False
     for i in SLUGS:
         if item_slug in i["i18n"][lang]["name"]:

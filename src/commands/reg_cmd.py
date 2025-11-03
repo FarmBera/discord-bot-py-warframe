@@ -49,7 +49,7 @@ from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
 from src.parser.invasions import w_invasions
 from src.parser.vallisCycle import w_vallisCycle
-from src.parser.marketsearch import w_market_search
+from src.parser.marketsearch import w_market_search, get_market_item_names
 
 
 async def register_main_commands(
@@ -298,6 +298,7 @@ async def register_main_commands(
         description=ts.get(f"cmd.market-search.desc"),
     )
     async def cmd_market_search(interact: discord.Interaction, item_name: str):
+        """Search for an item on warframe.market."""
         await cmd_helper(
             interact,
             key=MARKET_SEARCH,
@@ -306,6 +307,19 @@ async def register_main_commands(
             isMarketQuery=True,
             marketQuery=item_name,
         )
+
+    @cmd_market_search.autocomplete("item_name")
+    async def market_search_autocomplete(
+        interact: discord.Interaction,
+        current: str,
+    ) -> list[discord.app_commands.Choice[str]]:
+        """Autocompletes the item name for the market search."""
+        choices = [
+            discord.app_commands.Choice(name=name, value=name)
+            for name in get_market_item_names()
+            if current.lower() in name.lower()
+        ]
+        return choices[:25]
 
     # 'warframe.market' search guide commnad
     @discord.app_commands.checks.cooldown(
