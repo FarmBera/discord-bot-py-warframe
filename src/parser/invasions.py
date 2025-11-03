@@ -32,11 +32,11 @@ def singleInvasion(inv) -> str:
 {ts.get(f'{pf}completion')}: **{i_status_perc}** ({ts.get(f'{pf}atk-from')} {i_fact})
 """
     # date
-    date = convert_remain(int(inv["Activation"]["$date"]["$numberLong"]))
-    if date[0:1] == "S":
-        output_msg += f"{date}"
+    time = convert_remain(int(inv["Activation"]["$date"]["$numberLong"]))
+    if time[0:1] == "S":
+        output_msg += f"{time}"
     else:
-        output_msg += f"{ts.get(f'{pf}eta')} {date} {ts.get(f'{pf}eta1')}"
+        output_msg += f"{ts.get(f'{pf}eta').format(time=time)}"
     output_msg += "\n"
 
     # item

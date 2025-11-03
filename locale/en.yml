@@ -24,6 +24,7 @@ cmd:
   err-cooldown:
     title: Cooldown
     desc: You must wait {time} more second(s) to use this command again.
+    btn: You must wait {time} more seconds(s) to use this button again.
 
   help:
     cmd: help
@@ -31,11 +32,11 @@ cmd:
 
   announcement:
     cmd: announcement
-    desc: Show Announcements
+    desc: Show Bot Announcements
 
   patch-note:
     cmd: patch-note
-    desc: Recent patch-note this bot
+    desc: Bot's Recent patch-note this bot
 
   privacy-policy:
     cmd: privacy-policy
@@ -82,9 +83,7 @@ cmd:
     eta: Expires in
     hunt: Hunt
 
-    obt1: You can obtain
-    shardname: Archon Shard
-    obt2: in this week!
+    obt: "You can obtain {emoji} **{shard} Archon Shard** in thos week\n\n"
 
     Assassination: Assassination
 
@@ -108,17 +107,14 @@ cmd:
     location: Location
 
     deactivate: Deactivated
-    app1: Appears in
-    app2: ""
+    appear: "Appears in {time}"
     place: Coming to
 
   void-traders-item:
     cmd: voidtraders-item
     desc: Get Baro Ki'Teer selling item list.
 
-    not-yet: Trader is NOT arrived yet!
-    arrives-in: Arrives in
-    arrives-in1: ""
+    not-yet: "Trader is NOT arrived yet!\n- Arrives in **{time**"
 
     mods: Mods
     skin: Skin
@@ -198,8 +194,7 @@ cmd:
     desc: Get today's hot deal item!
     title: Daily Deal
     remain: Qty remain!
-    exp: Expires in
-    exp1: ""
+    exp: "Expires in **{time}**"
 
   invasions:
     cmd: invasions
@@ -208,8 +203,7 @@ cmd:
     at: at
     completion: Progress
     atk-from: "ATK:"
-    eta: Started
-    eta1: ago
+    eta: Started {time} ago
 
   market-search:
     cmd: market-search

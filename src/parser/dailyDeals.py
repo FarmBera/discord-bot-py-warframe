@@ -25,7 +25,7 @@ def w_dailyDeals(deals) -> discord.Embed:
 
 - ~~{price_origin}~~ --> **{price_sale}**
 - **{amount}** {ts.get(f'{pf}remain')} ({remain})
-- {ts.get(f'{pf}exp')} **{expiry}** {ts.get(f'{pf}exp1')}
+- {ts.get(f'{pf}exp').format(time=expiry)}
 """
 
     return discord.Embed(description=output_msg)
