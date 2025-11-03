@@ -3,7 +3,9 @@ from config.config import language as lang
 # commands cooldown time (sec)
 COOLDOWN_DEFAULT: float = 10.0
 COOLDOWN_PARTY: float = 60.0
-COOLDOWN_BTN: float = COOLDOWN_PARTY
+COOLDOWN_BTN_ACTION: float = 20.0  # join/leave
+COOLDOWN_BTN_MANAGE: float = 60.0  # modify/remove
+
 
 filePfx: str = f"docs/{lang}/"
 configPfx: str = "config/"

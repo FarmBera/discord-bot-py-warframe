@@ -24,6 +24,7 @@ cmd:
   err-cooldown:
     title: 재사용 대기시간
     desc: 이 명령어를 다시 사용하려면 {time}초 더 기다려야 합니다.
+    btn: 버튼을 다시 사용하려면 {time}초 더 기다려야 합니다.
 
   help:
     cmd: 도움말

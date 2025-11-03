@@ -1,8 +1,14 @@
 import discord
+from discord.ext import commands
 import sqlite3
 
 from src.translator import ts
-from src.constants.keys import CHANNEL_FILE_LOC, LFG_WEBHOOK_NAME
+from src.constants.keys import (
+    CHANNEL_FILE_LOC,
+    LFG_WEBHOOK_NAME,
+    COOLDOWN_BTN_ACTION,
+    COOLDOWN_BTN_MANAGE,
+)
 from src.utils.file_io import yaml_open
 from src.utils.logging_utils import save_log
 
@@ -457,6 +463,31 @@ class ConfirmJoinLeaveView(discord.ui.View):
 class PartyView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)  # make the button persistent
+        self.cooldown_action = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_ACTION, commands.BucketType.member
+        )
+        self.cooldown_manage = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_MANAGE, commands.BucketType.member
+        )
+
+    async def is_cooldown(
+        self, interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
+    ) -> bool:
+        bucket = cooldown_mapping.get_bucket(interact.message)
+        retry = bucket.update_rate_limit()
+        if retry:
+            await interact.response.send_message(
+                embed=discord.Embed(
+                    title=ts.get(f"cmd.err-cooldown.title"),
+                    description=ts.get("cmd.err-cooldown.btn").format(
+                        time=f"{int(retry)}"
+                    ),
+                    color=0xFF0000
+                ),
+                ephemeral=True,
+            )
+            return True
+        return False
 
     async def fetch_party_data(self, interact: discord.Interaction):
         """fetch party and participant data from DB"""
@@ -469,9 +500,15 @@ class PartyView(discord.ui.View):
         ).fetchone()
 
         if not party_data:
-            await interact.response.send_message(
-                ts.get(f"{pf_pv}not-found"), ephemeral=True
-            )
+            # defer()가 이미 호출된 경우 followup.send 사용
+            if not interact.response.is_done():
+                await interact.response.send_message(
+                    ts.get(f"{pf_pv}not-found"), ephemeral=True
+                )
+            else:
+                await interact.followup.send(
+                    ts.get(f"{pf_pv}not-found"), ephemeral=True
+                )
             return None, None
 
         # search participants
@@ -498,6 +535,9 @@ class PartyView(discord.ui.View):
             channel=f"{interact.channel.name}",
             msg=f"PartyView -> join_party",
         )
+
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
 
         db = interact.client.db
         party_data, participants_list = await self.fetch_party_data(interact)
@@ -556,6 +596,9 @@ class PartyView(discord.ui.View):
             channel=f"{interact.channel.name}",
             msg=f"PartyView -> leave_party",
         )
+
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
 
         db = interact.client.db
 
@@ -619,6 +662,9 @@ class PartyView(discord.ui.View):
             msg=f"PartyView -> edit_size",
         )
 
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
             return
@@ -650,6 +696,9 @@ class PartyView(discord.ui.View):
             msg=f"PartyView -> edit_content",
         )
 
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
             return
@@ -675,6 +724,9 @@ class PartyView(discord.ui.View):
     async def toggle_close_party(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
         db = interact.client.db
         cursor = db.cursor()
 
@@ -791,6 +843,9 @@ class PartyView(discord.ui.View):
             channel=f"{interact.channel.name}",
             msg=f"PartyView -> delete_party",
         )
+
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
 
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
@@ -927,7 +982,7 @@ async def cmd_create_thread_helper(
 
     await interact.response.defer(ephemeral=True)
 
-    if number_of_user <= 0:
+    if number_of_user < 2:
         await interact.followup.send(
             ts.get(f"{pf}pt-low"),
             ephemeral=True,
