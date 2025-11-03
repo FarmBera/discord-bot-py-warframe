@@ -28,7 +28,7 @@ from src.handler.handler_config import DATA_HANDLERS
 
 from src.parser.sortie import w_sortie
 
-from src.commands.cmd_create_thread import PartyView
+from src.commands.cmd_helper_party import PartyView
 
 
 class DiscordBot(discord.Client):
@@ -69,7 +69,6 @@ class DiscordBot(discord.Client):
         self.auto_send_msg_request.start()
         self.auto_noti.start()
         self.weekly_task.start()
-
         print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
     async def send_alert(self, value, channel_list=None, setting=None) -> None:

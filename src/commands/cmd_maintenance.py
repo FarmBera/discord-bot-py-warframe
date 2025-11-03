@@ -1,9 +1,15 @@
 import discord
+from discord.ext import commands
 import datetime as dt
 
 from src.translator import ts
 from src.constants.times import JSON_DATE_PAT, timeNowDT
-from src.constants.keys import STARTED_TIME_FILE_LOC, DELTA_TIME_LOC
+from src.constants.keys import (
+    STARTED_TIME_FILE_LOC,
+    DELTA_TIME_LOC,
+    COOLDOWN_BTN_ACTION,
+    COOLDOWN_BTN_MANAGE,
+)
 from src.utils.logging_utils import save_log
 from src.utils.file_io import open_file
 from src.utils.formatter import time_format
@@ -42,3 +48,175 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
         channel=interact.channel,
         msg="[info] cmd used in maintenance mode",  # VAR
     )
+
+
+pf: str = "cmd.party."
+pf_edit: str = f"{pf}p-edit-modal-"
+pf_size: str = f"{pf}p-size-modal-"
+pf_btn: str = f"{pf}p-del-modal-"
+pf_pv: str = f"{pf}pv-"
+
+
+class PartyView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)  # make the button persistent
+        self.cooldown_action = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_ACTION, commands.BucketType.member
+        )
+        self.cooldown_manage = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_MANAGE, commands.BucketType.member
+        )
+
+    async def is_cooldown(
+        self, interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
+    ) -> bool:
+        bucket = cooldown_mapping.get_bucket(interact.message)
+        retry = bucket.update_rate_limit()
+        if retry:
+            await interact.response.send_message(
+                embed=discord.Embed(
+                    title=ts.get(f"cmd.err-cooldown.title"),
+                    description=ts.get("cmd.err-cooldown.btn").format(
+                        time=f"{int(retry)}"
+                    ),
+                    color=0xFF0000,
+                ),
+                ephemeral=True,
+            )
+            return True
+        return False
+
+    @discord.ui.button(
+        label=ts.get(f"{pf_pv}join-btn"),
+        style=discord.ButtonStyle.success,
+        custom_id="party_join",
+    )
+    async def join_party(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
+        await cmd_helper_maintenance(interact)
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event.maintenance",
+            cmd="btn.main.join",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> join_party",
+        )
+
+    @discord.ui.button(
+        label=ts.get(f"{pf_pv}leave-btn"),
+        style=discord.ButtonStyle.danger,
+        custom_id="party_leave",
+    )
+    async def leave_party(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
+        await cmd_helper_maintenance(interact)
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event.maintenance",
+            cmd="btn.main.leave",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> leave_party",
+        )
+
+    @discord.ui.button(
+        label=ts.get(f"{pf_pv}mod-label"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="party_edit_size",
+    )
+    async def edit_size(self, interact: discord.Interaction, button: discord.ui.Button):
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        await cmd_helper_maintenance(interact)
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event.maintenance",
+            cmd="btn.main.edit-size",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> edit_size",
+        )
+
+    @discord.ui.button(
+        label=ts.get(f"{pf_pv}mod-article"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="party_edit_content",
+    )
+    async def edit_content(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        await cmd_helper_maintenance(interact)
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event.maintenance",
+            cmd="btn.main.edit-content",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> edit_content",
+        )
+
+    @discord.ui.button(
+        label=ts.get(f"{pf_pv}done"),
+        style=discord.ButtonStyle.primary,
+        custom_id="party_toggle_close",
+    )
+    async def toggle_close_party(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        await cmd_helper_maintenance(interact)
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event.maintenance",
+            cmd="btn.main.toggle_close_party",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> toggle_close_party",
+        )
+
+    @discord.ui.button(
+        label=ts.get(f"{pf}pv-del-label"),
+        style=discord.ButtonStyle.danger,
+        custom_id="party_delete",
+    )
+    async def delete_party(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        await cmd_helper_maintenance(interact)
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event.maintenance",
+            cmd="btn.main.delete_party",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> delete_party",
+        )

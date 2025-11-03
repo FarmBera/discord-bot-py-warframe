@@ -4,7 +4,7 @@ import sqlite3
 from src.translator import ts
 from src.commands.cmd_helper import cmd_helper
 from src.commands.cmd_helper_text import cmd_helper_txt
-from src.commands.cmd_create_thread import cmd_create_thread_helper
+from src.commands.cmd_helper_party import cmd_create_thread_helper
 
 
 from src.constants.keys import (

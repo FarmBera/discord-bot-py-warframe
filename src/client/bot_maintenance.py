@@ -9,7 +9,7 @@ from src.constants.color import C
 from src.constants.keys import STARTED_TIME_FILE_LOC, MSG_BOT
 from src.utils.logging_utils import save_log
 from src.utils.file_io import save_file
-from src.commands.cmd_create_thread_mt import PartyView
+from src.commands.cmd_maintenance import PartyView
 
 
 class MaintanceBot(discord.Client):
