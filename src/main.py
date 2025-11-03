@@ -56,7 +56,7 @@ async def main_manager() -> None:
     # bot_mode = CMD_MAIN  # init mode
     bot_mode = input("Starting Bot Mode > ").lower()
     if not bot_mode:
-        print(f"\033[A\rUnknown Mode > '{bot_mode}'\033[A\r")
+        print(f"\033[A\r{C.yellow}Unknown Mode > '{C.red}{bot_mode}{C.yellow}' / setup default mode: {C.cyan}`main`{C.default}")
         bot_mode = CMD_MAIN
 
     while bot_mode not in EXIT_CMD:
@@ -100,7 +100,7 @@ async def main_manager() -> None:
                     max_users INTEGER,
                     description TEXT,
                     game_nickname TEXT,
-                    status TEXT DEFAULT '모집중',
+                    status TEXT DEFAULT '모집 중',
                     created_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
                     updated_at TIMESTAMP DEFAULT (datetime('now', 'localtime'))
                 );
