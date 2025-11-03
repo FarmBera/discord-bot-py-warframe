@@ -289,6 +289,12 @@ cmd:
     pv-tgl-done: "**Recruitment** is now **closed**."
     pv-tgl-ing: "has created a party!"
 
+    # call_members btn
+    pv-call-label: Call Members
+    pv-call-msg: The host has pinged the party members!
+    pv-call-no-members: There are no members to call.
+    pv-err-only-host-call: Only the party host can call the members.
+
     # delete_party btn
     pv-del-label: Delete Post
     pv-del-only-host: "Only the party host can delete this post."

@@ -8,6 +8,7 @@ from src.constants.keys import (
     LFG_WEBHOOK_NAME,
     COOLDOWN_BTN_ACTION,
     COOLDOWN_BTN_MANAGE,
+    COOLDOWN_BTN_CALL,
 )
 from src.utils.file_io import yaml_open
 from src.utils.logging_utils import save_log
@@ -464,10 +465,13 @@ class PartyView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)  # make the button persistent
         self.cooldown_action = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_ACTION, commands.BucketType.member
+            1, COOLDOWN_BTN_ACTION, commands.BucketType.user
         )
         self.cooldown_manage = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_MANAGE, commands.BucketType.member
+            1, COOLDOWN_BTN_MANAGE, commands.BucketType.user
+        )
+        self.cooldown_call = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_CALL, commands.BucketType.user
         )
 
     async def is_cooldown(
@@ -482,7 +486,7 @@ class PartyView(discord.ui.View):
                     description=ts.get("cmd.err-cooldown.btn").format(
                         time=f"{int(retry)}"
                     ),
-                    color=0xFF0000
+                    color=0xFF0000,
                 ),
                 ephemeral=True,
             )
@@ -724,6 +728,17 @@ class PartyView(discord.ui.View):
     async def toggle_close_party(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.main.toggle_close_party",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> toggle_close_party",
+            # obj=new_status,
+        )
+
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
 
@@ -745,17 +760,6 @@ class PartyView(discord.ui.View):
             ts.get(f"{pf_pv}done")
             if party_data["status"] == ts.get(f"{pf_pv}ing")
             else ts.get(f"{pf_pv}ing")
-        )
-
-        await save_log(
-            lock=interact.client.log_lock,
-            type="event",
-            cmd="btn.main.toggle_close_party",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
-            msg=f"PartyView -> toggle_close_party",
-            obj=new_status,
         )
 
         cursor.execute(
@@ -825,6 +829,54 @@ class PartyView(discord.ui.View):
                 leave_btn.disabled = False
 
         await interact.response.edit_message(embed=new_embed, view=self)
+
+    @discord.ui.button(  # 파티원 호출
+        label=ts.get(f"{pf}pv-call-label"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="party_call_members",
+    )
+    async def call_members(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.main.call_members",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> call_members",
+        )
+
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        party_data, participants_list = await self.fetch_party_data(interact)
+        if not party_data:
+            interact.response.send_message(ts.get(f"{pf}pv-not-found"), ephemeral=True)
+            return
+
+        if interact.user.id != party_data["host_id"]:
+            await interact.response.send_message(
+                ts.get(f"{pf}pv-err-only-host-call"), ephemeral=True
+            )
+            return
+
+        # create member list (exclude host)
+        members_to_call = [
+            p["user_mention"]
+            for p in participants_list
+            if p["user_id"] != party_data["host_id"]
+        ]
+
+        if not members_to_call:
+            await interact.response.send_message(
+                ts.get(f"{pf}pv-call-no-members"), ephemeral=True
+            )
+            return
+
+        call_message = f"{' '.join(members_to_call)} {ts.get(f'{pf}pv-call-msg')}"
+        await interact.response.send_message(call_message)
 
     @discord.ui.button(  # 글 삭제
         label=ts.get(f"{pf}pv-del-label"),

@@ -9,6 +9,7 @@ from src.constants.keys import (
     DELTA_TIME_LOC,
     COOLDOWN_BTN_ACTION,
     COOLDOWN_BTN_MANAGE,
+    COOLDOWN_BTN_CALL,
 )
 from src.utils.logging_utils import save_log
 from src.utils.file_io import open_file
@@ -65,6 +66,9 @@ class PartyView(discord.ui.View):
         )
         self.cooldown_manage = commands.CooldownMapping.from_cooldown(
             1, COOLDOWN_BTN_MANAGE, commands.BucketType.member
+        )
+        self.cooldown_call = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_CALL, commands.BucketType.user
         )
 
     async def is_cooldown(
@@ -188,6 +192,7 @@ class PartyView(discord.ui.View):
             return
 
         await cmd_helper_maintenance(interact)
+
         await save_log(
             lock=interact.client.log_lock,
             type="event.maintenance",
@@ -196,6 +201,29 @@ class PartyView(discord.ui.View):
             guild=f"{interact.guild.name}",
             channel=f"{interact.channel.name}",
             msg=f"PartyView -> toggle_close_party",
+        )
+
+    @discord.ui.button(  # 파티원 호출
+        label=ts.get(f"{pf}pv-call-label"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="party_call_members",
+    )
+    async def call_members(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        await cmd_helper_maintenance(interact)
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event.maintenance",
+            cmd="btn.main.call_members",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> call_members",
         )
 
     @discord.ui.button(

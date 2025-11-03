@@ -289,6 +289,12 @@ cmd:
     pv-tgl-done: "**모집**이 **완료**된 파티입니다."
     pv-tgl-ing: 파티를 생성했습니다!
 
+    # call_members btn
+    pv-call-label: 파티원 호출
+    pv-call-msg: 호스트가 파티원들을 호출했습니다!
+    pv-call-no-members: 호출할 파티원이 없습니다.
+    pv-err-only-host-call: 파티 호스트만 파티원을 호출할 수 있습니다.
+
     # delete_party btn
     pv-del-label: 글 삭제
     pv-del-only-host: 파티 호스트만 이 글을 삭제할 수 있어요.
