@@ -112,6 +112,7 @@ async def main_manager() -> None:
                     party_id INTEGER,
                     user_id INTEGER,
                     user_mention TEXT,
+                    display_name TEXT,
                     created_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
                     updated_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
                     PRIMARY KEY (party_id, user_id),

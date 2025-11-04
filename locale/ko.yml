@@ -295,6 +295,14 @@ cmd:
     pv-call-no-members: 호출할 파티원이 없습니다.
     pv-err-only-host-call: 파티 호스트만 파티원을 호출할 수 있습니다.
 
+    # kick_member btn
+    pv-kick-label: 파티원 내보내기
+    pv-kick-modal-title: (파티원을 선택하면 바로 내보내기 작업이 수행됩니다.)
+    pv-kick-modal-select-placeholder: 내보낼 파티원을 선택하세요.
+    pv-kick-success: 님을 파티에서 내보냈습니다.
+    pv-kick-no-members: 내보낼 파티원이 없습니다.
+    pv-err-only-host-kick: 파티 호스트만 이 기능을 사용할 수 있습니다.
+
     # delete_party btn
     pv-del-label: 글 삭제
     pv-del-only-host: 파티 호스트만 이 글을 삭제할 수 있어요.
@@ -320,7 +328,7 @@ cmd:
 
     no-thread-permission: "❌ 오류: 해당 채널에 스레드를 생성할 권한이 없어요. 관리자에게 문의해주세요."
     err-creation: "❌ 오류: 스레드를 생성하는 중 문제가 발생했어요. 관리자에게 문의해주세요."
-    err-unknown: "❌ 알 수 없는 오류"
+    err-unknown: "❌ 알 수 없는 오류. 관리자에게 문의해주세요."
     not-found-ch: "❌ 오류: 지정된 텍스트 채널을 찾을 수 없어요. 관리자에게 문의해주세요."
 
     created-party: 파티를 생성했습니다!

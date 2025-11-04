@@ -324,6 +324,96 @@ class ConfirmDeleteView(discord.ui.View):
         )
 
 
+# define kick member view
+class KickMemberSelect(discord.ui.Select):
+    def __init__(self, members: list[dict], original_message_id: int):
+        self.original_message_id = original_message_id
+        options = [
+            discord.SelectOption(
+                label=member["display_name"],
+                # description=f"ID: {member['user_id']}",
+                value=str(member["user_id"]),
+            )
+            for member in members
+        ]
+        super().__init__(
+            placeholder=ts.get(f"{pf}pv-kick-modal-select-placeholder"),
+            min_values=1,
+            max_values=1,
+            options=options,
+            custom_id="kick_member_select",
+        )
+
+    async def callback(self, interact: discord.Interaction):
+        selected_user_id = int(self.values[0])
+        db = interact.client.db
+        cursor = db.cursor()
+
+        await interact.response.defer(ephemeral=True)
+
+        try:
+            party_data = db.execute(
+                "SELECT id, host_id FROM party WHERE message_id = ?",
+                (self.original_message_id,),
+            ).fetchone()
+            if not party_data:
+                await interact.response.send_message(
+                    content=ts.get(f"{pf_pv}not-found"), ephemeral=True
+                )
+                return
+
+            party_id = party_data["id"]
+            kicked_user_mention = f"<@{selected_user_id}>"
+
+            cursor.execute(
+                "DELETE FROM participants WHERE party_id = ? AND user_id = ?",
+                (party_id, selected_user_id),
+            )
+            db.commit()
+
+            # Fetch the original party message and edit it
+            original_message = await interact.channel.fetch_message(
+                self.original_message_id
+            )
+            new_embed = await build_party_embed_from_db(self.original_message_id, db)
+            await original_message.edit(embed=new_embed)
+
+            host_mention = f"<@{party_data['host_id']}>, "
+            # Send notification to the thread and confirmation to the user
+            await interact.followup.send(
+                f"{kicked_user_mention} {ts.get(f'{pf}pv-kick-success')}"
+            )
+
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="select.kick.member",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"Kicked user {selected_user_id}",
+            )
+
+        except Exception as e:
+            await interact.followup.send(f"오류: {e}", ephemeral=True)
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event.err",
+                cmd="select.kick.member",
+                user=f"{interact.user.display_name}",
+                msg=f"Error in KickMemberSelect callback",
+                obj=e,
+            )
+        finally:
+            await interact.delete_original_response()
+
+
+class KickMemberView(discord.ui.View):
+    def __init__(self, members_to_kick: list[dict], original_message_id: int):
+        super().__init__(timeout=60)
+        self.add_item(KickMemberSelect(members_to_kick, original_message_id))
+
+
 # define join/leave confirm view
 class ConfirmJoinLeaveView(discord.ui.View):
     def __init__(
@@ -363,8 +453,8 @@ class ConfirmJoinLeaveView(discord.ui.View):
         try:
             if self.action == "join":
                 cursor.execute(
-                    "INSERT INTO participants (party_id, user_id, user_mention) VALUES (?, ?, ?)",
-                    (self.party_id, self.user_id, self.user_mention),
+                    "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (?, ?, ?, ?)",
+                    (self.party_id, self.user_id, self.user_mention, interact.user.display_name),
                 )
                 self.db.commit()
                 # reply confirm chat
@@ -806,7 +896,7 @@ class PartyView(discord.ui.View):
         # change button label & style
         join_btn = discord.utils.get(self.children, custom_id="party_join")
         edit_size_btn = discord.utils.get(self.children, custom_id="party_edit_size")
-        leave_btn = discord.utils.get(self.children, custom_id="party_leave")
+        # leave_btn = discord.utils.get(self.children, custom_id="party_leave")
 
         if new_status == ts.get(f"{pf_pv}done"):
             button.label = ts.get(f"{pf_pv}ing")
@@ -815,8 +905,8 @@ class PartyView(discord.ui.View):
                 join_btn.disabled = True
             if edit_size_btn:
                 edit_size_btn.disabled = True
-            if leave_btn:
-                leave_btn.disabled = True
+            # if leave_btn:
+            #     leave_btn.disabled = True
 
         else:
             button.label = ts.get(f"{pf_pv}done")
@@ -825,8 +915,8 @@ class PartyView(discord.ui.View):
                 join_btn.disabled = False
             if edit_size_btn:
                 edit_size_btn.disabled = False
-            if leave_btn:
-                leave_btn.disabled = False
+            # if leave_btn:
+            #     leave_btn.disabled = False
 
         await interact.response.edit_message(embed=new_embed, view=self)
 
@@ -877,6 +967,52 @@ class PartyView(discord.ui.View):
 
         call_message = f"{' '.join(members_to_call)} {ts.get(f'{pf}pv-call-msg')}"
         await interact.response.send_message(call_message)
+
+    @discord.ui.button(  # 멤버 내보내기
+        label=ts.get(f"{pf}pv-kick-label"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="party_kick_member",
+    )
+    async def kick_member(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.main.kick_member",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> kick_member",
+        )
+
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        party_data, participants_list = await self.fetch_party_data(interact)
+        if not party_data:
+            return
+
+        if interact.user.id != party_data["host_id"]:
+            await interact.response.send_message(
+                ts.get(f"{pf}pv-err-only-host-kick"), ephemeral=True
+            )
+            return
+
+        members_to_kick = [
+            p for p in participants_list if p["user_id"] != party_data["host_id"]
+        ]
+
+        if not members_to_kick:
+            await interact.response.send_message(
+                ts.get(f"{pf}pv-kick-no-members"), ephemeral=True
+            )
+            return
+
+        view = KickMemberView(members_to_kick, interact.message.id)
+        await interact.response.send_message(
+            ts.get(f"{pf}pv-kick-modal-title"), view=view, ephemeral=True
+        )
 
     @discord.ui.button(  # 글 삭제
         label=ts.get(f"{pf}pv-del-label"),
@@ -1071,8 +1207,8 @@ async def cmd_create_thread_helper(
 
             # 1.2. INSERT the host as the first participant
             cursor.execute(
-                "INSERT INTO participants (party_id, user_id, user_mention) VALUES (?, ?, ?)",
-                (PARTY_ID, interact.user.id, interact.user.mention),
+                "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (?, ?, ?, ?)",
+                (PARTY_ID, interact.user.id, interact.user.mention, interact.user.display_name),
             )
             db.commit()  # fisrt commit (party creation)
 

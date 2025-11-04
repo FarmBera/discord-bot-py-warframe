@@ -291,9 +291,17 @@ cmd:
 
     # call_members btn
     pv-call-label: Call Members
-    pv-call-msg: The host has pinged the party members!
+    pv-call-msg: The host has called the party members!
     pv-call-no-members: There are no members to call.
-    pv-err-only-host-call: Only the party host can call the members.
+    pv-err-only-host-call: Only the party host can call members.
+
+    # kick_member btn
+    pv-kick-label: Kick Member
+    pv-kick-modal-title: (When you click the specific member, immediately kick out the Member.)
+    pv-kick-modal-select-placeholder: Select a member to kick.
+    pv-kick-success: "has been kicked from the party."
+    pv-kick-no-members: There are no members to kick.
+    pv-err-only-host-kick: Only the party host can use this feature.
 
     # delete_party btn
     pv-del-label: Delete Post
