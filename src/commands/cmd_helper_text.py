@@ -2,10 +2,8 @@ import discord
 
 from src.translator import ts, language as lang
 from src.constants.color import C
-from src.constants.keys import (
-    FOOTER_FILE_LOC,
-    fileExt,
-)
+from src.constants.keys import FOOTER_FILE_LOC
+from src.utils.data_manager import ADMINS
 from src.utils.logging_utils import save_log
 from src.utils.file_io import open_file, yaml_open
 from src.utils.return_err import err_embed
@@ -15,7 +13,7 @@ async def cmd_helper_txt(
     interact: discord.Interaction, file_name: str, isPublicMsg: bool = False
 ) -> None:
     # is custom admin user
-    admins = yaml_open("config/admin")["admin_ids"]
+    admins = ADMINS
 
     if isPublicMsg and interact.user.id not in admins:
         msg: str = ts.get("cmd.no-permission")

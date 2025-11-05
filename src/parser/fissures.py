@@ -2,8 +2,8 @@ import discord
 import datetime as dt
 
 from src.translator import ts
-from src.constants.keys import SETTING_FILE_LOC
 from src.constants.times import convert_remain, timeNowDT
+from src.utils.data_manager import SETTINGS
 from src.utils.file_io import json_load
 from src.utils.emoji import get_emoji
 from src.utils.formatter import txt_length_check
@@ -60,7 +60,7 @@ def is_expired_fiss(arg_time) -> bool:
 
 # todo-delay: 검색 기능 추가
 def w_fissures(fissures, args) -> str:
-    setting = json_load(SETTING_FILE_LOC)
+    setting = SETTINGS
     prefix = setting["fissures"]
     fav_mission = prefix["favMission"]  # var
     tier_exclude = prefix["tierExcept"]  # var

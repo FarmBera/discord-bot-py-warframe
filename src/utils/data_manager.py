@@ -1,7 +1,7 @@
-from src.utils.file_io import json_load, json_save
+from src.utils.file_io import json_load, json_save, yaml_open
 from src.constants.color import C
 from src.translator import language as lang
-from src.constants.keys import JSON
+from src.constants.keys import JSON, CHANNEL_FILE_LOC, SETTING_FILE_LOC
 
 
 def get_obj(json_name: str):
@@ -19,6 +19,11 @@ def cmd_obj_check(name):
         return False
 
     return obj
+
+
+CHANNELS = yaml_open(CHANNEL_FILE_LOC)
+ADMINS = yaml_open("config/admin")["admin_ids"]
+SETTINGS = json_load(SETTING_FILE_LOC)
 
 
 # convert object to human readable

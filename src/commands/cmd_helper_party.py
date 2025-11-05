@@ -4,12 +4,12 @@ import sqlite3
 
 from src.translator import ts
 from src.constants.keys import (
-    CHANNEL_FILE_LOC,
     LFG_WEBHOOK_NAME,
     COOLDOWN_BTN_ACTION,
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
+from src.utils.data_manager import CHANNELS
 from src.utils.file_io import yaml_open
 from src.utils.logging_utils import save_log
 
@@ -454,7 +454,12 @@ class ConfirmJoinLeaveView(discord.ui.View):
             if self.action == "join":
                 cursor.execute(
                     "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (?, ?, ?, ?)",
-                    (self.party_id, self.user_id, self.user_mention, interact.user.display_name),
+                    (
+                        self.party_id,
+                        self.user_id,
+                        self.user_mention,
+                        interact.user.display_name,
+                    ),
                 )
                 self.db.commit()
                 # reply confirm chat
@@ -1165,7 +1170,7 @@ async def cmd_create_thread_helper(
 
     RESULT: str = ""
     game_nickname = parseNickname(interact.user.display_name)
-    ch_file = yaml_open(CHANNEL_FILE_LOC)["party"]
+    ch_file = CHANNELS["party"]
     target_channel = interact.client.get_channel(ch_file)
 
     await interact.response.defer(ephemeral=True)
@@ -1208,7 +1213,12 @@ async def cmd_create_thread_helper(
             # 1.2. INSERT the host as the first participant
             cursor.execute(
                 "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (?, ?, ?, ?)",
-                (PARTY_ID, interact.user.id, interact.user.mention, interact.user.display_name),
+                (
+                    PARTY_ID,
+                    interact.user.id,
+                    interact.user.mention,
+                    interact.user.display_name,
+                ),
             )
             db.commit()  # fisrt commit (party creation)
 

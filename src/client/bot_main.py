@@ -22,7 +22,7 @@ from src.constants.keys import (
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
 from src.utils.file_io import yaml_open, json_load
-from src.utils.data_manager import get_obj, set_obj, getLanguage
+from src.utils.data_manager import get_obj, set_obj, SETTINGS, CHANNELS, getLanguage
 
 from src.handler.handler_config import DATA_HANDLERS
 
@@ -73,12 +73,12 @@ class DiscordBot(discord.Client):
 
     async def send_alert(self, value, channel_list=None, setting=None) -> None:
         if not setting:
-            setting = json_load(SETTING_FILE_LOC)
+            setting = SETTINGS
         if not setting["noti"]["isEnabled"]:
             return
 
         if not channel_list:
-            channel_list = yaml_open(CHANNEL_FILE_LOC)["channel"]
+            channel_list = CHANNELS["channel"]
 
         # send message
         for ch in channel_list:
@@ -127,8 +127,8 @@ class DiscordBot(discord.Client):
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)  # var
     async def auto_send_msg_request(self) -> None:
-        setting = json_load(SETTING_FILE_LOC)
-        channels = yaml_open(CHANNEL_FILE_LOC)
+        setting = SETTINGS
+        channels = CHANNELS
 
         latest_data: requests.Response = await API_Request(
             self.log_lock, "auto_send_msg_request()"
@@ -316,7 +316,7 @@ class DiscordBot(discord.Client):
     # sortie alert
     @tasks.loop(time=alert_times)
     async def auto_noti(self) -> None:
-        ch_list = yaml_open("config/channel")
+        ch_list = CHANNELS
 
         try:
             ch_list = ch_list["sortie"]
