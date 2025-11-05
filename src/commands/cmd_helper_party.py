@@ -1303,7 +1303,7 @@ async def cmd_create_thread_helper(
         type="cmd",
         cmd=f"cmd.party",
         time=interact.created_at,
-        user=interact.user,
+        user=interact.user.display_name,
         guild=interact.guild,
         channel=interact.channel,
         msg="[info] cmd used",  # VAR

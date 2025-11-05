@@ -27,7 +27,7 @@ async def cmd_helper_txt(
             type="err.admin",  # VAR
             cmd="cmd_helper_txt",
             time=interact.created_at,
-            user=interact.user,
+            user=interact.user.display_name,
             guild=interact.guild,
             channel=interact.channel,
             msg=msg,
@@ -48,7 +48,7 @@ async def cmd_helper_txt(
             type="err",  # VAR
             cmd="cmd_helper_txt",
             time=interact.created_at,
-            user=interact.user,
+            user=interact.user.display_name,
             guild=interact.guild,
             channel=interact.channel,
             msg=msg,
@@ -67,7 +67,7 @@ async def cmd_helper_txt(
         type="cmd",  # VAR: cmd
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         time=interact.created_at,
-        user=interact.user,
+        user=interact.user.display_name,
         guild=interact.guild,
         channel=interact.channel,
         msg="[info] cmd used",  # VAR

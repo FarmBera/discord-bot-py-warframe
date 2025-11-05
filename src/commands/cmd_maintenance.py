@@ -41,10 +41,10 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
 
     await save_log(
         lock=interact.client.log_lock,
-        type="cmd/maintenance",
+        type="cmd.maintenance",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         time=interact.created_at,
-        user=interact.user,
+        user=interact.user.display_name,
         guild=interact.guild,
         channel=interact.channel,
         msg="[info] cmd used in maintenance mode",  # VAR
