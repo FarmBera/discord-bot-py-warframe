@@ -51,6 +51,10 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
     )
 
 
+EVENT_TYPE: str = "event.maintenance"
+EVENT_COOLDOWN: str = ".cooldown"
+
+
 pf: str = "cmd.party."
 pf_edit: str = f"{pf}p-edit-modal-"
 pf_size: str = f"{pf}p-size-modal-"
@@ -98,14 +102,17 @@ class PartyView(discord.ui.View):
     async def join_party(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        etype: str = EVENT_TYPE
+
         if await self.is_cooldown(interact, self.cooldown_action):
+            etype += EVENT_COOLDOWN
             return
 
         await cmd_helper_maintenance(interact)
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event.maintenance",
+            type=etype,
             cmd="btn.main.join",
             user=f"{interact.user.display_name}",
             guild=f"{interact.guild.name}",
@@ -121,14 +128,17 @@ class PartyView(discord.ui.View):
     async def leave_party(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        etype: str = EVENT_TYPE
+
         if await self.is_cooldown(interact, self.cooldown_action):
+            etype += EVENT_COOLDOWN
             return
 
         await cmd_helper_maintenance(interact)
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event.maintenance",
+            type=etype,
             cmd="btn.main.leave",
             user=f"{interact.user.display_name}",
             guild=f"{interact.guild.name}",
@@ -142,14 +152,17 @@ class PartyView(discord.ui.View):
         custom_id="party_edit_size",
     )
     async def edit_size(self, interact: discord.Interaction, button: discord.ui.Button):
+        etype: str = EVENT_TYPE
+
         if await self.is_cooldown(interact, self.cooldown_manage):
+            etype += EVENT_COOLDOWN
             return
 
         await cmd_helper_maintenance(interact)
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event.maintenance",
+            type=etype,
             cmd="btn.main.edit-size",
             user=f"{interact.user.display_name}",
             guild=f"{interact.guild.name}",
@@ -165,14 +178,17 @@ class PartyView(discord.ui.View):
     async def edit_content(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        etype: str = EVENT_TYPE
+
         if await self.is_cooldown(interact, self.cooldown_manage):
+            etype += EVENT_COOLDOWN
             return
 
         await cmd_helper_maintenance(interact)
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event.maintenance",
+            type=etype,
             cmd="btn.main.edit-content",
             user=f"{interact.user.display_name}",
             guild=f"{interact.guild.name}",
@@ -188,14 +204,17 @@ class PartyView(discord.ui.View):
     async def toggle_close_party(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        etype: str = EVENT_TYPE
+
         if await self.is_cooldown(interact, self.cooldown_manage):
+            etype += EVENT_COOLDOWN
             return
 
         await cmd_helper_maintenance(interact)
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event.maintenance",
+            type=etype,
             cmd="btn.main.toggle_close_party",
             user=f"{interact.user.display_name}",
             guild=f"{interact.guild.name}",
@@ -211,19 +230,48 @@ class PartyView(discord.ui.View):
     async def call_members(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        etype: str = EVENT_TYPE
+
         if await self.is_cooldown(interact, self.cooldown_manage):
+            etype += EVENT_COOLDOWN
             return
 
         await cmd_helper_maintenance(interact)
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event.maintenance",
+            type=etype,
             cmd="btn.main.call_members",
             user=f"{interact.user.display_name}",
             guild=f"{interact.guild.name}",
             channel=f"{interact.channel.name}",
             msg=f"PartyView -> call_members",
+        )
+
+    @discord.ui.button(  # 멤버 내보내기
+        label=ts.get(f"{pf}pv-kick-label"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="party_kick_member",
+    )
+    async def kick_member(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        etype: str = EVENT_TYPE
+
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            etype += EVENT_COOLDOWN
+            return
+
+        await cmd_helper_maintenance(interact)
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type=etype,
+            cmd="btn.main.kick_member",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"PartyView -> kick_member",
         )
 
     @discord.ui.button(
@@ -234,14 +282,17 @@ class PartyView(discord.ui.View):
     async def delete_party(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        etype: str = EVENT_TYPE
+
         if await self.is_cooldown(interact, self.cooldown_manage):
+            etype += EVENT_COOLDOWN
             return
 
         await cmd_helper_maintenance(interact)
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event.maintenance",
+            type=etype,
             cmd="btn.main.delete_party",
             user=f"{interact.user.display_name}",
             guild=f"{interact.guild.name}",
