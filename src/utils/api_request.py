@@ -1,6 +1,4 @@
 import requests
-import json
-import datetime as dt
 import asyncio
 
 from src.translator import language as lang
@@ -8,19 +6,12 @@ from config.TOKEN import (
     base_url_warframe,
     base_url_market,
 )
-from src.utils.file_io import json_load
 from src.constants.color import C
-from src.constants.keys import MSG_BOT  # , DEFAULT_JSON_PATH, DEFAULT_MARKET_JSON_PATH
+from src.constants.keys import MSG_BOT
 from src.constants.times import timeNowDT
 from src.utils.logging_utils import save_log
 
 params_market: dict = {"Language": lang, "Platform": "pc"}
-
-
-# async def send_request(
-#     log_lock: asyncio.Lock, res_source: str, query: str = ""
-# ) -> requests.Response | None:
-#     pass
 
 
 # usage for main api

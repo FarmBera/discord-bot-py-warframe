@@ -9,9 +9,6 @@ from src.translator import ts
 from src.constants.times import alert_times, timeNowDT
 from src.constants.color import C
 from src.constants.keys import (
-    # config file
-    SETTING_FILE_LOC,
-    CHANNEL_FILE_LOC,
     # other var
     SPECIAL_ITEM_LIST,
     MSG_BOT,
@@ -21,7 +18,6 @@ from src.constants.keys import (
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
-from src.utils.file_io import yaml_open, json_load
 from src.utils.data_manager import get_obj, set_obj, SETTINGS, CHANNELS, getLanguage
 
 from src.handler.handler_config import DATA_HANDLERS

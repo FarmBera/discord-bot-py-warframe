@@ -10,7 +10,6 @@ from src.constants.keys import (
     COOLDOWN_BTN_CALL,
 )
 from src.utils.data_manager import CHANNELS
-from src.utils.file_io import yaml_open
 from src.utils.logging_utils import save_log
 
 pf: str = "cmd.party."

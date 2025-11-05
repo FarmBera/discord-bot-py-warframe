@@ -1,9 +1,7 @@
 import yaml
 
 from config.config import Lang, language
-from src.utils.logging_utils import save_log
 from src.constants.color import C
-from src.constants.keys import MSG_BOT
 
 
 class Translator:
