@@ -23,10 +23,7 @@ class MaintanceBot(discord.Client):
         print(f"{C.magenta}Persistent Views successfully registered for maintenance mode.{C.default}")
 
     async def on_ready(self):
-        print(
-            f"{C.blue}[info] {C.yellow}{ts.get('start.sync')}...{C.default}",
-            end="",
-        )
+        print(f"{C.blue}[info] {C.yellow}{ts.get('start.sync')}...{C.default}",end="")
         await self.wait_until_ready()
         if self.tree:
             await self.tree.sync()
@@ -34,9 +31,7 @@ class MaintanceBot(discord.Client):
             status=discord.Status.do_not_disturb,
             activity=discord.Game(ts.get("maintenance.bot-status-msg")),
         )
-        print(
-            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default}",
-        )
+        print(f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default}")
 
         save_file(
             STARTED_TIME_FILE_LOC,
