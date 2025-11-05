@@ -1,41 +1,56 @@
-filePfx: str = "docs/"
+from config.config import language as lang
+
+# commands cooldown time (sec)
+COOLDOWN_DEFAULT: float = 10.0
+COOLDOWN_PARTY: float = 60.0
+COOLDOWN_BTN_ACTION: float = 20.0  # btn join/leave
+COOLDOWN_BTN_MANAGE: float = 40.0  # btn modify/remove
+COOLDOWN_BTN_CALL: float = 900.0  # btn call members
+
+
+filePfx: str = f"docs/{lang}/"
 configPfx: str = "config/"
 JSON: str = "api_cache"
 fileExt: str = ".md"
 
+# json file location
+DEFAULT_JSON_PATH: str = f"data/Warframe.json"
+DEFAULT_MARKET_JSON_PATH: str = f"data/market-search.json"
+# other file location
 LOG_FILE_PATH: str = "log/log.csv"
 SETTING_FILE_LOC: str = f"{configPfx}setting.json"
 CHANNEL_FILE_LOC: str = f"{configPfx}channel"
-
+# docs file list
 HELP_FILE_LOC: str = f"{filePfx}help{fileExt}"
 ANNOUNCE_FILE_LOC: str = f"{filePfx}announcement{fileExt}"
 PATCHNOTE_FILE_LOC: str = f"{filePfx}patch-note{fileExt}"
 POLICY_FILE_LOC: str = f"{filePfx}privacy-policy{fileExt}"
 FOOTER_FILE_LOC: str = f"{filePfx}footer{fileExt}"
-STARTED_TIME_FILE_LOC: str = f"{filePfx}m-started_time{fileExt}"
-DELTA_TIME_LOC: str = f"{filePfx}m-delta{fileExt}"
+STARTED_TIME_FILE_LOC: str = f"docs/m-started_time{fileExt}"
+DELTA_TIME_LOC: str = f"docs/m-delta{fileExt}"
 MARKET_HELP_FILE: str = f"{filePfx}market-help{fileExt}"
 
 
 MSG_BOT: str = "bot.self"
 
-ALERTS = "Alerts"
-NEWS = "Events"
-CETUSCYCLE = "cetusCycle"
-SORTIE = "Sorties"
-ARCHONHUNT = "LiteSorties"
-VOIDTRADERS = "VoidTraders"
-STEELPATH = "steelPath"
-DUVIRICYCLE = "duviriCycle"
-DEEPARCHIMEDEA = "deepArchimedea"
-TEMPORALARCHIMEDEA = "temporalArchimedea"
-FISSURES = "ActiveMissions"
-CALENDAR = "KnownCalendarSeasons"
-CAMBIONCYCLE = "cambionCycle"
-DAILYDEALS = "DailyDeals"
-INVASIONS = "Invasions"
-MARKET_SEARCH = "market-search"
-VALLISCYCLE = "vallisCycle"
+
+ALERTS: str = "Alerts"
+NEWS: str = "Events"
+CETUSCYCLE: str = "cetusCycle"
+SORTIE: str = "Sorties"
+ARCHONHUNT: str = "LiteSorties"
+VOIDTRADERS: str = "VoidTraders"
+STEELPATH: str = "steelPath"
+DUVIRICYCLE: str = "duviriCycle"
+DEEPARCHIMEDEA: str = "deepArchimedea"
+TEMPORALARCHIMEDEA: str = "temporalArchimedea"
+FISSURES: str = "ActiveMissions"
+CALENDAR: str = "KnownCalendarSeasons"
+CAMBIONCYCLE: str = "cambionCycle"
+DAILYDEALS: str = "DailyDeals"
+INVASIONS: str = "Invasions"
+MARKET_SEARCH: str = "market-search"
+VALLISCYCLE: str = "vallisCycle"
 
 keys: list = [
     ALERTS,  # 0
@@ -57,4 +72,6 @@ keys: list = [
 ]
 
 
-SPECIAL_ITEM_LIST = ["exilus", "orokin", "reactor", "forma"]
+SPECIAL_ITEM_LIST: list = ["exilus", "orokin", "reactor", "forma"]
+
+LFG_WEBHOOK_NAME: str = "warframe-lfg-bot"

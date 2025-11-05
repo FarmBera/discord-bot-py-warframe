@@ -3,7 +3,7 @@ import datetime as dt
 
 from src.translator import ts
 from src.constants.keys import SETTING_FILE_LOC
-from src.constants.times import convert_remain
+from src.constants.times import convert_remain, timeNowDT
 from src.utils.file_io import json_load
 from src.utils.emoji import get_emoji
 from src.utils.formatter import txt_length_check
@@ -52,7 +52,7 @@ railjack: list = [
 
 
 def is_expired_fiss(arg_time) -> bool:
-    t_now: dt.datetime = dt.datetime.now()
+    t_now: dt.datetime = timeNowDT()
     t_expired: dt.datetime = dt.datetime.fromtimestamp(arg_time / 1000)
 
     return True if t_now > t_expired else False

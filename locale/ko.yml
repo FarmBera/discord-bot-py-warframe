@@ -1,9 +1,10 @@
 start:
-  init: 봇을 시작하는 중...
-  sync: 동기화 중
+  init: Starting bot...
+  sync: Syncing
   bot-status-msg: /도움말
-  final: 다음으로 로그인 완료!
-  coroutine: "Internal Coroutine Started - 언어가 한국어로 설정되었습니다!"
+  final: Logged on! as
+  final2: 사용 준비 완료! - 언어가 한국어로 설정되었습니다.
+  coroutine: Internal Coroutine Started
 
 maintenance:
   bot-status-msg: 서버 점검 중
@@ -17,9 +18,17 @@ time:
   min: 분
 
 cmd:
+  no-perm-title: 권한 없음
+  no-permission: "공개 메시지를 보낼 권한이 없습니다.\n선택된 관리자만 전체 공개 메시지를 보낼 수 있습니다.\n\n오류라고 판단된다면 봇 개발자에게 문의해주세요."
+
+  err-cooldown:
+    title: 재사용 대기시간
+    desc: 이 명령어를 다시 사용하려면 {time}초 더 기다려야 합니다.
+    btn: 버튼을 다시 사용하려면 {time}초 더 기다려야 합니다.
+
   help:
     cmd: 도움말
-    desc: 봇 명령어 관련 도움말을 표시합니다.
+    desc: 사용 가능한 명령어 및 관련 도움말을 표시합니다.
 
   announcement:
     cmd: 공지사항
@@ -31,11 +40,11 @@ cmd:
 
   privacy-policy:
     cmd: 개인정보-처리방침
-    desc: 봇의 개인정보 처리방침에 대하여
+    desc: 봇의 개인정보 처리방침에 대하여 표시합니다.
 
   alerts:
     cmd: 얼럿
-    desc: 현재 활성화된 얼럿 미션을 가져옵니다
+    desc: 현재 활성화된 얼럿 미션을 가져옵니다.
     desc-none: "### 현재 활성화된 얼럿 미션이 없습니다!"
     title: 활성화된 얼럿
     credit: 크레딧
@@ -46,7 +55,7 @@ cmd:
 
   news:
     cmd: 뉴스
-    desc: 최신 워프레임 뉴스를 불러옵니다
+    desc: 최신 워프레임 뉴스 목록을 불러옵니다.
     title: 최신 워프레임 뉴스
 
     ingame: 게임 뉴스
@@ -54,7 +63,7 @@ cmd:
 
   cetus:
     cmd: 시터스주기
-    desc: 현재 지구의 시터스 시간 및 상태를 불러옵니다
+    desc: 현재 지구의 시터스 시간 및 상태를 불러옵니다.
     title: 시터스 낮/밤 상태
     current: 현재 상태
     endin: 종료까지
@@ -63,20 +72,18 @@ cmd:
 
   sortie:
     cmd: 출격
-    desc: 오늘의 출격 미션을 불러옵니다
+    desc: 오늘의 출격 미션을 불러옵니다.
     title: 오늘의 출격 미션
     eta: 남은 시간
 
   archon-hunt:
     cmd: 집정관사냥
-    desc: 이번주 집정관 사냥 미션을 불러옵니다
+    desc: 이번주 집정관 사냥 미션을 불러옵니다.
     title: 집정관 사냥 미션 목록
     eta: 종료까지 남은 시간
     hunt: 토벌
 
-    obt1: 이번주에는
-    shardname: 집정관 샤드
-    obt2: 를 얻을 수 있습니다!
+    obt: "이번주에는 {emoji} **{shard} 집정관 샤드** 를 얻을 수 있습니다!\n\n"
 
     Assassination: 결전
 
@@ -89,28 +96,25 @@ cmd:
 
   void-traders:
     cmd: 바로키티어
-    desc: 보이드 상인이 언제, 어디서 등장할지 알려줍니다
+    desc: 바로 키 티어가 등장 여부, 언제, 어디서 등장할지 알려줍니다.
     title: 바로 키 티어 현황
 
     tdr-name: 상인
     status: 상태
 
     activate: "[활성화됨](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    end: 종료 시간
+    end: 상인이 떠나기까지 {time} 남았습니다.
     location: 위치
 
     deactivate: 비활성화됨
-    app1: ""
-    app2: "후 등장 예정"
+    appear: "{time} 후 등장 예정입니다."
     place: 등장 예정 위치
 
   void-traders-item:
     cmd: 바로키티어-물품
-    desc: 바로 키 티어가 판매하는 물품 목록을 불러옵니다
+    desc: 바로 키 티어가 판매하는 물품 목록을 불러옵니다.
 
-    not-yet: 보이드 상인이 아직 도착하지 않았습니다!
-    arrives-in: ""
-    arrives-in1: "후 도착 예정"
+    not-yet: "바로 키 티어가 **아직 도착하지 않았습니다**!\n- **{time}** 후 도착 예정 입니다."
 
     mods: 모드
     skin: 스킨
@@ -125,7 +129,7 @@ cmd:
 
   steel-path-reward:
     cmd: 강길에센스
-    desc: 주간 태신의 강길 에센스 교환 물품을 가져옵니다
+    desc: 주간 태신의 강길 에센스 교환 물품을 가져옵니다.
     title: 주간 에센스 교환 보상
     curr-reward: 현재 보상
     cost: 개
@@ -133,7 +137,7 @@ cmd:
 
   fissures:
     cmd: 보이드균열
-    desc: "현채 활성화된 보이드 균열 중 빠른 클리어가 가능한 미션 목록을 가져옵니다 (예: 섬멸, 생포)"
+    desc: "현채 활성화된 보이드 균열 중 빠른 클리어가 가능한 미션 목록을 가져옵니다. (예: 섬멸, 생포)"
     fiss: 균열
 
     choice-all: 모든 성유물 균열
@@ -145,7 +149,7 @@ cmd:
 
   duviri-cycle:
     cmd: 두비리주기
-    desc: 현재 두비리 상태를 가져옵니다
+    desc: 현재 두비리 상태를 가져옵니다.
     title: 두비리 주기
     state: 상태
     expire: 만료까지
@@ -168,7 +172,7 @@ cmd:
 
   calendar:
     cmd: 헥스캘린더
-    desc: 이번주 헥스 캘린더 할일/보상 목록 등을 가져옵니다
+    desc: 이번주 헥스 캘린더 할일/보상 목록 등을 가져옵니다.
     title: 헥스 캘린더
     choice-all: 모두
     choice-to-do: 할 일 목록
@@ -177,7 +181,7 @@ cmd:
 
   cambion:
     cmd: 캠비온퇴적지주기
-    desc: 현재 데이모스의 캠비온 퇴적지 주기를 가져옵니다
+    desc: 현재 데이모스의 캠비온 퇴적지 주기를 가져옵니다.
 
     title: 캠비온 퇴적지 주기
     exp: 만료까지
@@ -187,21 +191,19 @@ cmd:
 
   dailyDeals:
     cmd: 일일특가
-    desc: 오늘의 특가 품목을 가져옵니다
+    desc: 오늘의 특가 품목을 가져옵니다.
     title: 오늘의 특가
     remain: 개 남았습니다
-    exp: 마감까지
-    exp1: 남았습니다!
+    exp: 마감까지 **{time}** 남았습니다!
 
   invasions:
     cmd: 침공
-    desc: 현재 활성화된 침공 미션 목록을 가져옵니다
+    desc: 현재 활성화된 침공 미션 목록을 가져옵니다.
     title: 침공
     at: at
     completion: 진행 상황
     atk-from: "공격자:"
-    eta: 시작한지
-    eta1: 지남
+    eta: 시작한지 {time} 지났습니다
 
   market-search:
     cmd: 마켓검색
@@ -213,13 +215,123 @@ cmd:
 
   vallis:
     cmd: 오브협곡주기
-    desc: 현재 오브 협곡 상태를 가져옵니다
+    desc: 현재 오브 협곡 상태를 가져옵니다.
 
     title: 오브 협곡 주기
     exp: 만료까지
 
     warm: 따뜻함
     cold: 추움
+
+  party:
+    # basic commands
+    cmd: 파티생성
+    desc: "새로운 파티 구인 글을 생성합니다."
+    title: 파티 모집 제목
+    miss-types: 미션 이름 또는 종류
+    descript: "[선택사항] 모집 글에 대한 세부설명"
+    nou: "[선택사항] 최대 파티원 수 (본인 포함)"
+
+    err: 오류
+    # PartyEditodal
+    p-edit-modal-title: 파티 정보 수정
+    p-edit-modal-title-input: 제목
+    p-edit-modal-mission-input: 미션
+    p-edit-modal-desc-input: 기타 설명
+    p-edit-modal-err: 수정 중 오류 발생
+    # PartySizeModal
+    p-size-modal-ui-title: 파티원 수 조절
+    p-size-modal-label: 최대 파티원 수 (숫자만 입력)
+    p-size-modal-err-low: 숫자만 입력해야 하며, 파티원 수는 2명 이상 4명 이하로 설정해주세요.
+    p-size-modal-err-high: 파티원은 4명을 초과할 수 없습니다.
+    p-size-modal-err-high-1: 최대 인원은 현재 인원
+    p-size-modal-err-high-2: 보다 작을 수 없습니다.
+    # ConfirmDeleteView
+    p-del-modal-btny: Yes (진행)
+    p-del-modal-btnn: No (취소)
+    p-del-modal-err: "❌ 오류"
+    p-del-modal-err-del: "❌ 오류: 스레드를 삭제할 권한이 없어요."
+    p-del-modal-cancel: 작업이 취소되었어요.
+    p-del-deleted: "> 모집 글이 삭제 되었습니다."
+    # ConfirmJoinLeaveView
+    pc-joined: 님이 파티에 참여했습니다!
+    pc-lefted: 님이 파티에서 나갔습니다.
+
+    # PartyView
+
+    # join btn
+    pv-not-found: 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
+    pv-join-btn: "참여하기"
+    pv-leave-btn: "탈퇴하기"
+    pv-host-exit-err: 호스트는 파티에서 탈퇴할 수 없어요.
+    pv-exited: 파티에서 탈퇴했어요.
+    pv-full: 파티가 꽉 찼습니다...
+    pv-joined: 파티에 참가했습니다!
+    pv-confirm-exit: 파티에서 탈퇴하시겠습니까?
+    pv-confirm-join: 파티에 참가하시겠습니까?
+    pv-already-joined: 이미 파티에 참여했습니다.
+    pv-already-left: 파티에 소속되어 있지 않습니다.
+
+    pv-done: 모집 완료
+    pv-ing: 모집 활성화
+    pv-ing2: 모집 중
+
+    # edit_size btn
+    pv-mod-label: 인원 수정
+    pv-err-only-host: 파티 호스트만 인원을 수정할 수 있어요.
+
+    # edit_content btn
+    pv-mod-article: 글 수정
+    pv-err-mod-article: 파티 호스트만 글을 수정할 수 있어요.
+
+    # toggle_close_party btn
+    pv-err-only-status: 파티 호스트만 모집 상태를 변경할 수 있어요.
+    pv-tgl-done: "**모집**이 **완료**된 파티입니다."
+    pv-tgl-ing: 파티를 생성했습니다!
+
+    # call_members btn
+    pv-call-label: 파티원 호출
+    pv-call-msg: 호스트가 파티원들을 호출했습니다!
+    pv-call-no-members: 호출할 파티원이 없습니다.
+    pv-err-only-host-call: 파티 호스트만 파티원을 호출할 수 있습니다.
+
+    # kick_member btn
+    pv-kick-label: 파티원 내보내기
+    pv-kick-modal-title: (파티원을 선택하면 바로 내보내기 작업이 수행됩니다.)
+    pv-kick-modal-select-placeholder: 내보낼 파티원을 선택하세요.
+    pv-kick-success: 님을 파티에서 내보냈습니다.
+    pv-kick-no-members: 내보낼 파티원이 없습니다.
+    pv-err-only-host-kick: 파티 호스트만 이 기능을 사용할 수 있습니다.
+
+    # delete_party btn
+    pv-del-label: 글 삭제
+    pv-del-only-host: 파티 호스트만 이 글을 삭제할 수 있어요.
+    pv-del-confirm: 정말로 이 모집글 및 스레드를 삭제할까요?
+    pv-del-cancel: 시간이 초과되어 작업이 취소되었어요.
+
+    # build_party_embed
+    pb-no-player: 참가자 없음
+    pb-host: 호스트
+    pb-player-count: 파티원 수
+    pb-player-joined: 참여한 파티원
+    pb-mission: 미션
+    pb-desc: "게임에서 채팅창에 붙여넣으면 호스트에게 귓속말을 보낼 수 있습니다.\n> (우측 버튼을 클릭하면 클립보드로 복사됩니다.)"
+    pb-pid: 파티 ID
+
+    # build_party_embed_from_db
+    pdb-not-found-party: 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
+
+    # cmd_create_thread_helper
+    pt-low: "파티원 수는 2명 이상이어야 합니다.\n 4명으로 자동 조정됩니다"
+    pt-high: "파티원 수는 4명을 초과할 수 없어요.\n4명으로 자동 조정됩니다."
+    pt-create: 모집 글(스레드)을 생성했어요!
+
+    no-thread-permission: "❌ 오류: 해당 채널에 스레드를 생성할 권한이 없어요. 관리자에게 문의해주세요."
+    err-creation: "❌ 오류: 스레드를 생성하는 중 문제가 발생했어요. 관리자에게 문의해주세요."
+    err-unknown: "❌ 알 수 없는 오류. 관리자에게 문의해주세요."
+    not-found-ch: "❌ 오류: 지정된 텍스트 채널을 찾을 수 없어요. 관리자에게 문의해주세요."
+
+    created-party: 파티를 생성했습니다!
 
 trs:
   # keyword
@@ -281,7 +393,7 @@ trs:
   requiem: 레퀴엠
   omnia: 옴니아
 
-  # items
+  # items (steelPath)
   umbra forma blueprint: 움브라 포르마 설계도
   "50,000 kuva": "50,000 쿠바"
   kitgun riven mod: 키트건 리벤 모드

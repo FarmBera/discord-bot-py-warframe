@@ -1,10 +1,12 @@
 import discord
 from discord.ext import tasks
 import datetime as dt
+import requests
+import asyncio
 
+from config.config import Lang
 from src.translator import ts
-from config.TOKEN import DEFAULT_JSON_PATH
-from src.constants.times import alert_times
+from src.constants.times import alert_times, timeNowDT
 from src.constants.color import C
 from src.constants.keys import (
     # config file
@@ -15,6 +17,7 @@ from src.constants.keys import (
     MSG_BOT,
     # cmd obj
     SORTIE,
+    STEELPATH,
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
@@ -25,11 +28,19 @@ from src.handler.handler_config import DATA_HANDLERS
 
 from src.parser.sortie import w_sortie
 
+from src.commands.cmd_helper_party import PartyView
+
 
 class DiscordBot(discord.Client):
-    def __init__(self, *, intents, **options):
+    def __init__(self, *, intents: discord.Intents, log_lock: asyncio.Lock, **options):
         super().__init__(intents=intents, **options)
         self.tree = None
+        self.db = None
+        self.log_lock = log_lock
+
+    async def setup_hook(self) -> None:
+        self.add_view(PartyView())
+        print(f"{C.green}Persistent Views successfully registered.{C.default}")
 
     async def on_ready(self):
         print(
@@ -44,19 +55,20 @@ class DiscordBot(discord.Client):
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
         print(
-            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default}",
+            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.green} {ts.get(f'start.final2')}{C.default}",
         )
 
-        save_log(
+        await save_log(
+            lock=self.log_lock,
             cmd="bot.BOOTED",
             user=MSG_BOT,
             msg="[info] Bot booted up.",
-            obj=dt.datetime.now(),
+            obj=timeNowDT(),
         )  # VAR
 
         self.auto_send_msg_request.start()
         self.auto_noti.start()
-
+        self.weekly_task.start()
         print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
     async def send_alert(self, value, channel_list=None, setting=None) -> None:
@@ -74,7 +86,8 @@ class DiscordBot(discord.Client):
 
             # embed type
             if isinstance(value, discord.Embed):
-                save_log(
+                await save_log(
+                    lock=self.log_lock,
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
@@ -88,7 +101,8 @@ class DiscordBot(discord.Client):
             # embed with file or thumbnail
             elif isinstance(value, tuple):
                 eb, f = value
-                save_log(
+                await save_log(
+                    lock=self.log_lock,
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
@@ -99,7 +113,8 @@ class DiscordBot(discord.Client):
                 await channel.send(embed=eb, file=f)
 
             else:  # string type
-                save_log(
+                await save_log(
+                    lock=self.log_lock,
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
@@ -115,10 +130,14 @@ class DiscordBot(discord.Client):
         setting = json_load(SETTING_FILE_LOC)
         channels = yaml_open(CHANNEL_FILE_LOC)
 
-        if API_Request("auto_send_msg_request()") != 200:
+        latest_data: requests.Response = await API_Request(
+            self.log_lock, "auto_send_msg_request()"
+        )
+
+        if not latest_data or latest_data.status_code != 200:
             return
 
-        latest_data = json_load(DEFAULT_JSON_PATH)
+        latest_data = latest_data.json()
 
         # check for new content & send alert
         for key, handler in DATA_HANDLERS.items():
@@ -126,9 +145,10 @@ class DiscordBot(discord.Client):
                 obj_prev = get_obj(key)
                 obj_new = latest_data[key]
             except Exception as e:
-                msg = f"[err] Error with loading original data"
-                print(dt.datetime.now(), C.red, key, msg, e, C.default)
-                save_log(
+                msg = f"[err] Error with loading original data (from auto_send_msg_request/DATA_HANDLERS for loop)"
+                print(timeNowDT(), C.red, key, msg, e, C.default)
+                await save_log(
+                    lock=self.log_lock,
                     type="err",
                     cmd="auto_send_msg_request()",
                     user=MSG_BOT,
@@ -143,7 +163,30 @@ class DiscordBot(discord.Client):
 
             special_logic = handler.get("special_logic")
 
-            if special_logic == "handle_missing_items":  # alerts, news
+            if (
+                special_logic == "handle_missing_items"
+                or special_logic == "handle_new_news"
+            ):  # alerts, news
+                if special_logic == "handle_new_news":  # news process
+                    news_old: list = []
+                    news_new: list = []
+
+                    # extract selected language only
+                    for item in obj_prev:
+                        for msg in item["Messages"]:
+                            if msg["LanguageCode"] in [Lang.EN, Lang.KO]:
+                                news_old.append(item)
+                                break
+                    for item in obj_new:
+                        for msg in item["Messages"]:
+                            if msg["LanguageCode"] in [Lang.EN, Lang.KO]:
+                                news_new.append(item)
+                                break
+
+                    obj_prev = news_old
+                    obj_new = news_new
+                # end of news process
+
                 prev_ids = {item["_id"]["$oid"] for item in obj_prev}
                 new_ids = {item["_id"]["$oid"] for item in obj_new}
 
@@ -163,8 +206,9 @@ class DiscordBot(discord.Client):
                             parsed_content = handler["parser"](missing_items)
                         except Exception as e:
                             msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                            print(dt.datetime.now(), C.red, msg, e, C.default)
-                            save_log(
+                            print(timeNowDT(), C.red, msg, e, C.default)
+                            await save_log(
+                                lock=self.log_lock,
                                 type="err",
                                 cmd="auto_send_msg_request()",
                                 user=MSG_BOT,
@@ -216,8 +260,9 @@ class DiscordBot(discord.Client):
                         parsed_content = handler["parser"](missing_invasions)
                     except Exception as e:
                         msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                        print(dt.datetime.now(), C.red, msg, e, C.default)
-                        save_log(
+                        print(timeNowDT(), C.red, msg, e, C.default)
+                        await save_log(
+                            lock=self.log_lock,
                             type="err",
                             cmd="auto_send_msg_request()",
                             user=MSG_BOT,
@@ -237,8 +282,9 @@ class DiscordBot(discord.Client):
                     parsed_content = handler["parser"](obj_new)
                 except Exception as e:
                     msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                    print(dt.datetime.now(), C.red, msg, C.default)
-                    save_log(
+                    print(timeNowDT(), C.red, msg, C.default)
+                    await save_log(
+                        lock=self.log_lock,
                         type="err",
                         cmd="auto_send_msg_request()",
                         user=MSG_BOT,
@@ -265,7 +311,7 @@ class DiscordBot(discord.Client):
                     parsed_content, channel_list=target_ch, setting=setting
                 )
 
-        return  # End Of auto_send_msg_request()ㄹ
+        return  # End Of auto_send_msg_request()
 
     # sortie alert
     @tasks.loop(time=alert_times)
@@ -278,3 +324,43 @@ class DiscordBot(discord.Client):
             ch_list = ch_list["channel"]
 
         await self.send_alert(w_sortie(get_obj(SORTIE)), ch_list)
+
+    # weekly reset task
+    @tasks.loop(time=dt.time(hour=9, minute=0))
+    async def weekly_task(self) -> None:
+        # weekday() returns integer: 0: Monday, 1: Tuesday, ..., 6: Sunday
+        if dt.datetime.now(dt.timezone.utc).weekday() != 0:
+            return
+
+        # update steelPath reward index
+        try:
+            steel_data: dict = get_obj(STEELPATH)
+            rotation_list: list = steel_data["rotation"]
+            curr_idx: int = steel_data["currentReward"]
+
+            # increment & save index
+            new_idx: int = (curr_idx + 1) % len(rotation_list)
+            steel_data["currentReward"] = new_idx
+
+            # save index
+            set_obj(steel_data, STEELPATH)
+            msg = f"[info] Steel Path reward index updated {curr_idx} -> {new_idx}"
+
+            await save_log(
+                lock=self.log_lock,
+                cmd="bot.WEEKLY_TASK",
+                user=MSG_BOT,
+                msg=msg,
+                obj=timeNowDT(),
+            )
+        except Exception as e:
+            msg = f"[err] Failed to update Steel Path reward index: {C.red}{e}"
+            print(C.yellow, msg, C.default)
+
+            await save_log(
+                lock=self.log_lock,
+                cmd="bot.WEEKLY_TASK",
+                user=MSG_BOT,
+                msg=msg,
+                obj=timeNowDT(),
+            )

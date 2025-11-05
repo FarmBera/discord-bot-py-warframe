@@ -1,13 +1,9 @@
 import yaml
 
+from config.config import Lang, language
 from src.utils.logging_utils import save_log
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
-
-
-class Lang:
-    EN: str = "en"
-    KO: str = "ko"
 
 
 class Translator:
@@ -22,7 +18,7 @@ class Translator:
                 self.translations = yaml.safe_load(f)
         except FileNotFoundError:
             msg = f"{C.yellow}[warn]: Translation file for '{self.lang}' not found.{C.default}"
-            save_log(cmd="translator.py", user=MSG_BOT, msg=msg)
+            # save_log(cmd="translator.py", user=MSG_BOT, msg=msg)
             print(msg)
             # retry with default language: English
             try:
@@ -30,7 +26,7 @@ class Translator:
                     self.translations = yaml.safe_load(f)
             except FileNotFoundError:
                 msg = f"{C.red}[warn]: Default translation file 'en.yml' also not found.{C.default}"
-                save_log(type="error", cmd="translator.py", user=MSG_BOT, msg=msg)
+                # save_log(type="error", cmd="translator.py", user=MSG_BOT, msg=msg)
                 print(msg)
 
     def get(self, key, **kwargs):
@@ -46,7 +42,6 @@ class Translator:
         except (KeyError, TypeError):
             return keys[-1]
 
-    # TODO: 인자 하나만 받게 수정
     def trs(self, key):
         """
         receive SPECIAL keys (not officialy translated text in API) and return translated text (ex: 'ts.trs(SEARCH_QUERY)')
@@ -63,10 +58,7 @@ class Translator:
             return key
 
 
-# language initialize
-language = input("Select Language (en/ko) >> ")
-# language = Lang.EN  # temporary
-# language = Lang.KO  # temporary
+# initialize language
 if language not in [Lang.EN, Lang.KO]:  # input check
     print(
         f"{C.red}Unknown string: {C.yellow}'{language}'. {C.white}will setup default lang: {C.cyan}{Lang.EN}{C.default}"

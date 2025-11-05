@@ -26,7 +26,10 @@
         "favMission": [
             "Extermination",
             "Rescue",
-            "Capture"
+            "Capture",
+            "섬멸",
+            "구출",
+            "생포"
         ],
         "missionTemp": [
             "Excavation"

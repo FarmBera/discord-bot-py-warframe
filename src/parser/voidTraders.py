@@ -78,18 +78,20 @@ def w_voidTraders(trader) -> tuple:
             output_msg += (
                 f"- {ts.get(f'{pf}status')}: ✅ **{ts.get(f'{pf}activate')}**\n"
             )
-            output_msg += f"- {ts.get(f'{pf}end')} {convert_remain(t_exp)}\n"
+            output_msg += f"- {ts.get(f'{pf}end').format(time=convert_remain(t_exp))}\n"
             output_msg += f"- {ts.get(f'{pf}location')}: "
         # XX NOT appeared
         else:
             output_msg += (
                 f"- {ts.get(f'{pf}status')}: ❌ *{ts.get(f'{pf}deactivate')}*\n"
             )
-            output_msg += f"- {ts.get(f'{pf}app1')} {convert_remain(t_act)} {ts.get(f'{pf}app2')}\n"
+            output_msg += (
+                f"- {ts.get(f'{pf}appear').format(time=convert_remain(t_act))}\n"
+            )
             output_msg += f"- {ts.get(f'{pf}place')}: "
 
         # appear location
-        output_msg += f"{getSolNode(td['Node'])}\n"
+        output_msg += f"**{getSolNode(td['Node'])}**\n"
 
     f = img_file(getBaroImg(trader[0]["Character"]))
     embed = discord.Embed(description=output_msg, color=color_decision(trader))
@@ -111,7 +113,7 @@ def w_voidTradersItem(trader) -> discord.Embed:
 
         if item.get("Manifest", []) == []:
             listItem.append(
-                f"**{ts.get(f'{pf}not-yet')}**\n- {ts.get(f'{pf}arrives-in')} **{convert_remain(item['Activation']['$date']['$numberLong'])}** {ts.get(f'{pf}arrives-in1')}"
+                f"{ts.get(f'{pf}not-yet').format(time=convert_remain(item['Activation']['$date']['$numberLong']))}"
             )
 
         for jtem in item.get("Manifest", []):

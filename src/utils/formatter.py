@@ -1,6 +1,6 @@
 import datetime as dt
 from src.translator import language as lang, ts
-from src.constants.times import JSON_DATE_PAT
+from src.constants.times import JSON_DATE_PAT, timeNowDT
 
 D: str = ts.get(f"time.day")
 H: str = ts.get(f"time.hour")
@@ -9,7 +9,7 @@ M: str = ts.get(f"time.min")
 
 def time_cal_with_curr(time_data: str) -> str:
     t = dt.datetime.strptime(time_data, JSON_DATE_PAT) - (
-        dt.datetime.now() - dt.timedelta(hours=9)
+        timeNowDT() - dt.timedelta(hours=9)
     )
     if t.total_seconds() < 0:
         return "**Event End!**"

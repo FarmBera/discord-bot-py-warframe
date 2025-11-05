@@ -7,23 +7,47 @@ from src.constants.keys import (
     fileExt,
 )
 from src.utils.logging_utils import save_log
-from src.utils.file_io import open_file
+from src.utils.file_io import open_file, yaml_open
 from src.utils.return_err import err_embed
 
 
 async def cmd_helper_txt(
-    interact: discord.Interaction, file_name: str, isUserViewOnly: bool = True
+    interact: discord.Interaction, file_name: str, isPublicMsg: bool = False
 ) -> None:
+    # is custom admin user
+    admins = yaml_open("config/admin")["admin_ids"]
+
+    if isPublicMsg and interact.user.id not in admins:
+        msg: str = ts.get("cmd.no-permission")
+        embed = discord.Embed(
+            title=ts.get("cmd.no-perm-title"), description=msg, color=0xFF0000
+        )
+        embed.set_footer(text=open_file(FOOTER_FILE_LOC))
+        await interact.response.send_message(embed=embed, ephemeral=True)
+        await save_log(
+            lock=interact.client.log_lock,
+            type="err.admin",  # VAR
+            cmd="cmd_helper_txt",
+            time=interact.created_at,
+            user=interact.user,
+            guild=interact.guild,
+            channel=interact.channel,
+            msg=msg,
+        )
+        return
+
+    # open & read file
     try:
-        txt1 = open_file(file_name.replace(fileExt, f"-{lang}{fileExt}"))
-        txt2 = open_file(FOOTER_FILE_LOC.replace(fileExt, f"-{lang}{fileExt}"))
+        txt1 = open_file(file_name)
+        txt2 = open_file(FOOTER_FILE_LOC)
         txt = txt1 + txt2
-    except Exception as e:
+    except Exception as e:  # send err msg
         msg: str = "[err] open_file err in cmd_helper_txt"  # VAR
         await interact.response.send_message(embed=err_embed(msg), ephemeral=True)
         print(C.red, msg, C.default, sep="")
-        save_log(
-            type="err",
+        await save_log(
+            lock=interact.client.log_lock,
+            type="err",  # VAR
             cmd="cmd_helper_txt",
             time=interact.created_at,
             user=interact.user,
@@ -37,11 +61,12 @@ async def cmd_helper_txt(
     # send message
     await interact.response.send_message(
         embed=discord.Embed(description=txt, color=0xCEFF00),  # VAR: color
-        ephemeral=isUserViewOnly,
+        ephemeral=not isPublicMsg,
     )
 
-    save_log(
-        type="cmd",
+    await save_log(
+        lock=interact.client.log_lock,
+        type="cmd",  # VAR: cmd
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         time=interact.created_at,
         user=interact.user,

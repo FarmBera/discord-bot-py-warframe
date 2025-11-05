@@ -2,9 +2,11 @@ import discord
 import asyncio
 import sys
 import logging
+import sqlite3
 
 from config.TOKEN import TOKEN as BOT_TOKEN
 from src.constants.color import C
+from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
 
@@ -21,6 +23,12 @@ tree = None
 
 ERR_COUNT: int = 0
 
+CMD_MAIN: str = "main"
+CMD_MAINTENANCE: str = "maintenance"
+CMD_EXIT: str = "exit"
+
+EXIT_CMD: list = [CMD_EXIT, "ㄷ턋"]
+
 
 async def console_input_listener() -> None:
     """
@@ -30,9 +38,11 @@ async def console_input_listener() -> None:
         cmd = await asyncio.to_thread(sys.stdin.readline)
         cmd = cmd.strip().lower()
 
-        if cmd in ["maintenance", "main", "exit"]:
+        if cmd in [CMD_MAIN, CMD_MAINTENANCE] + EXIT_CMD:
             print(f"[info] Console input detected! '{cmd}'")  # VAR
             return cmd
+        else:
+            print(f"\033[A\rUnknown Command > '{cmd}'")
 
 
 async def main_manager() -> None:
@@ -41,21 +51,103 @@ async def main_manager() -> None:
     """
     global tree
 
-    bot_mode = "main"  # init mode
+    log_lock = asyncio.Lock()
 
-    while bot_mode != "exit":
+    # bot_mode = CMD_MAIN  # init mode
+    bot_mode = input("Starting Bot Mode > ").lower()
+    if not bot_mode:
+        print(f"\033[A\r{C.yellow}Unknown Mode > '{C.red}{bot_mode}{C.yellow}' / setup default mode: {C.cyan}`main`{C.default}")
+        bot_mode = CMD_MAIN
+
+    while bot_mode not in EXIT_CMD:
         intents = discord.Intents.default()
         intents.message_content = True
-        if bot_mode == "main":
+        if bot_mode == CMD_MAIN:
             print(f"{C.cyan}[info] Starting Main Bot...{C.default}", end=" ")  # VAR
-            current_bot = DiscordBot(intents=intents)
+            current_bot = DiscordBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
-            await register_main_commands(tree)
 
-        elif bot_mode == "maintenance":
+            @tree.error
+            async def on_app_command_error(
+                interact: discord.Interaction,
+                error: discord.app_commands.AppCommandError,
+            ):
+                if isinstance(error, discord.app_commands.CommandOnCooldown):
+                    pf = "cmd.err-cooldown."
+                    embed = discord.Embed(
+                        title=ts.get(f"{pf}title"),
+                        description=ts.get(f"{pf}desc").format(
+                            time=f"{error.retry_after:.0f}"
+                        ),
+                        color=0xFF0000,
+                    )
+                    await interact.response.send_message(embed=embed, ephemeral=True)
+                else:  # other type of error
+                    print(f"Unhandled app command error: {error}")
+
+            db_conn = sqlite3.connect("db/party.db")
+            # db_conn.execute("PRAGMA foreign_keys = ON;")
+            db_conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS party (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    thread_id INTEGER UNIQUE,
+                    message_id INTEGER UNIQUE,
+                    host_id INTEGER,
+                    title TEXT,
+                    mission_type TEXT,
+                    max_users INTEGER,
+                    description TEXT,
+                    game_nickname TEXT,
+                    status TEXT DEFAULT '모집 중',
+                    created_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
+                    updated_at TIMESTAMP DEFAULT (datetime('now', 'localtime'))
+                );
+            """
+            )
+            db_conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS participants (
+                    party_id INTEGER,
+                    user_id INTEGER,
+                    user_mention TEXT,
+                    display_name TEXT,
+                    created_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
+                    updated_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
+                    PRIMARY KEY (party_id, user_id),
+                    FOREIGN KEY (party_id) REFERENCES party (id) ON DELETE CASCADE
+                );
+            """
+            )
+            db_conn.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS update_party_updated_at
+                AFTER UPDATE ON party
+                FOR EACH ROW
+                BEGIN
+                    UPDATE party SET updated_at = (datetime('now', 'localtime')) WHERE id = OLD.id;
+                END;
+            """
+            )
+            db_conn.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS update_participants_updated_at
+                AFTER UPDATE ON participants
+                FOR EACH ROW
+                BEGIN
+                    UPDATE participants SET updated_at = (datetime('now', 'localtime')) WHERE party_id = OLD.party_id AND user_id = OLD.user_id;
+                END;
+            """
+            )
+            db_conn.commit()
+            current_bot.db = db_conn
+
+            await register_main_commands(tree, db_conn)
+
+        elif bot_mode == CMD_MAINTENANCE:
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
-            current_bot = MaintanceBot(intents=intents)
+            current_bot = MaintanceBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
             await register_maintenance_commands(tree)
@@ -77,7 +169,7 @@ async def main_manager() -> None:
         if console_task in done:
             # get input command
             new_mode = console_task.result()
-            if new_mode != "exit":  # VAR
+            if new_mode not in EXIT_CMD:  # VAR
                 print(f"Switching Bot... '{bot_mode}' into '{new_mode}'")  # VAR
             bot_mode = new_mode
         else:
@@ -101,7 +193,7 @@ async def main_manager() -> None:
         for task in pending:  # cancel remaining task
             task.cancel()
 
-        if bot_mode != "exit":  # VAR
+        if bot_mode not in EXIT_CMD:  # VAR
             for i in range(4, 0, -1):
                 print(
                     f"{C.yellow}[info] Executes in {i}s  ",

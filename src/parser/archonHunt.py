@@ -30,7 +30,7 @@ def w_archonHunt(archon) -> str:
     output_msg += f"{ts.get(f'{pf}eta')}: "
     output_msg += f"{convert_remain(archon['Expiry']['$date']['$numberLong'])}\n"
     # additional msg (obtain shard)
-    output_msg += f"{ts.get(f'{pf}obt1')} {get_emoji(shard)} **{ts.trs(shard)} {ts.get(f'{pf}shardname')}** {ts.get(f'{pf}obt2')}\n\n"
+    output_msg += ts.get(f"{pf}obt").format(emoji=get_emoji(shard), shard=ts.trs(shard))
     # print missions
     idx: int = 1
     for value in archon["Missions"]:
