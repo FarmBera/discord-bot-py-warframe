@@ -1,5 +1,5 @@
 from src.translator import ts
-from src.constants.times import convert_remain
+from src.utils.times import convert_remain
 from src.utils.return_err import err_text
 from src.utils.emoji import get_emoji
 from src.utils.data_manager import getMissionType, getSolNode

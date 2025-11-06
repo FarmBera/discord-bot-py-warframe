@@ -4,7 +4,7 @@ import asyncio
 
 # from src.main import tree
 from src.translator import ts
-from src.constants.times import JSON_DATE_PAT, timeNowDT
+from src.utils.times import JSON_DATE_PAT, timeNowDT
 from src.constants.color import C
 from src.constants.keys import STARTED_TIME_FILE_LOC, MSG_BOT
 from src.utils.logging_utils import save_log

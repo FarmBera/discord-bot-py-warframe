@@ -1,6 +1,6 @@
 import datetime as dt
 from src.translator import ts
-from src.constants.times import JSON_DATE_PAT, timeNowDT
+from src.utils.times import JSON_DATE_PAT, timeNowDT
 
 D: str = ts.get(f"time.day")
 H: str = ts.get(f"time.hour")

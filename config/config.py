@@ -4,5 +4,5 @@ class Lang:
 
 
 language = input("Select Language (en/ko) >> ")
-# language = Lang.EN  # temporary
-# language = Lang.KO  # temporary
+#language = Lang.EN  # temporary
+#language = Lang.KO  # temporary

@@ -2,7 +2,7 @@ import discord
 import datetime as dt
 
 from src.translator import ts
-from src.constants.times import convert_remain, timeNowDT
+from src.utils.times import convert_remain, timeNowDT
 from src.utils.data_manager import SETTINGS
 from src.utils.file_io import json_load
 from src.utils.emoji import get_emoji

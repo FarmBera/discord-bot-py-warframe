@@ -2,7 +2,7 @@ import discord
 import random
 
 from src.translator import ts
-from src.constants.times import timeNow, convert_remain
+from src.utils.times import timeNow, convert_remain
 from src.utils.discord_file import img_file
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed

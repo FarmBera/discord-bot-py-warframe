@@ -3,7 +3,7 @@ from discord.ext import commands
 import datetime as dt
 
 from src.translator import ts
-from src.constants.times import JSON_DATE_PAT, timeNowDT
+from src.utils.times import JSON_DATE_PAT, timeNowDT
 from src.constants.keys import (
     STARTED_TIME_FILE_LOC,
     DELTA_TIME_LOC,

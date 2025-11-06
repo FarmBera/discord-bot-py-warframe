@@ -1,6 +1,6 @@
 import discord
 from src.translator import ts
-from src.constants.times import convert_remain
+from src.utils.times import convert_remain
 from src.utils.return_err import err_embed
 from src.utils.data_manager import getLanguage, getMissionType, getSolNode
 

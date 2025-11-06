@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import Optional
 
-from src.constants.times import KST
+from src.utils.times import KST
 from src.constants.color import C
 from src.constants.keys import LOG_FILE_PATH
 

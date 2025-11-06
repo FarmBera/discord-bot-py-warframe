@@ -6,7 +6,7 @@ import asyncio
 
 from config.config import Lang
 from src.translator import ts
-from src.constants.times import alert_times, timeNowDT
+from src.utils.times import alert_times, timeNowDT
 from src.constants.color import C
 from src.constants.keys import (
     # other var

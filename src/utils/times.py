@@ -21,9 +21,9 @@ def timeNowDT() -> dt.datetime:
 
 
 def unixToDatetime(timestamp: int) -> dt.datetime:
-    if timestamp > 10**12:  # 밀리초(ms) 단위로 판단
+    if timestamp > 10**12:  # ms unit
         return dt.datetime.fromtimestamp(timestamp / 1000)
-    else:  # 초(s) 단위로 판단
+    else:  # sec unit
         return dt.datetime.fromtimestamp(timestamp)
 
 

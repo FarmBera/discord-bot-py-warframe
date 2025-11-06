@@ -8,7 +8,7 @@ from config.TOKEN import (
 )
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
-from src.constants.times import timeNowDT
+from src.utils.times import timeNowDT
 from src.utils.logging_utils import save_log
 
 params_market: dict = {"Language": lang, "Platform": "pc"}
