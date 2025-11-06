@@ -1,9 +1,10 @@
 # Discord Bot for Warframe
 
 - Python Toy Project for game called 'Warframe'
-
-Request API to game server, receive data, and process response.
-After processing response, notify (send latest content messages) to discord server.
+    - Notify new game contents
+    - Commands: check current game contents status
+    - Party recruitment system
+    - Search items in an external game market.
 
 ## External Python Module Used
 
@@ -15,5 +16,5 @@ After processing response, notify (send latest content messages) to discord serv
 
 - Dev Env: Python `v3.13.3`, `v3.13.9`
 - Runtime Env
-    - option 1 : [Deployment Env] Ubuntu based Linux - Python `v3.12.3`
+    - option 1 : [Deployment Env] Ubuntu Server based Linux - Python `v3.12.3`
     - option 2 : Android Termux App - Python `v3.12.11`
