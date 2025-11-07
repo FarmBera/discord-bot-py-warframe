@@ -209,6 +209,14 @@ cmd:
     cmd: 마켓검색
     desc: "'Warframe Market' 에서 특정 아이템을 검색하여 가장 저렴한 매물 몇개만 보여줍니다."
 
+    no-result: 검색 결과가 없습니다.
+    data: 데이터
+    api-fail: "API 요청에 실패하였습니다. 잠시 후 다시 시도해주세요.\n\n문제가 지속된다면 관리자에게 문의해주세요."
+    result: 검색 결과
+    link-to-market: "(파란색 링크를 클릭하면 마켓으로 이동합니다.)"
+    platinum: 플레
+    qty: 개
+
   market-help:
     cmd: 마켓도움말
     desc: "'마켓검색' 명령어에 대한 도움말을 표시합니다."

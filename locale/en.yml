@@ -209,6 +209,14 @@ cmd:
     cmd: market-search
     desc: Search specific item in 'Warframe Market' and shows its sell price
 
+    no-result: No Result Found!
+    data: Data
+    api-fail: "Failed to request API. Please try again later.\n\nIf the problem persists, please contact the administrator."
+    result: Search Result
+    link-to-market: "(Click the blue link to go to the market.)"
+    platinum: P
+    qty: Qty
+
   market-help:
     cmd: market-help
     desc: Show guide to use command 'market-search'
@@ -331,4 +339,4 @@ cmd:
     err-unknown: "❌ Unknown Error"
     not-found-ch: "❌ Error: Could not find the specified text channel. Please contact an admin."
 
-    created-party: "has created a party!"
+    created-party: "Created a party!"

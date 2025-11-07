@@ -1,7 +1,7 @@
 import discord
 
 from config.TOKEN import base_url_market_image
-from src.translator import language as lang
+from src.translator import ts, language as lang
 from src.utils.api_request import API_MarketSearch
 from src.utils.file_io import json_load
 
@@ -50,9 +50,11 @@ def w_market_search(name) -> discord.Embed:
             flag = True
             break
 
+    pf: str = "cmd.market-search."
+
     if not flag:  # data not found
         return discord.Embed(
-            description=f"## 검색 결과가 없습니다.\n- 데이터: `{name}`",
+            description=f"## {ts.get(f'{pf}no-result')}\n- {ts.get(f'{pf}data')}: `{name}`",
             color=0xE67E22,  # discord.Color.orange
         )
 
@@ -61,13 +63,13 @@ def w_market_search(name) -> discord.Embed:
 
     if not result:
         return discord.Embed(
-            description=f"API 요청에 실패하였습니다. 잠시 후 다시 시도해주세요.\n\n문제가 지속된다면 관리자에게 문의해주세요.",
+            description=ts.get(f"{pf}api-fail"),
             color=0xE67E22,  # discord.Color.orange,
         )
 
     if result.status_code != 200:  # api not found
         return discord.Embed(
-            description=f"## 검색 결과가 없습니다.\n- `{name}`\n- (Market API)",
+            description=f"## {ts.get(f'{pf}no-result')}\n- `{name}`\n- (Market API)",
             color=0xE67E22,  # discord.Color.orange,
         )
 
@@ -85,8 +87,8 @@ def w_market_search(name) -> discord.Embed:
 
     # create output msg
     idx: int = 0
-    output_msg = f"## 검색 결과: [{item_name}](https://warframe.market/{lang}/items/{item_slug}?type=sell)\n"
-    output_msg += f"> (파란색 링크를 클릭하면 마켓으로 이동합니다.)\n"
+    output_msg = f"## {ts.get(f'{pf}result')}: [{item_name}](https://warframe.market/{lang}/items/{item_slug}?type=sell)\n"
+    output_msg += f"> {ts.get(f'{pf}link-to-market')}\n"
     for item in ingame_orders:
         if item["type"] != "sell":
             continue
@@ -95,7 +97,7 @@ def w_market_search(name) -> discord.Embed:
         if idx > THRESHOLD:
             break
 
-        output_msg += f"- **{item['platinum']} 플레** : {item['quantity']} 개 ({item['user']['ingameName']})\n"
+        output_msg += f"- **{item['platinum']} {ts.get(f'{pf}platinum')}** : {item['quantity']} {ts.get(f'{pf}qty')} ({item['user']['ingameName']})\n"
 
     embed = discord.Embed(
         description=output_msg,
