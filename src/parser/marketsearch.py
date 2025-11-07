@@ -61,11 +61,11 @@ def w_market_search(name) -> discord.Embed:
     # api request
     result = API_MarketSearch(item_name=item_slug)
 
-    if not result:
-        return discord.Embed(
-            description=ts.get(f"{pf}api-fail"),
-            color=0xE67E22,  # discord.Color.orange,
-        )
+    # if not result:
+    #     return discord.Embed(
+    #         description=ts.get(f"{pf}api-fail"),
+    #         color=0xE67E22,  # discord.Color.orange,
+    #     )
 
     if result.status_code != 200:  # api not found
         return discord.Embed(
