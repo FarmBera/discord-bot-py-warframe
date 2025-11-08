@@ -16,12 +16,14 @@ def w_calendar(cal, typ) -> str:
     if not cal:
         return err_text("calendar")
 
-    output_msg: str = f"# {ts.get('cmd.calendar.title')} ({typ if typ else ''})\n\n"
+    pf: str = "cmd.calendar."
 
-    type_all = ts.get("cmd.calendar.choice-all")
-    type_todo = ts.get("cmd.calendar.choice-to-do")
-    type_prize = ts.get("cmd.calendar.choice-prize")
-    type_over = ts.get("cmd.calendar.choice-over")
+    output_msg: str = f"# {ts.get(f'{pf}title')} ({typ if typ else ''})\n\n"
+
+    type_all = ts.get(f"{pf}choice-all")
+    type_todo = ts.get(f"{pf}choice-to-do")
+    type_prize = ts.get(f"{pf}choice-prize")
+    type_over = ts.get(f"{pf}choice-over")
 
     for item in cal[0]["Days"]:
         t = item["events"]

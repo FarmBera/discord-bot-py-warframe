@@ -62,8 +62,8 @@ def is_expired_fiss(arg_time) -> bool:
 def w_fissures(fissures, args) -> str:
     setting = SETTINGS
     prefix = setting["fissures"]
-    fav_mission = prefix["favMission"]  # var
-    tier_exclude = prefix["tierExcept"]  # var
+    fav_mission = prefix["favMission"]
+    tier_exclude = prefix["tierExcept"]
     include_railjack_node: bool = prefix["IncludeRailjack"]
 
     choice: str = ""

@@ -169,7 +169,7 @@ async def main_manager() -> None:
         if console_task in done:
             # get input command
             new_mode = console_task.result()
-            if new_mode not in EXIT_CMD:  # VAR
+            if new_mode not in EXIT_CMD:
                 print(f"Switching Bot... '{bot_mode}' into '{new_mode}'")  # VAR
             bot_mode = new_mode
         else:
@@ -193,7 +193,7 @@ async def main_manager() -> None:
         for task in pending:  # cancel remaining task
             task.cancel()
 
-        if bot_mode not in EXIT_CMD:  # VAR
+        if bot_mode not in EXIT_CMD:
             for i in range(4, 0, -1):
                 print(
                     f"{C.yellow}[info] Executes in {i}s  ",
