@@ -1164,6 +1164,22 @@ async def cmd_create_thread_helper(
     description: str = "(설명 없음)",
     number_of_user: int = 4,
 ) -> None:
+    if interact.guild.id != CHANNELS["party-guild"]:
+        msg_obj = "지정된 서버에서만 사용할 수 있는 명령어입니다."  # VAR
+        await interact.response.send_message(msg_obj, ephemeral=True)
+        await save_log(
+            lock=interact.client.log_lock,
+            type="cmd",
+            cmd=f"cmd.party",
+            time=interact.created_at,
+            user=interact.user.display_name,
+            guild=interact.guild,
+            channel=interact.channel,
+            msg="[info] cmd used, but unauthorized server",
+            obj=msg_obj,
+        )
+        return
+
     db = db_conn
     db.row_factory = sqlite3.Row
 
