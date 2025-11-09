@@ -1,6 +1,7 @@
 from config.config import language as lang
 
 # commands cooldown time (sec)
+CDN: float = 3.0
 COOLDOWN_DEFAULT: float = 10.0
 COOLDOWN_PARTY: float = 60.0
 COOLDOWN_BTN_ACTION: float = 20.0  # btn join/leave
@@ -14,8 +15,8 @@ JSON: str = "api_cache"
 fileExt: str = ".md"
 
 # json file location
-DEFAULT_JSON_PATH: str = f"data/Warframe.json"
-DEFAULT_MARKET_JSON_PATH: str = f"data/market-search.json"
+# DEFAULT_JSON_PATH: str = f"data/Warframe.json"
+# DEFAULT_MARKET_JSON_PATH: str = f"data/market-search.json"
 # other file location
 LOG_FILE_PATH: str = "log/log.csv"
 SETTING_FILE_LOC: str = f"{configPfx}setting.json"

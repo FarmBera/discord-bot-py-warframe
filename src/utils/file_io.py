@@ -2,7 +2,7 @@ import json
 import yaml
 
 from src.constants.color import C
-from src.constants.keys import DEFAULT_JSON_PATH
+
 
 # general files
 
@@ -47,7 +47,7 @@ def save_file(filepath: str, content: str) -> None:
 # json
 
 
-def json_load(file_path=DEFAULT_JSON_PATH):
+def json_load(file_path):
     """
     read json file at provided path and return
 

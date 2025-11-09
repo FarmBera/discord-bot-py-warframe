@@ -62,10 +62,11 @@ class DiscordBot(discord.Client):
             obj=timeNowDT(),
         )  # VAR
 
-        self.auto_send_msg_request.start()
-        self.auto_noti.start()
-        self.weekly_task.start()
-        print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
+        if SETTINGS["noti"]["isEnabled"]:
+            self.auto_send_msg_request.start()
+            self.auto_noti.start()
+            self.weekly_task.start()
+            print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
     async def send_alert(self, value, channel_list=None, setting=None) -> None:
         if not setting:
