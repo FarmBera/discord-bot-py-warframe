@@ -1199,6 +1199,22 @@ async def cmd_create_party_helper(
     description: str = "(설명 없음)",
     number_of_user: int = 4,
 ) -> None:
+    if interact.guild.id != CHANNELS["guild"]:
+        msg_obj = ts.get(f"cmd.err-limit-server")  # VAR
+        await interact.response.send_message(msg_obj, ephemeral=True)
+        await save_log(
+            lock=interact.client.log_lock,
+            type="cmd",
+            cmd=f"cmd.party",
+            time=interact.created_at,
+            user=interact.user.display_name,
+            guild=interact.guild,
+            channel=interact.channel,
+            msg="[info] cmd used, but unauthorized server",
+            obj=msg_obj,
+        )
+        return
+
     db = db_conn
     db.row_factory = sqlite3.Row
 

@@ -20,6 +20,7 @@ time:
 cmd:
   no-perm-title: 권한 없음
   no-permission: "공개 메시지를 보낼 권한이 없습니다.\n선택된 관리자만 전체 공개 메시지를 보낼 수 있습니다.\n\n오류라고 판단된다면 봇 개발자에게 문의해주세요."
+  err-limit-server: "지정된 서버에서만 사용할 수 있는 명령어입니다."
 
   err-cooldown:
     title: 재사용 대기시간
@@ -268,7 +269,7 @@ cmd:
     # PartyView
 
     # join btn
-    pv-not-found: 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
+    pv-not-found: "파티 정보를 찾을 수 없거나 모집 글이 삭제된 상태입니다. \n\n만약 오류라고 판단된다면 관리자에게 문의해주세요."
     pv-join-btn: "참여하기"
     pv-leave-btn: "탈퇴하기"
     pv-host-exit-err: 호스트는 파티에서 탈퇴할 수 없어요.
@@ -323,7 +324,7 @@ cmd:
     pb-player-count: 파티원 수
     pb-player-joined: 참여한 파티원
     pb-mission: 미션
-    pb-desc: "게임에서 채팅창에 붙여넣으면 호스트에게 귓속말을 보낼 수 있습니다.\n> (우측 버튼을 클릭하면 클립보드로 복사됩니다.)"
+    pb-desc: "> 귓속말 명령어 복사"
     pb-pid: 파티 ID
 
     # build_party_embed_from_db
@@ -340,6 +341,74 @@ cmd:
     not-found-ch: "❌ 오류: 지정된 텍스트 채널을 찾을 수 없어요. 관리자에게 문의해주세요."
 
     created-party: 파티를 생성했습니다!
+
+  trade:
+    cmd: 거래
+    desc: "새로운 거래 글을 생성합니다."
+
+    # cmd args
+    type: "글 유형"
+    type-sell: "판매"
+    type-buy: "구매"
+    item: "거래 물품"
+    quantity: "수량"
+    price: "[선택사항] 개당 가격"
+    auto-price-info: "가격을 입력하지 않으면 마켓 시세를 기반으로 자동 책정됩니다."
+    # cmd describe
+    desc-trade-type: "거래 글 유형 (판매 / 구매)"
+    desc-item-name: 거래하고자 하는 아이템 이름
+    desc-nickname: 인게임 닉네임. 정확히 기입하여주세요.
+    desc-price: 물품 개당 가격
+    desc-qty: 아이템 수량. (기본값: 1)
+
+    # embed content
+    creator: "생성자"
+    item-name: "물품명"
+    price-per: "개당 가격"
+    total-price: "총 가격"
+    currency: "거래 재화"
+    platinum: "플래티넘"
+    status: "상태"
+
+    # embed status
+    selling: "판매 중"
+    buying: "구매 중"
+    closed: "거래 글 닫기"
+
+    # buttons
+    btn-trade: "거래하기"
+    btn-edit-qty: "수량 변경"
+    btn-edit-price: "가격 수정"
+    btn-edit-nickname: "닉네임 변경"
+    btn-close: "거래 종료"
+    # ConfirmTradeView
+    btn-confirm: Yes (거래하기)
+    btn-cancel: No (취소)
+    # ConfirmDeleteView
+    btn-confirm-del: Yes (거래 닫기)
+
+    # interactions
+    confirm-trade: "## 정말로 거래를 요청할까요?"
+    trade-request: "{host_mention}, {user_mention} 님이 거래를 요청했습니다!"
+    confirm-delete: "## 정말로 이 거래 글을 닫을까요?\n거래 글을 닫으면 **다시 활성화할 수 없습니다!**"
+    deleted: "> 게시자가 거래를 종료했어요."
+
+    # modals
+    edit-qty-title: "수량 수정"
+    edit-qty-label: "수량을 숫자로 입력해주세요."
+    edit-price-title: "가격 수정"
+    edit-price-label: "개당 가격을 숫자로 입력해주세요."
+    edit-nick-title: "닉네임 수정"
+    edit-nick-label: "수정할 닉네임을 정확하게 입력해주세요."
+
+    # errors
+    err-general: "상호작용 오류. 관리자에게 문의해주세요."
+    err-timeout: "시간이 초과되어 작업이 취소되었어요."
+    err-only-host: "거래 글 게시자만 이 버튼을 사용할 수 있어요."
+    err-not-found: "거래 정보를 찾을 수 없습니다."
+    err-self-trade: "자신이 올린 글에는 거래를 요청할 수 없어요."
+    err-invalid-value: "올바른 숫자 값을 입력해주세요."
+    err-no-market: "'워프레임 마켓' 검색 결과가 없습니다. 직접 가격을 입력해주세요.\n(가격 변경 기능을 이용해주세요.)"
 
 trs:
   # keyword

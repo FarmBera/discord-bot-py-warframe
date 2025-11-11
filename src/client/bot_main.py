@@ -25,6 +25,7 @@ from src.handler.handler_config import DATA_HANDLERS
 from src.parser.sortie import w_sortie
 
 from src.commands.cmd_helper_party import PartyView
+from src.commands.cmd_helper_trade import TradeView
 
 
 class DiscordBot(discord.Client):
@@ -36,6 +37,7 @@ class DiscordBot(discord.Client):
 
     async def setup_hook(self) -> None:
         self.add_view(PartyView())
+        self.add_view(TradeView())
         print(f"{C.green}Persistent Views successfully registered.{C.default}")
 
     async def on_ready(self):

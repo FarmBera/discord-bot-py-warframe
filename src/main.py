@@ -88,6 +88,7 @@ async def main_manager() -> None:
 
             db_conn = sqlite3.connect("db/party.db")
             # db_conn.execute("PRAGMA foreign_keys = ON;")
+            db_conn.execute("PRAGMA journal_mode=WAL;")
             db_conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS party (
@@ -122,6 +123,24 @@ async def main_manager() -> None:
             )
             db_conn.execute(
                 """
+                CREATE TABLE IF NOT EXISTS trades (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    host_id INTEGER NOT NULL,
+                    game_nickname TEXT NOT NULL,
+                    trade_type TEXT NOT NULL, -- 'sell' or 'buy'
+                    item_name TEXT NOT NULL,
+                    quantity INTEGER NOT NULL,
+                    price INTEGER NOT NULL,
+                    thread_id INTEGER,
+                    message_id INTEGER,
+                    status TEXT DEFAULT 'open', -- 'open', 'closed'
+                    created_at TIMESTAMP DEFAULT (datetime('now', 'localtime')),
+                    updated_at TIMESTAMP DEFAULT (datetime('now', 'localtime'))
+                );
+            """
+            )
+            db_conn.execute(
+                """
                 CREATE TRIGGER IF NOT EXISTS update_party_updated_at
                 AFTER UPDATE ON party
                 FOR EACH ROW
@@ -137,6 +156,16 @@ async def main_manager() -> None:
                 FOR EACH ROW
                 BEGIN
                     UPDATE participants SET updated_at = (datetime('now', 'localtime')) WHERE party_id = OLD.party_id AND user_id = OLD.user_id;
+                END;
+            """
+            )
+            db_conn.execute(
+                """
+                CREATE TRIGGER IF NOT EXISTS update_trades_updated_at
+                AFTER UPDATE ON trades
+                FOR EACH ROW
+                BEGIN
+                    UPDATE trades SET updated_at = (datetime('now', 'localtime')) WHERE id = OLD.id;
                 END;
             """
             )
