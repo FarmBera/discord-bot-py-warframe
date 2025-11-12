@@ -34,6 +34,7 @@ from src.constants.keys import (
     INVASIONS,
     MARKET_SEARCH,
     VALLISCYCLE,
+    DUVIRI_ROTATION,
 )
 
 from src.parser.alerts import w_alerts
@@ -51,6 +52,7 @@ from src.parser.dailyDeals import w_dailyDeals
 from src.parser.invasions import w_invasions
 from src.parser.vallisCycle import w_vallisCycle
 from src.parser.marketsearch import w_market_search, get_market_item_names
+from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 
 
 async def register_main_commands(
@@ -425,3 +427,25 @@ async def register_main_commands(
             if current.lower() in name.lower()
         ]
         return choices[:25]
+
+    # duviri-circuit-warframe
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.duviri-circuit.wf-cmd"),
+        description=ts.get(f"cmd.duviri-circuit.wf-desc"),
+    )
+    async def cmd_circuit_wf(interact: discord.Interaction):
+        await cmd_helper(interact, key=DUVIRI_ROTATION, parser_func=w_duviri_warframe)
+
+    # duviri-circuit-incarnon
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.duviri-circuit.inc-cmd"),
+        description=ts.get(f"cmd.duviri-circuit.inc-desc"),
+    )
+    async def cmd_circuit_inc(interact: discord.Interaction):
+        await cmd_helper(interact, key=DUVIRI_ROTATION, parser_func=w_duviri_incarnon)

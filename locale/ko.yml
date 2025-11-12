@@ -410,6 +410,15 @@ cmd:
     err-invalid-value: "올바른 숫자 값을 입력해주세요."
     err-no-market: "'워프레임 마켓' 검색 결과가 없습니다. 직접 가격을 입력해주세요.\n(가격 변경 기능을 이용해주세요.)"
 
+  duviri-circuit:
+    wf-cmd: 순환로-워프레임
+    wf-desc: 이번주에 두비리 순환로에서 얻을 수 있는 워프레임 목록을 불러옵니다.
+    wf-title: 두비리 순환로 - 워프레임
+
+    inc-cmd: 순환로-인카논
+    inc-desc: 이번주에 두비리 순환로(강길)에서 얻을 수 있는 인카논 무기 목록을 가져옵니다.
+    inc-title: 두비리 순환로 - 인카논 무기
+
 trs:
   # keyword
   blueprint: 설계도
@@ -485,3 +494,118 @@ trs:
 
   # sortie
   # "Enhanced Enemy Shields": 강화된 적 실드
+
+  # for duviri rotation
+
+  # warframes
+  ash: 애쉬 # Ash
+  atlas: 아틀라스 # Atlas
+  banshee: 밴쉬 # Banshee
+  caliban: 칼리반 # Caliban
+  chroma: 크로마 # Chroma
+  cyte-09: Cyte-09 # Cyte-09
+  dagath: 다가스 # Dagath
+  dante: 단테 # Dante
+  ember: 엠버 # Ember
+  equinox: 이쿼녹스 # Equinox
+  excalibur: 엑스칼리버 # Excalibur
+  excalibur umbra: 엑스칼리버 움브라 # Excalibur Umbra
+  frost: 프로스트 # Frost
+  gara: 가라 # Gara
+  garuda: 가루다 # Garuda
+  gauss: 가우스 # Gauss
+  grendel: 그렌델 # Grendel
+  gyre: 가라 # Gyre
+  hydroid: 하이드로이드 # Hydroid
+  inaros: 이나로스 # Inaros
+  ivara: 이바라 # Ivara
+  jade: 제이드 # Jade
+  khora: 코라 # Khora
+  koumei: 코우메이 # Koumei
+  kullervo: 쿨레르보 # Kullervo
+  limbo: 림보 # Limbo
+  loki: 로키 # Loki
+  mag: 매그 # Mag
+  mesa: 메사 # Mesa
+  mirage: 미라지 # Mirage
+  nekros: 네크로스 # Nekros
+  nezha: 나타 # Nezha
+  nidus: 나이더스 # Nidus
+  nova: 노바 # Nova
+  nyx: 닉스 # Nyx
+  oberon: 오베론 # Oberon
+  octavia: 옥타비아 # Octavia
+  protea: 프로티아 # Protea
+  qorvex: 코르벡스 # Qorvex
+  revenant: 레버넌트 # Revenant
+  rhino: 라이노 # Rhino
+  saryn: 새린 # Saryn
+  titania: 티타니아 # Titania
+  trinity: 트리니티 # Trinity
+  valkyr: 발키르 # Valkyr
+  vauban: 바우반 # Vauban
+  volt: 볼트 # Volt
+  voruna: 보루나 # Voruna
+  wisp: 위습 # Wisp
+  wukong: 오공 # Wukong
+  xaku: 자쿠 # Xaku
+  yareli: 야렐리 # Yareli
+  zephyr: 제피르 # Zephyr
+  baruuk: 바루크 # Baruuk
+  citrine: 시트린 # Citrine
+  harrow: 해로우 # Harrow
+  hildryn: 힐드린 # Hildryn
+  lavos: 라보스 # Lavos
+  oraxia: 오릭시아 # Oraxia
+  sevagoth: 세바고스 # Sevagoth
+  styanax: 스티아낙스 # Styanax
+  temple: 템플 # Temple
+
+  # week 1
+  braton: 브래튼 # Braton
+  lato: 라토 # Lato
+  skana: 스카나 # Skana
+  paris: 패리스 # Paris
+  kunai: 쿠나이 # Kunai
+  # week 2
+  boar: 보어 # Boar
+  gammacor: 감마코어 # Gammacor
+  angstrum: 앙스트럼 # Angstrum
+  gorgon: 고르곤 # Gorgon
+  anku: 안쿠 # Anku
+  # week 3
+  bo: 보 # Bo
+  latron: 래트론 # Latron
+  furis: 퓨리스 # Furis
+  furax: 퓨랙스 # Furax
+  strun: 스트런 # Strun
+  # week 4
+  lex: 렉스 # Lex
+  magistar: 마기스타 # Magistar
+  boltor: 볼터 # Boltor
+  bronco: 브롱코 # Bronco
+  ceramic dagger: 세라믹 대거 # Ceramic Dagger
+  # week 5
+  torid: 토리드 # Torid
+  dual toxocyst: 듀얼 톡소시스트 # Dual Toxocyst
+  dual ichor: 듀얼 이코르 # Dual Ichor
+  miter: 마이터 # Miter
+  atomos: 아토모스 # Atomos
+  # week 6
+  ack & brunt: 아크&브런트 # "Ack & Brunt"
+  soma: 소마 # Soma
+  vasto: 바스토 # Vasto
+  nami solo: 나미 솔로 # Nami Solo
+  burston: 버스튼 # Burston
+  # week 7
+  zylok: 자일락 # Zylok
+  sibear: 시비어 # Sibear
+  dread: 드레드 # Dread
+  despair: 디스페어 # Despair
+  hate: 헤이트 # Hate
+  # week 8
+  dera: 데라 # Dera
+  sybaris: 시바리스 # Sybaris
+  cestra: 세스트라 # Cestra
+  sicarus: 시카루스 # Sicarus
+  okina: 오키나 # Okina
