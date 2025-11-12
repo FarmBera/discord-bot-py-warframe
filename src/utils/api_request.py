@@ -83,7 +83,7 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
     # save data
     try:
         with open(WF_JSON_PATH, "w", encoding="utf-8") as json_file:
-            json.dump(response, json_file, ensure_ascii=False, indent=2)
+            json.dump(response.json(), json_file, ensure_ascii=False, indent=2)
     except Exception as e:
         elapsed_time = timeNowDT() - start_time
         msg = f"[err] Error on saving file!"
