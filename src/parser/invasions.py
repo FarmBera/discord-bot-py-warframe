@@ -3,6 +3,7 @@ from collections import defaultdict
 import re
 
 from src.translator import ts
+from src.constants.keys import SPECIAL_ITEM_LIST
 from src.utils.times import convert_remain
 from src.utils.return_err import err_embed
 from src.utils.data_manager import getFactions, getLanguage, getSolNode
@@ -22,7 +23,7 @@ def getPlanet(inv) -> str:
 def singleInvasion(inv) -> str:
     i_node = getSolNode(inv["Node"])
     i_status_perc = get_percent(inv["Count"], inv["Goal"])
-    i_fact = getFactions(inv["AttackerMissionInfo"]["faction"])
+    i_fact = getFactions(inv["Faction"])  # (inv["AttackerMissionInfo"]["faction"])
 
     pf = "cmd.invasions."
 
@@ -60,6 +61,49 @@ def w_invasions(invasions) -> discord.Embed:
 
         planet = getPlanet(inv)
         mission_per_planets[planet].append(dict(inv))
+
+    # generate output msg
+    output_msg: str = ""
+    for planet, inv_list in mission_per_planets.items():
+        if inv_list == []:  # ignore empty planet
+            continue
+
+        output_msg += f"# {planet}\n\n"  # planet title
+        for inv in inv_list:  # desc
+            output_msg += singleInvasion(inv)
+
+    return discord.Embed(description=output_msg)  # color=0x00FFFF,
+
+
+def w_invasions_se(invasions) -> discord.Embed:
+    if not invasions:
+        return err_embed("invasions")
+
+    mission_per_planets = defaultdict(list)
+
+    for inv in invasions:
+        if inv.get("Completed"):
+            continue
+
+        special_item_exist: bool = False
+        item_list = [
+            getLanguage(item["ItemType"]).lower()
+            for reward in [
+                inv.get("AttackerReward"),
+                inv.get("DefenderReward"),
+            ]
+            if isinstance(reward, dict) and "countedItems" in reward
+            for item in reward["countedItems"]
+        ]
+
+        for item in item_list:
+            for se in SPECIAL_ITEM_LIST:
+                if se in item:
+                    special_item_exist = True
+                    break
+        if special_item_exist:
+            planet = getPlanet(inv)
+            mission_per_planets[planet].append(dict(inv))
 
     # generate output msg
     output_msg: str = ""

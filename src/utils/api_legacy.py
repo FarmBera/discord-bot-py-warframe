@@ -1,7 +1,9 @@
 import requests
+import json
 import datetime as dt
 
-from config.TOKEN import base_url_warframe
+from config.TOKEN import base_url_warframe, WF_JSON_PATH
+from src.utils.times import timeNowDT
 from src.constants.color import C
 
 
@@ -40,5 +42,14 @@ def API_Request() -> requests.Response | None:
         msg = f"[warn] response code is not 200 > {res_code} / {response.elapsed} ({elapsed_time})"
         print(dt.datetime.now(), C.red, msg, res_code, elapsed_time, C.default)
         return None
+
+    try:
+        with open(WF_JSON_PATH, "w", encoding="utf-8") as json_file:
+            json.dump(response.json(), json_file, ensure_ascii=False, indent=2)
+    except Exception as e:
+        elapsed_time = timeNowDT() - start_time
+        msg = f"[err] Error on saving file!"
+        # obj = f"{elapsed_time}/{e}"
+        print(timeNowDT(), C.red, msg, elapsed_time, C.default)
 
     return response

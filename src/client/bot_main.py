@@ -4,7 +4,8 @@ import datetime as dt
 import requests
 import asyncio
 
-from config.config import Lang
+from config.TOKEN import WF_JSON_PATH
+from config.config import Lang, language as lang
 from src.translator import ts
 from src.utils.times import alert_times, timeNowDT
 from src.constants.color import C
@@ -18,6 +19,7 @@ from src.constants.keys import (
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
+from src.utils.file_io import json_load
 from src.utils.data_manager import get_obj, set_obj, SETTINGS, CHANNELS, getLanguage
 
 from src.handler.handler_config import DATA_HANDLERS
@@ -129,14 +131,17 @@ class DiscordBot(discord.Client):
         setting = SETTINGS
         channels = CHANNELS
 
-        latest_data: requests.Response = await API_Request(
-            self.log_lock, "auto_send_msg_request()"
-        )
+        if lang == Lang.EN:
+            latest_data: requests.Response = await API_Request(
+                self.log_lock, "auto_send_msg_request()"
+            )
 
-        if not latest_data or latest_data.status_code != 200:
-            return
+            if not latest_data or latest_data.status_code != 200:
+                return
 
-        latest_data = latest_data.json()
+            latest_data = latest_data.json()
+        else:
+            latest_data = json_load(WF_JSON_PATH)
 
         # check for new content & send alert
         for key, handler in DATA_HANDLERS.items():
@@ -355,7 +360,6 @@ class DiscordBot(discord.Client):
         except Exception as e:
             msg = f"[err] Failed to update Steel Path reward index: {C.red}{e}"
             print(C.yellow, msg, C.default)
-
             await save_log(
                 lock=self.log_lock,
                 cmd="bot.WEEKLY_TASK",

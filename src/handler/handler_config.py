@@ -9,6 +9,7 @@ from src.constants.keys import (
     CALENDAR,
     DAILYDEALS,
     INVASIONS,
+    DUVIRI_ROTATION,
 )
 from src.parser.alerts import w_alerts
 from src.parser.news import w_news
@@ -21,7 +22,7 @@ from src.parser.duviriCycle import w_duviriCycle
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
-from src.parser.invasions import w_invasions
+from src.parser.invasions import w_invasions, w_invasions_se
 
 
 def _check_void_trader_update(prev, new):
@@ -99,7 +100,7 @@ DATA_HANDLERS = {
         "update_check": lambda prev, new: prev[0]["StoreItem"] != new[0]["StoreItem"],
     },
     INVASIONS: {
-        "parser": w_invasions,
+        "parser": w_invasions_se,
         "special_logic": "handle_missing_invasions",
         "channel_key": "invasions",
     },

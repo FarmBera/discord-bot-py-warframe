@@ -1,11 +1,9 @@
 import requests
 import asyncio
+import json
 
 from src.translator import language as lang
-from config.TOKEN import (
-    base_url_warframe,
-    base_url_market,
-)
+from config.TOKEN import base_url_warframe, base_url_market, WF_JSON_PATH
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
 from src.utils.times import timeNowDT
@@ -83,23 +81,22 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
         return None
 
     # save data
-    # try:
-    #     with open(JSON_PATH, "w", encoding="utf-8") as json_file:
-    #         json.dump(response, json_file, ensure_ascii=False, indent=2)
-    # except Exception as e:
-    #     elapsed_time = timeNowDT() - start_time
-
-    #     msg = f"[err] Error on saving file!"
-    #     obj = f"{elapsed_time}/{e}"
-    #     print(timeNowDT(), C.red, msg, elapsed_time, C.default)
-    #     await save_log(
-    #         lock=log_lock,
-    #         type="err",
-    #         cmd="API_REQUEST()",
-    #         user=MSG_BOT,
-    #         msg=msg,
-    #         obj=obj,
-    #     )
+    try:
+        with open(WF_JSON_PATH, "w", encoding="utf-8") as json_file:
+            json.dump(response, json_file, ensure_ascii=False, indent=2)
+    except Exception as e:
+        elapsed_time = timeNowDT() - start_time
+        msg = f"[err] Error on saving file!"
+        obj = f"{elapsed_time}/{e}"
+        print(timeNowDT(), C.red, msg, elapsed_time, C.default)
+        await save_log(
+            lock=log_lock,
+            type="err",
+            cmd="API_REQUEST()",
+            user=MSG_BOT,
+            msg=msg,
+            obj=obj,
+        )
     #     return response
 
     elapsed_time = timeNowDT() - start_time

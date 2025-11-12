@@ -12,7 +12,7 @@
             "duviriCycle": false,
             "deepArchimedea": false,
             "temporalArchimedea": false,
-            "ActiveMissions": false,
+            "ActiveMissions": true,
             "KnownCalendarSeasons": true,
             "cambionCycle": false,
             "DailyDeals": true,

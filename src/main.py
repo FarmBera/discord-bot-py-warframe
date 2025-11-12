@@ -6,6 +6,7 @@ import sqlite3
 
 from config.TOKEN import TOKEN as BOT_TOKEN
 from src.constants.color import C
+from src.constants.keys import DB_NAME
 from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
@@ -56,7 +57,9 @@ async def main_manager() -> None:
     # bot_mode = CMD_MAIN  # init mode
     bot_mode = input("Starting Bot Mode > ").lower()
     if not bot_mode:
-        print(f"\033[A\r{C.yellow}Unknown Mode > '{C.red}{bot_mode}{C.yellow}' / setup default mode: {C.cyan}`main`{C.default}")
+        print(
+            f"\033[A\r{C.yellow}Unknown Mode > '{C.red}{bot_mode}{C.yellow}' / setup default mode: {C.cyan}`main`{C.default}"
+        )
         bot_mode = CMD_MAIN
 
     while bot_mode not in EXIT_CMD:
@@ -86,7 +89,7 @@ async def main_manager() -> None:
                 else:  # other type of error
                     print(f"Unhandled app command error: {error}")
 
-            db_conn = sqlite3.connect("db/party.db")
+            db_conn = sqlite3.connect(f"db/{DB_NAME}.db")
             # db_conn.execute("PRAGMA foreign_keys = ON;")
             db_conn.execute("PRAGMA journal_mode=WAL;")
             db_conn.execute(

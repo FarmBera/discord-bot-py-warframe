@@ -359,7 +359,7 @@ cmd:
     desc-item-name: 거래하고자 하는 아이템 이름
     desc-nickname: 인게임 닉네임. 정확히 기입하여주세요.
     desc-price: 물품 개당 가격
-    desc-qty: 아이템 수량. (기본값: 1)
+    desc-qty: "아이템 수량. (기본값: 1)"
 
     # embed content
     creator: "생성자"
