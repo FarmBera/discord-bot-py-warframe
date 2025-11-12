@@ -8,7 +8,7 @@ from src.utils.return_err import err_embed
 
 
 # TODO: 초기화 시간 명시
-def w_duviri_warframe(rotation):
+def w_duviri_warframe(rotation) -> discord.Embed:
     if not rotation:
         return err_embed("w_duviri_warframe")
 
@@ -25,7 +25,7 @@ def w_duviri_warframe(rotation):
 
 
 # TODO: 초기화 시간 명시
-def w_duviri_incarnon(incarnon):
+def w_duviri_incarnon(incarnon) -> discord.Embed:
     if not incarnon:
         return err_embed("w_duviri_warframe")
 
