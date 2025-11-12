@@ -36,5 +36,5 @@ def w_duviri_incarnon(incarnon) -> discord.Embed:
     for item in incarnon[1]["Choices"]:
         output_msg += f"- {get_emoji(item)} {ts.trs(item)}\n"
 
-    embed = discord.Embed(description=output_msg)
+    embed = discord.Embed(description=output_msg, color=0x65E6E1)
     return embed
