@@ -116,8 +116,6 @@ def w_duviri_incarnon(incarnon) -> discord.Embed:
     output_msg += "- " + ", ".join(
         [f"{get_emoji(i)} {ts.trs(i)}" for i in curr_rotation]
     )
-    for item in incarnon[1]["Choices"]:
-        output_msg += f"- {get_emoji(item)} {ts.trs(item)}"
 
     # next items
     incarnon_list = rotation_data["incarnon"]
