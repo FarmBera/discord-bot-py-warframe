@@ -35,6 +35,7 @@ from src.constants.keys import (
     MARKET_SEARCH,
     VALLISCYCLE,
     DUVIRI_ROTATION,
+    EVENTS,
 )
 
 from src.parser.alerts import w_alerts
@@ -53,6 +54,7 @@ from src.parser.invasions import w_invasions
 from src.parser.vallisCycle import w_vallisCycle
 from src.parser.marketsearch import w_market_search, get_market_item_names
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
+from src.parser.events import w_events
 
 
 async def register_main_commands(
@@ -449,3 +451,14 @@ async def register_main_commands(
     )
     async def cmd_circuit_inc(interact: discord.Interaction):
         await cmd_helper(interact, key=DUVIRI_ROTATION, parser_func=w_duviri_incarnon)
+
+    # events (like thermina, fomorian)
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.events.cmd"),
+        description=ts.get(f"cmd.events.desc"),
+    )
+    async def cmd_ingame_events(interact: discord.Interaction):
+        await cmd_helper(interact, key=EVENTS, parser_func=w_events)

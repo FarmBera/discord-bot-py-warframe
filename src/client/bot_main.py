@@ -16,6 +16,7 @@ from src.constants.keys import (
     # cmd obj
     SORTIE,
     STEELPATH,
+    DUVIRI_ROTATION,
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
@@ -367,3 +368,12 @@ class DiscordBot(discord.Client):
                 msg=msg,
                 obj=timeNowDT(),
             )
+
+        # update duviri-rotation time
+        duviri_data: dict = get_obj(DUVIRI_ROTATION)
+
+        duviri_data["expiry"] = (
+            dt.datetime.fromtimestamp(duviri_data["expiry"]) + dt.timedelta(weeks=1)
+        ).timestamp()
+
+        set_obj(duviri_data)

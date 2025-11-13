@@ -54,6 +54,7 @@ INVASIONS: str = "Invasions"
 MARKET_SEARCH: str = "market-search"
 VALLISCYCLE: str = "vallisCycle"
 DUVIRI_ROTATION: str = "EndlessXpChoices"
+EVENTS: str = "Goals"
 
 keys: list = [
     ALERTS,
@@ -73,6 +74,7 @@ keys: list = [
     INVASIONS,
     # VALLISCYCLE,
     DUVIRI_ROTATION,
+    EVENTS,
 ]
 
 LFG_WEBHOOK_NAME: str = "warframe-lfg-bot"

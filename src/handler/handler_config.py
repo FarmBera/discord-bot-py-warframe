@@ -10,6 +10,7 @@ from src.constants.keys import (
     DAILYDEALS,
     INVASIONS,
     DUVIRI_ROTATION,
+    EVENTS,
 )
 from src.parser.alerts import w_alerts
 from src.parser.news import w_news
@@ -23,6 +24,8 @@ from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
 from src.parser.invasions import w_invasions, w_invasions_se
+from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
+from src.parser.events import w_events
 
 
 def _check_void_trader_update(prev, new):
@@ -103,5 +106,19 @@ DATA_HANDLERS = {
         "parser": w_invasions_se,
         "special_logic": "handle_missing_invasions",
         "channel_key": "invasions",
+    },
+    DUVIRI_ROTATION: {  # circuit-warframe
+        "parser": w_duviri_warframe,
+        "update_check": lambda prev, new: set(prev[0]["Choices"])
+        != set(new[0]["Choices"]),
+    },
+    DUVIRI_ROTATION: {  # circuit-incarnon
+        "parser": w_duviri_incarnon,
+        "update_check": lambda prev, new: set(prev[1]["Choices"])
+        != set(new[1]["Choices"]),
+    },
+    EVENTS: {
+        "parser": w_events,
+        "special_logic": "handle_missing_items",
     },
 }
