@@ -18,7 +18,9 @@
             "DailyDeals": true,
             "voidTraderItem": false,
             "Invasions": true,
-            "InvasionsSpecial": true
+            "vallisCycle": false,
+            "EndlessXpChoices": true,
+            "Goals": true
         }
     },
     "fissures": {
@@ -34,8 +36,7 @@
         "missionTemp": [
             "Excavation"
         ],
-        "tierExcept": [
-        ],
+        "tierExcept": [],
         "tierTemp": [
             "Requiem"
         ]

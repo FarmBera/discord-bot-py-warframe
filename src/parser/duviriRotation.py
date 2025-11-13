@@ -83,7 +83,7 @@ def w_duviri_warframe(rotation) -> discord.Embed:
         idx += 1
 
     # create next rotation list
-    output_msg += f"\n\n### {ts.get(f'{pf}next-rotate')}\n"
+    output_msg += f"\n### {ts.get(f'{pf}next-rotate')}\n"
     for _ in range(length - 1):
         idx = (idx + 1) % length
         if idx == idx_init:
@@ -92,7 +92,7 @@ def w_duviri_warframe(rotation) -> discord.Embed:
         jtem = warframe_list[idx]
         tstamp += ADD_ONE_WEEK
         output_msg += (
-            f"- {convert_diff(tstamp)}: "
+            f"- {ts.get(f'{pf}coming').format(day=convert_diff(tstamp))}: "
             + ", ".join([f"{get_emoji(i)} {ts.trs(i)}" for i in jtem])
             + "\n"
         )
@@ -143,7 +143,7 @@ def w_duviri_incarnon(incarnon) -> discord.Embed:
         jtem = incarnon_list[idx]
         tstamp += ADD_ONE_WEEK
         output_msg += (
-            f"- {convert_diff(tstamp)}: "
+            f"- {ts.get(f'{pf}coming').format(day=convert_diff(tstamp))}: "
             + ", ".join([f"{get_emoji(i)} {ts.trs(i)}" for i in jtem])
             + "\n"
         )

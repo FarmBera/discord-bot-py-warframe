@@ -422,6 +422,7 @@ cmd:
     # both
     circuit: 순환로 # 두비리 순환로
     next-rotate: 다음 로테이션
+    coming: "{day} 뒤"
 
   events:
     cmd: 이벤트
