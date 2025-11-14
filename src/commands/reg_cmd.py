@@ -439,7 +439,12 @@ async def register_main_commands(
         description=ts.get(f"cmd.duviri-circuit.wf-desc"),
     )
     async def cmd_circuit_wf(interact: discord.Interaction):
-        await cmd_helper(interact, key=DUVIRI_ROTATION, parser_func=w_duviri_warframe)
+        await cmd_helper(
+            interact,
+            key=DUVIRI_ROTATION,
+            parser_func=w_duviri_warframe,
+            isFollowUp=True,
+        )
 
     # duviri-circuit-incarnon
     @discord.app_commands.checks.cooldown(
@@ -450,7 +455,12 @@ async def register_main_commands(
         description=ts.get(f"cmd.duviri-circuit.inc-desc"),
     )
     async def cmd_circuit_inc(interact: discord.Interaction):
-        await cmd_helper(interact, key=DUVIRI_ROTATION, parser_func=w_duviri_incarnon)
+        await cmd_helper(
+            interact,
+            key=DUVIRI_ROTATION,
+            parser_func=w_duviri_incarnon,
+            isFollowUp=True,
+        )
 
     # events (like thermina, fomorian)
     @discord.app_commands.checks.cooldown(
