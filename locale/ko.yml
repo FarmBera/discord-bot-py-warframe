@@ -413,16 +413,20 @@ cmd:
   duviri-circuit:
     wf-cmd: 순환로-워프레임
     wf-desc: 이번주에 두비리 순환로에서 얻을 수 있는 워프레임 목록을 불러옵니다.
+    wf-lvl: 일반
     wf-title: 워프레임
 
     inc-cmd: 순환로-인카논
     inc-desc: 이번주에 두비리 순환로(강길)에서 얻을 수 있는 인카논 무기 목록을 가져옵니다.
+    inc-lvl: 강철의 길
     inc-title: 인카논
 
     # both
     circuit: 순환로 # 두비리 순환로
+    curr-rotate: 현재 로테이션
     next-rotate: 다음 로테이션
-    coming: "{day} 뒤"
+    end: "종료일: `{day}` 후"
+    coming: "`{day} 후`"
 
   events:
     cmd: 이벤트

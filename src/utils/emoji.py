@@ -77,209 +77,209 @@ def get_emoji(origin: str):
         return "<:3DayResourceDropChance:1434447851923963945>"
 
     # warframes (circuit)
-    elif "Ash" in origin:
+    elif "Ash" == origin:
         return "<:Ash:1438190262093480130>"
-    elif "Atlas" in origin:
+    elif "Atlas" == origin:
         return "<:Atlas:1438190264014471219>"
-    elif "Banshee" in origin:
+    elif "Banshee" == origin:
         return "<:Banshee:1438190265625219172>"
-    elif "Baruuk" in origin:
+    elif "Baruuk" == origin:
         return "<:Baruuk:1438190267009077340>"
-    elif "Caliban" in origin:
+    elif "Caliban" == origin:
         return "<:Caliban:1438190268875542620>"
-    elif "Chroma" in origin:
+    elif "Chroma" == origin:
         return "<:Chroma:1438190270410789016>"
-    elif "Citrine" in origin:
+    elif "Citrine" == origin:
         return "<:Citrine:1438190272612794398>"
-    elif "Cyte09" in origin:
+    elif "Cyte09" == origin:
         return "<:Cyte09:1438190274261156042>"
-    elif "Dagath" in origin:
+    elif "Dagath" == origin:
         return "<:Dagath:1438190276433674263>"
-    elif "Dante" in origin:
+    elif "Dante" == origin:
         return "<:Dante:1438190278199738528>"
-    elif "Ember" in origin:
+    elif "Ember" == origin:
         return "<:Ember:1438190625307754617>"
-    elif "Equinox" in origin:
+    elif "Equinox" == origin:
         return "<:Equinox:1438190282935107627>"
-    elif "Excalibur" in origin:
+    elif "Excalibur" == origin:
         return "<:Excalibur:1438190284553981973>"
-    elif "Frost" in origin:
+    elif "Frost" == origin:
         return "<:Frost:1438190286239961178>"
-    elif "Gara" in origin:
+    elif "Gara" == origin:
         return "<:Gara:1438190287879929997>"
-    elif "Garuda" in origin:
+    elif "Garuda" == origin:
         return "<:Garuda:1438190289293545622>"
-    elif "Gauss" in origin:
+    elif "Gauss" == origin:
         return "<:Gauss:1438190290908221595>"
-    elif "Grendel" in origin:
+    elif "Grendel" == origin:
         return "<:Grendel:1438190292493926541>"
-    elif "Gyre" in origin:
+    elif "Gyre" == origin:
         return "<:Gyre:1438190294284898324>"
-    elif "Harrow" in origin:
+    elif "Harrow" == origin:
         return "<:Harrow:1438190296310612139>"
-    elif "Hildryn" in origin:
+    elif "Hildryn" == origin:
         return "<:Hildryn:1438190297669439558>"
-    elif "Hydroid" in origin:
+    elif "Hydroid" == origin:
         return "<:Hydroid:1438190299342966835>"
-    elif "Inaros" in origin:
+    elif "Inaros" == origin:
         return "<:Inaros:1438190301100507196>"
-    elif "Ivara" in origin:
+    elif "Ivara" == origin:
         return "<:Ivara:1438190302602199205>"
-    elif "Khora" in origin:
+    elif "Khora" == origin:
         return "<:Khora:1438190304321605683>"
-    elif "Koumei" in origin:
+    elif "Koumei" == origin:
         return "<:Koumei:1438190306674737273>"
-    elif "Kullervo" in origin:
+    elif "Kullervo" == origin:
         return "<:Kullervo:1438190308335681707>"
-    elif "Lavos" in origin:
+    elif "Lavos" == origin:
         return "<:Lavos:1438190309992566834>"
-    elif "Limbo" in origin:
+    elif "Limbo" == origin:
         return "<:Limbo:1438190311636734192>"
-    elif "Loki" in origin:
+    elif "Loki" == origin:
         return "<:Loki:1438190313117323474>"
-    elif "Mag" in origin:
+    elif "Mag" == origin:
         return "<:Mag:1438190315105161409>"
-    elif "Mesa" in origin:
+    elif "Mesa" == origin:
         return "<:Mesa:1438190317076615221>"
-    elif "Mirage" in origin:
+    elif "Mirage" == origin:
         return "<:Mirage:1438190318674514011>"
-    elif "Nekros" in origin:
+    elif "Nekros" == origin:
         return "<:Nekros:1438190320289583315>"
-    elif "Nezha" in origin:
+    elif "Nezha" == origin:
         return "<:Nezha:1438190322126684290>"
-    elif "Nidus" in origin:
+    elif "Nidus" == origin:
         return "<:Nidus:1438190323682640064>"
-    elif "Nokko" in origin:
+    elif "Nokko" == origin:
         return "<:Nokko:1438190325037269022>"
-    elif "Nova" in origin:
+    elif "Nova" == origin:
         return "<:Nova:1438190326522052639>"
-    elif "Nyx" in origin:
+    elif "Nyx" == origin:
         return "<:Nyx:1438190327893721139>"
-    elif "Oberon" in origin:
+    elif "Oberon" == origin:
         return "<:Oberon:1438190330326286416>"
-    elif "Octavia" in origin:
+    elif "Octavia" == origin:
         return "<:Octavia:1438190332100481257>"
-    elif "Oraxia" in origin:
+    elif "Oraxia" == origin:
         return "<:Oraxia:1438190333841117309>"
-    elif "Protea" in origin:
+    elif "Protea" == origin:
         return "<:Protea:1438190335426826291>"
-    elif "Qorvex" in origin:
+    elif "Qorvex" == origin:
         return "<:Qorvex:1438190336718405795>"
-    elif "Revenant" in origin:
+    elif "Revenant" == origin:
         return "<:Revenant:1438190338828144670>"
-    elif "Rhino" in origin:
+    elif "Rhino" == origin:
         return "<:Rhino:1438190340438753300>"
-    elif "Saryn" in origin:
+    elif "Saryn" == origin:
         return "<:Saryn:1438190342066278490>"
-    elif "Sevagoth" in origin:
+    elif "Sevagoth" == origin:
         return "<:Sevagoth:1438190343605452942>"
-    elif "Styanax" in origin:
+    elif "Styanax" == origin:
         return "<:Styanax:1438190345077915688>"
-    elif "Temple" in origin:
+    elif "Temple" == origin:
         return "<:Temple:1438190346789060828>"
-    elif "Titania" in origin:
+    elif "Titania" == origin:
         return "<:Titania:1438190348584226919>"
-    elif "Trinity" in origin:
+    elif "Trinity" == origin:
         return "<:Trinity:1438190350215676076>"
-    elif "Valkyr" in origin:
+    elif "Valkyr" == origin:
         return "<:Valkyr:1438190352224751686>"
-    elif "Vauban" in origin:
+    elif "Vauban" == origin:
         return "<:Vauban:1438190353558536242>"
-    elif "Volt" in origin:
+    elif "Volt" == origin:
         return "<:Volt:1438190355274141899>"
-    elif "Voruna" in origin:
+    elif "Voruna" == origin:
         return "<:Voruna:1438190356872302643>"
-    elif "Wisp" in origin:
+    elif "Wisp" == origin:
         return "<:Wisp:1438190358394703973>"
-    elif "Wukong" in origin:
+    elif "Wukong" == origin:
         return "<:Wukong:1438190359879614535>"
-    elif "Xaku" in origin:
+    elif "Xaku" == origin:
         return "<:Xaku:1438190361561534645>"
-    elif "Yareli" in origin:
+    elif "Yareli" == origin:
         return "<:Yareli:1438190363104772187>"
-    elif "Zephyr" in origin:
+    elif "Zephyr" == origin:
         return "<:Zephyr:1438190364665315529>"
 
     # incarnon genesis
-    elif "Ack & Brunt" in origin:
+    elif "Ack & Brunt" == origin:
         return "<:AckBrunt:1438194050720333997>"
-    elif "Angstrum" in origin:
+    elif "Angstrum" == origin:
         return "<:Angstrum:1438194052251127909>"
-    elif "Anku" in origin:
+    elif "Anku" == origin:
         return "<:Anku:1438194053656084644>"
-    elif "Atomos" in origin:
+    elif "Atomos" == origin:
         return "<:Atomos:1438194055216631970>"
-    elif "Bo" in origin:
+    elif "Bo" == origin:
         return "<:Bo:1438194056911126639>"
-    elif "Boar" in origin:
+    elif "Boar" == origin:
         return "<:Boar:1438194058324476045>"
-    elif "Boltor" in origin:
+    elif "Boltor" == origin:
         return "<:Boltor:1438194060132089908>"
-    elif "Braton" in origin:
+    elif "Braton" == origin:
         return "<:Braton:1438194061788844033>"
-    elif "Bronco" in origin:
+    elif "Bronco" == origin:
         return "<:Bronco:1438194063546515587>"
-    elif "Burston" in origin:
+    elif "Burston" == origin:
         return "<:Burston:1438194065136160859>"
-    elif "Ceramic Dagger" in origin:
+    elif "Ceramic Dagger" == origin:
         return "<:CeramicDagger:1438194066679529583>"
-    elif "Cestra" in origin:
+    elif "Cestra" == origin:
         return "<:Cestra:1438194068051198112>"
-    elif "Dera" in origin:
+    elif "Dera" == origin:
         return "<:Dera:1438194069775057118>"
-    elif "Despair" in origin:
+    elif "Despair" == origin:
         return "<:Despair:1438194071360372756>"
-    elif "Dread" in origin:
+    elif "Dread" == origin:
         return "<:Dread:1438194073117917194>"
-    elif "Dual Ichor" in origin:
+    elif "Dual Ichor" == origin:
         return "<:DualIchor:1438194074753700032>"
-    elif "Dual Toxocyst" in origin:
+    elif "Dual Toxocyst" == origin:
         return "<:DualToxocyst:1438194076171243710>"
-    elif "Furax" in origin:
+    elif "Furax" == origin:
         return "<:Furax:1438194077781721231>"
-    elif "Furis" in origin:
+    elif "Furis" == origin:
         return "<:Furis:1438194079279222814>"
-    elif "Gammacor" in origin:
+    elif "Gammacor" == origin:
         return "<:Gammacor:1438194080722190426>"
-    elif "Gorgon" in origin:
+    elif "Gorgon" == origin:
         return "<:Gorgon:1438194112707825824>"
-    elif "Hate" in origin:
+    elif "Hate" == origin:
         return "<:Hate:1438194114070839458>"
-    elif "Kunai" in origin:
+    elif "Kunai" == origin:
         return "<:Kunai:1438194115337654422>"
-    elif "Lato" in origin:
+    elif "Lato" == origin:
         return "<:Lato:1438194117032017950>"
-    elif "Latron" in origin:
+    elif "Latron" == origin:
         return "<:Latron:1438194118802018334>"
-    elif "Lex" in origin:
+    elif "Lex" == origin:
         return "<:Lex:1438194120513556573>"
-    elif "Magistar" in origin:
+    elif "Magistar" == origin:
         return "<:Magistar:1438194121952202763>"
-    elif "Miter" in origin:
+    elif "Miter" == origin:
         return "<:Miter:1438194123843567696>"
-    elif "Nami Solo" in origin:
+    elif "Nami Solo" == origin:
         return "<:NamiSolo:1438194125559300107>"
-    elif "Okina" in origin:
+    elif "Okina" == origin:
         return "<:Okina:1438194127257993338>"
-    elif "Paris" in origin:
+    elif "Paris" == origin:
         return "<:Paris:1438194128927064124>"
-    elif "Sibear" in origin:
+    elif "Sibear" == origin:
         return "<:Sibear:1438194130324029495>"
-    elif "Sicarus" in origin:
+    elif "Sicarus" == origin:
         return "<:Sicarus:1438194132077252609>"
-    elif "Skana" in origin:
+    elif "Skana" == origin:
         return "<:Skana:1438194133641728123>"
-    elif "Soma" in origin:
+    elif "Soma" == origin:
         return "<:Soma:1438194135449342053>"
-    elif "Strun" in origin:
+    elif "Strun" == origin:
         return "<:Strun:1438194137127190669>"
-    elif "Sybaris" in origin:
+    elif "Sybaris" == origin:
         return "<:Sybaris:1438194138905575624>"
-    elif "Torid" in origin:
+    elif "Torid" == origin:
         return "<:Torid:1438194140486701189>"
-    elif "Vasto" in origin:
+    elif "Vasto" == origin:
         return "<:Vasto:1438194142156161034>"
-    elif "Zylok" in origin:
+    elif "Zylok" == origin:
         return "<:Zylok:1438194143531630796>"
 
     else:
