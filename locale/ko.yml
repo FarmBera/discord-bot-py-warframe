@@ -100,15 +100,20 @@ cmd:
     desc: 바로 키 티어가 등장 여부, 언제, 어디서 등장할지 알려줍니다.
     title: 바로 키 티어 현황
 
+    # msg title
+    baro-new: 바로 키 티어 등장 예정 # New Baro scheduled
+    baro-appear: 바로 키 티어가 등장했습니다! # Baro Appeared!
+
+    # embed msg
     tdr-name: 상인
     status: 상태
 
-    activate: "[활성화됨](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    end: 상인이 떠나기까지 {time} 남았습니다.
-    location: 위치
+    activate: "[활성화](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
+    end: 상인이 떠나기까지 `{time}` 남았습니다.
+    location: 등장 위치
 
-    deactivate: 비활성화됨
-    appear: "{time} 후 등장 예정입니다."
+    deactivate: 비활성화
+    appear: "`{time}` 후 등장 예정입니다."
     place: 등장 예정 위치
 
   void-traders-item:

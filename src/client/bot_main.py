@@ -6,7 +6,6 @@ import asyncio
 
 from config.TOKEN import WF_JSON_PATH
 from config.config import Lang, language as lang
-from config.roles import ROLES
 from src.translator import ts
 from src.utils.times import alert_times, timeNowDT
 from src.constants.color import C
@@ -303,9 +302,17 @@ class DiscordBot(discord.Client):
 
                 parsed_content = handler["parser"](obj_new)
                 if not parsed_content:
-                    print(
-                        C.red,
-                        'parse content error in special_logic == "handle_duviri_rotation-1',
+                    msg = (
+                        f"[err] parse error in handle_duviri_rotation-1 {handler['parser']}/{e}",
+                    )
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="auto_send_msg_request()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
                     )
                     continue
 
@@ -320,16 +327,23 @@ class DiscordBot(discord.Client):
 
                 parsed_content = handler["parser"](obj_new)
                 if not parsed_content:
-                    print(
-                        C.red,
-                        "parse content error in special_logic == handle_duviri_rotation-2",
+                    msg = (
+                        f"[err] parse error in handle_duviri_rotation-2 {handler['parser']}/{e}",
+                    )
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="auto_send_msg_request()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
                     )
                     continue
 
                 notification = True
                 should_save_data = True
 
-            # TODO: 등장할 때, 새로운 바로키 등록 시 경우 나눠서 메시지 다르게 표시되게 변경
             elif special_logic == "handle_voidtraders":
                 prev_data = (
                     obj_prev[-1]
@@ -342,9 +356,7 @@ class DiscordBot(discord.Client):
 
                 # check new baro
                 if prev_data.get("_id") != new_data.get("_id"):
-                    text_arg = "바로 키 티어 등장 예정"
-                    print("new trader scheduled!")
-                    # continue
+                    text_arg = ts.get(f"cmd.void-traders.baro-new")
                     notification = True
                     should_save_data = True
                     embed_color = 0xFFDD00
@@ -362,19 +374,27 @@ class DiscordBot(discord.Client):
                         )
                     )
                 ):
-                    text_arg = "바로 키 티어가 등장했습니다!"
-                    print("VoidTrader Activated")
+                    text_arg = ts.get(f"cmd.void-traders.baro-appear")
                     notification = True
                     should_save_data = True
-
-                print("void trader update check")  # TODO-remove
 
                 if not notification:
                     continue
 
                 parsed_content = handler["parser"](obj_new, text_arg, embed_color)
                 if not parsed_content:
-                    print(C.red, "parse error : handle_voidtraders")
+                    msg = (
+                        f"[err] parse error in handle_voidtraders {handler['parser']}/{e}",
+                    )
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="auto_send_msg_request()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
+                    )
                     continue
 
             # parsing: default
