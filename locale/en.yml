@@ -47,12 +47,12 @@ cmd:
     cmd: alerts
     desc: Get currently activated alert mission
     desc-none: "### There're no activated alerts missions!"
-    title: Activated Alert
+    title: "Activated Alert: {count}"
     credit: Credit
 
-    lvl: lvl
-    waves: Max Wave
-    exp: Expires in
+    lvl: "lvl: `{lvl}`"
+    waves: "Max Wave: `{wave}`"
+    exp: "Expires in `{time}`"
 
   news:
     cmd: news
@@ -74,14 +74,15 @@ cmd:
   sortie:
     cmd: sortie
     desc: "Today's Sortie missions"
+
     title: Today's Sortie
-    eta: Expires in
+    eta: "Expires in `{eta}`"
 
   archon-hunt:
     cmd: archonhunt
     desc: Get archon hunt missions this weekend
     title: Archon Hunt
-    eta: Expires in
+    eta: "Expires in `{time}`"
     hunt: Hunt
 
     obt: "You can obtain {emoji} **{shard} Archon Shard** in thos week\n\n"
@@ -100,11 +101,16 @@ cmd:
     desc: Get when & where Baro Ki'Teer arrives
     title: Baro Ki'Teer Status
 
+    # msg title
+    baro-new: New Baro Scheduled
+    baro-appear: Baro Appeared!
+
+    # embed msg
     tdr-name: Trader
     status: Status
 
     activate: "[Activated](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    end: Trader will leave in
+    end: "Trader will leave in `{time}`"
     location: Location
 
     deactivate: Deactivated
@@ -115,7 +121,7 @@ cmd:
     cmd: voidtraders-item
     desc: Get Baro Ki'Teer selling item list.
 
-    not-yet: "Trader is NOT arrived yet!\n- Arrives in **{time**"
+    not-yet: "Trader is NOT arrived yet!\n- Arrives in **{time}**"
 
     mods: Mods
     skin: Skin
@@ -413,18 +419,22 @@ cmd:
   duviri-circuit:
     wf-cmd: circuit-warfrmae
     wf-desc: Gets the list of Warframes available from the Duviri Circuit this week.
+    wf-lvl: Normal
     wf-title: Warframe
 
     inc-cmd: circuit-incarnon
     inc-desc: Gets the list of Incarnon weapons available from the Duviri Circuit (Steel Path) this week.
+    inc-lvl: SteelPath
     inc-title: Incarnon
 
     # both
-    circuit: Circuit # Duviri Circuit
+    circuit: Circuit # 두비리 순환로
+    curr-rotate: Current Rotation
     next-rotate: Next Rotation
-    coming: "In {day}"
+    end: "Ends at `{day}`"
+    coming: "After `{day}`"
 
   events:
-    cmd: events
-    desc: List of currently ongoing regular events (Sumia, Pomorians, etc.).
-    desc-none: There are no ongoing events at this time.
+    cmd: event
+    desc: 현재 진행중인 정기 이벤트 (써미아, 포모리안 등) 목록을 불러옵니다.
+    desc-none: 현재 진행 중인 이벤트가 없습니다.
