@@ -47,12 +47,12 @@ cmd:
     cmd: 얼럿
     desc: 현재 활성화된 얼럿 미션을 가져옵니다.
     desc-none: "### 현재 활성화된 얼럿 미션이 없습니다!"
-    title: 활성화된 얼럿
+    title: "활성화된 얼럿: {count}"
     credit: 크레딧
 
-    lvl: 레벨
-    waves: 웨이브 수
-    exp: 만료까지
+    lvl: "레벨: {lvl}"
+    waves: "웨이브 수: {wave}"
+    exp: 만료까지 {time} 남았습니다!
 
   news:
     cmd: 뉴스
