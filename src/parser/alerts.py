@@ -54,5 +54,7 @@ def w_alerts(alerts):
         output_msg += f"- {ts.get(f'{pf}exp').format(time=expiry)}\n\n"
         idx += 1
 
-    f = "alerts"
-    return discord.Embed(description=output_msg, color=color_decision(alerts)), f
+    f = "alert"
+    embed = discord.Embed(description=output_msg, color=color_decision(alerts))
+    embed.set_thumbnail(url="attachment://i.png")
+    return embed, f

@@ -28,7 +28,7 @@ def singleInvasion(inv) -> str:
     pf = "cmd.invasions."
 
     # title / progress
-    output_msg = f"""### {ts.get(f'{pf}title')} {ts.get(f'{pf}at')} *{i_node}*
+    output_msg = f"""### {ts.get(f'{pf}title')} - *{i_node}*
 
 {ts.get(f'{pf}completion')}: **{i_status_perc}** ({ts.get(f'{pf}atk-from')} {i_fact})
 """

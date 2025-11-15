@@ -74,14 +74,15 @@ cmd:
   sortie:
     cmd: 출격
     desc: 오늘의 출격 미션을 불러옵니다.
+
     title: 오늘의 출격 미션
-    eta: 남은 시간
+    eta: "남은 시간: `{eta}`"
 
   archon-hunt:
     cmd: 집정관사냥
     desc: 이번주 집정관 사냥 미션을 불러옵니다.
     title: 집정관 사냥 미션 목록
-    eta: 종료까지 남은 시간
+    eta: 종료까지 {time} 남았습니다.
     hunt: 토벌
 
     obt: "이번주에는 {emoji} **{shard} 집정관 샤드** 를 얻을 수 있습니다!\n\n"
