@@ -6,6 +6,7 @@ import asyncio
 
 from config.TOKEN import WF_JSON_PATH
 from config.config import Lang, language as lang
+from config.roles import ROLES
 from src.translator import ts
 from src.utils.times import alert_times, timeNowDT
 from src.constants.color import C
@@ -21,11 +22,19 @@ from src.constants.keys import (
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
 from src.utils.file_io import json_load
-from src.utils.data_manager import get_obj, set_obj, SETTINGS, CHANNELS, getLanguage
+from src.utils.discord_file import img_file
+from src.utils.data_manager import (
+    get_obj,
+    set_obj,
+    SETTINGS,
+    CHANNELS,
+    getLanguage,
+)
 
 from src.handler.handler_config import DATA_HANDLERS
 
 from src.parser.sortie import w_sortie
+from src.parser.voidTraders import isBaroActive
 
 from src.commands.cmd_helper_party import PartyView
 from src.commands.cmd_helper_trade import TradeView
@@ -69,11 +78,14 @@ class DiscordBot(discord.Client):
 
         if SETTINGS["noti"]["isEnabled"]:
             self.auto_send_msg_request.start()
-            self.auto_noti.start()
+            if lang == Lang.EN:
+                self.auto_noti.start()
             self.weekly_task.start()
             print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
-    async def send_alert(self, value, channel_list=None, setting=None) -> None:
+    async def send_alert(
+        self, value, channel_list=None, setting=None, key=None
+    ) -> None:
         if not setting:
             setting = SETTINGS
         if not setting["noti"]["isEnabled"]:
@@ -98,7 +110,6 @@ class DiscordBot(discord.Client):
                     obj=value.description,
                 )
                 await channel.send(embed=value)
-                return
 
             # embed with file or thumbnail
             elif isinstance(value, tuple):
@@ -112,6 +123,7 @@ class DiscordBot(discord.Client):
                     channel=channel.name,
                     obj=eb.description,
                 )
+                f = img_file(f)
                 await channel.send(embed=eb, file=f)
 
             else:  # string type
@@ -127,7 +139,7 @@ class DiscordBot(discord.Client):
                 await channel.send(value)
 
     # auto api request & check new contents
-    @tasks.loop(minutes=5.0)  # var
+    @tasks.loop(minutes=5.0)  # var: cycle time
     async def auto_send_msg_request(self) -> None:
         setting = SETTINGS
         channels = CHANNELS
@@ -165,6 +177,8 @@ class DiscordBot(discord.Client):
             notification: bool = False
             parsed_content = None
             should_save_data: bool = False
+            text_arg: str = ""
+            embed_color = None
 
             special_logic = handler.get("special_logic")
 
@@ -280,6 +294,88 @@ class DiscordBot(discord.Client):
 
             elif special_logic == "handle_fissures":  # fissures
                 should_save_data = True
+
+            elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
+                update_check = set(obj_prev[0]["Choices"]) != set(obj_new[0]["Choices"])
+
+                if not update_check:
+                    continue
+
+                parsed_content = handler["parser"](obj_new)
+                if not parsed_content:
+                    print(
+                        C.red,
+                        'parse content error in special_logic == "handle_duviri_rotation-1',
+                    )
+                    continue
+
+                notification = True
+                should_save_data = True
+
+            elif special_logic == "handle_duviri_rotation-2":  # circuit-incarnon
+                update_check = set(obj_prev[1]["Choices"]) != set(obj_new[1]["Choices"])
+
+                if not update_check:
+                    continue
+
+                parsed_content = handler["parser"](obj_new)
+                if not parsed_content:
+                    print(
+                        C.red,
+                        "parse content error in special_logic == handle_duviri_rotation-2",
+                    )
+                    continue
+
+                notification = True
+                should_save_data = True
+
+            # TODO: 등장할 때, 새로운 바로키 등록 시 경우 나눠서 메시지 다르게 표시되게 변경
+            elif special_logic == "handle_voidtraders":
+                prev_data = (
+                    obj_prev[-1]
+                    if isinstance(obj_prev, list) and obj_prev
+                    else obj_prev
+                )
+                new_data = (
+                    obj_new[-1] if isinstance(obj_new, list) and obj_new else obj_new
+                )
+
+                # check new baro
+                if prev_data.get("_id") != new_data.get("_id"):
+                    text_arg = "바로 키 티어 등장 예정"
+                    print("new trader scheduled!")
+                    # continue
+                    notification = True
+                    should_save_data = True
+                    embed_color = 0xFFDD00
+                elif (  # check baro activated
+                    prev_data.get("Activation")
+                    and new_data.get("Activation")
+                    and (
+                        isBaroActive(
+                            prev_data["Activation"]["$date"]["$numberLong"],
+                            prev_data["Expiry"]["$date"]["$numberLong"],
+                        )
+                        != isBaroActive(
+                            new_data["Activation"]["$date"]["$numberLong"],
+                            new_data["Expiry"]["$date"]["$numberLong"],
+                        )
+                    )
+                ):
+                    text_arg = "바로 키 티어가 등장했습니다!"
+                    print("VoidTrader Activated")
+                    notification = True
+                    should_save_data = True
+
+                print("void trader update check")  # TODO-remove
+
+                if not notification:
+                    continue
+
+                parsed_content = handler["parser"](obj_new, text_arg, embed_color)
+                if not parsed_content:
+                    print(C.red, "parse error : handle_voidtraders")
+                    continue
 
             # parsing: default
             elif handler["update_check"](obj_prev, obj_new):

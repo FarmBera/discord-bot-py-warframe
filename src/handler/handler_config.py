@@ -28,24 +28,6 @@ from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
 
 
-def _check_void_trader_update(prev, new):
-    """
-    Checks for updates regardless of the data structure (dict or list) of voidTraders
-    """
-
-    prev_data = prev[-1] if isinstance(prev, list) and prev else prev
-    new_data = new[-1] if isinstance(new, list) and new else new
-
-    if not isinstance(prev_data, dict) or not isinstance(new_data, dict):
-        return prev != new
-        # perform a simple comparison. data structure is diff than normal
-
-    return (prev_data.get("Activation"), prev_data.get("Manifest")) != (
-        new_data.get("Activation"),
-        new_data.get("Manifest"),
-    )
-
-
 DATA_HANDLERS = {
     ALERTS: {
         "parser": w_alerts,
@@ -75,7 +57,7 @@ DATA_HANDLERS = {
     },
     VOIDTRADERS: {
         "parser": w_voidTraders,
-        "update_check": _check_void_trader_update,
+        "special_logic": "handle_voidtraders",
     },
     # "steelPath": {
     #     "parser": w_steelPath,
@@ -109,13 +91,11 @@ DATA_HANDLERS = {
     },
     DUVIRI_ROTATION: {  # circuit-warframe
         "parser": w_duviri_warframe,
-        "update_check": lambda prev, new: set(prev[0]["Choices"])
-        != set(new[0]["Choices"]),
+        "special_logic": "handle_duviri_rotation-1",
     },
     DUVIRI_ROTATION: {  # circuit-incarnon
         "parser": w_duviri_incarnon,
-        "update_check": lambda prev, new: set(prev[1]["Choices"])
-        != set(new[1]["Choices"]),
+        "special_logic": "handle_duviri_rotation-2",
     },
     EVENTS: {
         "parser": w_events,
