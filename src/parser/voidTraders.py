@@ -46,7 +46,7 @@ def color_decision(arg):
     return 0xFFA826
 
 
-def w_voidTraders(trader) -> tuple:
+def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
     global baro_active
 
     if not trader:
@@ -56,7 +56,8 @@ def w_voidTraders(trader) -> tuple:
     length: int = len(trader)
     pf: str = "cmd.void-traders."
 
-    output_msg: str = f"# {ts.get(f'{pf}title')}\n\n"
+    # output_msg: str = f"# {ts.get(f'{pf}title')}\n\n"
+    output_msg: str = f"# {text_arg if text_arg else ts.get(f'{pf}title')}\n\n"
 
     for td in trader:
         t_act: int = int(td["Activation"]["$date"]["$numberLong"])
@@ -66,7 +67,6 @@ def w_voidTraders(trader) -> tuple:
             output_msg += (
                 f"{idx}. {ts.get(f'{pf}tdr-name')}: {ts.trs(td['Character'])}\n\n"
             )
-
             idx += 1
         else:
             output_msg += f"- {ts.get(f'{pf}tdr-name')}: {ts.trs(td['Character'])}\n"
@@ -93,8 +93,11 @@ def w_voidTraders(trader) -> tuple:
         # appear location
         output_msg += f"**{getSolNode(td['Node'])}**\n"
 
-    f = img_file(getBaroImg(trader[0]["Character"]))
-    embed = discord.Embed(description=output_msg, color=color_decision(trader))
+    f = getBaroImg(trader[0]["Character"])
+    embed = discord.Embed(
+        description=output_msg,
+        color=embed_color if embed_color else color_decision(trader),
+    )
     embed.set_thumbnail(url="attachment://i.png")
 
     return embed, f
@@ -145,7 +148,7 @@ def w_voidTradersItem(trader) -> discord.Embed:
             if "/lotus" in iname.lower():
                 iname = f"__{add_space(extract_last_part(iname))}__"
 
-            out = f"{itype} / {iname} / {get_emoji('ducat')} {jtem['PrimePrice']} {get_emoji('credit')} {int((jtem['RegularPrice'])):,}"
+            out = f"{itype} / {iname} / {jtem['PrimePrice']} {get_emoji('ducat')} {int((jtem['RegularPrice'])):,} {get_emoji('credit')}"
             listItem.append(out)
 
         listItem.sort()

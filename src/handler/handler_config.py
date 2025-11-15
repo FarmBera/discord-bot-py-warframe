@@ -9,6 +9,8 @@ from src.constants.keys import (
     CALENDAR,
     DAILYDEALS,
     INVASIONS,
+    DUVIRI_ROTATION,
+    EVENTS,
 )
 from src.parser.alerts import w_alerts
 from src.parser.news import w_news
@@ -21,25 +23,9 @@ from src.parser.duviriCycle import w_duviriCycle
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
-from src.parser.invasions import w_invasions
-
-
-def _check_void_trader_update(prev, new):
-    """
-    Checks for updates regardless of the data structure (dict or list) of voidTraders
-    """
-
-    prev_data = prev[-1] if isinstance(prev, list) and prev else prev
-    new_data = new[-1] if isinstance(new, list) and new else new
-
-    if not isinstance(prev_data, dict) or not isinstance(new_data, dict):
-        return prev != new
-        # perform a simple comparison. data structure is diff than normal
-
-    return (prev_data.get("Activation"), prev_data.get("Manifest")) != (
-        new_data.get("Activation"),
-        new_data.get("Manifest"),
-    )
+from src.parser.invasions import w_invasions, w_invasions_se
+from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
+from src.parser.events import w_events
 
 
 DATA_HANDLERS = {
@@ -71,7 +57,7 @@ DATA_HANDLERS = {
     },
     VOIDTRADERS: {
         "parser": w_voidTraders,
-        "update_check": _check_void_trader_update,
+        "special_logic": "handle_voidtraders",
     },
     # "steelPath": {
     #     "parser": w_steelPath,
@@ -99,8 +85,20 @@ DATA_HANDLERS = {
         "update_check": lambda prev, new: prev[0]["StoreItem"] != new[0]["StoreItem"],
     },
     INVASIONS: {
-        "parser": w_invasions,
+        "parser": w_invasions_se,
         "special_logic": "handle_missing_invasions",
         "channel_key": "invasions",
+    },
+    DUVIRI_ROTATION: {  # circuit-warframe
+        "parser": w_duviri_warframe,
+        "special_logic": "handle_duviri_rotation-1",
+    },
+    DUVIRI_ROTATION: {  # circuit-incarnon
+        "parser": w_duviri_incarnon,
+        "special_logic": "handle_duviri_rotation-2",
+    },
+    EVENTS: {
+        "parser": w_events,
+        "special_logic": "handle_missing_items",
     },
 }

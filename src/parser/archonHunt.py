@@ -1,3 +1,4 @@
+import discord
 from src.translator import ts
 from src.utils.times import convert_remain
 from src.utils.return_err import err_text
@@ -5,10 +6,20 @@ from src.utils.emoji import get_emoji
 from src.utils.data_manager import getMissionType, getSolNode
 
 
+S_BLUE = "Azure"
+S_RED = "Crimson"
+S_YEL = "Amber"
+
 shard_list: dict = {
-    "SORTIE_BOSS_BOREAL": "Azure",  # blue shard
-    "SORTIE_BOSS_AMAR": "Crimson",  # red shard
-    "SORTIE_BOSS_NIRA": "Amber",  # yellow shard
+    "SORTIE_BOSS_BOREAL": S_BLUE,
+    "SORTIE_BOSS_AMAR": S_RED,
+    "SORTIE_BOSS_NIRA": S_YEL,
+}
+
+shard_color: dict = {
+    S_BLUE: 0x4EB8FC,
+    S_RED: 0xEE575C,
+    S_YEL: 0xE6CB38,
 }
 
 
@@ -27,8 +38,7 @@ def w_archonHunt(archon) -> str:
         + f" {ts.get(f'{pf}hunt')}\n\n"
     )
     # eta
-    output_msg += f"{ts.get(f'{pf}eta')}: "
-    output_msg += f"{convert_remain(archon['Expiry']['$date']['$numberLong'])}\n"
+    output_msg += f"{ts.get(f'{pf}eta').format(time=convert_remain(archon['Expiry']['$date']['$numberLong']))}\n"
     # additional msg (obtain shard)
     output_msg += ts.get(f"{pf}obt").format(emoji=get_emoji(shard), shard=ts.trs(shard))
     # print missions
@@ -44,4 +54,7 @@ def w_archonHunt(archon) -> str:
             output_msg += f"{idx}. {getMissionType(value['missionType'])} - {getSolNode(value['node'])}\n"
         idx += 1
 
-    return output_msg
+    f = "archon"
+    embed = discord.Embed(description=output_msg, color=shard_color[shard])
+    embed.set_thumbnail(url="attachment://i.png")
+    return embed, f

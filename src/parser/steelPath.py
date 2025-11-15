@@ -1,6 +1,5 @@
 import discord
 from src.translator import ts
-from src.utils.discord_file import img_file
 from src.utils.return_err import err_embed
 
 color_list = {
@@ -61,7 +60,7 @@ def w_steelPath(steel) -> tuple:
         else:
             idx += 1
 
-    f = img_file(img_list[cname])
+    f = img_list[cname]
     embed = discord.Embed(description=output_msg, colour=color_list[cname])
     embed.set_thumbnail(url="attachment://i.png")
 

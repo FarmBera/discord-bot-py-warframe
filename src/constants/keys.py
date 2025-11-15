@@ -4,8 +4,8 @@ from config.config import language as lang
 CDN: float = 3.0
 COOLDOWN_DEFAULT: float = 10.0
 COOLDOWN_PARTY: float = 60.0
-COOLDOWN_BTN_ACTION: float = 20.0  # btn join/leave
-COOLDOWN_BTN_MANAGE: float = 40.0  # btn modify/remove
+COOLDOWN_BTN_ACTION: float = 60.0  # btn join/leave
+COOLDOWN_BTN_MANAGE: float = 30.0  # btn modify/remove
 COOLDOWN_BTN_CALL: float = 900.0  # btn call members
 
 
@@ -13,6 +13,7 @@ filePfx: str = f"docs/{lang}/"
 configPfx: str = "config/"
 JSON: str = "api_cache"
 fileExt: str = ".md"
+DB_NAME: str = "party"
 
 # json file location
 # DEFAULT_JSON_PATH: str = f"data/Warframe.json"
@@ -52,27 +53,40 @@ DAILYDEALS: str = "DailyDeals"
 INVASIONS: str = "Invasions"
 MARKET_SEARCH: str = "market-search"
 VALLISCYCLE: str = "vallisCycle"
+DUVIRI_ROTATION: str = "EndlessXpChoices"
+EVENTS: str = "Goals"
 
 keys: list = [
-    ALERTS,  # 0
-    NEWS,  # 1
-    # CETUSCYCLE,  # 2
-    SORTIE,  # 3
-    ARCHONHUNT,  # 4
-    VOIDTRADERS,  # 5
-    # STEELPATH,  # 6
-    # DUVIRICYCLE,  # 7
-    # DEEPARCHIMEDEA,  # 8
-    # TEMPORALARCHIMEDEA,  # 9
-    FISSURES,  # 10
-    CALENDAR,  # 11
-    # CAMBIONCYCLE,  # 12
-    DAILYDEALS,  # 13
-    INVASIONS,  # 14
+    ALERTS,
+    NEWS,
+    # CETUSCYCLE,
+    SORTIE,
+    ARCHONHUNT,
+    VOIDTRADERS,
+    # STEELPATH,
+    # DUVIRICYCLE,
+    # DEEPARCHIMEDEA,
+    # TEMPORALARCHIMEDEA,
+    FISSURES,
+    CALENDAR,
+    # CAMBIONCYCLE,
+    DAILYDEALS,
+    INVASIONS,
     # VALLISCYCLE,
+    DUVIRI_ROTATION,
+    EVENTS,
 ]
 
-
-SPECIAL_ITEM_LIST: list = ["exilus", "orokin", "reactor", "forma"]
-
 LFG_WEBHOOK_NAME: str = "warframe-lfg-bot"
+
+SPECIAL_ITEM_LIST: list = [
+    # en
+    "exilus",
+    "orokin",
+    "reactor",
+    "forma",
+    # ko
+    "오로킨",
+    "포르마",
+    "엑실러스",
+]

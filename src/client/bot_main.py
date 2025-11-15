@@ -4,7 +4,8 @@ import datetime as dt
 import requests
 import asyncio
 
-from config.config import Lang
+from config.TOKEN import WF_JSON_PATH
+from config.config import Lang, language as lang
 from src.translator import ts
 from src.utils.times import alert_times, timeNowDT
 from src.constants.color import C
@@ -15,16 +16,27 @@ from src.constants.keys import (
     # cmd obj
     SORTIE,
     STEELPATH,
+    DUVIRI_ROTATION,
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
-from src.utils.data_manager import get_obj, set_obj, SETTINGS, CHANNELS, getLanguage
+from src.utils.file_io import json_load
+from src.utils.discord_file import img_file
+from src.utils.data_manager import (
+    get_obj,
+    set_obj,
+    SETTINGS,
+    CHANNELS,
+    getLanguage,
+)
 
 from src.handler.handler_config import DATA_HANDLERS
 
 from src.parser.sortie import w_sortie
+from src.parser.voidTraders import isBaroActive
 
 from src.commands.cmd_helper_party import PartyView
+from src.commands.cmd_helper_trade import TradeView
 
 
 class DiscordBot(discord.Client):
@@ -36,6 +48,7 @@ class DiscordBot(discord.Client):
 
     async def setup_hook(self) -> None:
         self.add_view(PartyView())
+        self.add_view(TradeView())
         print(f"{C.green}Persistent Views successfully registered.{C.default}")
 
     async def on_ready(self):
@@ -64,11 +77,14 @@ class DiscordBot(discord.Client):
 
         if SETTINGS["noti"]["isEnabled"]:
             self.auto_send_msg_request.start()
-            self.auto_noti.start()
+            if lang == Lang.EN:
+                self.auto_noti.start()
             self.weekly_task.start()
             print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
-    async def send_alert(self, value, channel_list=None, setting=None) -> None:
+    async def send_alert(
+        self, value, channel_list=None, setting=None, key=None
+    ) -> None:
         if not setting:
             setting = SETTINGS
         if not setting["noti"]["isEnabled"]:
@@ -93,7 +109,6 @@ class DiscordBot(discord.Client):
                     obj=value.description,
                 )
                 await channel.send(embed=value)
-                return
 
             # embed with file or thumbnail
             elif isinstance(value, tuple):
@@ -107,6 +122,7 @@ class DiscordBot(discord.Client):
                     channel=channel.name,
                     obj=eb.description,
                 )
+                f = img_file(f)
                 await channel.send(embed=eb, file=f)
 
             else:  # string type
@@ -122,19 +138,22 @@ class DiscordBot(discord.Client):
                 await channel.send(value)
 
     # auto api request & check new contents
-    @tasks.loop(minutes=5.0)  # var
+    @tasks.loop(minutes=5.0)  # var: cycle time
     async def auto_send_msg_request(self) -> None:
         setting = SETTINGS
         channels = CHANNELS
 
-        latest_data: requests.Response = await API_Request(
-            self.log_lock, "auto_send_msg_request()"
-        )
+        if lang == Lang.EN:
+            latest_data: requests.Response = await API_Request(
+                self.log_lock, "auto_send_msg_request()"
+            )
 
-        if not latest_data or latest_data.status_code != 200:
-            return
+            if not latest_data or latest_data.status_code != 200:
+                return
 
-        latest_data = latest_data.json()
+            latest_data = latest_data.json()
+        else:
+            latest_data = json_load(WF_JSON_PATH)
 
         # check for new content & send alert
         for key, handler in DATA_HANDLERS.items():
@@ -157,6 +176,8 @@ class DiscordBot(discord.Client):
             notification: bool = False
             parsed_content = None
             should_save_data: bool = False
+            text_arg: str = ""
+            embed_color = None
 
             special_logic = handler.get("special_logic")
 
@@ -273,6 +294,109 @@ class DiscordBot(discord.Client):
             elif special_logic == "handle_fissures":  # fissures
                 should_save_data = True
 
+            elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
+                update_check = set(obj_prev[0]["Choices"]) != set(obj_new[0]["Choices"])
+
+                if not update_check:
+                    continue
+
+                parsed_content = handler["parser"](obj_new)
+                if not parsed_content:
+                    msg = (
+                        f"[err] parse error in handle_duviri_rotation-1 {handler['parser']}/{e}",
+                    )
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="auto_send_msg_request()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
+                    )
+                    continue
+
+                notification = True
+                should_save_data = True
+
+            elif special_logic == "handle_duviri_rotation-2":  # circuit-incarnon
+                update_check = set(obj_prev[1]["Choices"]) != set(obj_new[1]["Choices"])
+
+                if not update_check:
+                    continue
+
+                parsed_content = handler["parser"](obj_new)
+                if not parsed_content:
+                    msg = (
+                        f"[err] parse error in handle_duviri_rotation-2 {handler['parser']}/{e}",
+                    )
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="auto_send_msg_request()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
+                    )
+                    continue
+
+                notification = True
+                should_save_data = True
+
+            elif special_logic == "handle_voidtraders":
+                prev_data = (
+                    obj_prev[-1]
+                    if isinstance(obj_prev, list) and obj_prev
+                    else obj_prev
+                )
+                new_data = (
+                    obj_new[-1] if isinstance(obj_new, list) and obj_new else obj_new
+                )
+
+                # check new baro
+                if prev_data.get("_id") != new_data.get("_id"):
+                    text_arg = ts.get(f"cmd.void-traders.baro-new")
+                    notification = True
+                    should_save_data = True
+                    embed_color = 0xFFDD00
+                elif (  # check baro activated
+                    prev_data.get("Activation")
+                    and new_data.get("Activation")
+                    and (
+                        isBaroActive(
+                            prev_data["Activation"]["$date"]["$numberLong"],
+                            prev_data["Expiry"]["$date"]["$numberLong"],
+                        )
+                        != isBaroActive(
+                            new_data["Activation"]["$date"]["$numberLong"],
+                            new_data["Expiry"]["$date"]["$numberLong"],
+                        )
+                    )
+                ):
+                    text_arg = ts.get(f"cmd.void-traders.baro-appear")
+                    notification = True
+                    should_save_data = True
+
+                if not notification:
+                    continue
+
+                parsed_content = handler["parser"](obj_new, text_arg, embed_color)
+                if not parsed_content:
+                    msg = (
+                        f"[err] parse error in handle_voidtraders {handler['parser']}/{e}",
+                    )
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="auto_send_msg_request()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
+                    )
+                    continue
+
             # parsing: default
             elif handler["update_check"](obj_prev, obj_new):
                 try:
@@ -353,7 +477,6 @@ class DiscordBot(discord.Client):
         except Exception as e:
             msg = f"[err] Failed to update Steel Path reward index: {C.red}{e}"
             print(C.yellow, msg, C.default)
-
             await save_log(
                 lock=self.log_lock,
                 cmd="bot.WEEKLY_TASK",
@@ -361,3 +484,12 @@ class DiscordBot(discord.Client):
                 msg=msg,
                 obj=timeNowDT(),
             )
+
+        # update duviri-rotation time
+        duviri_data: dict = get_obj(DUVIRI_ROTATION)
+
+        duviri_data["expiry"] = (
+            dt.datetime.fromtimestamp(duviri_data["expiry"]) + dt.timedelta(weeks=1)
+        ).timestamp()
+
+        set_obj(duviri_data)

@@ -1,5 +1,6 @@
 import discord
 
+from config.config import Lang
 from config.TOKEN import base_url_market_image
 from src.translator import ts, language as lang
 from src.utils.api_request import API_MarketSearch
@@ -15,7 +16,7 @@ def get_market_item_names() -> list[str]:
     return _market_item_names
 
 
-def w_market_search(name) -> discord.Embed:
+def get_slug_data(name) -> tuple[bool, str, str, str]:
     if name not in _market_item_names:
         # rename input name
         iname: list = []
@@ -40,7 +41,7 @@ def w_market_search(name) -> discord.Embed:
     else:
         item_slug = name
 
-        # find slug data
+    # find slug data
     flag: bool = False
     for i in SLUGS:
         if item_slug in i["i18n"][lang]["name"]:
@@ -49,6 +50,24 @@ def w_market_search(name) -> discord.Embed:
             item_img_url = i["i18n"][lang]["icon"]
             flag = True
             break
+
+    return flag, item_slug, item_name, item_img_url
+
+
+def categorize(result) -> list:
+    ingame_orders: list = []
+    # categorize only 'ingame' stocks (ignores online, offline)
+    for item in result["data"]:
+        if item["user"]["status"] != "ingame":
+            continue
+        ingame_orders.append(item)
+
+    return sorted(ingame_orders, key=lambda x: x["platinum"])
+
+
+def w_market_search(name) -> discord.Embed:
+    flag: bool = False
+    flag, item_slug, item_name, item_img_url = get_slug_data(name)
 
     pf: str = "cmd.market-search."
 
@@ -61,12 +80,6 @@ def w_market_search(name) -> discord.Embed:
     # api request
     result = API_MarketSearch(item_name=item_slug)
 
-    # if not result:
-    #     return discord.Embed(
-    #         description=ts.get(f"{pf}api-fail"),
-    #         color=0xE67E22,  # discord.Color.orange,
-    #     )
-
     if result.status_code != 200:  # api not found
         return discord.Embed(
             description=f"## {ts.get(f'{pf}no-result')}\n- `{name}`\n- (Market API)",
@@ -74,21 +87,19 @@ def w_market_search(name) -> discord.Embed:
         )
 
     # init categorize
-    ingame_orders = []
+    ingame_orders = categorize(result.json())
+
     output_msg = ""
-
-    # categorize only 'ingame' stocks (ignores online, offline)
-    for item in result.json()["data"]:
-        if item["user"]["status"] != "ingame":
-            continue
-        ingame_orders.append(item)
-
-    ingame_orders = sorted(ingame_orders, key=lambda x: x["platinum"])
 
     # create output msg
     idx: int = 0
-    output_msg = f"## {ts.get(f'{pf}result')}: [{item_name}](https://warframe.market/{lang}/items/{item_slug}?type=sell)\n"
+    # title
+    output_msg += f"## {ts.get(f'{pf}result')}: [{item_name}](https://warframe.market/"
+    output_msg += lang if lang != Lang.EN else ""
+    output_msg += f"/items/{item_slug}?type=sell)\n"
+    # sub desc
     output_msg += f"> {ts.get(f'{pf}link-to-market')}\n"
+    # item list
     for item in ingame_orders:
         if item["type"] != "sell":
             continue

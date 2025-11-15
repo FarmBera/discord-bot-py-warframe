@@ -1,6 +1,7 @@
 import discord
 
 from src.utils.logging_utils import save_log
+from src.utils.discord_file import img_file
 from src.utils.data_manager import cmd_obj_check
 
 
@@ -41,6 +42,7 @@ async def cmd_helper(
         log_obj = obj.description
     elif isinstance(obj, tuple):  # embed with file
         eb, file = obj
+        file = img_file(file)
         if isFollowUp:
             await resp_head.send(embed=eb, file=file, ephemeral=isUserViewOnly)
         else:

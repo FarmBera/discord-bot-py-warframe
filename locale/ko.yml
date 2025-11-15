@@ -20,6 +20,7 @@ time:
 cmd:
   no-perm-title: 권한 없음
   no-permission: "공개 메시지를 보낼 권한이 없습니다.\n선택된 관리자만 전체 공개 메시지를 보낼 수 있습니다.\n\n오류라고 판단된다면 봇 개발자에게 문의해주세요."
+  err-limit-server: "지정된 서버에서만 사용할 수 있는 명령어입니다."
 
   err-cooldown:
     title: 재사용 대기시간
@@ -46,12 +47,12 @@ cmd:
     cmd: 얼럿
     desc: 현재 활성화된 얼럿 미션을 가져옵니다.
     desc-none: "### 현재 활성화된 얼럿 미션이 없습니다!"
-    title: 활성화된 얼럿
+    title: "활성화된 얼럿: {count}"
     credit: 크레딧
 
-    lvl: 레벨
-    waves: 웨이브 수
-    exp: 만료까지
+    lvl: "레벨: `{lvl}`"
+    waves: "웨이브 수: `{wave}`"
+    exp: 만료까지 `{time}` 남았습니다!
 
   news:
     cmd: 뉴스
@@ -73,14 +74,15 @@ cmd:
   sortie:
     cmd: 출격
     desc: 오늘의 출격 미션을 불러옵니다.
+
     title: 오늘의 출격 미션
-    eta: 남은 시간
+    eta: "남은 시간: `{eta}`"
 
   archon-hunt:
     cmd: 집정관사냥
     desc: 이번주 집정관 사냥 미션을 불러옵니다.
     title: 집정관 사냥 미션 목록
-    eta: 종료까지 남은 시간
+    eta: 종료까지 {time} 남았습니다.
     hunt: 토벌
 
     obt: "이번주에는 {emoji} **{shard} 집정관 샤드** 를 얻을 수 있습니다!\n\n"
@@ -99,15 +101,20 @@ cmd:
     desc: 바로 키 티어가 등장 여부, 언제, 어디서 등장할지 알려줍니다.
     title: 바로 키 티어 현황
 
+    # msg title
+    baro-new: 바로 키 티어 등장 예정 # New Baro scheduled
+    baro-appear: 바로 키 티어가 등장했습니다! # Baro Appeared!
+
+    # embed msg
     tdr-name: 상인
     status: 상태
 
-    activate: "[활성화됨](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    end: 상인이 떠나기까지 {time} 남았습니다.
-    location: 위치
+    activate: "[활성화](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
+    end: 상인이 떠나기까지 `{time}` 남았습니다.
+    location: 등장 위치
 
-    deactivate: 비활성화됨
-    appear: "{time} 후 등장 예정입니다."
+    deactivate: 비활성화
+    appear: "`{time}` 후 등장 예정입니다."
     place: 등장 예정 위치
 
   void-traders-item:
@@ -268,7 +275,7 @@ cmd:
     # PartyView
 
     # join btn
-    pv-not-found: 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
+    pv-not-found: "파티 정보를 찾을 수 없거나 모집 글이 삭제된 상태입니다. \n\n만약 오류라고 판단된다면 관리자에게 문의해주세요."
     pv-join-btn: "참여하기"
     pv-leave-btn: "탈퇴하기"
     pv-host-exit-err: 호스트는 파티에서 탈퇴할 수 없어요.
@@ -323,7 +330,7 @@ cmd:
     pb-player-count: 파티원 수
     pb-player-joined: 참여한 파티원
     pb-mission: 미션
-    pb-desc: "게임에서 채팅창에 붙여넣으면 호스트에게 귓속말을 보낼 수 있습니다.\n> (우측 버튼을 클릭하면 클립보드로 복사됩니다.)"
+    pb-desc: "> 귓속말 명령어 복사"
     pb-pid: 파티 ID
 
     # build_party_embed_from_db
@@ -340,6 +347,97 @@ cmd:
     not-found-ch: "❌ 오류: 지정된 텍스트 채널을 찾을 수 없어요. 관리자에게 문의해주세요."
 
     created-party: 파티를 생성했습니다!
+
+  trade:
+    cmd: 거래
+    desc: "새로운 거래 글을 생성합니다."
+
+    # cmd args
+    type: "글 유형"
+    type-sell: "판매"
+    type-buy: "구매"
+    item: "거래 물품"
+    quantity: "수량"
+    price: "[선택사항] 개당 가격"
+    auto-price-info: "가격을 입력하지 않으면 마켓 시세를 기반으로 자동 책정됩니다."
+    # cmd describe
+    desc-trade-type: "거래 글 유형 (판매 / 구매)"
+    desc-item-name: 거래하고자 하는 아이템 이름
+    desc-nickname: 인게임 닉네임. 정확히 기입하여주세요.
+    desc-price: 물품 개당 가격
+    desc-qty: "아이템 수량. (기본값: 1)"
+
+    # embed content
+    creator: "생성자"
+    item-name: "물품명"
+    price-per: "개당 가격"
+    total-price: "총 가격"
+    currency: "거래 재화"
+    platinum: "플래티넘"
+    status: "상태"
+
+    # embed status
+    selling: "판매 중"
+    buying: "구매 중"
+    closed: "거래 글 닫기"
+
+    # buttons
+    btn-trade: "거래하기"
+    btn-edit-qty: "수량 변경"
+    btn-edit-price: "가격 수정"
+    btn-edit-nickname: "닉네임 변경"
+    btn-close: "거래 종료"
+    # ConfirmTradeView
+    btn-confirm: Yes (거래하기)
+    btn-cancel: No (취소)
+    # ConfirmDeleteView
+    btn-confirm-del: Yes (거래 닫기)
+
+    # interactions
+    confirm-trade: "## 정말로 거래를 요청할까요?"
+    trade-request: "{host_mention}, {user_mention} 님이 거래를 요청했습니다!"
+    confirm-delete: "## 정말로 이 거래 글을 닫을까요?\n거래 글을 닫으면 **다시 활성화할 수 없습니다!**"
+    deleted: "> 게시자가 거래를 종료했어요."
+
+    # modals
+    edit-qty-title: "수량 수정"
+    edit-qty-label: "수량을 숫자로 입력해주세요."
+    edit-price-title: "가격 수정"
+    edit-price-label: "개당 가격을 숫자로 입력해주세요."
+    edit-nick-title: "닉네임 수정"
+    edit-nick-label: "수정할 닉네임을 정확하게 입력해주세요."
+
+    # errors
+    err-general: "상호작용 오류. 관리자에게 문의해주세요."
+    err-timeout: "시간이 초과되어 작업이 취소되었어요."
+    err-only-host: "거래 글 게시자만 이 버튼을 사용할 수 있어요."
+    err-not-found: "거래 정보를 찾을 수 없습니다."
+    err-self-trade: "자신이 올린 글에는 거래를 요청할 수 없어요."
+    err-invalid-value: "올바른 숫자 값을 입력해주세요."
+    err-no-market: "'워프레임 마켓' 검색 결과가 없습니다. 직접 가격을 입력해주세요.\n(가격 변경 기능을 이용해주세요.)"
+
+  duviri-circuit:
+    wf-cmd: 순환로-워프레임
+    wf-desc: 이번주에 두비리 순환로에서 얻을 수 있는 워프레임 목록을 불러옵니다.
+    wf-lvl: 일반
+    wf-title: 워프레임
+
+    inc-cmd: 순환로-인카논
+    inc-desc: 이번주에 두비리 순환로(강길)에서 얻을 수 있는 인카논 무기 목록을 가져옵니다.
+    inc-lvl: 강철의 길
+    inc-title: 인카논
+
+    # both
+    circuit: 순환로 # 두비리 순환로
+    curr-rotate: 현재 로테이션
+    next-rotate: 다음 로테이션
+    end: "종료일: `{day} 후`"
+    coming: "`{day} 후`"
+
+  events:
+    cmd: 이벤트
+    desc: 현재 진행중인 정기 이벤트 (써미아, 포모리안 등) 목록을 불러옵니다.
+    desc-none: 현재 진행 중인 이벤트가 없습니다.
 
 trs:
   # keyword
@@ -416,3 +514,118 @@ trs:
 
   # sortie
   # "Enhanced Enemy Shields": 강화된 적 실드
+
+  # for duviri rotation
+
+  # warframes
+  ash: 애쉬 # Ash
+  atlas: 아틀라스 # Atlas
+  banshee: 밴쉬 # Banshee
+  caliban: 칼리반 # Caliban
+  chroma: 크로마 # Chroma
+  cyte-09: Cyte-09 # Cyte-09
+  dagath: 다가스 # Dagath
+  dante: 단테 # Dante
+  ember: 엠버 # Ember
+  equinox: 이쿼녹스 # Equinox
+  excalibur: 엑스칼리버 # Excalibur
+  excalibur umbra: 엑스칼리버 움브라 # Excalibur Umbra
+  frost: 프로스트 # Frost
+  gara: 가라 # Gara
+  garuda: 가루다 # Garuda
+  gauss: 가우스 # Gauss
+  grendel: 그렌델 # Grendel
+  gyre: 가라 # Gyre
+  hydroid: 하이드로이드 # Hydroid
+  inaros: 이나로스 # Inaros
+  ivara: 이바라 # Ivara
+  jade: 제이드 # Jade
+  khora: 코라 # Khora
+  koumei: 코우메이 # Koumei
+  kullervo: 쿨레르보 # Kullervo
+  limbo: 림보 # Limbo
+  loki: 로키 # Loki
+  mag: 매그 # Mag
+  mesa: 메사 # Mesa
+  mirage: 미라지 # Mirage
+  nekros: 네크로스 # Nekros
+  nezha: 나타 # Nezha
+  nidus: 나이더스 # Nidus
+  nova: 노바 # Nova
+  nyx: 닉스 # Nyx
+  oberon: 오베론 # Oberon
+  octavia: 옥타비아 # Octavia
+  protea: 프로티아 # Protea
+  qorvex: 코르벡스 # Qorvex
+  revenant: 레버넌트 # Revenant
+  rhino: 라이노 # Rhino
+  saryn: 새린 # Saryn
+  titania: 티타니아 # Titania
+  trinity: 트리니티 # Trinity
+  valkyr: 발키르 # Valkyr
+  vauban: 바우반 # Vauban
+  volt: 볼트 # Volt
+  voruna: 보루나 # Voruna
+  wisp: 위습 # Wisp
+  wukong: 오공 # Wukong
+  xaku: 자쿠 # Xaku
+  yareli: 야렐리 # Yareli
+  zephyr: 제피르 # Zephyr
+  baruuk: 바루크 # Baruuk
+  citrine: 시트린 # Citrine
+  harrow: 해로우 # Harrow
+  hildryn: 힐드린 # Hildryn
+  lavos: 라보스 # Lavos
+  oraxia: 오릭시아 # Oraxia
+  sevagoth: 세바고스 # Sevagoth
+  styanax: 스티아낙스 # Styanax
+  temple: 템플 # Temple
+
+  # week 1
+  braton: 브래튼 # Braton
+  lato: 라토 # Lato
+  skana: 스카나 # Skana
+  paris: 패리스 # Paris
+  kunai: 쿠나이 # Kunai
+  # week 2
+  boar: 보어 # Boar
+  gammacor: 감마코어 # Gammacor
+  angstrum: 앙스트럼 # Angstrum
+  gorgon: 고르곤 # Gorgon
+  anku: 안쿠 # Anku
+  # week 3
+  bo: 보 # Bo
+  latron: 래트론 # Latron
+  furis: 퓨리스 # Furis
+  furax: 퓨랙스 # Furax
+  strun: 스트런 # Strun
+  # week 4
+  lex: 렉스 # Lex
+  magistar: 마기스타 # Magistar
+  boltor: 볼터 # Boltor
+  bronco: 브롱코 # Bronco
+  ceramic dagger: 세라믹 대거 # Ceramic Dagger
+  # week 5
+  torid: 토리드 # Torid
+  dual toxocyst: 듀얼 톡소시스트 # Dual Toxocyst
+  dual ichor: 듀얼 이코르 # Dual Ichor
+  miter: 마이터 # Miter
+  atomos: 아토모스 # Atomos
+  # week 6
+  ack & brunt: 아크&브런트 # "Ack & Brunt"
+  soma: 소마 # Soma
+  vasto: 바스토 # Vasto
+  nami solo: 나미 솔로 # Nami Solo
+  burston: 버스튼 # Burston
+  # week 7
+  zylok: 자일락 # Zylok
+  sibear: 시비어 # Sibear
+  dread: 드레드 # Dread
+  despair: 디스페어 # Despair
+  hate: 헤이트 # Hate
+  # week 8
+  dera: 데라 # Dera
+  sybaris: 시바리스 # Sybaris
+  cestra: 세스트라 # Cestra
+  sicarus: 시카루스 # Sicarus
+  okina: 오키나 # Okina

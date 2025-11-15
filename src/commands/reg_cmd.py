@@ -4,7 +4,8 @@ import sqlite3
 from src.translator import ts
 from src.commands.cmd_helper import cmd_helper
 from src.commands.cmd_helper_text import cmd_helper_txt
-from src.commands.cmd_helper_party import cmd_create_thread_helper
+from src.commands.cmd_helper_party import cmd_create_party_helper
+from src.commands.cmd_helper_trade import cmd_create_trade_helper
 
 
 from src.constants.keys import (
@@ -33,6 +34,8 @@ from src.constants.keys import (
     INVASIONS,
     MARKET_SEARCH,
     VALLISCYCLE,
+    DUVIRI_ROTATION,
+    EVENTS,
 )
 
 from src.parser.alerts import w_alerts
@@ -50,6 +53,8 @@ from src.parser.dailyDeals import w_dailyDeals
 from src.parser.invasions import w_invasions
 from src.parser.vallisCycle import w_vallisCycle
 from src.parser.marketsearch import w_market_search, get_market_item_names
+from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
+from src.parser.events import w_events
 
 
 async def register_main_commands(
@@ -340,6 +345,7 @@ async def register_main_commands(
     # async def cmd_vallis(interact: discord.Interaction):
     #     await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)
 
+    # create party
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_PARTY, key=lambda i: (i.guild_id, i.user.id)
     )
@@ -354,7 +360,7 @@ async def register_main_commands(
         descriptions=ts.get("cmd.party.descript"),
         number_of_user=ts.get("cmd.party.nou"),
     )
-    async def cmd_create_thread(
+    async def cmd_create_party(
         interact: discord.Interaction,
         title: str,
         # game_nickname: str,
@@ -362,7 +368,7 @@ async def register_main_commands(
         descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
-        await cmd_create_thread_helper(
+        await cmd_create_party_helper(
             interact=interact,
             db_conn=db_conn,
             title=title,
@@ -370,3 +376,99 @@ async def register_main_commands(
             mission_type=mission_type,
             description=descriptions,
         )
+
+    # create trade article
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_PARTY, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.trade.cmd"),
+        description=ts.get("cmd.trade.desc"),
+    )
+    @discord.app_commands.choices(
+        trade_type=[
+            discord.app_commands.Choice(name=ts.get(f"cmd.trade.type-sell"), value=1),
+            discord.app_commands.Choice(name=ts.get("cmd.trade.type-buy"), value=2),
+        ]
+    )
+    @discord.app_commands.describe(
+        trade_type=ts.get(f"cmd.trade.desc-trade-type"),
+        item_name=ts.get(f"cmd.trade.desc-item-name"),
+        game_nickname=ts.get(f"cmd.trade.desc-nickname"),
+        price=ts.get("cmd.trade.desc-price"),
+        quantity=ts.get("cmd.trade.desc-qty"),
+    )
+    async def cmd_create_trade(
+        interact: discord.Interaction,
+        trade_type: discord.app_commands.Choice[int],
+        item_name: str,
+        game_nickname: str,
+        price: int = 0,
+        quantity: int = 1,
+    ) -> None:
+        await cmd_create_trade_helper(
+            interact=interact,
+            db_conn=db_conn,
+            trade_type=trade_type.name,
+            game_nickname=game_nickname,
+            item_name=item_name,
+            price=price,
+            quantity=quantity,
+            # description=descriptions,
+        )
+
+    @cmd_create_trade.autocomplete("item_name")
+    async def trade_item_name_autocomplete(
+        interact: discord.Interaction,
+        current: str,
+    ) -> list[discord.app_commands.Choice[str]]:
+        """Autocompletes the item name for the market search."""
+        choices = [
+            discord.app_commands.Choice(name=name, value=name)
+            for name in get_market_item_names()
+            if current.lower() in name.lower()
+        ]
+        return choices[:25]
+
+    # duviri-circuit-warframe
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.duviri-circuit.wf-cmd"),
+        description=ts.get(f"cmd.duviri-circuit.wf-desc"),
+    )
+    async def cmd_circuit_wf(interact: discord.Interaction):
+        await cmd_helper(
+            interact,
+            key=DUVIRI_ROTATION,
+            parser_func=w_duviri_warframe,
+            isFollowUp=True,
+        )
+
+    # duviri-circuit-incarnon
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.duviri-circuit.inc-cmd"),
+        description=ts.get(f"cmd.duviri-circuit.inc-desc"),
+    )
+    async def cmd_circuit_inc(interact: discord.Interaction):
+        await cmd_helper(
+            interact,
+            key=DUVIRI_ROTATION,
+            parser_func=w_duviri_incarnon,
+            isFollowUp=True,
+        )
+
+    # events (like thermina, fomorian)
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.events.cmd"),
+        description=ts.get(f"cmd.events.desc"),
+    )
+    async def cmd_ingame_events(interact: discord.Interaction):
+        await cmd_helper(interact, key=EVENTS, parser_func=w_events)

@@ -209,9 +209,12 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf_size}ui-title")):
 
 # define delete confirmation view
 class ConfirmDeleteView(discord.ui.View):
-    def __init__(self):
+    def __init__(self, origin_msg_id, party_data, party_view):
         super().__init__(timeout=60)
         self.value = None
+        self.msgid = origin_msg_id
+        self.data = party_data
+        self.party_view = party_view
 
     # delete confirm btn
     @discord.ui.button(
@@ -222,9 +225,21 @@ class ConfirmDeleteView(discord.ui.View):
     async def yes_button(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
+        await interact.response.defer()
+
         try:
             db = interact.client.db
             cursor = db.cursor()
+
+            # refresh Embed
+            message = await interact.channel.fetch_message(self.msgid)
+            new_embed = build_party_embed(self.data, isDelete=True)
+
+            # disable all buttons on the original PartyView
+            for item in self.party_view.children:
+                if isinstance(item, discord.ui.Button):
+                    item.disabled = True
+            await message.edit(embed=new_embed, view=self.party_view)
 
             # edit webhook msg
             try:
@@ -249,16 +264,15 @@ class ConfirmDeleteView(discord.ui.View):
             except discord.NotFound:
                 pass  # starter msg not found, maybe deleted manually
 
-            # delete thread
-            thread_to_delete = interact.client.get_channel(interact.channel.id)
-            if thread_to_delete:
-                await thread_to_delete.delete()
-
             # delete party info from DB
             cursor.execute(
                 "DELETE FROM party WHERE thread_id = ?", (interact.channel.id,)
             )
             db.commit()
+
+            # lock the thread
+            if isinstance(interact.channel, discord.Thread):
+                await interact.channel.edit(locked=True)
 
             await save_log(
                 lock=interact.client.log_lock,
@@ -284,7 +298,9 @@ class ConfirmDeleteView(discord.ui.View):
                 msg=f"ConfirmDeleteView -> clicked yes | but Forbidden\n{e}",
             )
         except Exception as e:
-            await interact.response.send_message(f"{pf_size}err: {e}", ephemeral=True)
+            await interact.response.send_message(
+                ts.get(f"{pf_size}err"), ephemeral=True
+            )
             await save_log(
                 lock=interact.client.log_lock,
                 type="event",
@@ -295,7 +311,7 @@ class ConfirmDeleteView(discord.ui.View):
                 msg=f"ConfirmDeleteView -> clicked yes | but ERR\n{e}",
                 obj=e,
             )
-
+        await interact.delete_original_response()
         self.value = True
         self.stop()
 
@@ -598,7 +614,6 @@ class PartyView(discord.ui.View):
         ).fetchone()
 
         if not party_data:
-            # defer()가 이미 호출된 경우 followup.send 사용
             if not interact.response.is_done():
                 await interact.response.send_message(
                     ts.get(f"{pf_pv}not-found"), ephemeral=True
@@ -1039,7 +1054,7 @@ class PartyView(discord.ui.View):
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
 
-        party_data, _ = await self.fetch_party_data(interact)
+        party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
             return
 
@@ -1049,7 +1064,21 @@ class PartyView(discord.ui.View):
             )
             return
 
-        view = ConfirmDeleteView()
+        view = ConfirmDeleteView(
+            origin_msg_id=interact.message.id,
+            party_view=self,
+            party_data={
+                "id": party_data["id"],
+                "is_closed": party_data["status"] == ts.get(f"{pf_pv}done"),
+                "title": party_data["title"],
+                "host_mention": f"<@{party_data['host_id']}>",
+                "max_users": party_data["max_users"],
+                "participants": [p["user_mention"] for p in participants_list],
+                "mission": party_data["mission_type"],
+                "game_nickname": party_data["game_nickname"],
+                "description": party_data["description"] or "",
+            },
+        )
         await interact.response.send_message(
             ts.get(f"{pf}pv-del-confirm"), view=view, ephemeral=True
         )
@@ -1074,12 +1103,12 @@ class PartyView(discord.ui.View):
 
 
 # embed creation helper function
-def build_party_embed(data: dict) -> discord.Embed:
+def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     """[for internal use] creates an embed based on a formatted dictionary"""
-    color = discord.Color.red() if data["is_closed"] else discord.Color.blue()
+    color = discord.Color.red() if data.get("is_closed") else discord.Color.blue()
     status_text = (
         f"({ts.get(f'{pf_pv}done')})"
-        if data["is_closed"]
+        if data.get("is_closed")
         else f"({ts.get(f'{pf_pv}ing2')})"
     )
 
@@ -1091,8 +1120,11 @@ def build_party_embed(data: dict) -> discord.Embed:
     if data.get("description"):
         description_field = f"{data['description']}"
 
-    description = f"""
-### {data['title']} {status_text}
+    description: str = ""
+    if isDelete:
+        description += "~~"
+
+    description += f"""### {data['title']} {status_text}
 
 - **{ts.get(f'{pf}pb-host')}:** {data['host_mention']}
 - **{ts.get(f'{pf}pb-player-count')}:** {len(data['participants'])} / {data['max_users']}
@@ -1106,6 +1138,9 @@ def build_party_embed(data: dict) -> discord.Embed:
 /w {data['game_nickname']}
 ```
 """
+    if isDelete:
+        description += "~~"
+
     embed = discord.Embed(description=description.strip(), color=color)
     embed.set_footer(text=f"{ts.get(f'{pf}pb-pid')}: {data['id']}")
     return embed
@@ -1124,7 +1159,7 @@ async def build_party_embed_from_db(
     if not party_data:
         return discord.Embed(
             title=ts.get(f"{pf}err"),
-            description=ts.get(f"pdb-not-found-party"),
+            description=ts.get(f"{pf}pdb-not-found-party"),
             color=discord.Color.dark_red(),
         )
 
@@ -1155,7 +1190,7 @@ async def build_party_embed_from_db(
     return build_party_embed(data_dict)
 
 
-async def cmd_create_thread_helper(
+async def cmd_create_party_helper(
     interact: discord.Interaction,
     db_conn: sqlite3.Connection,
     title: str,
@@ -1164,8 +1199,8 @@ async def cmd_create_thread_helper(
     description: str = "(설명 없음)",
     number_of_user: int = 4,
 ) -> None:
-    if interact.guild.id != CHANNELS["party-guild"]:
-        msg_obj = "지정된 서버에서만 사용할 수 있는 명령어입니다."  # VAR
+    if interact.guild.id != CHANNELS["guild"]:
+        msg_obj = ts.get(f"cmd.err-limit-server")  # VAR
         await interact.response.send_message(msg_obj, ephemeral=True)
         await save_log(
             lock=interact.client.log_lock,
