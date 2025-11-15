@@ -50,9 +50,9 @@ cmd:
     title: "활성화된 얼럿: {count}"
     credit: 크레딧
 
-    lvl: "레벨: {lvl}"
-    waves: "웨이브 수: {wave}"
-    exp: 만료까지 {time} 남았습니다!
+    lvl: "레벨: `{lvl}`"
+    waves: "웨이브 수: `{wave}`"
+    exp: 만료까지 `{time}` 남았습니다!
 
   news:
     cmd: 뉴스

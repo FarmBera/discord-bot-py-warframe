@@ -148,7 +148,7 @@ def w_voidTradersItem(trader) -> discord.Embed:
             if "/lotus" in iname.lower():
                 iname = f"__{add_space(extract_last_part(iname))}__"
 
-            out = f"{itype} / {iname} / {get_emoji('ducat')} {jtem['PrimePrice']} {get_emoji('credit')} {int((jtem['RegularPrice'])):,}"
+            out = f"{itype} / {iname} / {jtem['PrimePrice']} {get_emoji('ducat')} {int((jtem['RegularPrice'])):,} {get_emoji('credit')}"
             listItem.append(out)
 
         listItem.sort()
