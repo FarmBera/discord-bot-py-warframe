@@ -6,7 +6,6 @@ from src.translator import ts
 from src.constants.keys import DUVIRI_ROTATION
 from src.utils.emoji import get_emoji
 from src.utils.data_manager import get_obj
-from src.utils.discord_file import img_file
 from src.utils.times import timeNowDT
 from src.utils.return_err import err_embed
 
@@ -67,7 +66,7 @@ def convert_diff(unix_timestamp: int | str) -> str:
 
 
 def create_embed(output_msg: str, color=None):
-    f = img_file("zariman")
+    f = "zariman"
     embed = (
         discord.Embed(description=output_msg, color=color)
         if color
