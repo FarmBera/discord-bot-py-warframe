@@ -3,13 +3,13 @@ import datetime as dt
 from dateutil.relativedelta import relativedelta
 
 from src.translator import ts, Lang, language as lang
-from src.constants.keys import DUVIRI_ROTATION, DUVIRI_U_K_W, DUVIRI_U_K_I
+from src.constants.keys import DUVIRI_ROTATION, DUVIRI_U_K_W, DUVIRI_U_K_I, DUVIRI_CACHE
 from src.utils.emoji import get_emoji
 from src.utils.data_manager import get_obj, set_obj
 from src.utils.times import timeNowDT, convert_remain
 from src.utils.return_err import err_embed
 
-rotation_data = get_obj("RotationDuviri")
+rotation_data = get_obj(DUVIRI_CACHE)
 duv_warframe = get_obj(f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}")
 duv_incarnon = get_obj(f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}")
 
@@ -22,7 +22,7 @@ pf: str = "cmd.duviri-circuit."
 
 def setDuviriRotate():
     global rotation_data
-    rotation_data = get_obj("RotationDuviri")
+    rotation_data = get_obj(DUVIRI_CACHE)
 
 
 def setDuvWarframe(obj):

@@ -58,8 +58,9 @@ EVENTS: str = "Goals"
 # CODA: str = ""  # coda weapon
 EVENT_BOOSTER: str = ""
 
-DUVIRI_U_K_W = "Warframe"
-DUVIRI_U_K_I = "Incarnon"
+DUVIRI_U_K_W: str = "Warframe"
+DUVIRI_U_K_I: str = "Incarnon"
+DUVIRI_CACHE: str = "RotationDuviri"
 
 keys: list = [
     ALERTS,

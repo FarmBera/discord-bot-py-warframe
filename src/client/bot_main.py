@@ -18,8 +18,7 @@ from src.constants.keys import (
     SORTIE,
     STEELPATH,
     DUVIRI_ROTATION,
-    DUVIRI_U_K_W,
-    DUVIRI_U_K_I,
+    DUVIRI_CACHE,
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
@@ -153,7 +152,7 @@ class DiscordBot(discord.Client):
                 await channel.send(value)
 
     # auto api request & check new contents
-    @tasks.loop(minutes=5.0)  # var: cycle time
+    @tasks.loop(minutes=5.0)
     async def auto_send_msg_request(self) -> None:
         setting = SETTINGS
         channels = CHANNELS
@@ -507,11 +506,20 @@ class DiscordBot(discord.Client):
             )
 
         # update duviri-rotation time
-        duviri_data: dict = get_obj(DUVIRI_ROTATION)
+        duviri_data: dict = get_obj(DUVIRI_CACHE)
+        curr = duviri_data["expiry"]
         duviri_data["expiry"] = (
             dt.datetime.fromtimestamp(duviri_data["expiry"]) + dt.timedelta(weeks=1)
         ).timestamp()
-        set_obj(duviri_data, DUVIRI_ROTATION)
+        set_obj(duviri_data, DUVIRI_CACHE)
+        msg = f"[info] Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
+        await save_log(
+            lock=self.log_lock,
+            cmd="bot.WEEKLY_TASK.duviri-cache",
+            user=MSG_BOT,
+            msg=msg,
+            obj=timeNowDT(),
+        )
 
     # weekly alert
     @tasks.loop(time=dt.time(hour=9, minute=10))

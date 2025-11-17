@@ -15,9 +15,10 @@ tmp
 *.db
 
 # personal file
-admin.yml
-channel.yml
-TOKEN.py
+config/admin.yml
+config/channel.yml
+config/TOKEN.py
+config/roles.py
 script/sync.sh
 
 .markdownlint.json
