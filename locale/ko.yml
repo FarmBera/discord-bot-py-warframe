@@ -265,7 +265,7 @@ cmd:
     p-del-modal-btny: Yes (진행)
     p-del-modal-btnn: No (취소)
     p-del-modal-err: "❌ 오류"
-    p-del-modal-err-del: "❌ 오류: 스레드를 삭제할 권한이 없어요."
+    p-del-modal-err-del: "❌ 오류: 스레드를 삭제할 권한이 없어요.\n관리자에게 문의해주세요."
     p-del-modal-cancel: 작업이 취소되었어요.
     p-del-deleted: "> 모집 글이 삭제 되었습니다."
     # ConfirmJoinLeaveView
@@ -431,7 +431,7 @@ cmd:
     circuit: 순환로 # 두비리 순환로
     curr-rotate: 현재 로테이션
     next-rotate: 다음 로테이션
-    end: "종료일: `{day} 후`"
+    end: "종료일: {day}"
     coming: "`{day} 후`"
 
   events:

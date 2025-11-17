@@ -55,6 +55,11 @@ MARKET_SEARCH: str = "market-search"
 VALLISCYCLE: str = "vallisCycle"
 DUVIRI_ROTATION: str = "EndlessXpChoices"
 EVENTS: str = "Goals"
+# CODA: str = ""  # coda weapon
+EVENT_BOOSTER: str = ""
+
+DUVIRI_U_K_W = "Warframe"
+DUVIRI_U_K_I = "Incarnon"
 
 keys: list = [
     ALERTS,

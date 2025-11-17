@@ -6,6 +6,7 @@ import asyncio
 
 from config.TOKEN import WF_JSON_PATH
 from config.config import Lang, language as lang
+from config.roles import ROLES
 from src.translator import ts
 from src.utils.times import alert_times, timeNowDT
 from src.constants.color import C
@@ -17,6 +18,8 @@ from src.constants.keys import (
     SORTIE,
     STEELPATH,
     DUVIRI_ROTATION,
+    DUVIRI_U_K_W,
+    DUVIRI_U_K_I,
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
@@ -34,6 +37,16 @@ from src.handler.handler_config import DATA_HANDLERS
 
 from src.parser.sortie import w_sortie
 from src.parser.voidTraders import isBaroActive
+from src.parser.steelPath import w_steelPath
+from src.parser.duviriRotation import (
+    setDuviriRotate,
+    w_duviri_warframe,
+    w_duviri_incarnon,
+    duv_warframe,
+    duv_incarnon,
+    setDuvWarframe,
+    setDuvIncarnon,
+)
 
 from src.commands.cmd_helper_party import PartyView
 from src.commands.cmd_helper_trade import TradeView
@@ -80,6 +93,8 @@ class DiscordBot(discord.Client):
             if lang == Lang.EN:
                 self.auto_noti.start()
             self.weekly_task.start()
+            if lang == Lang.KO:
+                self.week_start_noti.start()
             print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
     async def send_alert(
@@ -177,6 +192,7 @@ class DiscordBot(discord.Client):
             parsed_content = None
             should_save_data: bool = False
             text_arg: str = ""
+            key_arg: str = ""
             embed_color = None
 
             special_logic = handler.get("special_logic")
@@ -295,7 +311,7 @@ class DiscordBot(discord.Client):
                 should_save_data = True
 
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
-                update_check = set(obj_prev[0]["Choices"]) != set(obj_new[0]["Choices"])
+                update_check = duv_warframe["Choices"] != obj_new[0]["Choices"]
 
                 if not update_check:
                     continue
@@ -318,9 +334,10 @@ class DiscordBot(discord.Client):
 
                 notification = True
                 should_save_data = True
+                setDuvWarframe(obj_new[0])
 
             elif special_logic == "handle_duviri_rotation-2":  # circuit-incarnon
-                update_check = set(obj_prev[1]["Choices"]) != set(obj_new[1]["Choices"])
+                update_check = duv_incarnon["Choices"] != obj_new[1]["Choices"]
 
                 if not update_check:
                     continue
@@ -343,6 +360,7 @@ class DiscordBot(discord.Client):
 
                 notification = True
                 should_save_data = True
+                setDuvIncarnon(obj_new[1])
 
             elif special_logic == "handle_voidtraders":
                 prev_data = (
@@ -429,7 +447,10 @@ class DiscordBot(discord.Client):
                 ch_key = handler.get("channel_key", "channel")
                 target_ch = channels.get(ch_key)
                 await self.send_alert(
-                    parsed_content, channel_list=target_ch, setting=setting
+                    parsed_content,
+                    channel_list=target_ch,
+                    setting=setting,
+                    key=key_arg if key_arg else key,
                 )
 
         return  # End Of auto_send_msg_request()
@@ -447,9 +468,9 @@ class DiscordBot(discord.Client):
         await self.send_alert(w_sortie(get_obj(SORTIE)), ch_list)
 
     # weekly reset task
-    @tasks.loop(time=dt.time(hour=9, minute=0))
+    @tasks.loop(time=dt.time(hour=8, minute=55))
     async def weekly_task(self) -> None:
-        # weekday() returns integer: 0: Monday, 1: Tuesday, ..., 6: Sunday
+        # weekday() -> int // 0: Mon, 1: Tue, ..., 6: Sun
         if dt.datetime.now(dt.timezone.utc).weekday() != 0:
             return
 
@@ -465,8 +486,8 @@ class DiscordBot(discord.Client):
 
             # save index
             set_obj(steel_data, STEELPATH)
-            msg = f"[info] Steel Path reward index updated {curr_idx} -> {new_idx}"
 
+            msg = f"[info] Steel Path reward index updated {curr_idx} -> {new_idx}"
             await save_log(
                 lock=self.log_lock,
                 cmd="bot.WEEKLY_TASK",
@@ -487,9 +508,29 @@ class DiscordBot(discord.Client):
 
         # update duviri-rotation time
         duviri_data: dict = get_obj(DUVIRI_ROTATION)
-
         duviri_data["expiry"] = (
             dt.datetime.fromtimestamp(duviri_data["expiry"]) + dt.timedelta(weeks=1)
         ).timestamp()
+        set_obj(duviri_data, DUVIRI_ROTATION)
 
-        set_obj(duviri_data)
+    # weekly alert
+    @tasks.loop(time=dt.time(hour=9, minute=10))
+    async def week_start_noti(self) -> None:
+        # only Monday
+        if dt.datetime.now(dt.timezone.utc).weekday() != 0:
+            return
+
+        # duviri notification
+        setDuviriRotate()
+        dlist: list = [
+            w_duviri_warframe(get_obj(DUVIRI_ROTATION), isNoti=True),
+            w_duviri_incarnon(get_obj(DUVIRI_ROTATION), isNoti=True),
+        ]
+        for i in range(len(dlist)):
+            dlist[i].description = f"<@&{ROLES[i]}>\n" + dlist[i].description
+            await self.send_alert(dlist[i])
+
+        if lang == Lang.KO:
+            return
+
+        await self.send_alert(w_steelPath(get_obj(STEELPATH)))
