@@ -1,10 +1,13 @@
 import discord
+import asyncio
 
 from config.config import Lang
 from config.TOKEN import base_url_market_image
 from src.translator import ts, language as lang
+from src.constants.keys import MSG_BOT
 from src.utils.api_request import API_MarketSearch
 from src.utils.file_io import json_load
+from src.utils.logging_utils import save_log
 
 THRESHOLD: int = 7
 SLUGS: list = json_load("data/market-item-list.json")["data"]
@@ -54,18 +57,36 @@ def get_slug_data(name) -> tuple[bool, str, str, str]:
     return flag, item_slug, item_name, item_img_url
 
 
-def categorize(result) -> list:
-    ingame_orders: list = []
+# TODO-test-실제 적용 테스트: 특정 아이템 랭크만 검색
+def categorize(result, rank: int) -> list:
     # categorize only 'ingame' stocks (ignores online, offline)
-    for item in result["data"]:
-        if item["user"]["status"] != "ingame":
-            continue
-        ingame_orders.append(item)
+    ingame_orders: list = []
+
+    # if rank exists: categorize only selected rank
+    if rank and (0 <= rank <= 5) and result["data"][0].get("rank"):
+        # print(f"rank {rank} search")
+        for item in result["data"]:
+            if item["user"]["status"] != "ingame":
+                continue
+            if not item["rank"] == rank:
+                continue
+            # print(item["rank"], rank, item["platinum"])
+            ingame_orders.append(item)
+
+    else:
+        # print("default search")
+        for item in result["data"]:
+            if item["user"]["status"] != "ingame":
+                continue
+            ingame_orders.append(item)
 
     return sorted(ingame_orders, key=lambda x: x["platinum"])
 
 
-def w_market_search(name) -> discord.Embed:
+async def w_market_search(
+    log_lock: asyncio.Lock, arg_obj: tuple[str, int]
+) -> discord.Embed:
+    name, rank = arg_obj
     flag: bool = False
     flag, item_slug, item_name, item_img_url = get_slug_data(name)
 
@@ -78,16 +99,65 @@ def w_market_search(name) -> discord.Embed:
         )
 
     # api request
-    result = API_MarketSearch(item_name=item_slug)
+    result = await API_MarketSearch(log_lock, item_name=item_slug)
 
-    if result.status_code != 200:  # api not found
+    # check response code
+    try:
+        if result.status_code == 404:  # item not found
+            await save_log(
+                lock=log_lock,
+                type="api",
+                cmd="w_market_search()",
+                user=MSG_BOT,
+                msg=f"{name},{item_slug} > 404 Not Found",
+                obj=result.res_code,
+            )
+            return discord.Embed(
+                description=ts.get(f"{pf}no-result"),
+                color=0xE67E22,
+            )
+        elif result.status_code == 500:  # internal server err
+            await save_log(
+                lock=log_lock,
+                type="api",
+                cmd="w_market_search()",
+                user=MSG_BOT,
+                msg=f"{name},{item_slug} > 500 Internal Server Error",
+                obj=result.res_code,
+            )
+            return discord.Embed(
+                description=ts.get(f"{pf}server-err"),
+                color=0xE67E22,
+            )
+        elif result.status_code != 200:  # another code err
+            await save_log(
+                lock=log_lock,
+                type="api",
+                cmd="w_market_search()",
+                user=MSG_BOT,
+                msg=f"{name},{item_slug} > {result.status_code}",
+                obj=result.res_code,
+            )
+            return discord.Embed(
+                description=ts.get(f"{pf}err"),
+                color=0xE67E22,
+            )
+    except Exception as e:
+        await save_log(
+            lock=log_lock,
+            type="api",
+            cmd="w_market_search()",
+            user=MSG_BOT,
+            msg=f"response ERROR",
+            obj=e,
+        )
         return discord.Embed(
-            description=f"## {ts.get(f'{pf}no-result')}\n- `{name}`\n- (Market API)",
-            color=0xE67E22,  # discord.Color.orange,
+            description=ts.get(f"{pf}err"),
+            color=0xE67E22,
         )
 
     # init categorize
-    ingame_orders = categorize(result.json())
+    ingame_orders = categorize(result.json(), rank=rank)
 
     output_msg = ""
 
@@ -96,9 +166,11 @@ def w_market_search(name) -> discord.Embed:
     # title
     output_msg += f"## {ts.get(f'{pf}result')}: [{item_name}](https://warframe.market/"
     output_msg += lang if lang != Lang.EN else ""
-    output_msg += f"/items/{item_slug}?type=sell)\n"
+    output_msg += f"/items/{item_slug}?type=sell)"
+    # item rank if exists
+    output_msg += ts.get(f"{pf}rank").format(rank=rank) if rank else ""
     # sub desc
-    output_msg += f"> {ts.get(f'{pf}link-to-market')}\n"
+    output_msg += f"\n> {ts.get(f'{pf}link-to-market')}\n"
     # item list
     for item in ingame_orders:
         if item["type"] != "sell":

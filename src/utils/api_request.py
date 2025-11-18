@@ -115,7 +115,7 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
 
 
 # usage for market api
-def API_MarketSearch(item_name: str):
+async def API_MarketSearch(log_lock: asyncio.Lock, item_name: str):
     """API request function for warframe.market search
 
     Args:
@@ -139,14 +139,22 @@ def API_MarketSearch(item_name: str):
     except Exception as e:
         msg = f"[err] API request failed! (from API_MarketSearch)"
         print(timeNowDT(), C.yellow, msg, C.red, e, C.default)
+        await save_log(
+            lock=log_lock,
+            type="api",
+            cmd="API_MarketSearch()",
+            user=MSG_BOT,
+            msg=msg,
+            obj=f"{response.res_code}/{e}",
+        )
         return None
 
     # check response code
-    res_code: int = response.status_code
-    if res_code != 200:
-        msg = f"[warn] response code is not 200 (from API_MarketSearch)"
-        print(C.red, res_code, msg, C.default)
-        return response
+    # res_code: int = response.status_code
+    # if res_code != 200:
+    #     msg = f"[warn] response code is not 200 (from API_MarketSearch)"
+    #     print(C.red, res_code, msg, C.default)
+    #     return response
 
     # check response (is not empty)
     if response is None:

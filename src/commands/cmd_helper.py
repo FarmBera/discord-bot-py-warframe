@@ -14,7 +14,7 @@ async def cmd_helper(
     parser_args=None,
     isUserViewOnly: bool = True,
     isMarketQuery: bool = False,
-    marketQuery: str = "",
+    marketQuery: tuple = (None, None),
 ) -> None:
     if isFollowUp:  # delay response if needed
         await interact.response.defer(ephemeral=isUserViewOnly)
@@ -27,7 +27,7 @@ async def cmd_helper(
     if parser_args:
         obj = parser_func(cmd_obj_check(key), parser_args)
     elif isMarketQuery:
-        obj = parser_func(marketQuery)
+        obj = await parser_func(interact.client.log_lock, marketQuery)
     else:
         obj = parser_func(cmd_obj_check(key))
 

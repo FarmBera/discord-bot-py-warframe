@@ -302,7 +302,9 @@ async def register_main_commands(
         name=ts.get(f"cmd.market-search.cmd"),
         description=ts.get(f"cmd.market-search.desc"),
     )
-    async def cmd_market_search(interact: discord.Interaction, item_name: str):
+    async def cmd_market_search(
+        interact: discord.Interaction, item_name: str, item_rank: int = None
+    ):
         """Search for an item on warframe.market."""
         await cmd_helper(
             interact,
@@ -310,7 +312,7 @@ async def register_main_commands(
             parser_func=w_market_search,
             isFollowUp=True,
             isMarketQuery=True,
-            marketQuery=item_name,
+            marketQuery=(item_name, item_rank),
         )
 
     @cmd_market_search.autocomplete("item_name")
