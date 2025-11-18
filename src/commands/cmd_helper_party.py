@@ -12,11 +12,10 @@ from src.constants.keys import (
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 
+MIN_SIZE: int = 2
+MAX_SIZE: int = 20
+
 pf: str = "cmd.party."
-pf_edit: str = f"{pf}p-edit-modal-"
-pf_size: str = f"{pf}p-size-modal-"
-pf_btn: str = f"{pf}p-del-modal-"
-pf_pv: str = f"{pf}pv-"
 
 
 def parseNickname(nickname: str) -> str:
@@ -24,24 +23,24 @@ def parseNickname(nickname: str) -> str:
 
 
 # define article editor modal
-class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf_edit}title")):
+class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf}edit-title")):
     def __init__(self, current_title: str, current_mission: str, current_desc: str):
         super().__init__(timeout=None)
 
         self.title_input = discord.ui.TextInput(
-            label=ts.get(f"{pf_edit}title-input"),
+            label=ts.get(f"{pf}edit-title-input"),
             style=discord.TextStyle.short,
             default=current_title,
             required=True,
         )
         self.mission_input = discord.ui.TextInput(
-            label=ts.get(f"{pf_edit}mission-input"),
+            label=ts.get(f"{pf}edit-mission-input"),
             style=discord.TextStyle.short,
             default=current_mission,
             required=True,
         )
         self.desc_input = discord.ui.TextInput(
-            label=ts.get(f"{pf_edit}desc-input"),
+            label=ts.get(f"{pf}edit-desc-input"),
             style=discord.TextStyle.long,
             default=current_desc,
             required=False,
@@ -107,7 +106,7 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf_edit}title")):
 
         except Exception as e:
             await interact.response.send_message(
-                f"{ts.get(f'{pf_edit}err')}: {e}", ephemeral=True
+                ts.get(f"{pf}edit-err"), ephemeral=True
             )
             await save_log(
                 lock=interact.client.log_lock,
@@ -122,12 +121,12 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf_edit}title")):
 
 
 # define party size adjustment modal
-class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf_size}ui-title")):
+class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
     def __init__(self, current_max: int):
         super().__init__(timeout=None)
 
         self.size_input = discord.ui.TextInput(
-            label=ts.get(f"{pf_size}label"),
+            label=ts.get(f"{pf}size-label"),
             style=discord.TextStyle.short,
             default=str(current_max),
             required=True,
@@ -139,15 +138,15 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf_size}ui-title")):
             new_max_size_str = self.size_input.value
 
             # NaN || < 0
-            if not new_max_size_str.isdigit() or int(new_max_size_str) < 2:
+            if not new_max_size_str.isdigit() or int(new_max_size_str) < MIN_SIZE:
                 await interact.response.send_message(
-                    ts.get(f"{pf_size}err-low"), ephemeral=True
+                    ts.get(f"{pf}size-err-low").format(max=MAX_SIZE), ephemeral=True
                 )
                 return
 
-            if not new_max_size_str.isdigit() or int(new_max_size_str) > 4:
+            if not new_max_size_str.isdigit() or int(new_max_size_str) > MAX_SIZE:
                 await interact.response.send_message(
-                    ts.get(f"{pf_size}err-high"), ephemeral=True
+                    ts.get(f"{pf}size-err-high"), ephemeral=True
                 )
                 return
 
@@ -164,7 +163,7 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf_size}ui-title")):
             # overflow
             if new_max_size < current_participants_count:
                 await interact.response.send_message(
-                    f"{ts.get(f'{pf_size}err-high-1')}({current_participants_count}){ts.get(f'{pf_size}err-high-2')}",
+                    f"{ts.get(f'{pf}size-err-high-1').format(size=current_participants_count)}",
                     ephemeral=True,
                 )
                 return
@@ -192,9 +191,7 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf_size}ui-title")):
             )
 
         except Exception as e:
-            await interact.response.send_message(
-                f"{ts.get(f'{pf_edit}err')}: {e}", ephemeral=True
-            )
+            await interact.response.send_message(ts.get(f"{pf}err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type="event.err",
@@ -218,7 +215,7 @@ class ConfirmDeleteView(discord.ui.View):
 
     # delete confirm btn
     @discord.ui.button(
-        label=ts.get(f"{pf_btn}btny"),
+        label=ts.get(f"{pf}del-btny"),
         style=discord.ButtonStyle.danger,
         custom_id="confirm_delete_yes",
     )
@@ -254,13 +251,13 @@ class ConfirmDeleteView(discord.ui.View):
                     if starter_message:
                         await webhook.edit_message(
                             message_id=interact.channel.id,
-                            content=ts.get(f"{pf}p-del-deleted"),
+                            content=ts.get(f"{pf}del-deleted"),
                         )
                 else:  #  if webhook is not found
                     starter_message = await interact.channel.parent.fetch_message(
                         interact.channel.id
                     )
-                    await starter_message.edit(content=ts.get(f"{pf}p-del-deleted"))
+                    await starter_message.edit(content=ts.get(f"{pf}del-deleted"))
             except discord.NotFound:
                 pass  # starter msg not found, maybe deleted manually
 
@@ -285,9 +282,7 @@ class ConfirmDeleteView(discord.ui.View):
             )
 
         except discord.Forbidden as e:
-            await interact.response.send_message(
-                ts.get(f"{pf_btn}err-del"), ephemeral=True
-            )
+            await interact.response.send_message(ts.get(f"{pf}del-err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type="event",
@@ -298,9 +293,7 @@ class ConfirmDeleteView(discord.ui.View):
                 msg=f"ConfirmDeleteView -> clicked yes | but Forbidden\n{e}",
             )
         except Exception as e:
-            await interact.response.send_message(
-                ts.get(f"{pf_size}err"), ephemeral=True
-            )
+            await interact.response.send_message(ts.get(f"{pf}err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type="event",
@@ -317,13 +310,13 @@ class ConfirmDeleteView(discord.ui.View):
 
     # delete cancel btn
     @discord.ui.button(
-        label=ts.get(f"{pf_btn}btnn"),
+        label=ts.get(f"{pf}del-btnn"),
         style=discord.ButtonStyle.secondary,
         custom_id="confirm_delete_no",
     )
     async def no_button(self, interact: discord.Interaction, button: discord.ui.Button):
         await interact.response.edit_message(
-            content=ts.get(f"{pf_btn}cancel"), view=None
+            content=ts.get(f"{pf}del-cancel"), view=None
         )
         self.value = False
         self.stop()
@@ -373,7 +366,7 @@ class KickMemberSelect(discord.ui.Select):
             ).fetchone()
             if not party_data:
                 await interact.response.send_message(
-                    content=ts.get(f"{pf_pv}not-found"), ephemeral=True
+                    content=ts.get(f"{pf}pv-not-found"), ephemeral=True
                 )
                 return
 
@@ -396,7 +389,7 @@ class KickMemberSelect(discord.ui.Select):
             host_mention = f"<@{party_data['host_id']}>, "
             # Send notification to the thread and confirmation to the user
             await interact.followup.send(
-                f"{kicked_user_mention} {ts.get(f'{pf}pv-kick-success')}"
+                ts.get(f"{pf}pv-kick-success").format(name=kicked_user_mention)
             )
 
             await save_log(
@@ -410,7 +403,7 @@ class KickMemberSelect(discord.ui.Select):
             )
 
         except Exception as e:
-            await interact.followup.send(f"오류: {e}", ephemeral=True)
+            await interact.followup.send(ts.get(f"{pf}err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type="event.err",
@@ -450,7 +443,7 @@ class ConfirmJoinLeaveView(discord.ui.View):
         self.original_message = original_message  # The main embed message
 
     @discord.ui.button(
-        label=ts.get(f"{pf_btn}btny"),
+        label=ts.get(f"{pf}del-btny"),
         style=discord.ButtonStyle.success,
         custom_id="confirm_join_yes",
     )
@@ -479,11 +472,16 @@ class ConfirmJoinLeaveView(discord.ui.View):
                 self.db.commit()
                 # reply confirm chat
                 await interact.response.edit_message(
-                    content=ts.get(f"{pf_pv}joined"), view=None
+                    content=ts.get(f"{pf}pv-joined"), view=None
                 )
                 # Send a public message to the thread channel
+                # TODO: random join message
+                rint = 1
+
                 await self.original_message.channel.send(
-                    f"{host_mention}< {interact.user.display_name} > {ts.get(f'{pf}pc-joined')}"
+                    ts.get(f"{pf}pc-joined{rint}").format(
+                        host=host_mention, user=interact.user.mention
+                    )
                 )
 
                 await save_log(
@@ -504,11 +502,13 @@ class ConfirmJoinLeaveView(discord.ui.View):
                 self.db.commit()
                 # reply confirm chat
                 await interact.response.edit_message(
-                    content=ts.get(f"{pf_pv}exited"), view=None
+                    content=ts.get(f"{pf}pv-exited"), view=None
                 )
                 # Send a public message to the thread channel
                 await self.original_message.channel.send(
-                    f"{host_mention}< {interact.user.display_name} > {ts.get(f'{pf}pc-lefted')}"
+                    ts.get(f"{pf}pc-lefted").format(
+                        host=host_mention, user=interact.user.mention
+                    )
                 )
 
                 await save_log(
@@ -530,7 +530,9 @@ class ConfirmJoinLeaveView(discord.ui.View):
         except Exception as e:
             # if response is done, use followup
             if not interact.response.is_done():
-                await interact.response.edit_message(content=f"오류: {e}", view=None)
+                await interact.response.edit_message(
+                    content=ts.get(f"{pf}err"), view=None
+                )
             else:
                 await interact.followup.send(f"오류: {e}", ephemeral=True)
 
@@ -549,13 +551,13 @@ class ConfirmJoinLeaveView(discord.ui.View):
         self.stop()
 
     @discord.ui.button(
-        label=ts.get(f"{pf_btn}btnn"),
+        label=ts.get(f"{pf}del-btnn"),
         style=discord.ButtonStyle.secondary,
         custom_id="confirm_join_no",
     )
     async def no_button(self, interact: discord.Interaction, button: discord.ui.Button):
         await interact.response.edit_message(
-            content=ts.get(f"{pf_btn}cancel"), view=None
+            content=ts.get(f"{pf}del-cancel"), view=None
         )
         self.value = False
         self.stop()
@@ -616,11 +618,11 @@ class PartyView(discord.ui.View):
         if not party_data:
             if not interact.response.is_done():
                 await interact.response.send_message(
-                    ts.get(f"{pf_pv}not-found"), ephemeral=True
+                    ts.get(f"{pf}pv-not-found"), ephemeral=True
                 )
             else:
                 await interact.followup.send(
-                    ts.get(f"{pf_pv}not-found"), ephemeral=True
+                    ts.get(f"{pf}pv-not-found"), ephemeral=True
                 )
             return None, None
 
@@ -632,7 +634,7 @@ class PartyView(discord.ui.View):
         return dict(party_data), [dict(p) for p in participants_list]
 
     @discord.ui.button(  # 참여하기
-        label=ts.get(f"{pf_pv}join-btn"),
+        label=ts.get(f"{pf}pv-join-btn"),
         style=discord.ButtonStyle.success,
         custom_id="party_join",
     )
@@ -662,13 +664,13 @@ class PartyView(discord.ui.View):
 
         if is_participant:  # already joined
             await interact.response.send_message(
-                ts.get(f"{pf_pv}already-joined"), ephemeral=True
+                ts.get(f"{pf}pv-already-joined"), ephemeral=True
             )
             return
 
         # overflow: more than max_user
         if len(participants_list) >= party_data["max_users"]:
-            await interact.response.send_message(ts.get(f"{pf_pv}full"), ephemeral=True)
+            await interact.response.send_message(ts.get(f"{pf}pv-full"), ephemeral=True)
             return
 
         view = ConfirmJoinLeaveView(
@@ -680,7 +682,7 @@ class PartyView(discord.ui.View):
             original_message=interact.message,
         )
         await interact.response.send_message(
-            ts.get(f"{pf_pv}confirm-join"), view=view, ephemeral=True
+            ts.get(f"{pf}pv-confirm-join"), view=view, ephemeral=True
         )
 
         timed_out = await view.wait()
@@ -693,7 +695,7 @@ class PartyView(discord.ui.View):
                 pass
 
     @discord.ui.button(  # 탈퇴하기
-        label=ts.get(f"{pf_pv}leave-btn"),
+        label=ts.get(f"{pf}pv-leave-btn"),
         style=discord.ButtonStyle.danger,
         custom_id="party_leave",
     )
@@ -725,7 +727,7 @@ class PartyView(discord.ui.View):
         # check: is interacted user host
         if user_id == party_data["host_id"]:
             await interact.response.send_message(
-                ts.get(f"{pf_pv}host-exit-err"), ephemeral=True
+                ts.get(f"{pf}pv-host-exit-err"), ephemeral=True
             )
             return
 
@@ -734,7 +736,7 @@ class PartyView(discord.ui.View):
 
         if not is_participant:
             await interact.response.send_message(
-                ts.get(f"{pf_pv}already-left"), ephemeral=True
+                ts.get(f"{pf}pv-already-left"), ephemeral=True
             )
             return
 
@@ -747,7 +749,7 @@ class PartyView(discord.ui.View):
             original_message=interact.message,
         )
         await interact.response.send_message(
-            ts.get(f"{pf_pv}confirm-exit"), view=view, ephemeral=True
+            ts.get(f"{pf}pv-confirm-exit"), view=view, ephemeral=True
         )
 
         timed_out = await view.wait()
@@ -760,7 +762,7 @@ class PartyView(discord.ui.View):
                 pass
 
     @discord.ui.button(  # 인원 수정
-        label=ts.get(f"{pf_pv}mod-label"),
+        label=ts.get(f"{pf}pv-mod-label"),
         style=discord.ButtonStyle.secondary,
         custom_id="party_edit_size",
     )
@@ -784,7 +786,7 @@ class PartyView(discord.ui.View):
 
         if interact.user.id != party_data["host_id"]:
             await interact.response.send_message(
-                ts.get(f"{pf_pv}err-only-host"), ephemeral=True
+                ts.get(f"{pf}pv-err-only-host"), ephemeral=True
             )
             return
 
@@ -792,7 +794,7 @@ class PartyView(discord.ui.View):
         await interact.response.send_modal(modal)
 
     @discord.ui.button(  # 글 수정
-        label=ts.get(f"{pf_pv}mod-article"),
+        label=ts.get(f"{pf}pv-mod-article"),
         style=discord.ButtonStyle.secondary,
         custom_id="party_edit_content",
     )
@@ -818,7 +820,7 @@ class PartyView(discord.ui.View):
 
         if interact.user.id != party_data["host_id"]:
             await interact.response.send_message(
-                ts.get(f"{pf_pv}err-mod-article"), ephemeral=True
+                ts.get(f"{pf}pv-err-mod-article"), ephemeral=True
             )
             return
 
@@ -830,7 +832,7 @@ class PartyView(discord.ui.View):
         await interact.response.send_modal(modal)
 
     @discord.ui.button(  # 모집 완료
-        label=ts.get(f"{pf_pv}done"),
+        label=ts.get(f"{pf}pv-done"),
         style=discord.ButtonStyle.primary,
         custom_id="party_toggle_close",
     )
@@ -860,15 +862,15 @@ class PartyView(discord.ui.View):
 
         if interact.user.id != party_data["host_id"]:
             await interact.response.send_message(
-                ts.get(f"{pf_pv}err-only-status"), ephemeral=True
+                ts.get(f"{pf}pv-err-only-status"), ephemeral=True
             )
             return
 
         # toggle state
         new_status = (
-            ts.get(f"{pf_pv}done")
-            if party_data["status"] == ts.get(f"{pf_pv}ing")
-            else ts.get(f"{pf_pv}ing")
+            ts.get(f"{pf}pv-done")
+            if party_data["status"] == ts.get(f"{pf}pv-ing")
+            else ts.get(f"{pf}pv-ing")
         )
 
         cursor.execute(
@@ -883,9 +885,9 @@ class PartyView(discord.ui.View):
             webhook = discord.utils.get(webhooks, name=webhook_name)
 
             # original_content = f"[{party_data['mission_type']}] {party_data['title']}"
-            if new_status == ts.get(f"{pf_pv}done"):
+            if new_status == ts.get(f"{pf}pv-done"):
                 new_content = ts.get(f"{pf}pv-tgl-done")
-                # f"**[{ts.get(f'{pf_pv}done')}]** ~~{original_content}~~"
+                # f"**[{ts.get(f'{pf}pv-done')}]** ~~{original_content}~~"
             else:
                 new_content = ts.get(f"{pf}pv-tgl-ing")
 
@@ -917,8 +919,8 @@ class PartyView(discord.ui.View):
         edit_size_btn = discord.utils.get(self.children, custom_id="party_edit_size")
         # leave_btn = discord.utils.get(self.children, custom_id="party_leave")
 
-        if new_status == ts.get(f"{pf_pv}done"):
-            button.label = ts.get(f"{pf_pv}ing")
+        if new_status == ts.get(f"{pf}pv-done"):
+            button.label = ts.get(f"{pf}pv-ing")
             button.style = discord.ButtonStyle.success
             if join_btn:
                 join_btn.disabled = True
@@ -928,7 +930,7 @@ class PartyView(discord.ui.View):
             #     leave_btn.disabled = True
 
         else:
-            button.label = ts.get(f"{pf_pv}done")
+            button.label = ts.get(f"{pf}pv-done")
             button.style = discord.ButtonStyle.primary
             if join_btn:
                 join_btn.disabled = False
@@ -1069,7 +1071,7 @@ class PartyView(discord.ui.View):
             party_view=self,
             party_data={
                 "id": party_data["id"],
-                "is_closed": party_data["status"] == ts.get(f"{pf_pv}done"),
+                "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
                 "title": party_data["title"],
                 "host_mention": f"<@{party_data['host_id']}>",
                 "max_users": party_data["max_users"],
@@ -1107,9 +1109,9 @@ def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     """[for internal use] creates an embed based on a formatted dictionary"""
     color = discord.Color.red() if data.get("is_closed") else discord.Color.blue()
     status_text = (
-        f"({ts.get(f'{pf_pv}done')})"
+        f"({ts.get(f'{pf}pv-done')})"
         if data.get("is_closed")
-        else f"({ts.get(f'{pf_pv}ing2')})"
+        else f"({ts.get(f'{pf}pv-ing2')})"
     )
 
     participants_str = ", ".join(data["participants"])
@@ -1132,12 +1134,11 @@ def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
 - **{ts.get(f'{pf}pb-mission')}:** {data['mission']}
 
 {description_field}
-
-> {ts.get(f'{pf}pb-desc')}
-```
-/w {data['game_nickname']}
-```
 """
+    # > {ts.get(f'{pf}pb-desc')}
+    # ```
+    # /w {data['game_nickname']}
+    # ```
     if isDelete:
         description += "~~"
 
@@ -1171,7 +1172,7 @@ async def build_party_embed_from_db(
     # 3. assemble into dictionary format required by build_party_embed
     data_dict = {
         "id": party_data["id"],
-        "is_closed": party_data["status"] == ts.get(f"{pf_pv}done"),
+        "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
         "title": party_data["title"],
         "host_mention": (
             db.execute(
@@ -1225,20 +1226,20 @@ async def cmd_create_party_helper(
 
     await interact.response.defer(ephemeral=True)
 
-    if number_of_user < 2:
+    if number_of_user < MIN_SIZE:
         await interact.followup.send(
-            ts.get(f"{pf}pt-low"),
+            ts.get(f"{pf}pt-low").format(num=MIN_SIZE),
             ephemeral=True,
         )
         number_of_user = 4
         result += "low number\n"
 
-    elif number_of_user > 4:
+    elif number_of_user > MAX_SIZE:
         await interact.followup.send(
-            ts.get(f"{pf}pt-high"),
+            ts.get(f"{pf}pt-high").format(num=MAX_SIZE),
             ephemeral=True,
         )
-        number_of_user = 4
+        number_of_user = MAX_SIZE
         result += "high humber\n"
 
     if target_channel and isinstance(target_channel, discord.TextChannel):
@@ -1254,7 +1255,7 @@ async def cmd_create_party_helper(
                     mission_type,
                     number_of_user,
                     game_nickname,
-                    ts.get(f"{pf_pv}ing"),
+                    ts.get(f"{pf}pv-ing"),
                     description,
                 ),
             )

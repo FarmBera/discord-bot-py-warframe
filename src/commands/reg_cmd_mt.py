@@ -218,7 +218,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         name=ts.get(f"cmd.market-search.cmd"),
         description=ts.get(f"cmd.market-search.desc"),
     )
-    async def search_market(interact: discord.Interaction, item_name: str):
+    async def cmd_market_search(interact: discord.Interaction, item_name: str):
         await cmd_helper_maintenance(interact)
 
     @discord.app_commands.checks.cooldown(
@@ -248,16 +248,76 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     @discord.app_commands.describe(
         title=ts.get("cmd.party.title"),
         # game_nickname="인게임 닉네임",
-        mission_type=ts.get(f"cmd.party.miss-types"),
+        game_type=ts.get(f"cmd.party.miss-types"),
         descriptions=ts.get("cmd.party.descript"),
         number_of_user=ts.get("cmd.party.nou"),
     )
-    async def cmd_create_thread(
+    async def cmd_create_party(
         interact: discord.Interaction,
         title: str,
         # game_nickname: str,
-        mission_type: str,
-        descriptions: str = None,
+        game_type: str,
+        descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
+        await cmd_helper_maintenance(interact)
+
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_PARTY, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.trade.cmd"),
+        description=ts.get("cmd.trade.desc"),
+    )
+    @discord.app_commands.choices(
+        trade_type=[
+            discord.app_commands.Choice(name=ts.get(f"cmd.trade.type-sell"), value=1),
+            discord.app_commands.Choice(name=ts.get("cmd.trade.type-buy"), value=2),
+        ]
+    )
+    @discord.app_commands.describe(
+        trade_type=ts.get(f"cmd.trade.desc-trade-type"),
+        item_name=ts.get(f"cmd.trade.desc-item-name"),
+        game_nickname=ts.get(f"cmd.trade.desc-nickname"),
+        price=ts.get("cmd.trade.desc-price"),
+        quantity=ts.get("cmd.trade.desc-qty"),
+    )
+    async def cmd_create_trade(
+        interact: discord.Interaction,
+        trade_type: discord.app_commands.Choice[int],
+        item_name: str,
+        game_nickname: str,
+        price: int = 0,
+        quantity: int = 1,
+    ) -> None:
+        await cmd_helper_maintenance(interact)
+
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.duviri-circuit.wf-cmd"),
+        description=ts.get(f"cmd.duviri-circuit.wf-desc"),
+    )
+    async def cmd_circuit_wf(interact: discord.Interaction):
+        await cmd_helper_maintenance(interact)
+
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.duviri-circuit.inc-cmd"),
+        description=ts.get(f"cmd.duviri-circuit.inc-desc"),
+    )
+    async def cmd_circuit_inc(interact: discord.Interaction):
+        await cmd_helper_maintenance(interact)
+
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.events.cmd"),
+        description=ts.get(f"cmd.events.desc"),
+    )
+    async def cmd_ingame_events(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)

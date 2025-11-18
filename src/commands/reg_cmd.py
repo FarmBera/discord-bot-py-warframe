@@ -356,7 +356,7 @@ async def register_main_commands(
     @discord.app_commands.describe(
         title=ts.get("cmd.party.title"),
         # game_nickname="인게임 닉네임",
-        mission_type=ts.get(f"cmd.party.miss-types"),
+        game_type=ts.get(f"cmd.party.miss-types"),
         descriptions=ts.get("cmd.party.descript"),
         number_of_user=ts.get("cmd.party.nou"),
     )
@@ -364,7 +364,7 @@ async def register_main_commands(
         interact: discord.Interaction,
         title: str,
         # game_nickname: str,
-        mission_type: str,
+        game_type: str,
         descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
@@ -373,7 +373,7 @@ async def register_main_commands(
             db_conn=db_conn,
             title=title,
             number_of_user=number_of_user,
-            mission_type=mission_type,
+            mission_type=game_type,
             description=descriptions,
         )
 

@@ -253,13 +253,13 @@ class ConfirmDeleteView(discord.ui.View):
                     if starter_message:
                         await webhook.edit_message(
                             message_id=interact.channel.id,
-                            content=ts.get(f"{pf}p-del-deleted"),
+                            content=ts.get(f"{pf}deleted"),
                         )
                 else:  #  if webhook is not found
                     starter_message = await interact.channel.parent.fetch_message(
                         interact.channel.id
                     )
-                    await starter_message.edit(content=ts.get(f"{pf}p-del-deleted"))
+                    await starter_message.edit(content=ts.get(f"{pf}deleted"))
             except discord.NotFound:
                 print("스레드의 첫 메시지를 찾을 수 없습니다.")
                 pass  # starter msg not found, maybe deleted manually

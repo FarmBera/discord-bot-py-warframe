@@ -241,51 +241,53 @@ cmd:
   party:
     # basic commands
     cmd: 파티생성
-    desc: "새로운 파티 구인 글을 생성합니다."
+    desc: "새로운 파티 구인 글을 생성합니다. (종합 게임)"
     title: 파티 모집 제목
-    miss-types: 미션 이름 또는 종류
+    miss-types: 게임 이름
     descript: "[선택사항] 모집 글에 대한 세부설명"
     nou: "[선택사항] 최대 파티원 수 (본인 포함)"
 
-    err: 오류
+    err: 알 수 없는 오류. 관리자에게 문의해주세요.
     # PartyEditodal
-    p-edit-modal-title: 파티 정보 수정
-    p-edit-modal-title-input: 제목
-    p-edit-modal-mission-input: 미션
-    p-edit-modal-desc-input: 기타 설명
-    p-edit-modal-err: 수정 중 오류 발생
+    edit-title: 파티 정보 수정
+    edit-title-input: 제목
+    edit-mission-input: 게임 이름
+    edit-desc-input: 기타 설명
+    edit-err: 수정 중 오류 발생
     # PartySizeModal
-    p-size-modal-ui-title: 파티원 수 조절
-    p-size-modal-label: 최대 파티원 수 (숫자만 입력)
-    p-size-modal-err-low: 숫자만 입력해야 하며, 파티원 수는 2명 이상 4명 이하로 설정해주세요.
-    p-size-modal-err-high: 파티원은 4명을 초과할 수 없습니다.
-    p-size-modal-err-high-1: 최대 인원은 현재 인원
-    p-size-modal-err-high-2: 보다 작을 수 없습니다.
+    size-ui-title: 파티원 수 조정
+    size-label: 최대 파티원 수 (숫자만 입력)
+    size-err-low: 숫자만 입력해야 하며, 파티원 수는 {min}명 이상 {max}명 이하로 설정해주세요.
+    size-err-high: 모집 인원은 {max}명을 넘을 수 없어요.
+    size-err-high-1: 최대 인원은 현재 인원 `{size}` 보다 작을 수 없어요.
     # ConfirmDeleteView
-    p-del-modal-btny: Yes (진행)
-    p-del-modal-btnn: No (취소)
-    p-del-modal-err: "❌ 오류"
-    p-del-modal-err-del: "❌ 오류: 스레드를 삭제할 권한이 없어요.\n관리자에게 문의해주세요."
-    p-del-modal-cancel: 작업이 취소되었어요.
-    p-del-deleted: "> 모집 글이 삭제 되었습니다."
+    del-btny: Yes (진행)
+    del-btnn: No (취소)
+    del-err: "❌ 오류: 스레드를 삭제할 권한이 없어요.\n관리자에게 문의해주세요."
+    del-cancel: 작업이 취소되었어요.
+    del-deleted: "> 모집 글이 삭제 되었어요."
     # ConfirmJoinLeaveView
-    pc-joined: 님이 파티에 참여했습니다!
-    pc-lefted: 님이 파티에서 나갔습니다.
+    pc-joined1: "{host}, {user} 님이 파티에 참여했어요!"
+    pc-joined2: "{host}, {user} 님이 후다닭 들어왔어요"
+    pc-joined3: "{host}, {user} 두두둥장!"
+    pc-joined4: "{host} 오셨군요, {user}님!"
+    pc-lefted: "{host}, {user} 님이 파티에서 나갔습니다."
+    pc-lefted-force: "{host}, {user} 님이 파티에서 나갔습니다. (파티장 권한)"
 
     # PartyView
 
     # join btn
-    pv-not-found: "파티 정보를 찾을 수 없거나 모집 글이 삭제된 상태입니다. \n\n만약 오류라고 판단된다면 관리자에게 문의해주세요."
+    pv-not-found: "오류: 파티 정보를 찾을 수 없어요. (모집 글이 삭제되었을 수도 있습니다.) \n\n만약 오류라고 판단된다면 관리자에게 문의해주세요."
     pv-join-btn: "참여하기"
     pv-leave-btn: "탈퇴하기"
     pv-host-exit-err: 호스트는 파티에서 탈퇴할 수 없어요.
     pv-exited: 파티에서 탈퇴했어요.
-    pv-full: 파티가 꽉 찼습니다...
-    pv-joined: 파티에 참가했습니다!
-    pv-confirm-exit: 파티에서 탈퇴하시겠습니까?
+    pv-full: 파티가 꽉 찼어요
+    pv-joined: 파티에 참가했어요!
+    pv-confirm-exit: 정말로 파티에서 탈퇴하시겠습니까?
     pv-confirm-join: 파티에 참가하시겠습니까?
-    pv-already-joined: 이미 파티에 참여했습니다.
-    pv-already-left: 파티에 소속되어 있지 않습니다.
+    pv-already-joined: 이미 파티에 참여했어요.
+    pv-already-left: 파티에 소속되어 있지 않아요.
 
     pv-done: 모집 완료
     pv-ing: 모집 활성화
@@ -302,21 +304,21 @@ cmd:
     # toggle_close_party btn
     pv-err-only-status: 파티 호스트만 모집 상태를 변경할 수 있어요.
     pv-tgl-done: "**모집**이 **완료**된 파티입니다."
-    pv-tgl-ing: 파티를 생성했습니다!
+    pv-tgl-ing: 파티원 모집 중이에요!
 
     # call_members btn
     pv-call-label: 파티원 호출
-    pv-call-msg: 호스트가 파티원들을 호출했습니다!
-    pv-call-no-members: 호출할 파티원이 없습니다.
-    pv-err-only-host-call: 파티 호스트만 파티원을 호출할 수 있습니다.
+    pv-call-msg: 호스트가 파티원들을 호출했어요!
+    pv-call-no-members: 호출할 파티원이 없어요.
+    pv-err-only-host-call: 파티 호스트만 파티원을 호출할 수 있어요.
 
     # kick_member btn
     pv-kick-label: 파티원 내보내기
-    pv-kick-modal-title: (파티원을 선택하면 바로 내보내기 작업이 수행됩니다.)
+    pv-kick-modal-title: (***주의!*** 파티원을 선택하면 바로 내보내기 작업이 수행됩니다!)
     pv-kick-modal-select-placeholder: 내보낼 파티원을 선택하세요.
-    pv-kick-success: 님을 파티에서 내보냈습니다.
-    pv-kick-no-members: 내보낼 파티원이 없습니다.
-    pv-err-only-host-kick: 파티 호스트만 이 기능을 사용할 수 있습니다.
+    pv-kick-success: "파티장이 {name} 님을 파티에서 내보냈어요."
+    pv-kick-no-members: 내보낼 파티원이 없어요.
+    pv-err-only-host-kick: 파티 호스트만 이 기능을 사용할 수 있어요.
 
     # delete_party btn
     pv-del-label: 글 삭제
@@ -329,7 +331,7 @@ cmd:
     pb-host: 호스트
     pb-player-count: 파티원 수
     pb-player-joined: 참여한 파티원
-    pb-mission: 미션
+    pb-mission: 게임
     pb-desc: "> 귓속말 명령어 복사"
     pb-pid: 파티 ID
 
@@ -337,8 +339,8 @@ cmd:
     pdb-not-found-party: 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
 
     # cmd_create_thread_helper
-    pt-low: "파티원 수는 2명 이상이어야 합니다.\n 4명으로 자동 조정됩니다"
-    pt-high: "파티원 수는 4명을 초과할 수 없어요.\n4명으로 자동 조정됩니다."
+    pt-low: "파티원 수는 {num}명 이상이어야 합니다.\n 4명으로 자동 조정됩니다"
+    pt-high: "파티원 수는 {num}명을 초과할 수 없어요.\n{num}명으로 자동 조정됩니다."
     pt-create: 모집 글(스레드)을 생성했어요!
 
     no-thread-permission: "❌ 오류: 해당 채널에 스레드를 생성할 권한이 없어요. 관리자에게 문의해주세요."
@@ -346,7 +348,7 @@ cmd:
     err-unknown: "❌ 알 수 없는 오류. 관리자에게 문의해주세요."
     not-found-ch: "❌ 오류: 지정된 텍스트 채널을 찾을 수 없어요. 관리자에게 문의해주세요."
 
-    created-party: 파티를 생성했습니다!
+    created-party: 파티원 모집 중이에요!
 
   trade:
     cmd: 거래
@@ -358,7 +360,7 @@ cmd:
     type-buy: "구매"
     item: "거래 물품"
     quantity: "수량"
-    price: "[선택사항] 개당 가격"
+    price: "[선택사항] 개당 가격 (가격을 입력하지 않으면 마켓 시세를 기반으로 자동 책정됩니다.)"
     auto-price-info: "가격을 입력하지 않으면 마켓 시세를 기반으로 자동 책정됩니다."
     # cmd describe
     desc-trade-type: "거래 글 유형 (판매 / 구매)"
@@ -395,9 +397,9 @@ cmd:
 
     # interactions
     confirm-trade: "## 정말로 거래를 요청할까요?"
-    trade-request: "{host_mention}, {user_mention} 님이 거래를 요청했습니다!"
-    confirm-delete: "## 정말로 이 거래 글을 닫을까요?\n거래 글을 닫으면 **다시 활성화할 수 없습니다!**"
-    deleted: "> 게시자가 거래를 종료했어요."
+    trade-request: "{host_mention}, {user_mention} 님이 거래를 요청했어요!"
+    confirm-delete: "## 정말로 이 거래 글을 닫을까요?\n거래 글을 닫으면 **다시 활성화할 수 없어요!**"
+    deleted: "> 거래 글 게시자가 거래를 종료했어요."
 
     # modals
     edit-qty-title: "수량 수정"
@@ -414,7 +416,7 @@ cmd:
     err-not-found: "거래 정보를 찾을 수 없습니다."
     err-self-trade: "자신이 올린 글에는 거래를 요청할 수 없어요."
     err-invalid-value: "올바른 숫자 값을 입력해주세요."
-    err-no-market: "'워프레임 마켓' 검색 결과가 없습니다. 직접 가격을 입력해주세요.\n(가격 변경 기능을 이용해주세요.)"
+    err-no-market: "'워프레임 마켓' 검색 결과가 없습니다.\n가격 변경 기능을 이용하여 직접 가격을 입력해주세요."
 
   duviri-circuit:
     wf-cmd: 순환로-워프레임
