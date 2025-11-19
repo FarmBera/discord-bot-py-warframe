@@ -363,15 +363,17 @@ cmd:
     type-sell: "판매"
     type-buy: "구매"
     item: "거래 물품"
+    rank: "아이템 랭크"
     quantity: "수량"
-    price: "[선택사항] 개당 가격 (가격을 입력하지 않으면 마켓 시세를 기반으로 자동 책정됩니다.)"
+    price: "개당 가격"
     auto-price-info: "가격을 입력하지 않으면 마켓 시세를 기반으로 자동 책정됩니다."
     # cmd describe
     desc-trade-type: "거래 글 유형 (판매 / 구매)"
     desc-item-name: 거래하고자 하는 아이템 이름
+    desc-item-rank: "[선택사항] (존재한다면) 거래하고자 하는 아이템의 랭크"
     desc-nickname: 인게임 닉네임. 정확히 기입하여주세요.
-    desc-price: 물품 개당 가격
-    desc-qty: "아이템 수량. (기본값: 1)"
+    desc-price: "[선택사항] 물품 개당 가격 (미입력 시, 마켓 시세를 기반으로 자동 책정 됩니다.)"
+    desc-qty: "[선택사항] 아이템 수량. (기본값: 1개)"
 
     # embed content
     creator: "생성자"
@@ -393,17 +395,23 @@ cmd:
     btn-edit-price: "가격 수정"
     btn-edit-nickname: "닉네임 변경"
     btn-close: "거래 종료"
+    del-btny: Yes (종료하기)
+    del-btnn: No (취소)
     # ConfirmTradeView
     btn-confirm: Yes (거래하기)
     btn-cancel: No (취소)
     # ConfirmDeleteView
     btn-confirm-del: Yes (거래 닫기)
 
+    # info
+    auto-price: "가격을 입력하지 않아, 자동으로 마켓 평균가인 `{price} 플레` 로 책정하였습니다."
+
     # interactions
     confirm-trade: "## 정말로 거래를 요청할까요?"
     trade-request: "{host_mention}, {user_mention} 님이 거래를 요청했어요!"
     confirm-delete: "## 정말로 이 거래 글을 닫을까요?\n거래 글을 닫으면 **다시 활성화할 수 없어요!**"
     deleted: "> 거래 글 게시자가 거래를 종료했어요."
+    canceled: "작업이 취소되었어요."
 
     # modals
     edit-qty-title: "수량 수정"
@@ -414,13 +422,18 @@ cmd:
     edit-nick-label: "수정할 닉네임을 정확하게 입력해주세요."
 
     # errors
+    err-type: "올바르지 않은 거래 종류입니다! --> {type}\n\n{list} 중 하나만 사용할 수 있습니다!"
+
     err-general: "상호작용 오류. 관리자에게 문의해주세요."
     err-timeout: "시간이 초과되어 작업이 취소되었어요."
     err-only-host: "거래 글 게시자만 이 버튼을 사용할 수 있어요."
-    err-not-found: "거래 정보를 찾을 수 없습니다."
+    err-not-found: "거래 정보를 찾을 수 없어요.\n관리자에게 문의해주세요."
+    err-forbidden: "봇이 거래 게시글에 접근할 수 없어요. 관리자에게 문의해주세요."
     err-self-trade: "자신이 올린 글에는 거래를 요청할 수 없어요."
     err-invalid-value: "올바른 숫자 값을 입력해주세요."
     err-no-market: "'워프레임 마켓' 검색 결과가 없습니다.\n가격 변경 기능을 이용하여 직접 가격을 입력해주세요."
+    err-api: "현재 자동 가격 책정 기능은 이용할 수 없어요 (API 오류)\n직접 가격을 입력해주세요."
+    err-edit: "수정 중 오류가 발생했습니다. 오류가 지속된다면 관리자에게 문의해주세요"
 
   duviri-circuit:
     wf-cmd: 순환로-워프레임

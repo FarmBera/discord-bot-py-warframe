@@ -57,7 +57,6 @@ def get_slug_data(name) -> tuple[bool, str, str, str]:
     return flag, item_slug, item_name, item_img_url
 
 
-# TODO-test-실제 적용 테스트: 특정 아이템 랭크만 검색
 def categorize(result, rank: int) -> list:
     # categorize only 'ingame' stocks (ignores online, offline)
     ingame_orders: list = []
@@ -67,6 +66,8 @@ def categorize(result, rank: int) -> list:
         # print(f"rank {rank} search")
         for item in result["data"]:
             if item["user"]["status"] != "ingame":
+                continue
+            if item["type"] != "sell":
                 continue
             if not item["rank"] == rank:
                 continue
@@ -78,9 +79,22 @@ def categorize(result, rank: int) -> list:
         for item in result["data"]:
             if item["user"]["status"] != "ingame":
                 continue
+            if item["type"] != "sell":
+                continue
             ingame_orders.append(item)
 
     return sorted(ingame_orders, key=lambda x: x["platinum"])
+
+
+def create_market_url(name, slug=None):
+    msg = f"[{name}](https://warframe.market/"
+    msg += lang if lang != Lang.EN else ""
+
+    if not slug:
+        slug = get_slug_data(name)[1]
+
+    msg += f"/items/{slug}?type=sell)"
+    return msg
 
 
 async def w_market_search(
@@ -164,23 +178,20 @@ async def w_market_search(
     # create output msg
     idx: int = 0
     # title
-    output_msg += f"## {ts.get(f'{pf}result')}: [{item_name}](https://warframe.market/"
-    output_msg += lang if lang != Lang.EN else ""
-    output_msg += f"/items/{item_slug}?type=sell)"
+    output_msg += f"## {ts.get(f'{pf}result')}: {create_market_url(name=item_name,slug=item_slug)}"
     # item rank if exists
-    output_msg += ts.get(f"{pf}rank").format(rank=rank) if rank else ""
+    output_msg += (
+        ts.get(f"{pf}rank").format(rank=rank) if ingame_orders[0].get("rank") else ""
+    )
     # sub desc
     output_msg += f"\n> {ts.get(f'{pf}link-to-market')}\n"
     # item list
     for item in ingame_orders:
-        if item["type"] != "sell":
-            continue
-
         idx += 1
         if idx > THRESHOLD:
             break
 
-        output_msg += f"- **{item['platinum']} {ts.get(f'{pf}platinum')}** : {item['quantity']} {ts.get(f'{pf}qty')} ({item['user']['ingameName']})\n"
+        output_msg += f"- **{item['platinum']} {ts.get(f'{pf}platinum')}** : {item['quantity']} {ts.get(f'{pf}qty')} (`{item['user']['ingameName']}`)\n"
 
     embed = discord.Embed(
         description=output_msg,

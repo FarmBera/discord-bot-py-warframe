@@ -396,6 +396,7 @@ async def register_main_commands(
     @discord.app_commands.describe(
         trade_type=ts.get(f"cmd.trade.desc-trade-type"),
         item_name=ts.get(f"cmd.trade.desc-item-name"),
+        item_rank=ts.get(f"cmd.trade.desc-item-rank"),
         game_nickname=ts.get(f"cmd.trade.desc-nickname"),
         price=ts.get("cmd.trade.desc-price"),
         quantity=ts.get("cmd.trade.desc-qty"),
@@ -405,6 +406,7 @@ async def register_main_commands(
         trade_type: discord.app_commands.Choice[int],
         item_name: str,
         game_nickname: str,
+        item_rank: int = 0,
         price: int = 0,
         quantity: int = 1,
     ) -> None:
@@ -414,6 +416,7 @@ async def register_main_commands(
             trade_type=trade_type.name,
             game_nickname=game_nickname,
             item_name=item_name,
+            item_rank=item_rank,
             price=price,
             quantity=quantity,
             # description=descriptions,
