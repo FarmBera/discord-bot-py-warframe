@@ -407,6 +407,7 @@ cmd:
     auto-price: "가격을 입력하지 않아, 자동으로 마켓 평균가인 `{price} 플레` 로 책정하였습니다."
 
     # interactions
+    created-trade: "✅ `{ch}` 에 거래 글을 생성했습니다! {mention}"
     confirm-trade: "## 정말로 거래를 요청할까요?"
     trade-request: "{host_mention}, {user_mention} 님이 거래를 요청했어요!"
     confirm-delete: "## 정말로 이 거래 글을 닫을까요?\n거래 글을 닫으면 **다시 활성화할 수 없어요!**"

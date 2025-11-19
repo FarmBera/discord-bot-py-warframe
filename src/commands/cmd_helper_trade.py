@@ -1,15 +1,16 @@
 import discord
 from discord.ext import commands
 import sqlite3
-from typing import Literal
+import asyncio
 
+from config.TOKEN import base_url_market_image
 from src.translator import ts
 from src.constants.keys import (
     LFG_WEBHOOK_NAME,
     COOLDOWN_BTN_ACTION,
     COOLDOWN_BTN_MANAGE,
 )
-from src.parser.marketsearch import get_slug_data, categorize
+from src.parser.marketsearch import get_slug_data, categorize, create_market_url
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.api_request import API_MarketSearch
@@ -59,10 +60,9 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
                 msg=f"EditTradeModal -> Clicked Submit",
                 obj=f"{self.input_nickname.value}",
             )
-
         except Exception as e:
             await interact.response.send_message(
-                f"{ts.get(f'{pf}p-edit-modal-err')}", ephemeral=True
+                ts.get(f"{pf}err-edit"), ephemeral=True
             )
             await save_log(
                 lock=interact.client.log_lock,
@@ -128,10 +128,9 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
                 msg=f"EditQuantityModal -> Clicked Submit",
                 obj=new_quantity_str,
             )
-
         except Exception as e:
             await interact.response.send_message(
-                ts.get(f"{pf}err-general"), ephemeral=True
+                ts.get(f"{pf}err-edit"), ephemeral=True
             )
             await save_log(
                 lock=interact.client.log_lock,
@@ -159,52 +158,51 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
         self.add_item(self.price_input)
 
     async def on_submit(self, interact: discord.Interaction):
-        # try:
-        new_price_str = self.price_input.value
+        try:
+            new_price_str = self.price_input.value
 
-        if not new_price_str.isdigit() or int(new_price_str) < 0:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-invalid-value"), ephemeral=True
+            if not new_price_str.isdigit() or int(new_price_str) < 0:
+                await interact.response.send_message(
+                    ts.get(f"{pf}err-invalid-value"), ephemeral=True
+                )
+                return
+
+            new_price = int(new_price_str)
+            cursor = self.db.cursor()
+
+            cursor.execute(
+                "UPDATE trades SET price = ? WHERE message_id = ?",
+                (new_price, interact.message.id),
             )
-            return
+            self.db.commit()
 
-        new_price = int(new_price_str)
-        cursor = self.db.cursor()
+            new_embed = await build_trade_embed_from_db(interact.message.id, self.db)
+            await interact.response.edit_message(embed=new_embed)
 
-        cursor.execute(
-            "UPDATE trades SET price = ? WHERE message_id = ?",
-            (new_price, interact.message.id),
-        )
-        self.db.commit()
-
-        new_embed = await build_trade_embed_from_db(interact.message.id, self.db)
-        await interact.response.edit_message(embed=new_embed)
-
-        await save_log(
-            lock=interact.client.log_lock,
-            type="event",
-            cmd="btn.edit.price",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
-            msg=f"EditPriceModal -> Clicked Submit",
-            obj=new_price_str,
-        )
-
-        # except Exception as e:
-        #     await interact.response.send_message(
-        #         f"{ts.get(f'{pf}p-edit-modal-err')}", ephemeral=True
-        #     )
-        #     await save_log(
-        #         lock=interact.client.log_lock,
-        #         type="event.err",
-        #         cmd="btn.edit.price",
-        #         user=f"{interact.user.display_name}",
-        #         guild=f"{interact.guild.name}",
-        #         channel=f"{interact.channel.name}",
-        #         msg=f"EditPriceModal -> Clicked Submit '{new_price_str}' but ERR",
-        #         obj=e,
-        #     )
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="btn.edit.price",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"EditPriceModal -> Clicked Submit",
+                obj=new_price_str,
+            )
+        except Exception as e:
+            await interact.response.send_message(
+                ts.get(f"{pf}err-edit"), ephemeral=True
+            )
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event.err",
+                cmd="btn.edit.price",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"EditPriceModal -> Clicked Submit '{new_price_str}' but ERR",
+                obj=e,
+            )
 
 
 class ConfirmDeleteView(discord.ui.View):
@@ -217,7 +215,7 @@ class ConfirmDeleteView(discord.ui.View):
 
     # delete confirm btn
     @discord.ui.button(
-        label=ts.get(f"{pf}p-del-modal-btny"),
+        label=ts.get(f"{pf}del-btny"),
         style=discord.ButtonStyle.danger,
         custom_id="confirm_delete_yes",
     )
@@ -240,8 +238,7 @@ class ConfirmDeleteView(discord.ui.View):
                     item.disabled = True
             await message.edit(embed=new_embed, view=self.party_view)
 
-            # edit web hook msg
-            try:
+            try:  # edit web hook msg
                 webhook_name = LFG_WEBHOOK_NAME
                 webhooks = await interact.channel.parent.webhooks()
                 webhook = discord.utils.get(webhooks, name=webhook_name)
@@ -261,7 +258,7 @@ class ConfirmDeleteView(discord.ui.View):
                     )
                     await starter_message.edit(content=ts.get(f"{pf}deleted"))
             except discord.NotFound:
-                print("스레드의 첫 메시지를 찾을 수 없습니다.")
+                # print("스레드의 첫 메시지를 찾을 수 없습니다.")
                 pass  # starter msg not found, maybe deleted manually
 
             # delete trade info from DB
@@ -274,6 +271,9 @@ class ConfirmDeleteView(discord.ui.View):
             if isinstance(interact.channel, discord.Thread):
                 await interact.channel.edit(locked=True)
 
+            # remove this view
+            await interact.delete_original_response()
+
             await save_log(
                 lock=interact.client.log_lock,
                 type="event",
@@ -283,11 +283,8 @@ class ConfirmDeleteView(discord.ui.View):
                 channel=f"{interact.channel.name}",
                 msg=f"ConfirmDeleteView -> clicked yes",
             )
-
         except discord.Forbidden as e:
-            await interact.response.send_message(
-                ts.get(f"{pf}p-del-modal-err-del"), ephemeral=True
-            )
+            await interact.followup.send(ts.get(f"{pf}del-btny"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type="event",
@@ -298,9 +295,7 @@ class ConfirmDeleteView(discord.ui.View):
                 msg=f"ConfirmDeleteView -> clicked yes | but Forbidden\n{e}",
             )
         except Exception as e:
-            await interact.response.send_message(
-                f"{ts.get(f'{pf}p-del-modal-err')}: {e}", ephemeral=True
-            )
+            await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type="event",
@@ -312,21 +307,17 @@ class ConfirmDeleteView(discord.ui.View):
                 obj=e,
             )
 
-        # remove this view
-        await interact.delete_original_response()
         self.value = True
         self.stop()
 
     # delete cancel btn
     @discord.ui.button(
-        label=ts.get(f"{pf}p-del-modal-btnn"),
+        label=ts.get(f"{pf}del-btnn"),
         style=discord.ButtonStyle.secondary,
         custom_id="confirm_delete_no",
     )
     async def no_button(self, interact: discord.Interaction, button: discord.ui.Button):
-        await interact.response.edit_message(
-            content=ts.get(f"{pf}p-del-modal-cancel"), view=None
-        )
+        await interact.response.edit_message(content=ts.get(f"{pf}canceled"), view=None)
         self.value = False
         self.stop()
 
@@ -364,38 +355,48 @@ class ConfirmTradeView(discord.ui.View):
     ):
         await interact.response.defer()
 
-        trade_info = self.db.execute(
-            "SELECT host_id FROM trades WHERE id = ?", (self.trade_id,)
-        ).fetchone()
-        host_mention = f"<@{trade_info['host_id']}>" if trade_info else ""
+        try:
+            trade_info = self.db.execute(
+                "SELECT host_id FROM trades WHERE id = ?", (self.trade_id,)
+            ).fetchone()
+            host_mention = f"<@{trade_info['host_id']}>" if trade_info else ""
 
-        # try:
-        await self.original_message.channel.send(
-            ts.get(f"{pf}trade-request").format(
-                host_mention=host_mention, user_mention=interact.user.mention
+            await self.original_message.channel.send(
+                ts.get(f"{pf}trade-request").format(
+                    host_mention=host_mention, user_mention=interact.user.mention
+                )
             )
-        )
+            await interact.delete_original_response()
+            self.value = True
+            self.stop()
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="btn.confirm.trade",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"ConfirmTradeView -> YES",
+                obj=e,
+            )
+        except Exception as e:
+            if not interact.response.is_done():
+                await interact.response.edit_message(
+                    content=ts.get(f"{pf}err-general"), view=None
+                )
+            else:
+                await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
 
-        # except Exception as e:
-        #     # if response is done, use followup
-        #     if not interact.response.is_done():
-        #         await interact.response.edit_message(content=ts.get(f'{pf}err-general'), view=None)
-        #     else:
-        #         await interact.followup.send(f"오류: {e}", ephemeral=True)
-
-        #     await save_log(
-        #         lock=interact.client.log_lock,
-        #         type="event",
-        #         cmd="btn.confirm.trade",
-        #         user=f"{interact.user.display_name}",
-        #         guild=f"{interact.guild.name}",
-        #         channel=f"{interact.channel.name}",
-        #         msg=f"ConfirmTradeView -> ERR",
-        #         obj=e,
-        #     )
-        await interact.delete_original_response()
-        self.value = True
-        self.stop()
+            await save_log(
+                lock=interact.client.log_lock,
+                type="event",
+                cmd="btn.confirm.trade",
+                user=f"{interact.user.display_name}",
+                guild=f"{interact.guild.name}",
+                channel=f"{interact.channel.name}",
+                msg=f"ConfirmTradeView -> ERR",
+                obj=e,
+            )
 
     @discord.ui.button(
         label=ts.get(f"{pf}btn-cancel"),
@@ -403,9 +404,7 @@ class ConfirmTradeView(discord.ui.View):
         custom_id="confirm_trade_no",
     )
     async def no_button(self, interact: discord.Interaction, button: discord.ui.Button):
-        await interact.response.edit_message(
-            content=ts.get(f"{pf}p-del-modal-cancel"), view=None
-        )
+        await interact.response.edit_message(content=ts.get(f"{pf}canceled"), view=None)
         self.value = False
         self.stop()
 
@@ -518,13 +517,6 @@ class TradeView(discord.ui.View):
             await interact.edit_original_response(
                 content=ts.get(f"{pf}err-timeout"), view=None
             )
-        # if timed_out and view.value is None:
-        #     try:
-        #         await interact.edit_original_response(
-        #             content=ts.get(f"{pf}p-del-modal-cancel"), view=None
-        #         )
-        #     except discord.errors.NotFound:
-        #         pass
 
     @discord.ui.button(  # 수량 변경
         label=ts.get(f"{pf}btn-edit-qty"),
@@ -656,8 +648,8 @@ class TradeView(discord.ui.View):
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
 
-        db = interact.client.db
-        cursor = db.cursor()
+        # db = interact.client.db
+        # cursor = db.cursor()
 
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
@@ -682,7 +674,6 @@ class TradeView(discord.ui.View):
                 "item_name": trade_data["item_name"],
                 "quantity": trade_data["quantity"],
                 "price": trade_data["price"],
-                # "i18n": ,
             },
         )
         await interact.response.send_message(
@@ -693,9 +684,13 @@ class TradeView(discord.ui.View):
 # embed creation helper function
 def build_trade_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     """Creates a trade embed from a dictionary."""
+
+    flag, _, __, img_url = get_slug_data(data["item_name"])
+
     # title
     title: str = "~~" if isDelete else ""
-    title += f"[{data['trade_type']}합니다] {data['item_name']}"
+    title += f"[{data['trade_type']}] {data['item_name']}"
+
     if isDelete:
         title += "~~"
 
@@ -705,11 +700,12 @@ def build_trade_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     description: str = "~~" if isDelete else ""
     description += f"""
 - **{ts.get(f'{pf}creator')}:** {data['host_mention']}
- 
-- **{ts.get(f'{pf}item-name')}:** `{data['item_name']}`
+- **{ts.get(f'{pf}item-name')}:** {create_market_url(data['item_name'])}
 - **{ts.get(f'{pf}price-per')}:** `{data['price']:,} {ts.get(f'{pf}platinum')}` (총 {data['price'] * data['quantity']:,})
 - **{ts.get(f'{pf}quantity')}:** `{data['quantity']:,}` 개
-
+"""
+    if not isDelete:
+        description += f"""
 > 귓속말 명령어 복사
 ```
 /w {data['game_nickname']}
@@ -724,8 +720,8 @@ def build_trade_embed(data: dict, isDelete: bool = False) -> discord.Embed:
 
     embed = discord.Embed(title=title, description=description.strip(), color=color)
     embed.set_footer(text=f"ID: {data['id']}")
-    # if flag and img_url:
-    #     embed.set_thumbnail(img_url)
+    if flag and img_url:
+        embed.set_thumbnail(url=f"{base_url_market_image}{img_url}")
     return embed
 
 
@@ -764,124 +760,170 @@ async def cmd_create_trade_helper(
     db_conn: sqlite3.Connection,
     trade_type: str,
     item_name: str,
+    item_rank: int,
     game_nickname: str,
     price: int,
     quantity: int,
 ) -> None:
     db = db_conn
     db.row_factory = sqlite3.Row
+    log_lock: asyncio.Lock = interact.client.log_lock
 
     RESULT: str = ""
-    ch_file = CHANNELS["trade"]
-    target_channel = interact.client.get_channel(ch_file)
+    target_channel = interact.client.get_channel(CHANNELS["trade"])
 
     await interact.response.defer(ephemeral=True)
 
-    if target_channel and isinstance(target_channel, discord.TextChannel):
-        try:
-            flag: bool = False
-            flag, slug, item_name, img_url = get_slug_data(item_name)
-
-            market = API_MarketSearch(item_name)
-
-            if market.status_code != 200:  # api not found
-                await interact.followup.send(
-                    ts.get(f"{pf}err-no-market"),
-                    ephemeral=True,
-                )
-                price = 0
-
-            ########### db ############
-            cursor = db.cursor()
-            cursor.execute(
-                "INSERT INTO trades (host_id, game_nickname, trade_type, item_name, quantity, price) VALUES (?, ?, ?, ?, ?, ?)",
-                (
-                    interact.user.id,
-                    game_nickname,
-                    trade_type,
-                    item_name,
-                    quantity,
-                    price,
-                ),
+    types = [ts.get(f"cmd.trade.type-sell"), ts.get("cmd.trade.type-buy")]
+    if trade_type not in types:
+        interact.followup.send(
+            ts.get(f"{pf}err-type").format(
+                type=trade_type, list=", ".join(f"**{i}**" for i in types)
             )
-            TRADE_ID = cursor.lastrowid
-            db.commit()
-            ########### db ############
+        )
+        return
 
-            # create a webhook
-            webhook_name = LFG_WEBHOOK_NAME
-            webhooks = await target_channel.webhooks()
-            webhook = discord.utils.get(webhooks, name=webhook_name)
-            if webhook is None:
-                webhook = await target_channel.create_webhook(name=webhook_name)
-
-            trade_type_str = f"**{trade_type}**합니다"
-            thread_name = f"[{trade_type}] {item_name}"
-
-            # thread start message
-            thread_starter_msg = await webhook.send(
-                content="거래 글을 생성했습니다!",  # ts.get(f"{pf}created-party"),
-                username=interact.user.display_name,
-                avatar_url=interact.user.display_avatar.url,
-                wait=True,
-            )
-
-            # create thread from starter msg (webhook)
-            thread = await thread_starter_msg.create_thread(
-                name=thread_name,
-                # type=discord.ChannelType.public_thread,
-            )
-
-            await interact.followup.send(
-                f"✅ '{target_channel.name}'에 거래 글을 생성했습니다! {thread.mention}",
-                ephemeral=True,
-            )
-
-            ############################
-            # initial data
-            initial_data = {
-                "id": TRADE_ID,
-                "host_id": interact.user.id,
-                "host_mention": interact.user.mention,
-                "game_nickname": game_nickname,
-                "trade_type": trade_type,
-                "item_name": item_name,
-                "quantity": quantity,
-                "price": price,
-            }
-
-            embed = build_trade_embed(initial_data)
-            view = TradeView()
-
-            msg = await thread.send(embed=embed, view=view)
-
-            cursor.execute(
-                "UPDATE trades SET thread_id = ?, message_id = ? WHERE id = ?",
-                (thread.id, msg.id, TRADE_ID),
-            )
-            db.commit()
-
-            RESULT += "DONE!\n"
-
-        except discord.Forbidden as e:
-            await interact.followup.send(
-                ts.get(f"cmd.party.no-thread-permission"),
-                ephemeral=True,
-            )
-            RESULT += f"Forbidden {e}\n"
-        except discord.HTTPException as e:
-            await interact.followup.send(
-                f"{ts.get(f'cmd.party.err-creation')}",
-                ephemeral=True,
-            )
-            RESULT += f"HTTPException {e}\n"
-        # except Exception as e:
-        #     await interact.followup.send(
-        #         f"{ts.get(f'cmd.party.err-unknown')}", ephemeral=True
-        #     )
-        #     RESULT += f"ERROR {e}"
-    else:
+    if not target_channel and not isinstance(target_channel, discord.TextChannel):
         await interact.followup.send(ts.get(f"cmd.party.not-found-ch"), ephemeral=True)
+        return
+
+    try:
+        flag: bool = False
+        flag, item_slug, item_name, img_url = get_slug_data(item_name)
+
+        if not flag:
+            await interact.followup.send(
+                ts.get("cmd.market-search.no-result")
+                + f"\n- `{item_name}`에 대한 검색 결과가 없습니다.",
+                ephemeral=True,
+            )
+            return
+
+        market = await API_MarketSearch(log_lock, item_slug)
+
+        # automatic price setup
+        async def set_price(market, price) -> int:
+            if market.status_code == 404:  # api not found
+                await interact.followup.send(
+                    ts.get(f"{pf}err-no-market"), ephemeral=True
+                )
+                return price if price else 0
+            elif market.status_code != 200:
+                raise ValueError("resp-code is not 200 or resp err")
+
+            market = categorize(market.json(), rank=item_rank)
+            price_list: list = []
+            for i in range(6):
+                price_list.append(market[i]["platinum"])
+
+            price = sum(price_list) // len(price_list)
+            await interact.followup.send(
+                ts.get(f"{pf}auto-price").format(price=price), ephemeral=True
+            )
+            return price
+
+        try:
+            price = await set_price(market, price)
+        except Exception as e:
+            await interact.followup.send(ts.get(f"{pf}err-api"), ephemeral=True)
+            await save_log(
+                lock=interact.client.log_lock,
+                type="cmd",
+                cmd=f"cmd.trade",
+                time=interact.created_at,
+                user=interact.user.display_name,
+                guild=interact.guild,
+                channel=interact.channel,
+                msg="[info] cmd used",
+                obj=f"{RESULT}Type:{trade_type}, Item:{item_name}, Qty:{quantity}, Price:{price}",
+            )
+            price = price if price else 0
+
+        ########### db ############
+        cursor = db.cursor()
+        cursor.execute(
+            "INSERT INTO trades (host_id, game_nickname, trade_type, item_name, quantity, price) VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                interact.user.id,
+                game_nickname,
+                trade_type,
+                item_name,
+                quantity,
+                price,
+            ),
+        )
+        TRADE_ID = cursor.lastrowid
+        db.commit()
+        ########### db ############
+
+        # create a webhook
+        webhook_name = LFG_WEBHOOK_NAME
+        webhooks = await target_channel.webhooks()
+        webhook = discord.utils.get(webhooks, name=webhook_name)
+        if webhook is None:
+            webhook = await target_channel.create_webhook(name=webhook_name)
+
+        trade_type_str = f"**{trade_type}** 합니다"
+        thread_name = f"[{trade_type}] {item_name}"
+
+        # thread start message
+        thread_starter_msg = await webhook.send(
+            content=trade_type_str,
+            username=interact.user.display_name,
+            avatar_url=interact.user.display_avatar.url,
+            wait=True,
+        )
+
+        # create thread from starter msg (webhook)
+        thread = await thread_starter_msg.create_thread(name=thread_name)
+
+        await interact.followup.send(
+            ts.get(f"{pf}created-trade").format(
+                ch=target_channel.name, mention=thread.mention
+            ),
+            ephemeral=True,
+        )
+
+        ############################
+        initial_data = {
+            "id": TRADE_ID,
+            "host_id": interact.user.id,
+            "host_mention": interact.user.mention,
+            "game_nickname": game_nickname,
+            "trade_type": trade_type,
+            "item_name": item_name,
+            "quantity": quantity,
+            "price": price,
+        }
+
+        embed = build_trade_embed(initial_data)
+        view = TradeView()
+
+        msg = await thread.send(embed=embed, view=view)
+
+        cursor.execute(
+            "UPDATE trades SET thread_id = ?, message_id = ? WHERE id = ?",
+            (thread.id, msg.id, TRADE_ID),
+        )
+        db.commit()
+
+        RESULT += "DONE!\n"
+
+    except discord.Forbidden as e:
+        await interact.followup.send(
+            ts.get(f"cmd.party.no-thread-permission"),
+            ephemeral=True,
+        )
+        RESULT += f"Forbidden {e}\n"
+    except discord.HTTPException as e:
+        await interact.followup.send(
+            f"{ts.get(f'cmd.party.err-creation')}",
+            ephemeral=True,
+        )
+        RESULT += f"HTTPException {e}\n"
+    except Exception as e:
+        await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
+        RESULT += f"ERROR {e}"
 
     await save_log(
         lock=interact.client.log_lock,
