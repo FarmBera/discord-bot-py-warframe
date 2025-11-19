@@ -288,8 +288,8 @@ cmd:
     pv-exited: 파티에서 탈퇴했어요.
     pv-full: 파티가 꽉 찼어요
     pv-joined: 파티에 참가했어요!
-    pv-confirm-exit: 정말로 파티에서 탈퇴하시겠습니까?
-    pv-confirm-join: 파티에 참가하시겠습니까?
+    pv-confirm-exit: "## 정말로 파티에서 탈퇴하시겠습니까?"
+    pv-confirm-join: "## 파티에 참가하시겠습니까?"
     pv-already-joined: 이미 파티에 참여했어요.
     pv-already-left: 파티에 소속되어 있지 않아요.
 

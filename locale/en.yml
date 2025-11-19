@@ -3,7 +3,7 @@ start:
   sync: Syncing
   bot-status-msg: /help
   final: Logged on! as
-  final2: Ready to Use!
+  final2: Ready to Use! - Language has been set to English.
   coroutine: Internal Coroutine Started
 
 maintenance:
@@ -114,7 +114,7 @@ cmd:
     location: Location
 
     deactivate: Deactivated
-    appear: "Appears in {time}"
+    appear: "Appears in `{time}`"
     place: Coming to
 
   void-traders-item:
@@ -216,13 +216,17 @@ cmd:
     cmd: market-search
     desc: Search specific item in 'Warframe Market' and shows its sell price
 
-    no-result: No Result Found!
+    no-result: "## No Search Result"
+    server-err: "## An error occurred on the 'Warframe Market' server.\n- The 'Warframe Market' server may be under maintenance.\n- Please check if you can access the Warframe Market website normally."
+    err: "## Error: There is a problem with the 'Warframe Market' server.\n- Did not receive a valid response from the market server.\n- Please check if you can access the Warframe Market website normally."
+
     data: Data
     api-fail: "Failed to request API. Please try again later.\n\nIf the problem persists, please contact the administrator."
     result: Search Result
     link-to-market: "(Click the blue link to go to the market.)"
     platinum: P
     qty: Qty
+    rank: " ({rank} rank)"
 
   market-help:
     cmd: market-help
@@ -243,34 +247,36 @@ cmd:
     cmd: create-party
     desc: "Creates a new party listing."
     title: Party Title
-    miss-types: Mission Name or Type
-    descript: (Optional) Description for the party listing
-    nou: Max party size (including yourself)
+    miss-types: Game Name
+    descript: "[Optional] Detailed description for the recruitment post"
+    nou: "[Optional] Max party size (including yourself)"
 
-    err: Error
+    err: Unknown Error. Please contact the admin."
     # PartyEditModal
-    p-edit-modal-title: Edit Party Info
-    p-edit-modal-title-input: Title
-    p-edit-modal-mission-input: Mission
-    p-edit-modal-desc-input: Description
-    p-edit-modal-err: An error occurred while editing.
+    edit-title: Edit Party Info
+    edit-title-input: Title
+    edit-mission-input: Mission
+    edit-desc-input: Description
+    edit-err: An error occurred while editing.
     # PartySizeModal
-    p-size-modal-ui-title: Adjust Party Size
-    p-size-modal-label: Max party size (numbers only)
-    p-size-modal-err-low: "Please enter a number between 2 and 4."
-    p-size-modal-err-high: "Party size cannot exceed 4 members."
-    p-size-modal-err-high-1: "The max size cannot be less than the current number"
-    p-size-modal-err-high-2: "of members."
+    size-ui-title: Adjust Party Size
+    size-label: Max party size (numbers only)
+    size-err-low: "Please enter a number between {min} and {max}."
+    size-err-high: "Party size cannot exceed {max} members."
+    size-err-high-1: "The max size cannot be less than the current number of members ({size})."
     # ConfirmDeleteView
-    p-del-modal-btny: Yes (Continue)
-    p-del-modal-btnn: No (Cancel)
-    p-del-modal-err: "❌ Error"
-    p-del-modal-err-del: "❌ Error: I don't have permission to delete this thread."
-    p-del-modal-cancel: "The action has been canceled."
-    p-del-deleted: "> The party listing has been deleted."
+    del-btny: Yes (Continue)
+    del-btnn: No (Cancel)
+    del-err: "❌ Error: I don't have permission to delete this thread. Please contact an admin."
+    del-cancel: "The action has been canceled."
+    del-deleted: "> The party listing has been deleted."
     # ConfirmJoinLeaveView
-    pc-joined: "has joined the party!"
-    pc-lefted: "has left the party."
+    pc-joined1: "{host}, {user} has joined the party!"
+    pc-joined2: "{host}, {user} has quickly joined!"
+    pc-joined3: "{host}, {user} has appeared!"
+    pc-joined4: "{host}, welcome, {user}!"
+    pc-lefted: "{host}, {user} has left the party."
+    pc-lefted-force: "{host}, {user} has left the party. (by host)"
 
     # PartyView
 
@@ -301,7 +307,7 @@ cmd:
 
     # toggle_close_party btn
     pv-err-only-status: "Only the party host can change the recruitment status."
-    pv-tgl-done: "**Recruitment** is now **closed**."
+    pv-tgl-done: "This is a party where **recruitment** is **closed**."
     pv-tgl-ing: "has created a party!"
 
     # call_members btn
@@ -329,16 +335,16 @@ cmd:
     pb-host: Host
     pb-player-count: Members
     pb-player-joined: Current Members
-    pb-mission: Mission
-    pb-desc: "(Click the button to the right to copy to clipboard.)\n(Paste it in the in-game chat to send a whisper.)"
+    pb-mission: Game
+    pb-desc: "> Copy whisper command"
     pb-pid: Party ID
 
     # build_party_embed_from_db
     pdb-not-found-party: "Could not find party information. Please contact an admin."
 
     # cmd_create_thread_helper
-    pt-low: "Party size must be at least 2.\nAutomatically setting to 4."
-    pt-high: "Party size cannot exceed 4.\nAutomatically setting to 4."
+    pt-low: "Party size must be at least {num}.\nAutomatically setting to 4."
+    pt-high: "Party size cannot exceed {num}.\nAutomatically setting to {num}."
     pt-create: "Party listing (thread) has been created!"
 
     no-thread-permission: "❌ Error: I don't have permission to create threads in this channel. Please contact an admin."
@@ -355,66 +361,66 @@ cmd:
     # cmd args
     type: "Trade Type"
     type-sell: "Sell"
-    type-buy: "Byt"
+    type-buy: "Buy"
     item: "Trade Item"
     quantity: "Quantity"
-    price: "[Select] Price Per Unit"
-    auto-price-info: "가격을 입력하지 않으면 마켓 시세를 기반으로 자동 책정됩니다."
+    price: "[Optional] Price Per Unit (If not entered, it will be automatically set based on the market price.)"
+    auto-price-info: "If you do not enter a price, it will be automatically set based on the market price."
     # cmd describe
-    desc-trade-type: "거래 글 유형 (판매 / 구매)"
-    desc-item-name: 거래하고자 하는 아이템 이름
-    desc-nickname: 인게임 닉네임. 정확히 기입하여주세요.
-    desc-price: 물품 개당 가격
+    desc-trade-type: "Trade post type (Sell / Buy)"
+    desc-item-name: "Name of the item to trade"
+    desc-nickname: "Your Warframe nickname. Please enter it correctly."
+    desc-price: "Price per item"
     desc-qty: "Item Quantity. (Default: 1)"
 
     # embed content
-    creator: "생성자"
-    item-name: "물품명"
-    price-per: "개당 가격"
-    total-price: "총 가격"
-    currency: "거래 재화"
-    platinum: "플래티넘"
-    status: "상태"
+    creator: "Creator"
+    item-name: "Item Name"
+    price-per: "Price Per Unit"
+    total-price: "Total Price"
+    currency: "Currency"
+    platinum: "Platinum"
+    status: "Status"
 
     # embed status
-    selling: "판매 중"
-    buying: "구매 중"
-    closed: "거래 글 닫기"
+    selling: "Selling"
+    buying: "Buying"
+    closed: "Trade Closed"
 
     # buttons
-    btn-trade: "거래하기"
-    btn-edit-qty: "수량 변경"
-    btn-edit-price: "가격 수정"
-    btn-edit-nickname: "닉네임 변경"
-    btn-close: "거래 종료"
+    btn-trade: "Make Offer"
+    btn-edit-qty: "Edit Quantity"
+    btn-edit-price: "Edit Price"
+    btn-edit-nickname: "Edit Nickname"
+    btn-close: "Close Trade"
     # ConfirmTradeView
-    btn-confirm: Yes (거래하기)
-    btn-cancel: No (취소)
+    btn-confirm: Yes (Trade)
+    btn-cancel: No (Cancel)
     # ConfirmDeleteView
-    btn-confirm-del: Yes (거래 닫기)
+    btn-confirm-del: Yes (Close Trade)
 
     # interactions
-    confirm-trade: "## 정말로 거래를 요청할까요?"
-    trade-request: "{host_mention}, {user_mention} 님이 거래를 요청했습니다!"
-    confirm-delete: "## 정말로 이 거래 글을 닫을까요?\n거래 글을 닫으면 **다시 활성화할 수 없습니다!**"
-    deleted: "> 게시자가 거래를 종료했어요."
+    confirm-trade: "## Are you sure you want to request this trade?"
+    trade-request: "{host_mention}, {user_mention} has requested a trade!"
+    confirm-delete: "## Are you sure you want to close this trade listing?\nOnce closed, **it cannot be reopened!**"
+    deleted: "> The trade has been closed by the poster."
 
     # modals
-    edit-qty-title: "수량 수정"
-    edit-qty-label: "수량을 숫자로 입력해주세요."
-    edit-price-title: "가격 수정"
-    edit-price-label: "개당 가격을 숫자로 입력해주세요."
-    edit-nick-title: "닉네임 수정"
-    edit-nick-label: "수정할 닉네임을 정확하게 입력해주세요."
+    edit-qty-title: "Edit Quantity"
+    edit-qty-label: "Please enter the quantity as a number."
+    edit-price-title: "Edit Price"
+    edit-price-label: "Please enter the price per unit as a number."
+    edit-nick-title: "Edit Nickname"
+    edit-nick-label: "Please enter the correct nickname to change to."
 
     # errors
-    err-general: "상호작용 오류. 관리자에게 문의해주세요."
-    err-timeout: "시간이 초과되어 작업이 취소되었어요."
-    err-only-host: "거래 글 게시자만 이 버튼을 사용할 수 있어요."
-    err-not-found: "거래 정보를 찾을 수 없습니다."
-    err-self-trade: "자신이 올린 글에는 거래를 요청할 수 없어요."
-    err-invalid-value: "올바른 숫자 값을 입력해주세요."
-    err-no-market: "'워프레임 마켓' 검색 결과가 없습니다. 직접 가격을 입력해주세요.\n(가격 변경 기능을 이용해주세요.)"
+    err-general: "Interaction error. Please contact an administrator."
+    err-timeout: "The action was canceled due to a timeout."
+    err-only-host: "Only the author of the trade post can use this button."
+    err-not-found: "Could not find trade information."
+    err-self-trade: "You cannot request a trade on your own post."
+    err-invalid-value: "Please enter a valid number."
+    err-no-market: "No search results from 'Warframe Market'. Please enter the price manually.\n(Use the edit price feature.)"
 
   duviri-circuit:
     wf-cmd: circuit-warfrmae
@@ -431,10 +437,10 @@ cmd:
     circuit: Circuit # 두비리 순환로
     curr-rotate: Current Rotation
     next-rotate: Next Rotation
-    end: "Ends at `{day}`"
+    end: "Ends at {day}"
     coming: "After `{day}`"
 
   events:
     cmd: event
-    desc: 현재 진행중인 정기 이벤트 (써미아, 포모리안 등) 목록을 불러옵니다.
-    desc-none: 현재 진행 중인 이벤트가 없습니다.
+    desc: "Gets the list of current recurring events (e.g., Thermia Fractures, Fomorian Sabotage)."
+    desc-none: "There are no ongoing events."
