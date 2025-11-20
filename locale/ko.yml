@@ -269,7 +269,7 @@ cmd:
     del-btnn: No (취소)
     del-err: "❌ 오류: 스레드를 삭제할 권한이 없어요.\n관리자에게 문의해주세요."
     del-cancel: 작업이 취소되었어요.
-    del-deleted: "> 모집 글이 삭제 되었어요."
+    del-deleted: "> 모집이 종료 되었어요."
     # ConfirmJoinLeaveView
     pc-joined1: "{host}, {user} 님이 파티에 참여했어요!"
     pc-joined2: "{host}, {user} 님이 후다닭 들어왔어요"
@@ -325,9 +325,9 @@ cmd:
     pv-err-only-host-kick: 파티 호스트만 이 기능을 사용할 수 있어요.
 
     # delete_party btn
-    pv-del-label: 글 삭제
-    pv-del-only-host: 파티 호스트만 이 글을 삭제할 수 있어요.
-    pv-del-confirm: 정말로 이 모집글 및 스레드를 삭제할까요?
+    pv-del-label: 모집 종료
+    pv-del-only-host: 파티 호스트만 모집을 종료할 수 있어요.
+    pv-del-confirm: "# 정말로 파티원 모집을 종료할까요?\n- 모집이 종료된 게시글은 파티원의 참여/탈퇴, 글 수정, 모집 상태 등 **게시글 수정이 불가**합니다."
     pv-del-cancel: 시간이 초과되어 작업이 취소되었어요.
 
     # build_party_embed
@@ -383,6 +383,7 @@ cmd:
     currency: "거래 재화"
     platinum: "플래티넘"
     status: "상태"
+    rank-simple: "{rank} 랭크"
 
     # embed status
     selling: "판매 중"
@@ -408,10 +409,10 @@ cmd:
 
     # interactions
     created-trade: "✅ `{ch}` 에 거래 글을 생성했습니다! {mention}"
-    confirm-trade: "## 정말로 거래를 요청할까요?"
+    confirm-trade: "# 정말로 거래를 요청할까요?"
     trade-request: "{host_mention}, {user_mention} 님이 거래를 요청했어요!"
-    confirm-delete: "## 정말로 이 거래 글을 닫을까요?\n거래 글을 닫으면 **다시 활성화할 수 없어요!**"
-    deleted: "> 거래 글 게시자가 거래를 종료했어요."
+    confirm-delete: "# 정말로 이 거래 글을 닫을까요?\n거래가 종료되면 게시글을 수정할 수 없고, **다시 활성화할 수 없어요!**"
+    deleted: "> 거래 게시자가 거래를 종료했어요."
     canceled: "작업이 취소되었어요."
 
     # modals
@@ -423,7 +424,7 @@ cmd:
     edit-nick-label: "수정할 닉네임을 정확하게 입력해주세요."
 
     # errors
-    err-type: "올바르지 않은 거래 종류입니다! --> {type}\n\n{list} 중 하나만 사용할 수 있습니다!"
+    err-type: "올바르지 않은 거래 종류입니다! --> {type}\n\n{list} 중 하나만 사용할 수 있어요"
 
     err-general: "상호작용 오류. 관리자에게 문의해주세요."
     err-timeout: "시간이 초과되어 작업이 취소되었어요."

@@ -132,6 +132,7 @@ async def main_manager() -> None:
                     game_nickname TEXT NOT NULL,
                     trade_type TEXT NOT NULL, -- 'sell' or 'buy'
                     item_name TEXT NOT NULL,
+                    item_rank INTEGER NOT NULL DEFAULT 0,
                     quantity INTEGER NOT NULL,
                     price INTEGER NOT NULL,
                     thread_id INTEGER,

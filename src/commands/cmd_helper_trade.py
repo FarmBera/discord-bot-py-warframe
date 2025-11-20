@@ -224,6 +224,18 @@ class ConfirmDeleteView(discord.ui.View):
     ):
         await interact.response.defer()
 
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.confirm.delete",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"ConfirmDeleteView -> clicked yes",
+        )
+        # remove this view
+        await interact.delete_original_response()
+
         try:
             db = interact.client.db
             cursor = db.cursor()
@@ -270,19 +282,6 @@ class ConfirmDeleteView(discord.ui.View):
             # lock the thread
             if isinstance(interact.channel, discord.Thread):
                 await interact.channel.edit(locked=True)
-
-            # remove this view
-            await interact.delete_original_response()
-
-            await save_log(
-                lock=interact.client.log_lock,
-                type="event",
-                cmd="btn.confirm.delete",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
-                msg=f"ConfirmDeleteView -> clicked yes",
-            )
         except discord.Forbidden as e:
             await interact.followup.send(ts.get(f"{pf}del-btny"), ephemeral=True)
             await save_log(
@@ -355,6 +354,16 @@ class ConfirmTradeView(discord.ui.View):
     ):
         await interact.response.defer()
 
+        await save_log(
+            lock=interact.client.log_lock,
+            type="event",
+            cmd="btn.confirm.trade",
+            user=f"{interact.user.display_name}",
+            guild=f"{interact.guild.name}",
+            channel=f"{interact.channel.name}",
+            msg=f"ConfirmTradeView -> YES",
+        )
+
         try:
             trade_info = self.db.execute(
                 "SELECT host_id FROM trades WHERE id = ?", (self.trade_id,)
@@ -369,16 +378,6 @@ class ConfirmTradeView(discord.ui.View):
             await interact.delete_original_response()
             self.value = True
             self.stop()
-            await save_log(
-                lock=interact.client.log_lock,
-                type="event",
-                cmd="btn.confirm.trade",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
-                msg=f"ConfirmTradeView -> YES",
-                obj=e,
-            )
         except Exception as e:
             if not interact.response.is_done():
                 await interact.response.edit_message(
@@ -682,7 +681,9 @@ class TradeView(discord.ui.View):
 
 
 # embed creation helper function
-def build_trade_embed(data: dict, isDelete: bool = False) -> discord.Embed:
+def build_trade_embed(
+    data: dict, isDelete: bool = False, isRank: bool = False
+) -> discord.Embed:
     """Creates a trade embed from a dictionary."""
 
     flag, _, __, img_url = get_slug_data(data["item_name"])
@@ -690,6 +691,8 @@ def build_trade_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     # title
     title: str = "~~" if isDelete else ""
     title += f"[{data['trade_type']}] {data['item_name']}"
+    if isRank:
+        title += f" ({ts.get(f'{pf}rank-simple').format(rank=data['item_rank'])})"
 
     if isDelete:
         title += "~~"
@@ -701,7 +704,7 @@ def build_trade_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     description += f"""
 - **{ts.get(f'{pf}creator')}:** {data['host_mention']}
 - **{ts.get(f'{pf}item-name')}:** {create_market_url(data['item_name'])}
-- **{ts.get(f'{pf}price-per')}:** `{data['price']:,} {ts.get(f'{pf}platinum')}` (총 {data['price'] * data['quantity']:,})
+- **{ts.get(f'{pf}price-per')}:** `{data['price']:,} {ts.get(f'{pf}platinum')}` (총 {data['price'] * data['quantity']:,} 플레)
 - **{ts.get(f'{pf}quantity')}:** `{data['quantity']:,}` 개
 """
     if not isDelete:
@@ -749,6 +752,7 @@ async def build_trade_embed_from_db(
             "game_nickname": trade_data["game_nickname"],
             "trade_type": trade_data["trade_type"],
             "item_name": trade_data["item_name"],
+            "item_rank": trade_data["item_rank"],
             "quantity": trade_data["quantity"],
             "price": trade_data["price"],
         }
@@ -769,11 +773,13 @@ async def cmd_create_trade_helper(
     db.row_factory = sqlite3.Row
     log_lock: asyncio.Lock = interact.client.log_lock
 
+    isRankItem: bool = False
     RESULT: str = ""
     target_channel = interact.client.get_channel(CHANNELS["trade"])
 
     await interact.response.defer(ephemeral=True)
 
+    # check trade_type
     types = [ts.get(f"cmd.trade.type-sell"), ts.get("cmd.trade.type-buy")]
     if trade_type not in types:
         interact.followup.send(
@@ -783,10 +789,12 @@ async def cmd_create_trade_helper(
         )
         return
 
+    # channel not exists
     if not target_channel and not isinstance(target_channel, discord.TextChannel):
         await interact.followup.send(ts.get(f"cmd.party.not-found-ch"), ephemeral=True)
         return
 
+    # search market
     try:
         flag: bool = False
         flag, item_slug, item_name, img_url = get_slug_data(item_name)
@@ -794,7 +802,7 @@ async def cmd_create_trade_helper(
         if not flag:
             await interact.followup.send(
                 ts.get("cmd.market-search.no-result")
-                + f"\n- `{item_name}`에 대한 검색 결과가 없습니다.",
+                + f"\n- `{item_name}`에 대한 마켓 검색 결과가 없습니다.\n- 아이템 이름을 확인해주세요.",
                 ephemeral=True,
             )
             return
@@ -807,7 +815,7 @@ async def cmd_create_trade_helper(
                 await interact.followup.send(
                     ts.get(f"{pf}err-no-market"), ephemeral=True
                 )
-                return price if price else 0
+                return price if price else 0, market.json()
             elif market.status_code != 200:
                 raise ValueError("resp-code is not 200 or resp err")
 
@@ -820,21 +828,21 @@ async def cmd_create_trade_helper(
             await interact.followup.send(
                 ts.get(f"{pf}auto-price").format(price=price), ephemeral=True
             )
-            return price
+            return price, market
 
         try:
-            price = await set_price(market, price)
+            price, market = await set_price(market, price)
         except Exception as e:
             await interact.followup.send(ts.get(f"{pf}err-api"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
-                type="cmd",
+                type="cmd.api",
                 cmd=f"cmd.trade",
                 time=interact.created_at,
                 user=interact.user.display_name,
                 guild=interact.guild,
                 channel=interact.channel,
-                msg="[info] cmd used",
+                msg="[err] Market API Failed",
                 obj=f"{RESULT}Type:{trade_type}, Item:{item_name}, Qty:{quantity}, Price:{price}",
             )
             price = price if price else 0
@@ -842,12 +850,13 @@ async def cmd_create_trade_helper(
         ########### db ############
         cursor = db.cursor()
         cursor.execute(
-            "INSERT INTO trades (host_id, game_nickname, trade_type, item_name, quantity, price) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO trades (host_id, game_nickname, trade_type, item_name, item_rank, quantity, price) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
                 interact.user.id,
                 game_nickname,
                 trade_type,
                 item_name,
+                item_rank,
                 quantity,
                 price,
             ),
@@ -855,6 +864,7 @@ async def cmd_create_trade_helper(
         TRADE_ID = cursor.lastrowid
         db.commit()
         ########### db ############
+        isRankItem = True if market[0].get("rank", None) is not None else False
 
         # create a webhook
         webhook_name = LFG_WEBHOOK_NAME
@@ -865,6 +875,12 @@ async def cmd_create_trade_helper(
 
         trade_type_str = f"**{trade_type}** 합니다"
         thread_name = f"[{trade_type}] {item_name}"
+        print(market[0].get("rank", "NOT EXISTS"))
+        thread_name += (
+            f" ({ts.get(f'{pf}rank-simple').format(rank=item_rank)})"
+            if isRankItem
+            else ""
+        )
 
         # thread start message
         thread_starter_msg = await webhook.send(
@@ -892,11 +908,12 @@ async def cmd_create_trade_helper(
             "game_nickname": game_nickname,
             "trade_type": trade_type,
             "item_name": item_name,
+            "item_rank": item_rank,
             "quantity": quantity,
             "price": price,
         }
 
-        embed = build_trade_embed(initial_data)
+        embed = build_trade_embed(initial_data, isRank=isRankItem)
         view = TradeView()
 
         msg = await thread.send(embed=embed, view=view)

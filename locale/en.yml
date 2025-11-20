@@ -363,15 +363,17 @@ cmd:
     type-sell: "Sell"
     type-buy: "Buy"
     item: "Trade Item"
+    rank: "Item Rank"
     quantity: "Quantity"
     price: "[Optional] Price Per Unit (If not entered, it will be automatically set based on the market price.)"
     auto-price-info: "If you do not enter a price, it will be automatically set based on the market price."
     # cmd describe
     desc-trade-type: "Trade post type (Sell / Buy)"
     desc-item-name: "Name of the item to trade"
+    desc-item-rank: "[Optional] The rank of the item you want to trade (if it exists)"
     desc-nickname: "Your Warframe nickname. Please enter it correctly."
-    desc-price: "Price per item"
-    desc-qty: "Item Quantity. (Default: 1)"
+    desc-price: "[Optional] Price per item"
+    desc-qty: "[Optional] Item Quantity. (Default: 1)"
 
     # embed content
     creator: "Creator"
@@ -393,17 +395,24 @@ cmd:
     btn-edit-price: "Edit Price"
     btn-edit-nickname: "Edit Nickname"
     btn-close: "Close Trade"
+    del-btny: Yes (Close trade)
+    del-btnn: No (cancel)
     # ConfirmTradeView
     btn-confirm: Yes (Trade)
     btn-cancel: No (Cancel)
     # ConfirmDeleteView
     btn-confirm-del: Yes (Close Trade)
 
+    # info
+    auto-price: "Since you did not enter a price, it has been automatically set to the market average of `{price} Platinum`."
+
     # interactions
+    created-trade: "✅ Created a trade post in `{ch}`! {mention}"
     confirm-trade: "## Are you sure you want to request this trade?"
     trade-request: "{host_mention}, {user_mention} has requested a trade!"
     confirm-delete: "## Are you sure you want to close this trade listing?\nOnce closed, **it cannot be reopened!**"
     deleted: "> The trade has been closed by the poster."
+    canceled: "The operation has been canceled."
 
     # modals
     edit-qty-title: "Edit Quantity"
@@ -414,13 +423,18 @@ cmd:
     edit-nick-label: "Please enter the correct nickname to change to."
 
     # errors
+    err-type: "Invalid trade type! --> {type}\n\nYou can only use one of the following: {list}"
+
     err-general: "Interaction error. Please contact an administrator."
     err-timeout: "The action was canceled due to a timeout."
     err-only-host: "Only the author of the trade post can use this button."
     err-not-found: "Could not find trade information."
+    err-forbidden: "The bot cannot access the trade post. Please contact an administrator."
     err-self-trade: "You cannot request a trade on your own post."
     err-invalid-value: "Please enter a valid number."
     err-no-market: "No search results from 'Warframe Market'. Please enter the price manually.\n(Use the edit price feature.)"
+    err-api: "The automatic pricing feature is currently unavailable (API error).\nPlease enter the price manually."
+    err-edit: "An error occurred while editing. If the problem persists, please contact an administrator."
 
   duviri-circuit:
     wf-cmd: circuit-warfrmae
