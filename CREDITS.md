@@ -10,4 +10,4 @@
 
 - The JSON files that convert path data (like `/Lotus/...`) in `data/en` and `data/ko` referenced from the WFCD's warframe-worldstate-data repository.
 - [WFCD Github (Warframe Community Developers)](https://github.com/WFCD)
-- [warframe-worldstate-data](https://github.com/WFCD/warframe-worldstate-data.git)
+- [warframe-worldstate-data Github](https://github.com/WFCD/warframe-worldstate-data.git)
