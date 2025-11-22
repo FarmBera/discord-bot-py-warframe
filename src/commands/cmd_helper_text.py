@@ -1,5 +1,6 @@
 import discord
 
+from config.config import LOG_TYPE
 from src.translator import ts
 from src.constants.color import C
 from src.constants.keys import FOOTER_FILE_LOC
@@ -24,12 +25,9 @@ async def cmd_helper_txt(
         await interact.response.send_message(embed=embed, ephemeral=True)
         await save_log(
             lock=interact.client.log_lock,
-            type="err.admin",  # VAR
+            type=LOG_TYPE.e_admin,
             cmd="cmd_helper_txt",
-            time=interact.created_at,
-            user=interact.user.display_name,
-            guild=interact.guild,
-            channel=interact.channel,
+            interact=interact,
             msg=msg,
         )
         return
@@ -45,12 +43,9 @@ async def cmd_helper_txt(
         print(C.red, msg, C.default, sep="")
         await save_log(
             lock=interact.client.log_lock,
-            type="err",  # VAR
+            type=LOG_TYPE.err,
             cmd="cmd_helper_txt",
-            time=interact.created_at,
-            user=interact.user.display_name,
-            guild=interact.guild,
-            channel=interact.channel,
+            interact=interact,
             msg=msg,
             obj=e,
         )
@@ -64,12 +59,9 @@ async def cmd_helper_txt(
 
     await save_log(
         lock=interact.client.log_lock,
-        type="cmd",  # VAR: cmd
-        cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
-        time=interact.created_at,
-        user=interact.user.display_name,
-        guild=interact.guild,
-        channel=interact.channel,
+        type=LOG_TYPE.cmd,
+        cmd=f"{LOG_TYPE.cmd}.{ts.get(f'cmd.help.cmd')}",
+        interact=interact,
         msg="[info] cmd used",  # VAR
         obj=txt,
     )

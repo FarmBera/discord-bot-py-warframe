@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import datetime as dt
 
+from config.config import LOG_TYPE
 from src.translator import ts
 from src.utils.times import JSON_DATE_PAT, timeNowDT
 from src.constants.keys import (
@@ -41,18 +42,15 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
 
     await save_log(
         lock=interact.client.log_lock,
-        type="cmd.maintenance",
+        type=f"{LOG_TYPE.cmd}.{LOG_TYPE.maintenance}",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
-        time=interact.created_at,
-        user=interact.user.display_name,
-        guild=interact.guild,
-        channel=interact.channel,
+        interact=interact,
         msg="[info] cmd used in maintenance mode",  # VAR
     )
 
 
-EVENT_TYPE: str = "event.maintenance"
-EVENT_COOLDOWN: str = ".cooldown"
+EVENT_TYPE: str = f"{LOG_TYPE.event}.{LOG_TYPE.maintenance}"
+EVENT_COOLDOWN: str = LOG_TYPE.cooldown
 
 
 pf: str = "cmd.party."
@@ -114,9 +112,7 @@ class PartyView(discord.ui.View):
             lock=interact.client.log_lock,
             type=etype,
             cmd="btn.main.join",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> join_party",
         )
 
@@ -140,9 +136,7 @@ class PartyView(discord.ui.View):
             lock=interact.client.log_lock,
             type=etype,
             cmd="btn.main.leave",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> leave_party",
         )
 
@@ -164,9 +158,7 @@ class PartyView(discord.ui.View):
             lock=interact.client.log_lock,
             type=etype,
             cmd="btn.main.edit-size",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> edit_size",
         )
 
@@ -190,9 +182,7 @@ class PartyView(discord.ui.View):
             lock=interact.client.log_lock,
             type=etype,
             cmd="btn.main.edit-content",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> edit_content",
         )
 
@@ -216,9 +206,7 @@ class PartyView(discord.ui.View):
             lock=interact.client.log_lock,
             type=etype,
             cmd="btn.main.toggle_close_party",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> toggle_close_party",
         )
 
@@ -242,9 +230,7 @@ class PartyView(discord.ui.View):
             lock=interact.client.log_lock,
             type=etype,
             cmd="btn.main.call_members",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> call_members",
         )
 
@@ -268,9 +254,7 @@ class PartyView(discord.ui.View):
             lock=interact.client.log_lock,
             type=etype,
             cmd="btn.main.kick_member",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> kick_member",
         )
 
@@ -294,8 +278,6 @@ class PartyView(discord.ui.View):
             lock=interact.client.log_lock,
             type=etype,
             cmd="btn.main.delete_party",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> delete_party",
         )

@@ -3,6 +3,7 @@ from discord.ext import commands
 import sqlite3
 import asyncio
 
+from config.config import LOG_TYPE
 from config.TOKEN import base_url_market_image
 from src.translator import ts
 from src.constants.keys import (
@@ -52,11 +53,9 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
 
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.edit.article",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"EditTradeModal -> Clicked Submit",
                 obj=f"{self.input_nickname.value}",
             )
@@ -66,11 +65,9 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
             )
             await save_log(
                 lock=interact.client.log_lock,
-                type="event.err",
+                type=LOG_TYPE.e_event,
                 cmd="btn.edit.article",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"EditTradeModal -> Clicked Submit",
                 obj=f"{e}\nT:{self.input_nickname.value}",
             )
@@ -120,11 +117,9 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
 
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.edit.quantity",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"EditQuantityModal -> Clicked Submit",
                 obj=new_quantity_str,
             )
@@ -134,11 +129,9 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
             )
             await save_log(
                 lock=interact.client.log_lock,
-                type="event.err",
+                type=LOG_TYPE.e_event,
                 cmd="btn.edit.quantity",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"EditQuantityModal -> Clicked Submit '{new_quantity_str}'",
                 obj=e,
             )
@@ -181,11 +174,9 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
 
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.edit.price",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"EditPriceModal -> Clicked Submit",
                 obj=new_price_str,
             )
@@ -195,11 +186,9 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
             )
             await save_log(
                 lock=interact.client.log_lock,
-                type="event.err",
+                type=LOG_TYPE.e_event,
                 cmd="btn.edit.price",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"EditPriceModal -> Clicked Submit '{new_price_str}' but ERR",
                 obj=e,
             )
@@ -226,11 +215,9 @@ class ConfirmDeleteView(discord.ui.View):
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.confirm.delete",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"ConfirmDeleteView -> clicked yes",
         )
         # remove this view
@@ -286,22 +273,18 @@ class ConfirmDeleteView(discord.ui.View):
             await interact.followup.send(ts.get(f"{pf}del-btny"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.confirm.delete",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes | but Forbidden\n{e}",
             )
         except Exception as e:
             await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.confirm.delete",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes | but ERR\n{e}",
                 obj=e,
             )
@@ -322,11 +305,9 @@ class ConfirmDeleteView(discord.ui.View):
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.confirm.delete.cancel",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"ConfirmDeleteView -> clicked no",
         )
 
@@ -356,11 +337,9 @@ class ConfirmTradeView(discord.ui.View):
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.confirm.trade",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"ConfirmTradeView -> YES",
         )
 
@@ -388,11 +367,9 @@ class ConfirmTradeView(discord.ui.View):
 
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.confirm.trade",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"ConfirmTradeView -> ERR",
                 obj=e,
             )
@@ -409,11 +386,9 @@ class ConfirmTradeView(discord.ui.View):
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.confirm.trade.cancel",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"ConfirmTradeView -> clicked no",
         )
 
@@ -479,11 +454,9 @@ class TradeView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd=f"btn.trade",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"TradeView -> trade_action",
         )
 
@@ -527,11 +500,9 @@ class TradeView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.edit-quantity",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"TradeView -> edit_quantity",
         )
 
@@ -564,11 +535,9 @@ class TradeView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.edit-price",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"TradeView -> edit_price",
         )
 
@@ -599,11 +568,9 @@ class TradeView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.edit-price",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"TradeView -> edit_price",
         )
 
@@ -635,11 +602,9 @@ class TradeView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.trade.toggle_close_party",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"TradeView -> close_trade",
             # obj=new_status,
         )
@@ -838,10 +803,7 @@ async def cmd_create_trade_helper(
                 lock=interact.client.log_lock,
                 type="cmd.api",
                 cmd=f"cmd.trade",
-                time=interact.created_at,
-                user=interact.user.display_name,
-                guild=interact.guild,
-                channel=interact.channel,
+                interact=interact,
                 msg="[err] Market API Failed",
                 obj=f"{RESULT}Type:{trade_type}, Item:{item_name}, Qty:{quantity}, Price:{price}",
             )
@@ -946,10 +908,7 @@ async def cmd_create_trade_helper(
         lock=interact.client.log_lock,
         type="cmd",
         cmd=f"cmd.trade",
-        time=interact.created_at,
-        user=interact.user.display_name,
-        guild=interact.guild,
-        channel=interact.channel,
+        interact=interact,
         msg="[info] cmd used",
         obj=f"{RESULT}Type:{trade_type}, Item:{item_name}, Qty:{quantity}, Price:{price}",
     )
