@@ -87,8 +87,8 @@ def categorize(result, rank: int) -> list:
 
 
 def create_market_url(name, slug=None):
-    msg = f"[{name}](https://warframe.market/"
-    msg += lang if lang != Lang.EN else ""
+    msg = f"[{name}](https://warframe.market"
+    msg += f"/{lang}" if lang != Lang.EN else ""
 
     if not slug:
         slug = get_slug_data(name)[1]
