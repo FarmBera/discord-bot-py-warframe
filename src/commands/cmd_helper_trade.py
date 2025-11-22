@@ -875,7 +875,7 @@ async def cmd_create_trade_helper(
 
         trade_type_str = f"**{trade_type}** 합니다"
         thread_name = f"[{trade_type}] {item_name}"
-        print(market[0].get("rank", "NOT EXISTS"))
+        # print(market[0].get("rank", "NOT EXISTS"))
         thread_name += (
             f" ({ts.get(f'{pf}rank-simple').format(rank=item_rank)})"
             if isRankItem
