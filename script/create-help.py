@@ -12,7 +12,10 @@ krms = yaml_open(f"locale/{lang_desc}")
 e = cmds["cmd"]
 k = krms["cmd"]
 for key in e.keys():
-    t = f"- `{e[key]['cmd']}`: {k[key]['desc']}"
-    print(t)
+    try:
+        t = f"- `{e[key]['cmd']}`: {k[key]['desc']}"
+        print(t)
+    except:
+        pass
 
 print()
