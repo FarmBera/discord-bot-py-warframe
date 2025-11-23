@@ -1,3 +1,6 @@
+# emoji for KO
+
+
 def get_emoji(origin: str):
     item = origin.lower()
 
@@ -8,7 +11,7 @@ def get_emoji(origin: str):
         return "<:kuva:1434448114076356650>"
     elif "endo" in item:
         return "<:endo:1434448109097844766>"
-    elif "arcane enhancements" in item:
+    elif "arcane" in item or "artifact" in item:
         return "<:ArcaneEnhance:1434447901832253542>"
     elif "reactor" in item:
         return "<:OrokinReactor:1434447908450734180>"
@@ -27,9 +30,9 @@ def get_emoji(origin: str):
         return "<:umbraforma:1434448156363587714>"
 
     # 5; adapter
-    elif "exilus weapon" in item:
+    elif "exilus weapon" in item or "weaponutilityunlocker" in item:
         return "<:ExilusWeaponAdapter:1434447905304871004>"
-    elif "exilus warframe" in item:
+    elif "exilus warframe" in item or "utilityunlocker" in item:
         return "<:ExilusWarframeAdapter:1434447903752982608>"
     elif "primary arcane" in item:
         return "<:PrimaryArcaneAdapter:1434447878675234916>"
