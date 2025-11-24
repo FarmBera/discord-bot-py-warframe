@@ -309,6 +309,28 @@ class DiscordBot(discord.Client):
             elif special_logic == "handle_fissures":  # fissures
                 should_save_data = True
 
+            elif special_logic == "handle_dailydeals":
+                should_save_data = True
+
+                is_new = obj_prev[0]["StoreItem"] != obj_new[0]["StoreItem"]
+                try:
+                    if is_new:
+                        parsed_content = handler["parser"](obj_new)
+                        notification = True
+                except Exception as e:
+                    msg = (
+                        f"[err] parse error in handle_dailydeals {handler['parser']}/{e}",
+                    )
+                    print(timeNowDT(), C.red, msg, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="auto_send_msg_request()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
+                    )
+
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
                 is_new = set(duv_warframe["Choices"]) != set(obj_new[0]["Choices"])
 

@@ -82,7 +82,7 @@ DATA_HANDLERS = {
     # },
     DAILYDEALS: {
         "parser": w_dailyDeals,
-        "update_check": lambda prev, new: prev[0]["StoreItem"] != new[0]["StoreItem"],
+        "special_logic": "handle_dailydeals",
     },
     INVASIONS: {
         "parser": w_invasions_se,
