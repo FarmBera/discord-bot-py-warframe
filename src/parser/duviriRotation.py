@@ -37,57 +37,6 @@ def setDuvIncarnon(obj):
     set_obj(obj, f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}")
 
 
-def convert_diff(unix_timestamp: int | str, isNoti: bool = False) -> str:
-    from src.translator import ts
-
-    try:
-        ts_str = str(unix_timestamp)
-
-        # convert milliseconds into seconds
-        if len(ts_str) == 13:
-            ts_int = int(ts_str) / 1000
-        else:
-            ts_int = int(ts_str)
-
-    except (ValueError, TypeError):
-        return "Wrong Timestamp Format"
-
-    if isNoti:
-        return f"<t:{ts_int}:R>"
-
-    now_dt = timeNowDT()
-    input_dt = dt.datetime.fromtimestamp(ts_int)
-
-    if now_dt >= input_dt:  # calculate time diff
-        rdelta = relativedelta(now_dt, input_dt)
-    else:  # future timestamp
-        rdelta = relativedelta(input_dt, now_dt)
-
-    # calculate month, day, hour, minute
-    months = rdelta.years * 12 + rdelta.months
-    days = rdelta.days
-    hours = rdelta.hours
-    minutes = rdelta.minutes
-
-    output: list = []
-
-    if months > 0:
-        if months == 1:
-            output.append(ts.get("한 달"))
-        elif months == 2:
-            output.append(ts.get("두 달"))
-        elif months >= 3:
-            output.append(ts.get("먼 훗날"))
-    elif days > 0:
-        output.append(f"{days}{ts.get('time.day')}")
-    elif hours > 0:
-        output.append(f"{hours}{ts.get('time.hour')}")
-    elif minutes > 0:
-        output.append(f"{minutes}{ts.get('time.min')}")
-
-    return ts.get(f"{pf}coming").format(day=" ".join(output))
-
-
 def create_embed(output_msg: str, color=None):
     embed = (
         discord.Embed(description=output_msg, color=color)
@@ -101,7 +50,7 @@ def create_embed(output_msg: str, color=None):
     return embed
 
 
-def w_duviri_warframe(rotation, isNoti: bool = False):
+def w_duviri_warframe(rotation):
     if not rotation:
         return err_embed("w_duviri_warframe")
 
@@ -119,7 +68,7 @@ def w_duviri_warframe(rotation, isNoti: bool = False):
         [f"{ts.trs(item)} {get_emoji(item)}" for item in curr_rotation]
     )
     # ends in
-    output_msg += f"\n{ts.get(f'{pf}end').format(day=convert_diff(tstamp,isNoti))}\n"
+    output_msg += f"\n{ts.get(f'{pf}end').format(day=convert_remain(tstamp))}\n"
     # next items
     warframe_list = rotation_data["warframe"]
     length = len(warframe_list)
@@ -142,14 +91,14 @@ def w_duviri_warframe(rotation, isNoti: bool = False):
         jtem = warframe_list[idx]
         tstamp += ADD_ONE_WEEK
         output_msg += (
-            f"{convert_diff(tstamp,isNoti)}: "
+            f"{convert_remain(tstamp)}: "
             + ", ".join([f"{ts.trs(i)} {get_emoji(i)}" for i in jtem])
             + "\n"
         )
     return create_embed(output_msg)
 
 
-def w_duviri_incarnon(incarnon, isNoti: bool = False):
+def w_duviri_incarnon(incarnon):
     if not incarnon:
         return err_embed("w_duviri_warframe")
 
@@ -164,7 +113,7 @@ def w_duviri_incarnon(incarnon, isNoti: bool = False):
     # items
     output_msg += ", ".join([f"{ts.trs(i)} {get_emoji(i)}" for i in curr_rotation])
     # ends in
-    output_msg += f"\n{ts.get(f'{pf}end').format(day=convert_diff(tstamp,isNoti))}\n"
+    output_msg += f"\n{ts.get(f'{pf}end').format(day=convert_remain(tstamp))}\n"
     # next items
     incarnon_list = rotation_data["incarnon"]
     length = len(incarnon_list)
@@ -187,7 +136,7 @@ def w_duviri_incarnon(incarnon, isNoti: bool = False):
         jtem = incarnon_list[idx]
         tstamp += ADD_ONE_WEEK
         output_msg += (
-            f"{convert_diff(tstamp,isNoti)}: "
+            f"{convert_remain(tstamp)}: "
             + ", ".join([f"{ts.trs(i)} {get_emoji(i)}" for i in jtem])
             + "\n"
         )

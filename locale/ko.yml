@@ -52,7 +52,7 @@ cmd:
 
     lvl: "레벨: `{lvl}`"
     waves: "웨이브 수: `{wave}`"
-    exp: 만료까지 `{time}` 남았습니다!
+    exp: "**{time} 만료**됩니다."
 
   news:
     cmd: 뉴스
@@ -76,13 +76,13 @@ cmd:
     desc: 오늘의 출격 미션을 확인할 수 있어요.
 
     title: 오늘의 출격 미션
-    eta: "남은 시간: `{eta}`"
+    eta: "**{eta}** 만료됩니다."
 
   archon-hunt:
     cmd: 집정관사냥
     desc: 이번주 집정관 미션 목록 및 샤드를 확인할 수 있어요.
     title: 집정관 사냥 미션 목록
-    eta: 종료까지 `{time}` 남았습니다.
+    eta: "**{time}** 만료됩니다."
     hunt: 토벌
 
     obt: "이번주에는 {emoji} **{shard} 집정관 샤드** 를 얻을 수 있습니다!\n\n"
@@ -110,18 +110,18 @@ cmd:
     status: 상태
 
     activate: "[활성화](https://wiki.warframe.com/w/Baro_Ki%27Teer)"
-    end: 상인이 떠나기까지 `{time}` 남았습니다.
+    end: 상인이 **{time}** 떠납니다.
     location: 등장 위치
 
     deactivate: 비활성화
-    appear: "`{time}` 후 등장 예정입니다."
+    appear: "**{time}** 등장 예정입니다."
     place: 등장 예정 위치
 
   void-traders-item:
     cmd: 바로키티어-물품
     desc: 바로 키 티어가 판매하는 물품 목록을 확인할 수 있어요.
 
-    not-yet: "바로 키 티어가 **아직 도착하지 않았습니다**!\n- **{time}** 후 도착 예정 입니다."
+    not-yet: "바로 키 티어가 **아직 도착하지 않았습니다**!\n- **{time}** 도착 예정 입니다."
 
     mods: 모드
     skin: 스킨
@@ -152,7 +152,7 @@ cmd:
     cnt: 개
 
     steel: "**[강길]**"
-    remain: 남음
+    remain: "**{time}** 만료"
 
   duviri-cycle:
     cmd: 두비리주기
@@ -201,7 +201,7 @@ cmd:
     desc: 다르보가 제시하는 오늘의 특가 물품을 확인할 수 있어요.
     title: 오늘의 특가
     remain: 개 남았습니다
-    exp: 마감까지 **{time}** 남았습니다!
+    exp: "**{time}** 할인이 종료됩니다."
 
   invasions:
     cmd: 침공
@@ -210,7 +210,7 @@ cmd:
     at: at
     completion: 진행 상황
     atk-from: "공격자:"
-    eta: 시작한지 {time} 지났습니다
+    eta: "**{time}**에 시작했어요."
 
   market-search:
     cmd: 마켓검색
@@ -452,8 +452,8 @@ cmd:
     circuit: 순환로 # 두비리 순환로
     curr-rotate: 현재 로테이션
     next-rotate: 다음 로테이션
-    end: "종료일: {day}"
-    coming: "`{day} 후`"
+    end: "종료일: **{day}**"
+    coming: "{day}"
 
   events:
     cmd: 이벤트

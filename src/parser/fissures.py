@@ -125,6 +125,6 @@ def w_fissures(fissures, args) -> str:
         exp_time = convert_remain(int(item["Expiry"]["$date"]["$numberLong"]))
 
         output_msg += f"""**{ts.trs(o_type)}** - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
-{exp_time} {ts.get(f'{pf}remain')} / {o_node} - {o_enemy}\n\n"""
+{ts.get(f'{pf}remain').format(time=exp_time)} / {o_node} - {o_enemy}\n\n"""
 
     return txt_length_check(output_msg)

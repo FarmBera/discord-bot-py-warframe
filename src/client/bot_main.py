@@ -315,8 +315,9 @@ class DiscordBot(discord.Client):
                 if not is_new:
                     continue
 
-                parsed_content = handler["parser"](obj_new)
-                if not parsed_content:
+                try:
+                    parsed_content = handler["parser"](obj_new)
+                except Exception as e:
                     msg = (
                         f"[err] parse error in handle_duviri_rotation-1 {handler['parser']}/{e}",
                     )
@@ -341,8 +342,9 @@ class DiscordBot(discord.Client):
                 if not is_new:
                     continue
 
-                parsed_content = handler["parser"](obj_new)
-                if not parsed_content:
+                try:
+                    parsed_content = handler["parser"](obj_new)
+                except Exception as e:
                     msg = (
                         f"[err] parse error in handle_duviri_rotation-2 {handler['parser']}/{e}",
                     )
@@ -543,8 +545,8 @@ class DiscordBot(discord.Client):
         # duviri notification
         setDuviriRotate()
         dlist: list = [
-            w_duviri_warframe(get_obj(DUVIRI_ROTATION), isNoti=True),
-            w_duviri_incarnon(get_obj(DUVIRI_ROTATION), isNoti=True),
+            w_duviri_warframe(get_obj(DUVIRI_ROTATION)),
+            w_duviri_incarnon(get_obj(DUVIRI_ROTATION)),
         ]
         for i in range(len(dlist)):
             dlist[i].description = f"<@&{ROLES[i]}>\n" + dlist[i].description

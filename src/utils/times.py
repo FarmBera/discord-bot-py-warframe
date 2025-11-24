@@ -46,11 +46,13 @@ def convert_remain(unix_timestamp: int | str):
 
         # convert milliseconds into seconds
         if len(ts_str) == 13:
-            ts_int = int(ts_str) / 1000
+            ts_int = int(ts_str) // 1000
         else:
             ts_int = int(ts_str)
     except (ValueError, TypeError):
         return "Wrong Timestamp Format"
+
+    return f"<t:{ts_int}:R>"
 
     # convert into datetime obj
     now_dt = timeNowDT()
