@@ -1,5 +1,6 @@
 import discord
 
+from config.config import LOG_TYPE
 from src.utils.logging_utils import save_log
 from src.utils.discord_file import img_file
 from src.utils.data_manager import cmd_obj_check
@@ -57,12 +58,9 @@ async def cmd_helper(
 
     await save_log(
         lock=interact.client.log_lock,
-        type="cmd",
-        cmd=f"cmd.{key}{f'-{parser_args}' if parser_args else ''}",
-        time=interact.created_at,
-        user=interact.user.display_name,
-        guild=interact.guild,
-        channel=interact.channel,
+        type=LOG_TYPE.cmd,
+        cmd=f"{LOG_TYPE.cmd}.{key}{f'-{parser_args}' if parser_args else ''}",
+        interact=interact,
         msg="[info] cmd used",  # VAR
         obj=log_obj,
     )

@@ -1,3 +1,4 @@
+import discord
 import csv
 import datetime as dt
 import asyncio
@@ -12,6 +13,10 @@ from src.constants.keys import LOG_FILE_PATH
 CSV_HEADER = ["type", "user", "time", "cmd", "guild", "channel", "msg", "obj"]
 
 threshold = 2  # VAR
+TIMEOUT_SECONDS: float = 30.0  # max stanby time (Lock + file I/O)
+
+# A storage mechanism that prevents running log operations from being lost due to garbage collection (GC)
+background_log_tasks = set()
 
 
 async def init_csv_log_async(lock: asyncio.Lock):
@@ -30,46 +35,6 @@ async def init_csv_log_async(lock: asyncio.Lock):
 async def save_log(
     lock: asyncio.Lock,
     type: str = "info",
-    cmd: str = "NULL",  # cmd or function name
-    time: Optional[dt.datetime] = None,  # current time
-    user: str = "NULL",  # used user
-    guild: str = "NULL",  # used server
-    channel: str = "NULL",  # used channel
-    msg: str = "NULL",  # msg content
-    obj: str = "NULL",  # used objects
-):
-    """
-    New async function to be called by all logs
-
-    Safely executes _save_log_sync (the existing function) in a separate thread using a Lock.
-    """
-    try:
-        loop = asyncio.get_running_loop()
-
-        # 1. wait until acquire Lock
-        async with lock:
-            # acquired lock
-            await loop.run_in_executor(
-                None,
-                _save_log_sync,
-                # args to be passed to _save_log_sync
-                type,
-                cmd,
-                time,
-                user,
-                guild,
-                channel,
-                msg,
-                str(obj),
-            )
-    except Exception as e:
-        print(
-            f"{C.red}[err] Failed to run _save_log_sync in executor: {cmd}{e}{C.default}"
-        )
-
-
-def _save_log_sync(
-    type: str = "info",
     cmd: str = "NULL",
     time: Optional[dt.datetime] = None,
     user: str = "NULL",
@@ -77,19 +42,105 @@ def _save_log_sync(
     channel: str = "NULL",
     msg: str = "NULL",
     obj: str = "NULL",
+    interact: discord.Interaction = None,
 ):
-    """The original save_log function"""
+    """
+    [Non-blocking Wrapper]
+    Externally, it is called as await save_log(...), but internally, it creates a background task and
+    returns immediately to prevent the bot's main thread from blocking.
+    """
 
-    try:  # time conversion
+    # Creating a coroutine to perform the actual work (Fire-and-Forget)
+    task = asyncio.create_task(
+        _process_log_background(
+            lock, type, cmd, time, user, guild, channel, msg, obj, interact
+        )
+    )
+
+    # [GC Prevention Pattern] Maintain Reference to Task
+    background_log_tasks.add(task)
+
+    # When a task completes (whether successful or not), remove it from the set to free up memory.
+    task.add_done_callback(background_log_tasks.discard)
+
+    return  # return immediately
+
+
+async def _process_log_background(
+    lock: asyncio.Lock,
+    type: str,
+    cmd: str,
+    time: Optional[dt.datetime],
+    user: str,
+    guild: str,
+    channel: str,
+    msg: str,
+    obj: str,
+    interact: discord.Interaction,
+):
+    """
+    [Internal Logic]
+    Asynchronous functions handling actual log storage
+    Intermediate manager function responsible for timeout & error handling
+    """
+    try:
+        loop = asyncio.get_running_loop()
+        # if task delayed, force terminate
+        await asyncio.wait_for(
+            _execute_logging(
+                loop, lock, type, cmd, time, user, guild, channel, msg, obj, interact
+            ),
+            timeout=TIMEOUT_SECONDS,
+        )
+    except asyncio.TimeoutError:
+        print(  # print warning msg
+            f"{C.red}[warn] Log Dropped (Timeout {TIMEOUT_SECONDS}s): {type}{cmd}{C.default}"
+        )
+    except Exception as e:  # other unexpect error
+        print(f"{C.red}[err] Async Log Task Error: {e}{C.default}")
+        # traceback.print_exc()  # for debug
+
+
+async def _execute_logging(loop, lock, *args):
+    """
+    Acquire the lock and execute the synchronous function (_save_log_sync) in the thread pool
+    """
+    async with lock:
+        await loop.run_in_executor(None, _save_log_sync, *args)
+
+
+def _save_log_sync(
+    type: str,
+    cmd: str,
+    time: Optional[dt.datetime],
+    user: str,
+    guild: str,
+    channel: str,
+    msg: str,
+    obj: str,
+    interact: discord.Interaction,
+):
+    """
+    [Existing Function]
+    File Writing Logic (No changes, remains unchanged)
+    Synchronous functions that perform actual file I/O
+    """
+    try:
+        if interact is not None:
+            time = interact.created_at
+            user = f"{interact.user.display_name}//{interact.user.global_name}//{interact.user.name}//{interact.user.id}"
+            guild = interact.guild
+            channel = interact.channel
+
+        # time convertion logic
         if time is None:
             time_str = dt.datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
         else:
             if time.tzinfo is None:
                 time = KST.localize(time)
-            else:  # convert to KST
+            else:
                 time = time.astimezone(KST)
 
-            # final time conversion
             now_kst_hour = dt.datetime.now(KST).hour
             prop_kst_hour = time.hour
 
@@ -101,15 +152,9 @@ def _save_log_sync(
             else:
                 time_str = time.strftime("%Y-%m-%d %H:%M:%S")
 
+        with open(LOG_FILE_PATH, "a", encoding="UTF-8", newline="") as log_f:
+            wr = csv.writer(log_f)
+            wr.writerow([type, user, time_str, cmd, guild, channel, msg, obj])
     except Exception as e:
-        time_str = f"Time convertion ERR > {e}"
-
-    try:
-        log_f = open(LOG_FILE_PATH, "a", encoding="UTF-8", newline="")
-        wr = csv.writer(log_f)
-        wr.writerow([type, user, time_str, cmd, guild, channel, msg, obj])
-        log_f.close()
-    except Exception as e:
-        print(
-            f"{C.red}[err] Something wrong with saving file (_save_log_sync) Failed to write to CSV log >> {e}{C.default}"
-        )
+        # want to raise an error to a higher level, use raise e.
+        print(f"{C.red}[err] _save_log_sync Failed >> {e}{C.default}")

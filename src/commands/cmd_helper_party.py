@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import sqlite3
 
+from config.config import LOG_TYPE
 from src.translator import ts
 from src.constants.keys import (
     LFG_WEBHOOK_NAME,
@@ -95,11 +96,9 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf}edit-title")):
 
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.edit.article",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"PartyEditModal -> Clicked Submit",
                 obj=f"{self.title_input.value}\n{self.mission_input.value}\n{self.desc_input.value}",
             )
@@ -110,11 +109,9 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf}edit-title")):
             )
             await save_log(
                 lock=interact.client.log_lock,
-                type="event.err",
+                type=LOG_TYPE.e_event,
                 cmd="btn.edit.article",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"PartyEditModal -> Clicked Submit",
                 obj=f"{e}\nT:{self.title_input.value}\nTYP:{self.mission_input.value}\nDESC:{self.desc_input.value}",
             )
@@ -181,11 +178,9 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
 
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.edit.partysize",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"PartySizeModal -> Clicked Submit",
                 obj=new_max_size_str,
             )
@@ -194,11 +189,9 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
             await interact.response.send_message(ts.get(f"{pf}err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
-                type="event.err",
+                type=LOG_TYPE.e_event,
                 cmd="btn.edit.partysize",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"PartySizeModal -> Clicked Submit '{new_max_size_str}'",
                 obj=e,
             )
@@ -273,11 +266,9 @@ class ConfirmDeleteView(discord.ui.View):
 
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.confirm.delete",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes",
             )
 
@@ -285,22 +276,18 @@ class ConfirmDeleteView(discord.ui.View):
             await interact.response.send_message(ts.get(f"{pf}del-err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.confirm.delete",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes | but Forbidden\n{e}",
             )
         except Exception as e:
             await interact.response.send_message(ts.get(f"{pf}err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.confirm.delete",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes | but ERR\n{e}",
                 obj=e,
             )
@@ -323,11 +310,9 @@ class ConfirmDeleteView(discord.ui.View):
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.confirm.delete.cancel",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"ConfirmDeleteView -> clicked no",
         )
 
@@ -394,11 +379,9 @@ class KickMemberSelect(discord.ui.Select):
 
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="select.kick.member",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"Kicked user {selected_user_id}",
             )
 
@@ -406,9 +389,9 @@ class KickMemberSelect(discord.ui.Select):
             await interact.followup.send(ts.get(f"{pf}err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
-                type="event.err",
+                type=LOG_TYPE.e_event,
                 cmd="select.kick.member",
-                user=f"{interact.user.display_name}",
+                interact=interact,
                 msg=f"Error in KickMemberSelect callback",
                 obj=e,
             )
@@ -486,11 +469,9 @@ class ConfirmJoinLeaveView(discord.ui.View):
 
                 await save_log(
                     lock=interact.client.log_lock,
-                    type="event",
+                    type=LOG_TYPE.event,
                     cmd="btn.confirm.join",
-                    user=f"{interact.user.display_name}",
-                    guild=f"{interact.guild.name}",
-                    channel=f"{interact.channel.name}",
+                    interact=interact,
                     msg=f"ConfirmJoinLeaveView -> action join",
                 )
 
@@ -513,11 +494,9 @@ class ConfirmJoinLeaveView(discord.ui.View):
 
                 await save_log(
                     lock=interact.client.log_lock,
-                    type="event",
+                    type=LOG_TYPE.event,
                     cmd="btn.confirm.leave",
-                    user=f"{interact.user.display_name}",
-                    guild=f"{interact.guild.name}",
-                    channel=f"{interact.channel.name}",
+                    interact=interact,
                     msg=f"ConfirmJoinLeaveView -> action leave",
                 )
 
@@ -538,11 +517,9 @@ class ConfirmJoinLeaveView(discord.ui.View):
 
             await save_log(
                 lock=interact.client.log_lock,
-                type="event",
+                type=LOG_TYPE.event,
                 cmd="btn.confirm.join",
-                user=f"{interact.user.display_name}",
-                guild=f"{interact.guild.name}",
-                channel=f"{interact.channel.name}",
+                interact=interact,
                 msg=f"ConfirmJoinLeaveView -> action join or levae but ERR",
                 obj=e,
             )
@@ -564,11 +541,9 @@ class ConfirmJoinLeaveView(discord.ui.View):
 
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.confirm.delete.cancel",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"ConfirmJoinLeaveView -> clicked no",
         )
 
@@ -643,11 +618,9 @@ class PartyView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.join",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> join_party",
         )
 
@@ -704,11 +677,9 @@ class PartyView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.leave",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> leave_party",
         )
 
@@ -769,11 +740,9 @@ class PartyView(discord.ui.View):
     async def edit_size(self, interact: discord.Interaction, button: discord.ui.Button):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.edit-size",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> edit_size",
         )
 
@@ -803,11 +772,9 @@ class PartyView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.edit-content",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> edit_content",
         )
 
@@ -841,11 +808,9 @@ class PartyView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.toggle_close_party",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> toggle_close_party",
             # obj=new_status,
         )
@@ -907,7 +872,8 @@ class PartyView(discord.ui.View):
         except Exception as e:
             await save_log(
                 lock=interact.client.log_lock,
-                type="event.err",
+                type=LOG_TYPE.e_event,
+                interact=interact,
                 msg=f"Failed to edit webhook message on party close toggle: {e}",
             )
 
@@ -951,11 +917,9 @@ class PartyView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.call_members",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> call_members",
         )
 
@@ -999,11 +963,9 @@ class PartyView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.kick_member",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> kick_member",
         )
 
@@ -1045,11 +1007,9 @@ class PartyView(discord.ui.View):
     ):
         await save_log(
             lock=interact.client.log_lock,
-            type="event",
+            type=LOG_TYPE.event,
             cmd="btn.main.delete_party",
-            user=f"{interact.user.display_name}",
-            guild=f"{interact.guild.name}",
-            channel=f"{interact.channel.name}",
+            interact=interact,
             msg=f"PartyView -> delete_party",
         )
 
@@ -1093,11 +1053,9 @@ class PartyView(discord.ui.View):
                 )
                 await save_log(
                     lock=interact.client.log_lock,
-                    type="event",
+                    type=LOG_TYPE.event,
                     cmd="btn.main.delete_party",
-                    user=f"{interact.user.display_name}",
-                    guild=f"{interact.guild.name}",
-                    channel=f"{interact.channel.name}",
+                    interact=interact,
                     msg=f"PartyView -> delete_party -> TIME_OUT",
                 )
             except discord.errors.NotFound:
@@ -1201,16 +1159,13 @@ async def cmd_create_party_helper(
     number_of_user: int = 4,
 ) -> None:
     if interact.guild.id != CHANNELS["guild"]:
-        msg_obj = ts.get(f"cmd.err-limit-server")  # VAR
+        msg_obj = ts.get(f"cmd.err-limit-server")
         await interact.response.send_message(msg_obj, ephemeral=True)
         await save_log(
             lock=interact.client.log_lock,
             type="cmd",
             cmd=f"cmd.party",
-            time=interact.created_at,
-            user=interact.user.display_name,
-            guild=interact.guild,
-            channel=interact.channel,
+            interact=interact,
             msg="[info] cmd used, but unauthorized server",
             obj=msg_obj,
         )
@@ -1354,10 +1309,7 @@ async def cmd_create_party_helper(
         lock=interact.client.log_lock,
         type="cmd",
         cmd=f"cmd.party",
-        time=interact.created_at,
-        user=interact.user.display_name,
-        guild=interact.guild,
-        channel=interact.channel,
+        interact=interact,
         msg="[info] cmd used",  # VAR
         obj=f"{RESULT}T:{title}\nTYPE:{mission_type}\nDESC:{description}\n{number_of_user}",
     )
