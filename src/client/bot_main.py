@@ -8,7 +8,7 @@ from config.TOKEN import WF_JSON_PATH
 from config.config import Lang, language as lang
 from config.roles import ROLES
 from src.translator import ts
-from src.utils.times import alert_times, timeNowDT
+from src.utils.times import KST, alert_times, timeNowDT
 from src.constants.color import C
 from src.constants.keys import (
     # other var
@@ -310,9 +310,9 @@ class DiscordBot(discord.Client):
                 should_save_data = True
 
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
-                update_check = duv_warframe["Choices"] != obj_new[0]["Choices"]
+                is_new = set(duv_warframe["Choices"]) != set(obj_new[0]["Choices"])
 
-                if not update_check:
+                if not is_new:
                     continue
 
                 parsed_content = handler["parser"](obj_new)
@@ -336,9 +336,9 @@ class DiscordBot(discord.Client):
                 setDuvWarframe(obj_new[0])
 
             elif special_logic == "handle_duviri_rotation-2":  # circuit-incarnon
-                update_check = duv_incarnon["Choices"] != obj_new[1]["Choices"]
+                is_new = set(duv_incarnon["Choices"]) != set(obj_new[1]["Choices"])
 
-                if not update_check:
+                if not is_new:
                     continue
 
                 parsed_content = handler["parser"](obj_new)
@@ -467,8 +467,14 @@ class DiscordBot(discord.Client):
         await self.send_alert(w_sortie(get_obj(SORTIE)), ch_list)
 
     # weekly reset task
-    @tasks.loop(time=dt.time(hour=8, minute=55))
+    @tasks.loop(time=dt.time(hour=8, minute=55, tzinfo=KST))
     async def weekly_task(self) -> None:
+        await save_log(
+            lock=self.log_lock,
+            cmd="weekly_task()",
+            user=MSG_BOT,
+            msg="Execute weekly_task()",
+        )
         # weekday() -> int // 0: Mon, 1: Tue, ..., 6: Sun
         if dt.datetime.now(dt.timezone.utc).weekday() != 0:
             return
@@ -522,8 +528,14 @@ class DiscordBot(discord.Client):
         )
 
     # weekly alert
-    @tasks.loop(time=dt.time(hour=9, minute=10))
+    @tasks.loop(time=dt.time(hour=9, minute=10, tzinfo=KST))
     async def week_start_noti(self) -> None:
+        await save_log(
+            lock=self.log_lock,
+            cmd="week_start_noti()",
+            user=MSG_BOT,
+            msg="Execute week_start_noti()",
+        )
         # only Monday
         if dt.datetime.now(dt.timezone.utc).weekday() != 0:
             return

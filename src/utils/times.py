@@ -1,9 +1,10 @@
 import datetime as dt
+from zoneinfo import ZoneInfo
 
 
 JSON_DATE_PAT: str = "%Y-%m-%dT%H:%M:%S.%fZ"
 
-KST = dt.timezone(dt.timedelta(hours=9))
+KST = ZoneInfo("Asia/Seoul")
 
 alert_times = [
     dt.time(hour=7, minute=0, tzinfo=KST),
@@ -27,7 +28,7 @@ def unixToDatetime(timestamp: int) -> dt.datetime:
         return dt.datetime.fromtimestamp(timestamp)
 
 
-def convert_remain(unix_timestamp):
+def convert_remain(unix_timestamp: int | str):
     """
     Calculates the time difference between the current time and a given Unix timestamp, and returns it as a string in the specified format.
 
@@ -48,7 +49,6 @@ def convert_remain(unix_timestamp):
             ts_int = int(ts_str) / 1000
         else:
             ts_int = int(ts_str)
-
     except (ValueError, TypeError):
         return "Wrong Timestamp Format"
 
@@ -57,7 +57,10 @@ def convert_remain(unix_timestamp):
     input_dt = dt.datetime.fromtimestamp(ts_int)
 
     # calculate time diff
-    time_difference = abs(now_dt - input_dt)
+    diff = now_dt - input_dt
+    if diff.total_seconds() > 0:
+        return "`Event End!`"
+    time_difference = abs(diff)
 
     # extract day, hour, minute
     days = time_difference.days
@@ -73,4 +76,4 @@ def convert_remain(unix_timestamp):
     if minutes > 0:
         output.append(f"{minutes}{ts.get('time.min')}")
 
-    return " ".join(output) if output else "Event End!"
+    return " ".join(output)
