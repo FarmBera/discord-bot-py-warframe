@@ -46,9 +46,9 @@ def w_archonHunt(archon) -> str:
     for value in archon["Missions"]:
         if idx == 3:
             output_msg += (
-                f"{idx}. "
+                f"{idx}. **"
                 + ts.get(f"{pf}{getMissionType(value['missionType'])}")
-                + f" - {getSolNode(value['node'])}\n"
+                + f"** - {getSolNode(value['node'])}\n"
             )
         else:
             output_msg += f"{idx}. {getMissionType(value['missionType'])} - {getSolNode(value['node'])}\n"
