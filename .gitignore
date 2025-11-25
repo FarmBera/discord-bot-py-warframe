@@ -20,6 +20,7 @@ config/channel.yml
 config/TOKEN.py
 config/roles.py
 script/sync.sh
+src/utils/emoji.py
 
 .markdownlint.json
 
