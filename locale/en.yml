@@ -76,7 +76,7 @@ cmd:
     desc: "Today's Sortie missions"
 
     title: Today's Sortie
-    eta: "Expires {eta}"
+    eta: "Expires **{eta}**"
 
   archon-hunt:
     cmd: archonhunt
@@ -85,7 +85,7 @@ cmd:
     eta: "Expires {time}"
     hunt: Hunt
 
-    obt: "You can obtain {emoji} **{shard} Archon Shard** in thos week\n\n"
+    obt: "You can obtain {emoji} **{shard} Archon Shard** in this week!\n\n"
 
     Assassination: Assassination
 
@@ -383,6 +383,7 @@ cmd:
     currency: "Currency"
     platinum: "Platinum"
     status: "Status"
+    rank-simple: "{rank} Rank"
 
     # embed status
     selling: "Selling"
@@ -457,4 +458,13 @@ cmd:
   events:
     cmd: event
     desc: "Gets the list of current recurring events (e.g., Thermia Fractures, Fomorian Sabotage)."
-    desc-none: "There are no ongoing events."
+    desc-none: "There're no ongoing events."
+
+    title: "# Periodic Event: {count}"
+    process: "- Progress: **{perc} %**"
+    exp: "- Event ends **{time}**"
+    reward-title: "### Reward List\n"
+
+    miss-title: "### Mission"
+    miss-info: "- {type} - {loc} (lvl: {min}-{max})"
+    require-item: "Required item: {ilist}"

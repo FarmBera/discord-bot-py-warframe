@@ -460,6 +460,15 @@ cmd:
     desc: "[베타버전] 현재 진행중인 정기 이벤트 (써미아, 포모리안 등) 목록을 확인할 수 있어요."
     desc-none: 현재 진행 중인 이벤트가 없습니다.
 
+    title: "# 정기 이벤트: {count}개"
+    process: "- 진행률: **{perc} %**"
+    exp: "- **{time}** 이벤트가 종료됩니다."
+    reward-title: "### 보상 목록\n"
+
+    miss-title: "### 미션 정보"
+    miss-info: "- {type} - {loc} (레벨: {min}-{max})"
+    require-item: "요구 아이템: {ilist}"
+
 trs:
   # keyword
   blueprint: 설계도
