@@ -58,19 +58,25 @@ class DiscordBot(discord.Client):
         self.db = None
         self.log_lock = log_lock
 
-    async def setup_hook(self) -> None:
+    async def setup_hooks(self) -> None:
         self.add_view(PartyView())
         self.add_view(TradeView())
         print(f"{C.green}Persistent Views successfully registered.{C.default}")
 
-    async def on_ready(self):
+    async def on_ready(self) -> None:
+        await self.setup_hooks()
         print(
             f"{C.blue}[info] {C.yellow}{ts.get('start.sync')}...{C.default}",
             end="",
         )
         await self.wait_until_ready()
+
         if self.tree:
             await self.tree.sync()
+            print(f"{C.green}Synced Tree Commands")
+        else:
+            print(f"{C.red}Commands Not Synced!")
+
         await self.change_presence(
             status=discord.Status.online,
             activity=discord.Game(ts.get("start.bot-status-msg")),
@@ -78,23 +84,39 @@ class DiscordBot(discord.Client):
         print(
             f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.green} {ts.get(f'start.final2')}{C.default}",
         )
-
         await save_log(
             lock=self.log_lock,
             cmd="bot.BOOTED",
             user=MSG_BOT,
             msg="[info] Bot booted up.",
-            obj=timeNowDT(),
-        )  # VAR
+        )
+        # start coroutune
+        if not SETTINGS["noti"]["isEnabled"]:
+            return
 
-        if SETTINGS["noti"]["isEnabled"]:
-            self.auto_send_msg_request.start()
-            if lang == Lang.EN:
-                self.auto_noti.start()
+        # check new content
+        if not self.check_new_content.is_running():
+            self.check_new_content.start()
+            print(f"{C.green}{ts.get('start.crt-each')}", "check_new_content")
+        # alert daily sortie
+        if lang == Lang.EN and not self.auto_noti.is_running():
+            self.auto_noti.start()
+            print(
+                f"{C.green}{ts.get('start.crt-each')}",
+                "auto_noti (for daily sortie alert)",
+            )
+        # weekly task (auto refresh)
+        if not self.weekly_task.is_running():
             self.weekly_task.start()
-            if lang == Lang.KO:
-                self.week_start_noti.start()
-            print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
+            print(f"{C.green}{ts.get('start.crt-each')}", "weekly_task")
+        # week start noti (for KO only)
+        if lang == Lang.KO and not self.week_start_noti.is_running():
+            self.week_start_noti.start()
+            print(
+                f"{C.green}{ts.get('start.crt-each')}",
+                "week_start_noti (for KO only)",
+            )
+        print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
     async def send_alert(
         self, value, channel_list=None, setting=None, key=None
@@ -153,15 +175,14 @@ class DiscordBot(discord.Client):
 
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
-    async def auto_send_msg_request(self) -> None:
+    async def check_new_content(self) -> None:
         setting = SETTINGS
         channels = CHANNELS
 
         if lang == Lang.EN:
             latest_data: requests.Response = await API_Request(
-                self.log_lock, "auto_send_msg_request()"
+                self.log_lock, "check_new_content()"
             )
-
             if not latest_data or latest_data.status_code != 200:
                 return
 
@@ -175,18 +196,19 @@ class DiscordBot(discord.Client):
                 obj_prev = get_obj(key)
                 obj_new = latest_data[key]
             except Exception as e:
-                msg = f"[err] Error with loading original data (from auto_send_msg_request/DATA_HANDLERS for loop)"
+                msg = f"[err] Error with loading original data (from check_new_content/DATA_HANDLERS for loop)"
                 print(timeNowDT(), C.red, key, msg, e, C.default)
                 await save_log(
                     lock=self.log_lock,
                     type="err",
-                    cmd="auto_send_msg_request()",
+                    cmd="check_new_content()",
                     user=MSG_BOT,
                     msg=msg,
                     obj=e,
                 )
                 continue
 
+            # init variables
             notification: bool = False
             parsed_content = None
             should_save_data: bool = False
@@ -228,28 +250,29 @@ class DiscordBot(discord.Client):
 
                 # check newly added items
                 newly_added_ids = new_ids - prev_ids
-                if newly_added_ids:
-                    missing_items = [
-                        item
-                        for item in obj_new
-                        if item["_id"]["$oid"] in newly_added_ids
-                    ]
-                    if missing_items:
-                        try:
-                            parsed_content = handler["parser"](missing_items)
-                        except Exception as e:
-                            msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                            print(timeNowDT(), C.red, msg, e, C.default)
-                            await save_log(
-                                lock=self.log_lock,
-                                type="err",
-                                cmd="auto_send_msg_request()",
-                                user=MSG_BOT,
-                                msg=msg,
-                                obj=e,
-                            )
-                            continue
-                        notification = True
+                if not newly_added_ids:
+                    continue
+
+                missing_items = [
+                    item for item in obj_new if item["_id"]["$oid"] in newly_added_ids
+                ]
+                if not missing_items:
+                    continue
+
+                try:
+                    parsed_content = handler["parser"](missing_items)
+                    notification = True
+                except Exception as e:
+                    msg = f"[err] Data parsing error in {handler['parser']}/{e}"
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="check_new_content()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
+                    )
 
             elif special_logic == "handle_missing_invasions":  # invasions
                 prev_ids_set = {item["_id"]["$oid"] for item in obj_prev}
@@ -288,28 +311,28 @@ class DiscordBot(discord.Client):
                         special_invasions.append(inv)
 
                 # send invasions alert if exists
-                if special_invasions:  # missing_invasions:
-                    try:
-                        parsed_content = handler["parser"](missing_invasions)
-                    except Exception as e:
-                        msg = f"[err] Data parsing error in {handler['parser']}/{e}"
-                        print(timeNowDT(), C.red, msg, e, C.default)
-                        await save_log(
-                            lock=self.log_lock,
-                            type="err",
-                            cmd="auto_send_msg_request()",
-                            user=MSG_BOT,
-                            msg=msg,
-                            obj=e,
-                        )
-                        continue
+                if not special_invasions:  # missing_invasions:
+                    continue
+                try:
+                    parsed_content = handler["parser"](missing_invasions)
                     notification = True
                     should_save_data = True
+                except Exception as e:
+                    msg = f"[err] Data parsing error in {handler['parser']}/{e}"
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="check_new_content()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=e,
+                    )
 
             elif special_logic == "handle_fissures":  # fissures
                 should_save_data = True
 
-            elif special_logic == "handle_dailydeals":
+            elif special_logic == "handle_dailydeals":  # DailyDeals
                 should_save_data = True
 
                 is_new = obj_prev[0]["StoreItem"] != obj_new[0]["StoreItem"]
@@ -325,7 +348,7 @@ class DiscordBot(discord.Client):
                     await save_log(
                         lock=self.log_lock,
                         type="err",
-                        cmd="auto_send_msg_request()",
+                        cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
                         obj=e,
@@ -333,12 +356,14 @@ class DiscordBot(discord.Client):
 
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
                 is_new = set(duv_warframe["Choices"]) != set(obj_new[0]["Choices"])
-
                 if not is_new:
                     continue
 
                 try:
                     parsed_content = handler["parser"](obj_new)
+                    notification = True
+                    should_save_data = True
+                    setDuvWarframe(obj_new[0])
                 except Exception as e:
                     msg = (
                         f"[err] parse error in handle_duviri_rotation-1 {handler['parser']}/{e}",
@@ -347,25 +372,22 @@ class DiscordBot(discord.Client):
                     await save_log(
                         lock=self.log_lock,
                         type="err",
-                        cmd="auto_send_msg_request()",
+                        cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
                         obj=e,
                     )
-                    continue
-
-                notification = True
-                should_save_data = True
-                setDuvWarframe(obj_new[0])
 
             elif special_logic == "handle_duviri_rotation-2":  # circuit-incarnon
                 is_new = set(duv_incarnon["Choices"]) != set(obj_new[1]["Choices"])
-
                 if not is_new:
                     continue
 
                 try:
                     parsed_content = handler["parser"](obj_new)
+                    notification = True
+                    should_save_data = True
+                    setDuvIncarnon(obj_new[1])
                 except Exception as e:
                     msg = (
                         f"[err] parse error in handle_duviri_rotation-2 {handler['parser']}/{e}",
@@ -374,16 +396,11 @@ class DiscordBot(discord.Client):
                     await save_log(
                         lock=self.log_lock,
                         type="err",
-                        cmd="auto_send_msg_request()",
+                        cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
                         obj=e,
                     )
-                    continue
-
-                notification = True
-                should_save_data = True
-                setDuvIncarnon(obj_new[1])
 
             elif special_logic == "handle_voidtraders":
                 prev_data = (
@@ -394,14 +411,14 @@ class DiscordBot(discord.Client):
                 new_data = (
                     obj_new[-1] if isinstance(obj_new, list) and obj_new else obj_new
                 )
-
                 # check new baro
+                # is new baro scheduled
                 if prev_data.get("_id") != new_data.get("_id"):
                     text_arg = ts.get(f"cmd.void-traders.baro-new")
                     notification = True
                     should_save_data = True
                     embed_color = 0xFFDD00
-                elif (  # check baro activated
+                elif (  # check exist baro activated
                     prev_data.get("Activation")
                     and new_data.get("Activation")
                     and (
@@ -431,12 +448,11 @@ class DiscordBot(discord.Client):
                     await save_log(
                         lock=self.log_lock,
                         type="err",
-                        cmd="auto_send_msg_request()",
+                        cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
                         obj=e,
                     )
-                    continue
 
             # parsing: default
             elif handler["update_check"](obj_prev, obj_new):
@@ -448,12 +464,11 @@ class DiscordBot(discord.Client):
                     await save_log(
                         lock=self.log_lock,
                         type="err",
-                        cmd="auto_send_msg_request()",
+                        cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
                         obj=e,
                     )
-                    continue
                 notification = True
                 should_save_data = True
 
@@ -476,7 +491,7 @@ class DiscordBot(discord.Client):
                     key=key_arg if key_arg else key,
                 )
 
-        return  # End Of auto_send_msg_request()
+        return  # End Of check_new_content()
 
     # sortie alert
     @tasks.loop(time=alert_times)
@@ -542,6 +557,7 @@ class DiscordBot(discord.Client):
             dt.datetime.fromtimestamp(duviri_data["expiry"]) + dt.timedelta(weeks=1)
         ).timestamp()
         set_obj(duviri_data, DUVIRI_CACHE)
+        setDuviriRotate()
         msg = f"[info] Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
         await save_log(
             lock=self.log_lock,

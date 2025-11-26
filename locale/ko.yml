@@ -4,7 +4,8 @@ start:
   bot-status-msg: /도움말
   final: Logged on! as
   final2: 사용 준비 완료! - 언어가 한국어로 설정되었습니다.
-  coroutine: Internal Coroutine Started
+  crt-each: "Started Coroutine:"
+  coroutine: All Internal Coroutine Started
 
 maintenance:
   bot-status-msg: 서버 점검 중
@@ -391,7 +392,7 @@ cmd:
     closed: "거래 글 닫기"
 
     # buttons
-    btn-trade: "거래하기"
+    btn-trade: "거래 요청"
     btn-edit-qty: "수량 변경"
     btn-edit-price: "가격 수정"
     btn-edit-nickname: "닉네임 변경"
@@ -420,8 +421,8 @@ cmd:
     edit-qty-label: "수량을 숫자로 입력해주세요."
     edit-price-title: "가격 수정"
     edit-price-label: "개당 가격을 숫자로 입력해주세요."
-    edit-nick-title: "닉네임 수정"
-    edit-nick-label: "수정할 닉네임을 정확하게 입력해주세요."
+    edit-nick-title: "수정 할 워프레임 닉네임\n(정확하게 입력해주세요)"
+    edit-nick-label: "입력한 닉네임은 귓속말 및 파티초대 명령어 복사 기능을 이용할 때 이용됩니다."
 
     # errors
     err-type: "올바르지 않은 거래 종류입니다! --> {type}\n\n{list} 중 하나만 사용할 수 있어요"

@@ -2,7 +2,7 @@
 .obsidian
 .vscode
 archive
-/db
+# /db
 docs
 img-tmp
 data
@@ -13,6 +13,8 @@ tmp
 *test*
 *cache*
 *.db
+*.db-shm
+*.db-wal
 
 # personal file
 config/admin.yml
