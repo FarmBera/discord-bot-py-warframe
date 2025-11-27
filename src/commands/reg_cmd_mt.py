@@ -278,6 +278,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     @discord.app_commands.describe(
         trade_type=ts.get(f"cmd.trade.desc-trade-type"),
         item_name=ts.get(f"cmd.trade.desc-item-name"),
+        item_rank=ts.get(f"cmd.trade.desc-item-rank"),
         game_nickname=ts.get(f"cmd.trade.desc-nickname"),
         price=ts.get("cmd.trade.desc-price"),
         quantity=ts.get("cmd.trade.desc-qty"),
@@ -287,6 +288,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         trade_type: discord.app_commands.Choice[int],
         item_name: str,
         game_nickname: str,
+        item_rank: int = 0,
         price: int = 0,
         quantity: int = 1,
     ) -> None:
