@@ -47,8 +47,8 @@ from src.parser.duviriRotation import (
     setDuvIncarnon,
 )
 
-from src.commands.cmd_helper_party import PartyView
-from src.commands.cmd_helper_trade import TradeView
+from src.commands.party import PartyView
+from src.commands.trade import TradeView
 
 
 class DiscordBot(discord.Client):
