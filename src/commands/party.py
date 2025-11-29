@@ -141,6 +141,7 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
                 )
                 return
 
+            # overflow max size
             if not new_max_size_str.isdigit() or int(new_max_size_str) > MAX_SIZE:
                 await interact.response.send_message(
                     ts.get(f"{pf}size-err-high"), ephemeral=True
@@ -157,7 +158,7 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
                 (interact.message.id,),
             ).fetchone()[0]
 
-            # overflow
+            # overflow current participants
             if new_max_size < current_participants_count:
                 await interact.response.send_message(
                     f"{ts.get(f'{pf}size-err-high-1').format(size=current_participants_count)}",

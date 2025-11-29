@@ -3,13 +3,14 @@ from src.translator import ts
 from src.utils.times import convert_remain
 from src.utils.data_manager import getMissionType, getSolNode, getSortieMod
 
+pf: str = "cmd.sortie."
+
 
 def w_sortie(sortie):
     if not sortie:
         return ts.get("general.error-cmd")
 
     sortie = sortie[0]
-    pf: str = "cmd.sortie."
 
     # id = dd["_id"]["$oid"]
     # activation = int(dd["Activation"]["$date"]["$numberLong"])

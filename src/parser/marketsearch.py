@@ -14,6 +14,8 @@ SLUGS: list = json_load("data/market-item-list.json")["data"]
 
 _market_item_names = sorted([item["i18n"][lang]["name"] for item in SLUGS])
 
+pf: str = "cmd.market-search."
+
 
 def get_market_item_names() -> list[str]:
     return _market_item_names
@@ -103,8 +105,6 @@ async def w_market_search(
     name, rank = arg_obj
     flag: bool = False
     flag, item_slug, item_name, item_img_url = get_slug_data(name)
-
-    pf: str = "cmd.market-search."
 
     if not flag:  # data not found
         return discord.Embed(

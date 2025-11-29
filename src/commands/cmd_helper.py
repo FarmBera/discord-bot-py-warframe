@@ -11,7 +11,6 @@ async def cmd_helper(
     key: str,
     parser_func,
     isFollowUp: bool = False,
-    need_api_call: bool = False,
     parser_args=None,
     isUserViewOnly: bool = True,
     isMarketQuery: bool = False,
@@ -20,11 +19,7 @@ async def cmd_helper(
     if isFollowUp:  # delay response if needed
         await interact.response.defer(ephemeral=isUserViewOnly)
 
-    # if need_api_call:  # API request if needed
-    #     # await API_Request(lock=,f"cmd.{key}")
-    #     set_obj(json_load()[key], key)
-
-    # load objects
+    # parse objects
     if parser_args:
         obj = parser_func(cmd_obj_check(key), parser_args)
     elif isMarketQuery:
@@ -35,6 +30,7 @@ async def cmd_helper(
     # send message
     resp_head = interact.followup if isFollowUp else interact.response
 
+    # check object type
     if isinstance(obj, discord.Embed):  # embed only
         if isFollowUp:
             await resp_head.send(embed=obj, ephemeral=isUserViewOnly)

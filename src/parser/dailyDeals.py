@@ -5,11 +5,12 @@ from src.utils.return_err import err_embed
 from src.utils.data_manager import getLanguage
 
 
+pf = f"cmd.dailyDeals."
+
+
 def w_dailyDeals(deals) -> discord.Embed:
     if not deals:
         return err_embed("dailyDeals")
-
-    pf = f"cmd.dailyDeals."
 
     output_msg: str = f"## {ts.get(f'{pf}title')}\n\n"
 

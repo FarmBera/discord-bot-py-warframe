@@ -8,6 +8,8 @@ from src.utils.times import convert_remain
 from src.utils.return_err import err_embed
 from src.utils.data_manager import getFactions, getLanguage, getSolNode
 
+pf = "cmd.invasions."
+
 
 def get_percent(numerator: int, denominator: int) -> str:
     # fix div into 0
@@ -24,8 +26,6 @@ def singleInvasion(inv) -> str:
     i_node = getSolNode(inv["Node"])
     i_status_perc = get_percent(inv["Count"], inv["Goal"])
     i_fact = getFactions(inv["Faction"])  # (inv["AttackerMissionInfo"]["faction"])
-
-    pf = "cmd.invasions."
 
     # title / progress
     output_msg = f"""### {ts.get(f'{pf}title')} - *{i_node}*

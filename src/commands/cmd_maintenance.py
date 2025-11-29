@@ -33,13 +33,11 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
 
 점검은 조기 종료 될 수 있으며, 또한 지연될 수 있음을 알립니다.
 """
-
     # send message
     await interact.response.send_message(
         embed=discord.Embed(description=txt, color=0xFF0000),  # VAR: color
         ephemeral=True,
     )
-
     await save_log(
         lock=interact.client.log_lock,
         type=f"{LOG_TYPE.cmd}.{LOG_TYPE.maintenance}",

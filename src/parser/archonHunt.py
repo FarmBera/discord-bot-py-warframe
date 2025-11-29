@@ -22,13 +22,14 @@ shard_color: dict = {
     S_YEL: 0xE6CB38,
 }
 
+pf: str = "cmd.archon-hunt."
+
 
 def w_archonHunt(archon) -> str:
     if not archon:
         return err_text("archon hunt")
 
     archon = archon[0]
-    pf: str = "cmd.archon-hunt."
     shard: str = shard_list[archon["Boss"]]
 
     # title

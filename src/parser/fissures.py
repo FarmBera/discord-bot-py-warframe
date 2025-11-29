@@ -9,6 +9,8 @@ from src.utils.emoji import get_emoji
 from src.utils.formatter import txt_length_check
 from src.utils.data_manager import getFissure, getSolNode, getMissionType, getNodeEnemy
 
+pf: str = "cmd.fissures."
+
 railjack: list = [
     # veil proxima
     "numina",
@@ -75,8 +77,6 @@ def w_fissures(fissures, args) -> str:
     output_msg: str = ""
     normal = []  # normal fissures
     steel_path = []  # steel path fissures
-
-    pf: str = "cmd.fissures."
 
     # process fissures
     for item in fissures:

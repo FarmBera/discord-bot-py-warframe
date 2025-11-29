@@ -16,15 +16,12 @@ class Translator:
                 self.translations = yaml.safe_load(f)
         except FileNotFoundError:
             msg = f"{C.yellow}[warn]: Translation file for '{self.lang}' not found.{C.default}"
-            # save_log(cmd="translator.py", user=MSG_BOT, msg=msg)
             print(msg)
-            # retry with default language: English
-            try:
+            try:  # retry with default language: English
                 with open(f"locale/{self.EN}.yml", "r", encoding="utf-8") as f:
                     self.translations = yaml.safe_load(f)
             except FileNotFoundError:
                 msg = f"{C.red}[warn]: Default translation file 'en.yml' also not found.{C.default}"
-                # save_log(type="error", cmd="translator.py", user=MSG_BOT, msg=msg)
                 print(msg)
 
     def get(self, key, **kwargs):
@@ -38,7 +35,7 @@ class Translator:
                 value = value[k]
             return value.format(**kwargs) if kwargs else value
         except (KeyError, TypeError):
-            return keys[-1]
+            return key
 
     def trs(self, key):
         """

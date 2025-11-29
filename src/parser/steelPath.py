@@ -28,12 +28,12 @@ img_list = {
     "산탄총 리벤 모드": "riven-mod",
 }
 
+pf: str = "cmd.steel-path-reward."
+
 
 def w_steelPath(steel) -> tuple:
     if not steel:
         return err_embed("steelPath")
-
-    pf: str = "cmd.steel-path-reward."
 
     curr_idx: int = steel["currentReward"]
     current: dict = steel["rotation"][curr_idx]

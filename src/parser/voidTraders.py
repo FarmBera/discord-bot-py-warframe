@@ -12,6 +12,7 @@ from src.utils.data_manager import getSolNode, getLanguage
 
 baro_img = ["baro-ki-teer", "baro"]  # VAR
 baro_active: bool = False
+pf: str = "cmd.void-traders."
 
 
 def getBaroImg(name: str = "") -> str:
@@ -54,7 +55,6 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
 
     idx = 1
     length: int = len(trader)
-    pf: str = "cmd.void-traders."
 
     # output_msg: str = f"# {ts.get(f'{pf}title')}\n\n"
     output_msg: str = f"# {text_arg if text_arg else ts.get(f'{pf}title')}\n\n"

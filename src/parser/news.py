@@ -6,12 +6,21 @@ from src.translator import ts, language as lang
 from src.utils.return_err import err_embed
 from src.utils.data_manager import getLanguage
 
+pf: str = "cmd.news."
+
+
+class News:
+    def __init__(self, id, date, title, url, img):
+        self.id = id
+        self.date = date
+        self.title = title
+        self.url = url
+        self.img = img
+
 
 def w_news(newses, LIMIT_OUTPUT_CNT: int = 50):
     if not newses:
         return err_embed("news")
-
-    pf: str = "cmd.news."
 
     # idx: int = 0
     output_msg: str = ""
@@ -20,14 +29,6 @@ def w_news(newses, LIMIT_OUTPUT_CNT: int = 50):
 
     news_news = []
     news_community = []
-
-    class News:
-        def __init__(self, id, date, title, url, img):
-            self.id = id
-            self.date = date
-            self.title = title
-            self.url = url
-            self.img = img
 
     # process
     for item in newses:

@@ -97,7 +97,6 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
             msg=msg,
             obj=obj,
         )
-    #     return response
 
     elapsed_time = timeNowDT() - start_time
     msg = f"[info] API request successful. {res_source}"

@@ -36,8 +36,8 @@ def convert_remain(unix_timestamp: int | str):
         unix_timestamp: Unix Timestamp to compare (int or str type)
 
     Returns:
-        string that shows time diff
-        (ex: "3d 4h 30m" or "4h 30m")
+        string that shows remain time with discord timestamp
+        <t:1234567890:R>
     """
     from src.translator import ts
 
