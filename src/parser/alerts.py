@@ -50,7 +50,7 @@ def w_alerts(alerts):
 
         output_msg += f"### {idx}. {reward}\n\n"
         output_msg += f"- **{mission_type}** - {mission_location}\n"
-        output_msg += f"- {ts.get(f'{pf}exp').format(time=expiry)}\n\n"
+        output_msg += f"- {ts.get(f'{pf}exp').format(time=expiry)}\n"
         output_msg += f"- {ts.get(f'{pf}lvl').format(lvl=enemy_lvl)} / {ts.get(f'{pf}waves').format(wave=max_wave)}\n"
         idx += 1
 
