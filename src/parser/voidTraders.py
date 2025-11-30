@@ -13,6 +13,7 @@ from src.utils.data_manager import getSolNode, getLanguage
 baro_img = ["baro-ki-teer", "baro"]  # VAR
 baro_active: bool = False
 pf: str = "cmd.void-traders."
+pfi = "cmd.void-traders-item."
 
 
 def getBaroImg(name: str = "") -> str:
@@ -109,40 +110,39 @@ def w_voidTradersItem(trader) -> discord.Embed:
         return err_embed("voidTraders")
 
     output_msg: str = ""
-    pf = "cmd.void-traders-item."
 
-    for item in trader:
+    for td in trader:
         listItem: list = []
 
-        if item.get("Manifest", []) == []:
+        if td.get("Manifest", []) == []:
             listItem.append(
-                f"{ts.get(f'{pf}not-yet').format(time=convert_remain(item['Activation']['$date']['$numberLong']))}"
+                f"{ts.get(f'{pfi}not-yet').format(time=convert_remain(td['Activation']['$date']['$numberLong']))}"
             )
 
-        for jtem in item.get("Manifest", []):
+        for jtem in td.get("Manifest", []):
             itype: str = ""
             k: str = jtem["ItemType"].replace("/Lotus/StoreItems", "").lower()
 
             if "/mods/" in k:
-                itype = ts.get(f"{pf}mods")
+                itype = ts.get(f"{pfi}mods")
             elif "/skins/" in k:
-                itype = ts.get(f"{pf}skin")
+                itype = ts.get(f"{pfi}skin")
             elif "/shipdecos/" in k:
-                itype = ts.get(f"{pf}deco")
+                itype = ts.get(f"{pfi}deco")
             elif "/weapons/" in k:
-                itype = ts.get(f"{pf}weapon")
+                itype = ts.get(f"{pfi}weapon")
             elif "/boosters/" in k:
-                itype = ts.get(f"{pf}booster")
+                itype = ts.get(f"{pfi}booster")
             elif "/avatarimages/" in k:
-                itype = ts.get(f"{pf}glyph")
+                itype = ts.get(f"{pfi}glyph")
             elif "/songitems/" in k:
-                itype = ts.get(f"{pf}music")
+                itype = ts.get(f"{pfi}music")
             elif "/projections/" in k:
-                itype = ts.get(f"{pf}relic")
+                itype = ts.get(f"{pfi}relic")
             elif "/keys/" in k:
-                itype = ts.get(f"{pf}keys")
+                itype = ts.get(f"{pfi}keys")
             else:
-                itype = ts.get(f"{pf}other")
+                itype = ts.get(f"{pfi}other")
 
             iname = getLanguage(jtem["ItemType"])
             if "/lotus" in iname.lower():
@@ -153,13 +153,9 @@ def w_voidTradersItem(trader) -> discord.Embed:
 
         listItem.sort()
 
-        output_msg += f"# {ts.trs(item['Character'])} at {getSolNode(item['Node'])}\n\n"
+        output_msg += f"# {ts.trs(td['Character'])} at {getSolNode(td['Node'])}\n\n"
         for jtem in listItem:
             output_msg += f"- {jtem}\n"
         output_msg += "\n"
 
-    # f = img_file(getBaroImg())
-    embed = discord.Embed(description=output_msg, color=color_decision(trader))
-    # embed.set_thumbnail(url="attachment://i.png")
-
-    return embed  # , f
+    return discord.Embed(description=output_msg, color=color_decision(trader))

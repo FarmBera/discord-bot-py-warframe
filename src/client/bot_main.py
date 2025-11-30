@@ -411,25 +411,24 @@ class DiscordBot(discord.Client):
                 new_data = (
                     obj_new[-1] if isinstance(obj_new, list) and obj_new else obj_new
                 )
-                # check new baro
-                # is new baro scheduled
+                # is new baro scheduled (check new baro)
                 if prev_data.get("_id") != new_data.get("_id"):
                     text_arg = ts.get(f"cmd.void-traders.baro-new")
                     notification = True
                     should_save_data = True
                     embed_color = 0xFFDD00
-                elif (  # check exist baro activated
-                    prev_data.get("Activation")
-                    and new_data.get("Activation")
-                    and (
-                        isBaroActive(
-                            prev_data["Activation"]["$date"]["$numberLong"],
-                            prev_data["Expiry"]["$date"]["$numberLong"],
-                        )
-                        != isBaroActive(
-                            new_data["Activation"]["$date"]["$numberLong"],
-                            new_data["Expiry"]["$date"]["$numberLong"],
-                        )
+                # check exist baro activated
+                if (
+                    # prev_data.get("Activation")
+                    # and new_data.get("Activation")
+                    # and
+                    isBaroActive(
+                        prev_data["Activation"]["$date"]["$numberLong"],
+                        prev_data["Expiry"]["$date"]["$numberLong"],
+                    )
+                    != isBaroActive(
+                        new_data["Activation"]["$date"]["$numberLong"],
+                        new_data["Expiry"]["$date"]["$numberLong"],
                     )
                 ):
                     text_arg = ts.get(f"cmd.void-traders.baro-appear")
