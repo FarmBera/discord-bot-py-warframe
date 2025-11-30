@@ -136,7 +136,7 @@ cmd:
     other: 기타
 
   steel-path-reward:
-    cmd: 강길에센스
+    cmd: 스틸에센스
     desc: 주간 태신의 강길 에센스 교환 물품을 확인할 수 있어요.
     title: 주간 에센스 교환 보상
     curr-reward: 현재 보상
