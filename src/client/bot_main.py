@@ -511,10 +511,10 @@ class DiscordBot(discord.Client):
             lock=self.log_lock,
             cmd="weekly_task()",
             user=MSG_BOT,
-            msg="Execute weekly_task()",
+            msg="Executing weekly_task()",
         )
         # weekday() -> int // 0: Mon, 1: Tue, ..., 6: Sun
-        if dt.datetime.now(dt.timezone.utc).weekday() != 0:
+        if dt.datetime.now(tz=KST).weekday() != 0:
             return
 
         # update steelPath reward index

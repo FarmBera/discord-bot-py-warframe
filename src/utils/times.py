@@ -14,11 +14,11 @@ alert_times = [
 
 
 def timeNow() -> int:
-    return int(dt.datetime.now().timestamp())
+    return int(dt.datetime.now(tz=KST).timestamp())
 
 
 def timeNowDT() -> dt.datetime:
-    return dt.datetime.now()
+    return dt.datetime.now(tz=KST)
 
 
 def unixToDatetime(timestamp: int) -> dt.datetime:
