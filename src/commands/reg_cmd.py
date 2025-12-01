@@ -7,6 +7,21 @@ from src.commands.cmd_helper_text import cmd_helper_txt
 from src.commands.party import cmd_create_party_helper
 from src.commands.trade import cmd_create_trade_helper
 
+from src.utils.file_io import yaml_open
+
+ADMINS: list = yaml_open("config/admin")["admin_ids"]
+ADMIN_EMBED: discord.Embed = discord.Embed(
+    description="# 사용 불가\n\n허가 받은 관리자만 사용 가능한 명령어입니다.\n오류라고 판단되는 경우, 봇 개발 담당자에게 문의부탁드립니다.",
+    color=0xFF0000,
+)
+
+
+async def is_admin_user(interact: discord.Interaction):
+    if interact.user.id not in ADMINS:
+        await interact.response.send_message(embed=ADMIN_EMBED, ephemeral=True)
+        return False
+    return True
+
 
 from src.constants.keys import (
     # cooldown var
@@ -359,6 +374,8 @@ async def register_main_commands(
         descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
+        if not await is_admin_user(interact):
+            return
         await cmd_create_party_helper(
             interact=interact,
             db_conn=db_conn,
@@ -399,6 +416,8 @@ async def register_main_commands(
         price: int = 0,
         quantity: int = 1,
     ) -> None:
+        if not await is_admin_user(interact):
+            return
         await cmd_create_trade_helper(
             interact=interact,
             db_conn=db_conn,
