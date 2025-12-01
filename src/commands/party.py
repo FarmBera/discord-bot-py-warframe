@@ -1066,7 +1066,7 @@ class PartyView(discord.ui.View):
 # embed creation helper function
 def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     """[for internal use] creates an embed based on a formatted dictionary"""
-    color = discord.Color.red() if data.get("is_closed") else discord.Color.blue()
+    color = discord.Color.orange() if data.get("is_closed") else discord.Color.blue()
     status_text = (
         f"({ts.get(f'{pf}pv-done')})"
         if data.get("is_closed")
@@ -1101,7 +1101,9 @@ def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     if isDelete:
         description += "~~"
 
-    embed = discord.Embed(description=description.strip(), color=color)
+    embed = discord.Embed(
+        description=description.strip(), color=color if not isDelete else 0xFF0000
+    )
     embed.set_footer(text=f"{ts.get(f'{pf}pb-pid')}: {data['id']}")
     return embed
 
