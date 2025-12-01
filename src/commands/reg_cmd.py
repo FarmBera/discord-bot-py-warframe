@@ -328,17 +328,6 @@ async def register_main_commands(
         ]
         return choices[:25]
 
-    # 'warframe.market' search guide commnad
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
-    )
-    @tree.command(
-        name=ts.get(f"cmd.market-help.cmd"),
-        description=ts.get(f"cmd.market-help.desc"),
-    )
-    async def cmd_market_help(interact: discord.Interaction):
-        await cmd_helper_txt(interact, MARKET_HELP_FILE)
-
     # vallisCycle command
     # @tree.command(
     #     name=ts.get(f"cmd.vallis.cmd"),

@@ -221,16 +221,6 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     async def cmd_market_search(interact: discord.Interaction, item_name: str):
         await cmd_helper_maintenance(interact)
 
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
-    )
-    @tree.command(
-        name=ts.get(f"cmd.market-help.cmd"),
-        description=ts.get(f"cmd.market-help.desc"),
-    )
-    async def cmd_market_help(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
-
     # @tree.command(
     #     name=ts.get(f"cmd.vallis.cmd"),
     #     description=ts.get(f"cmd.vallis.desc"),
