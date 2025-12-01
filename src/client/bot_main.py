@@ -106,7 +106,7 @@ class DiscordBot(discord.Client):
                 "auto_noti (for daily sortie alert)",
             )
         # weekly task (auto refresh)
-        if not self.weekly_task.is_running():
+        if lang == Lang.EN and not self.weekly_task.is_running():
             self.weekly_task.start()
             print(f"{C.green}{ts.get('start.crt-each')}", "weekly_task")
         # week start noti (for KO only)
