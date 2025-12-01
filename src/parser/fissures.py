@@ -2,7 +2,7 @@ import discord
 import datetime as dt
 
 from src.translator import ts
-from src.utils.times import convert_remain, timeNowDT
+from src.utils.times import convert_remain, timeNow
 from src.utils.data_manager import SETTINGS
 from src.utils.file_io import json_load
 from src.utils.emoji import get_emoji
@@ -54,8 +54,8 @@ railjack: list = [
 
 
 def is_expired_fiss(arg_time) -> bool:
-    t_now: dt.datetime = timeNowDT()
-    t_expired: dt.datetime = dt.datetime.fromtimestamp(arg_time / 1000)
+    t_now: int = timeNow()
+    t_expired: int = arg_time // 1000
 
     return True if t_now > t_expired else False
 
@@ -128,3 +128,8 @@ def w_fissures(fissures, args) -> str:
 {ts.get(f'{pf}remain').format(time=exp_time)} / {o_node} - {o_enemy}\n\n"""
 
     return txt_length_check(output_msg)
+
+
+# from src.utils.data_manager import get_obj
+# from src.constants.keys import FISSURES
+# print(w_fissures(get_obj(FISSURES), ts.get(f"{pf}choice-fast")))
