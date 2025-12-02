@@ -12,7 +12,7 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
 )
 from src.parser.marketsearch import get_slug_data, categorize, create_market_url
-from src.utils.data_manager import CHANNELS
+from src.utils.data_manager import CHANNELS, ADMINS
 from src.utils.logging_utils import save_log
 from src.utils.api_request import API_MarketSearch
 
@@ -466,7 +466,9 @@ class TradeView(discord.ui.View):
         db = interact.client.db
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
-            interact.response.send_message(ts.get(f"{pf}pv-not-found"), ephemeral=True)
+            await interact.response.send_message(
+                ts.get(f"{pf}err-not-found"), ephemeral=True
+            )
             return
 
         if interact.user.id == trade_data["host_id"]:
@@ -511,7 +513,9 @@ class TradeView(discord.ui.View):
 
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
-            await interact.response.send_message("NOT FOUND!")
+            await interact.response.send_message(
+                ts.get(f"{pf}err-not-found"), ephemeral=True
+            )
             return
 
         if interact.user.id != trade_data["host_id"]:
@@ -546,7 +550,9 @@ class TradeView(discord.ui.View):
 
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
-            await interact.response.send_message("NOT FOUND!")
+            await interact.response.send_message(
+                ts.get(f"{pf}err-not-found"), ephemeral=True
+            )
             return
 
         if interact.user.id != trade_data["host_id"]:
@@ -579,9 +585,12 @@ class TradeView(discord.ui.View):
 
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
+            await interact.response.send_message(
+                ts.get(f"{pf}err-not-found"), ephemeral=True
+            )
             return
 
-        if interact.user.id != trade_data["host_id"]:
+        if interact.user.id != trade_data["host_id"] and interact.user.id not in ADMINS:
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
             )
@@ -617,10 +626,12 @@ class TradeView(discord.ui.View):
 
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
-            await interact.response.send_message("NO DATA FOUND in DB")
+            await interact.response.send_message(
+                ts.get(f"{pf}err-not-found"), ephemeral=True
+            )
             return
 
-        if interact.user.id != trade_data["host_id"]:
+        if interact.user.id != trade_data["host_id"] and interact.user.id not in ADMINS:
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
             )

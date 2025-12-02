@@ -341,7 +341,7 @@ cmd:
     pb-pid: 파티 ID
 
     # build_party_embed_from_db
-    pdb-not-found-party: 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
+    pdb-not-found-party: 오류. 파티 정보를 찾을 수 없어요. 관리자에게 문의해주세요.
 
     # cmd_create_thread_helper
     pt-low: "파티원 수는 {num}명 이상이어야 합니다.\n 4명으로 자동 조정됩니다"
@@ -430,7 +430,7 @@ cmd:
     err-general: "상호작용 오류. 관리자에게 문의해주세요."
     err-timeout: "시간이 초과되어 작업이 취소되었어요."
     err-only-host: "거래 글 게시자만 이 버튼을 사용할 수 있어요."
-    err-not-found: "거래 정보를 찾을 수 없어요.\n관리자에게 문의해주세요."
+    err-not-found: "오류. 거래 정보를 찾을 수 없어요.\n관리자에게 문의해주세요."
     err-forbidden: "봇이 거래 게시글에 접근할 수 없어요. 관리자에게 문의해주세요."
     err-self-trade: "자신이 올린 글에는 거래를 요청할 수 없어요."
     err-invalid-value: "올바른 숫자 값을 입력해주세요."

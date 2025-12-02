@@ -6,10 +6,8 @@ from src.commands.cmd_helper import cmd_helper
 from src.commands.cmd_helper_text import cmd_helper_txt
 from src.commands.party import cmd_create_party_helper
 from src.commands.trade import cmd_create_trade_helper
+from src.utils.data_manager import ADMINS
 
-from src.utils.file_io import yaml_open
-
-ADMINS: list = yaml_open("config/admin")["admin_ids"]
 ADMIN_EMBED: discord.Embed = discord.Embed(
     description="# 사용 불가\n\n허가 받은 관리자만 사용 가능한 명령어입니다.\n오류라고 판단되는 경우, 봇 개발 담당자에게 문의부탁드립니다.",
     color=0xFF0000,

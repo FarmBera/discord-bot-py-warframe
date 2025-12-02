@@ -10,7 +10,7 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
-from src.utils.data_manager import CHANNELS
+from src.utils.data_manager import CHANNELS, ADMINS
 from src.utils.logging_utils import save_log
 
 MIN_SIZE: int = 2
@@ -631,6 +631,9 @@ class PartyView(discord.ui.View):
         db = interact.client.db
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
+            await interact.response.send_message(
+                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
+            )
             return
 
         user_id = interact.user.id
@@ -691,6 +694,9 @@ class PartyView(discord.ui.View):
 
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
+            await interact.response.send_message(
+                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
+            )
             return
 
         party_id = party_data["id"]
@@ -752,9 +758,12 @@ class PartyView(discord.ui.View):
 
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
+            await interact.response.send_message(
+                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
+            )
             return
 
-        if interact.user.id != party_data["host_id"]:
+        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-only-host"), ephemeral=True
             )
@@ -784,9 +793,12 @@ class PartyView(discord.ui.View):
 
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
+            await interact.response.send_message(
+                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
+            )
             return
 
-        if interact.user.id != party_data["host_id"]:
+        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-mod-article"), ephemeral=True
             )
@@ -824,9 +836,12 @@ class PartyView(discord.ui.View):
 
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
+            await interact.response.send_message(
+                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
+            )
             return
 
-        if interact.user.id != party_data["host_id"]:
+        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-only-status"), ephemeral=True
             )
@@ -929,7 +944,9 @@ class PartyView(discord.ui.View):
 
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
-            interact.response.send_message(ts.get(f"{pf}pv-not-found"), ephemeral=True)
+            await interact.response.send_message(
+                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
+            )
             return
 
         if interact.user.id != party_data["host_id"]:
@@ -975,9 +992,12 @@ class PartyView(discord.ui.View):
 
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
+            await interact.response.send_message(
+                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
+            )
             return
 
-        if interact.user.id != party_data["host_id"]:
+        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-only-host-kick"), ephemeral=True
             )
@@ -1019,9 +1039,12 @@ class PartyView(discord.ui.View):
 
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
+            await interact.response.send_message(
+                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
+            )
             return
 
-        if interact.user.id != party_data["host_id"]:
+        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
             await interact.response.send_message(
                 ts.get(f"{pf}pv-del-only-host"), ephemeral=True
             )
