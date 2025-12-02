@@ -57,7 +57,6 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
     idx = 1
     length: int = len(trader)
 
-    # output_msg: str = f"# {ts.get(f'{pf}title')}\n\n"
     output_msg: str = f"# {text_arg if text_arg else ts.get(f'{pf}title')}\n\n"
 
     for td in trader:
@@ -73,6 +72,7 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
             output_msg += f"- {ts.get(f'{pf}tdr-name')}: {ts.trs(td['Character'])}\n"
 
         baro_active = isBaroActive(t_act, t_exp)
+        # print(f"is baro activate: {baro_active}")
 
         # OO appeared
         if baro_active:
@@ -159,3 +159,9 @@ def w_voidTradersItem(trader) -> discord.Embed:
         output_msg += "\n"
 
     return discord.Embed(description=output_msg, color=color_decision(trader))
+
+
+# from src.utils.data_manager import get_obj
+# from src.constants.keys import VOIDTRADERS
+
+# print(w_voidTraders(get_obj(VOIDTRADERS))[0].description)
