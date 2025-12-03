@@ -3,9 +3,9 @@ from config.config import language as lang
 # commands cooldown time (sec)
 CDN: float = 3.0
 COOLDOWN_DEFAULT: float = 10.0
-COOLDOWN_PARTY: float = 60.0
-COOLDOWN_BTN_ACTION: float = 60.0  # btn join/leave
-COOLDOWN_BTN_MANAGE: float = 30.0  # btn modify/remove
+COOLDOWN_CREATE: float = 60.0
+COOLDOWN_BTN_ACTION: float = 15.0  # btn join/leave
+COOLDOWN_BTN_MANAGE: float = 15.0  # btn modify/remove
 COOLDOWN_BTN_CALL: float = 900.0  # btn call members
 
 

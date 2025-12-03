@@ -24,7 +24,7 @@ async def is_admin_user(interact: discord.Interaction):
 from src.constants.keys import (
     # cooldown var
     COOLDOWN_DEFAULT,
-    COOLDOWN_PARTY,
+    COOLDOWN_CREATE,
     # docs file
     HELP_FILE_LOC,
     ANNOUNCE_FILE_LOC,
@@ -351,7 +351,7 @@ async def register_main_commands(
 
     # create party
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_PARTY, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.party.cmd"),
@@ -385,7 +385,7 @@ async def register_main_commands(
 
     # create trade article
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_PARTY, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.trade.cmd"),

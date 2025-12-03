@@ -4,7 +4,7 @@ from src.translator import ts
 from src.constants.keys import (
     # cooldown
     COOLDOWN_DEFAULT,
-    COOLDOWN_PARTY,
+    COOLDOWN_CREATE,
     # docs
     HELP_FILE_LOC,
     ANNOUNCE_FILE_LOC,
@@ -229,7 +229,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     #     await cmd_helper_maintenance(interact)
 
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_PARTY, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.party.cmd"),
@@ -253,7 +253,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         await cmd_helper_maintenance(interact)
 
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_PARTY, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.trade.cmd"),
