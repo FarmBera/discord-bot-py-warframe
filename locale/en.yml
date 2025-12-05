@@ -97,8 +97,8 @@ cmd:
     SORTIE_BOSS_PAAZUL: Paazul
 
   void-traders:
-    cmd: voidtraders
-    desc: Get when & where Baro Ki'Teer arrives
+    cmd: whenbaro
+    desc: Get when & where Baro Ki'Teer arrives (voidtraders)
     title: Baro Ki'Teer Status
 
     # msg title
@@ -118,7 +118,7 @@ cmd:
     place: Coming to
 
   void-traders-item:
-    cmd: voidtraders-item
+    cmd: baro-items
     desc: Get Baro Ki'Teer selling item list.
 
     not-yet: "Trader is NOT arrived yet!\n- Arrives **{time}**"
