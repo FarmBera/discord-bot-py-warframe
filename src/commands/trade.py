@@ -20,7 +20,7 @@ pf: str = "cmd.trade."
 
 
 def parseNickname(nickname: str) -> str:
-    return nickname.split(" ")[-1]
+    return nickname.split("]")[-1].strip()
 
 
 class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
@@ -590,9 +590,16 @@ class TradeView(discord.ui.View):
             )
             return
 
-        if interact.user.id != trade_data["host_id"] and interact.user.id not in ADMINS:
+        # on manual estup nickname
+        # if interact.user.id != trade_data["host_id"] and interact.user.id not in ADMINS:
+        #     await interact.response.send_message(
+        #         ts.get(f"{pf}err-only-host"), ephemeral=True
+        #     )
+        #     return
+
+        if interact.user.id not in ADMINS:
             await interact.response.send_message(
-                ts.get(f"{pf}err-only-host"), ephemeral=True
+                "기능을 사용할 권한이 없어요.", ephemeral=True
             )
             return
 
@@ -741,9 +748,9 @@ async def cmd_create_trade_helper(
     trade_type: str,
     item_name: str,
     item_rank: int,
-    game_nickname: str,
     price: int,
     quantity: int,
+    game_nickname: str = "",
 ) -> None:
     db = db_conn
     db.row_factory = sqlite3.Row
@@ -770,11 +777,15 @@ async def cmd_create_trade_helper(
         await interact.followup.send(ts.get(f"cmd.party.not-found-ch"), ephemeral=True)
         return
 
+    # setup nickname
+    game_nickname = parseNickname(interact.user.display_name)
+
     # search market
     try:
         flag: bool = False
         flag, item_slug, item_name, img_url = get_slug_data(item_name)
 
+        # item not found
         if not flag:
             await interact.followup.send(
                 ts.get("cmd.market-search.no-result")
@@ -836,7 +847,8 @@ async def cmd_create_trade_helper(
         )
         TRADE_ID = cursor.lastrowid
         db.commit()
-        ########### db ############
+
+        # check item have rank
         isRankItem = True if market[0].get("rank", None) is not None else False
 
         # create a webhook
@@ -866,6 +878,7 @@ async def cmd_create_trade_helper(
         # create thread from starter msg (webhook)
         thread = await thread_starter_msg.create_thread(name=thread_name)
 
+        # send created msg
         await interact.followup.send(
             ts.get(f"{pf}created-trade").format(
                 ch=target_channel.name, mention=thread.mention

@@ -22,7 +22,8 @@ def cmd_obj_check(name):
 
 
 CHANNELS = yaml_open(CHANNEL_FILE_LOC)
-ADMINS = yaml_open("config/admin")["admin_ids"]
+ADMINYML = yaml_open("config/admin")
+ADMINS = ADMINYML["admin_ids"]
 SETTINGS = json_load(SETTING_FILE_LOC)
 
 
