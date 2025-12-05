@@ -3,6 +3,9 @@ import asyncio
 import sys
 import logging
 import sqlite3
+import traceback
+
+log_lock = asyncio.Lock()
 
 from config.TOKEN import TOKEN as BOT_TOKEN
 from db.query import *
@@ -20,7 +23,6 @@ discord.utils.setup_logging(level=logging.INFO, root=False)
 
 tree = None
 
-
 # main thread
 
 ERR_COUNT: int = 0
@@ -29,7 +31,7 @@ CMD_MAIN: str = "main"
 CMD_MAINTENANCE: str = "maintenance"
 CMD_EXIT: str = "exit"
 
-EXIT_CMD: list = [CMD_EXIT, "ㄷ턋"]
+EXIT_CMD: list = [CMD_EXIT, "ㄷ턋", "멱ㅓ"]
 
 
 async def console_input_listener() -> None:
@@ -52,8 +54,6 @@ async def main_manager() -> None:
     manage bot state, and switch bot status depends on console input
     """
     global tree
-
-    log_lock = asyncio.Lock()
 
     # bot_mode = CMD_MAIN  # init mode
     bot_mode = input("Starting Bot Mode > ").lower()
@@ -170,6 +170,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print(f"\n{C.yellow}Force Quitted!")  # VAR
     except Exception as e:
+        print(C.red, traceback.format_exc(), sep="")
         ERR_COUNT += 1
         print(f"Continuously Error #{ERR_COUNT} >> {e}")
         if ERR_COUNT > 20:

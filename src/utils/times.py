@@ -1,5 +1,8 @@
+import traceback
 import datetime as dt
 from zoneinfo import ZoneInfo
+
+from src.utils.return_err import print_test_err
 
 
 JSON_DATE_PAT: str = "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -28,7 +31,7 @@ def unixToDatetime(timestamp: int) -> dt.datetime:
         return dt.datetime.fromtimestamp(timestamp)
 
 
-def convert_remain(unix_timestamp: int | str):
+def convert_remain(unix_timestamp: int | float | str):
     """
     Calculates the time difference between the current time and a given Unix timestamp, and returns it as a string in the specified format.
 
@@ -42,15 +45,16 @@ def convert_remain(unix_timestamp: int | str):
     from src.translator import ts
 
     try:
-        ts_str = str(unix_timestamp)
+        ts_str = str(int(unix_timestamp))
 
         # convert milliseconds into seconds
         if len(ts_str) == 13:
             ts_int = int(ts_str) // 1000
         else:
             ts_int = int(ts_str)
-    except (ValueError, TypeError):
-        return "Wrong Timestamp Format"
+    except (ValueError, TypeError) as e:
+        # print_test_err("Timestamp Format err")
+        return "**Wrong Format**"
 
     return f"<t:{ts_int}:R>"
 

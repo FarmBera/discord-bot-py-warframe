@@ -4,7 +4,7 @@ import datetime as dt
 
 from config.config import LOG_TYPE
 from src.translator import ts
-from src.utils.times import JSON_DATE_PAT, timeNowDT
+from src.utils.times import JSON_DATE_PAT, timeNowDT, convert_remain
 from src.constants.keys import (
     STARTED_TIME_FILE_LOC,
     DELTA_TIME_LOC,
@@ -23,16 +23,11 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
     ) + dt.timedelta(minutes=int(open_file(DELTA_TIME_LOC)))
     time_left = time_target - timeNowDT()
 
-    txt = f"""# 서버 점검 중
+    txt = ts.get("maintenance.content").format(
+        remain=convert_remain(time_left.timestamp())
+    )
+    # > 예상 완료 시간: {dt.datetime.strftime(time_target,"%Y년 %m월 %d일, %H시 %M분")}
 
-지금은 **서버 점검 및 패치 작업**으로 인하여 **봇을 사용할 수 없습니다.**
-이용에 불편을 드려 죄송합니다.
-
-> 종료까지 약 **{time_format(time_left)}** 남았습니다.
-> 예상 완료 시간: {dt.datetime.strftime(time_target,"%Y년 %m월 %d일, %H시 %M분")}
-
-점검은 조기 종료 될 수 있으며, 또한 지연될 수 있음을 알립니다.
-"""
     # send message
     await interact.response.send_message(
         embed=discord.Embed(description=txt, color=0xFF0000),  # VAR: color

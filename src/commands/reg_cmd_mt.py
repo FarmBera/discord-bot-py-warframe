@@ -313,3 +313,15 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     )
     async def cmd_ingame_events(interact: discord.Interaction):
         await cmd_helper_maintenance(interact)
+
+    # create receive complain
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
+    )
+    async def cmd_create_trade(
+        interact: discord.Interaction,
+    ) -> None:
+        await cmd_helper_maintenance(interact)

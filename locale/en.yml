@@ -4,10 +4,19 @@ start:
   bot-status-msg: /help
   final: Logged on! as
   final2: Ready to Use! - Language has been set to English.
+  crt-each: "Started Coroutine:"
   coroutine: Internal Coroutine Started
 
 maintenance:
   bot-status-msg: Server Maintenance
+  content: |
+    # Server Maintenance in Progress
+    Due to server maintenance and patching, **bots are currently unavailable.**
+    We apologize for any inconvenience this may cause.
+
+    ## Estimated time remaining until completion: **{remain}**
+
+    Please note that maintenance may end early or be delayed.
 
 general:
   error-cmd: Internal Error. Please contact the administrator.
@@ -19,9 +28,12 @@ time:
 
 cmd:
   no-perm-title: Permission Denied
-  no-permission: "You do not have permission to send public messages.\nOnly authorized administrators can send them.\n\nIf you believe this is an error, please contact the bot developer."
-  err-limit-server: "This command is only available on the selected server."
+  no-permission: |
+    You do not have permission to send public messages.
+    Only authorized administrators can send them.
 
+    If you believe this is an error, please contact the bot developer.
+  err-limit-server: "This command is only available on the selected server."
   err-cooldown:
     title: Cooldown
     desc: You must wait {time} more second(s) to use this command again.
@@ -121,7 +133,9 @@ cmd:
     cmd: baro-items
     desc: Get Baro Ki'Teer selling item list.
 
-    not-yet: "Trader is NOT arrived yet!\n- Arrives **{time}**"
+    not-yet: |
+      Trader is NOT arrived yet!
+      - Arrives **{time}**
 
     mods: Mods
     skin: Skin
@@ -217,11 +231,20 @@ cmd:
     desc: Search specific item in 'Warframe Market' and shows its sell price
 
     no-result: "## No Search Result"
-    server-err: "## An error occurred on the 'Warframe Market' server.\n- The 'Warframe Market' server may be under maintenance.\n- Please check if you can access the Warframe Market website normally."
-    err: "## Error: There is a problem with the 'Warframe Market' server.\n- Did not receive a valid response from the market server.\n- Please check if you can access the Warframe Market website normally."
+    server-err: |
+      ## An error occurred on the 'Warframe Market' server.
+      - The 'Warframe Market' server may be under maintenance.
+      - Please check if you can access the Warframe Market website normally.
+    err: |
+      ## Error: There is a problem with the 'Warframe Market' server.
+      - Did not receive a valid response from the market server.
+      - Please check if you can access the Warframe Market website normally.
 
     data: Data
-    api-fail: "Failed to request API. Please try again later.\n\nIf the problem persists, please contact the administrator."
+    api-fail: |
+      Failed to request API. Please try again later.
+
+      If the problem persists, please contact the administrator.
     result: Search Result
     link-to-market: "(Click the blue link to go to the market.)"
     platinum: P
@@ -281,7 +304,10 @@ cmd:
     # PartyView
 
     # join btn
-    pv-not-found: "Could not find party information. Please contact an admin."
+    pv-not-found: |
+      Error: Party information not found. (The recruitment post may have been deleted.)
+
+      If you believe this is an error, please contact the administrator.
     pv-join-btn: "Join"
     pv-leave-btn: "Leave"
     pv-host-exit-err: "The host cannot leave the party."
@@ -468,3 +494,39 @@ cmd:
     miss-title: "### Mission"
     miss-info: "- {type} - {loc} (lvl: {min}-{max})"
     require-item: "Required item: {ilist}"
+
+  complain:
+    cmd: contact-us
+    desc: This feature allows you to submit inquiries, reports, and suggestions regarding the server.
+
+    info: |
+      # Before submitting a complaint, please carefully review the following information.
+      ### This feature only accepts inquiries related to the {SERVER_NAME} server.
+      - For bot-related inquiries, please refer to [here]({HOMEPAGE}/?id=contact) and contact us separately.
+
+      - Once submitted, your content cannot be edited. Please write carefully.
+      - Server rules apply equally to submitted posts.
+      - Reports/suggestions require concrete evidence; false claims may result in penalties.
+
+      To submit, click the **Submit** button below.
+    btn-name: Submit
+    # modal
+
+    # title
+    m-title: Submission Form
+    m-title-label: Your input is not saved automatically. Please save it elsewhere periodically.
+    m-title-ph: Please enter a title.
+    # category
+    m-cat-label: Submission Category
+    m-cat-ph: User Report, Feedback, etc...
+    # /description
+    m-desc-label: Details
+    m-desc-ph: Please provide a detailed description within 4,000 characters.
+
+    # new article
+    created: "**{user}** has submitted an inquiry."
+    done: "✅ Submission completed.\nWe will review and respond promptly."
+
+    # error
+    err: "An error occurred during submission.\n\nIf the error persists, please contact an administrator."
+    err-channel: "Error: The suggestion channel could not be found.\nPlease contact an administrator."

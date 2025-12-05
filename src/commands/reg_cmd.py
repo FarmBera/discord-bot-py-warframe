@@ -6,6 +6,7 @@ from src.commands.cmd_helper import cmd_helper
 from src.commands.cmd_helper_text import cmd_helper_txt
 from src.commands.party import cmd_create_party_helper
 from src.commands.trade import cmd_create_trade_helper
+from src.commands.complain import cmd_create_complain_helper
 from src.utils.data_manager import ADMINS
 
 ADMIN_EMBED: discord.Embed = discord.Embed(
@@ -483,3 +484,15 @@ async def register_main_commands(
     )
     async def cmd_ingame_events(interact: discord.Interaction):
         await cmd_helper(interact, key=EVENTS, parser_func=w_events)
+
+    # create receive complain
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
+    )
+    async def cmd_create_trade(
+        interact: discord.Interaction,
+    ) -> None:
+        await cmd_create_complain_helper(interact=interact)
