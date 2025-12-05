@@ -21,10 +21,9 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
     time_target = dt.datetime.strptime(
         open_file(STARTED_TIME_FILE_LOC), JSON_DATE_PAT
     ) + dt.timedelta(minutes=int(open_file(DELTA_TIME_LOC)))
-    time_left = time_target - timeNowDT()
 
     txt = ts.get("maintenance.content").format(
-        remain=convert_remain(time_left.timestamp())
+        remain=convert_remain(time_target.timestamp())
     )
     # > 예상 완료 시간: {dt.datetime.strftime(time_target,"%Y년 %m월 %d일, %H시 %M분")}
 
