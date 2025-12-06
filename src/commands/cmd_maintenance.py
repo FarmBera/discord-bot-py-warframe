@@ -273,3 +273,153 @@ class PartyView(discord.ui.View):
             interact=interact,
             msg=f"PartyView -> delete_party",
         )
+
+
+pf: str = "cmd.trade."
+
+
+class TradeView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.cooldown_action = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_ACTION, commands.BucketType.user
+        )
+        self.cooldown_manage = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_MANAGE, commands.BucketType.user
+        )
+
+    async def is_cooldown(
+        self, interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
+    ) -> bool:
+        bucket = cooldown_mapping.get_bucket(interact.message)
+        retry = bucket.update_rate_limit()
+        if retry:
+            await interact.response.send_message(
+                embed=discord.Embed(
+                    title=ts.get(f"cmd.err-cooldown.title"),
+                    description=ts.get("cmd.err-cooldown.btn").format(
+                        time=f"{int(retry)}"
+                    ),
+                    color=0xFF0000,
+                ),
+                ephemeral=True,
+            )
+            return True
+        return False
+
+    @discord.ui.button(  # 거래하기
+        label=ts.get(f"{pf}btn-trade"),
+        style=discord.ButtonStyle.primary,
+        custom_id="trade_btn_trade",
+    )
+    async def trade_action(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        etype: str = EVENT_TYPE
+
+        if await self.is_cooldown(interact, self.cooldown_action):
+            etype += EVENT_COOLDOWN
+            return
+
+        await cmd_helper_maintenance(interact)
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type=etype,
+            cmd=f"btn.trade",
+            interact=interact,
+            msg=f"TradeView -> trade_action",
+        )
+
+    @discord.ui.button(  # 수량 변경
+        label=ts.get(f"{pf}btn-edit-qty"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="trade_btn_edit_qty",
+    )
+    async def edit_quantity(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        etype: str = EVENT_TYPE
+
+        if await self.is_cooldown(interact, self.cooldown_action):
+            etype += EVENT_COOLDOWN
+            return
+
+        await cmd_helper_maintenance(interact)
+        await save_log(
+            lock=interact.client.log_lock,
+            type=etype,
+            cmd="btn.main.edit-quantity",
+            interact=interact,
+            msg=f"TradeView -> edit_quantity",
+        )
+
+    @discord.ui.button(  # 가격 수정
+        label=ts.get(f"{pf}btn-edit-price"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="trade_btn_edit_price",
+    )
+    async def edit_price(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        etype: str = EVENT_TYPE
+
+        if await self.is_cooldown(interact, self.cooldown_action):
+            etype += EVENT_COOLDOWN
+            return
+
+        await cmd_helper_maintenance(interact)
+        await save_log(
+            lock=interact.client.log_lock,
+            type=etype,
+            cmd="btn.main.edit-price",
+            interact=interact,
+            msg=f"TradeView -> edit_price",
+        )
+
+    @discord.ui.button(  # 닉네임 변경
+        label=ts.get(f"{pf}btn-edit-nickname"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="trade_btn_edit_nick",
+    )
+    async def edit_nickname(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        etype: str = EVENT_TYPE
+
+        if await self.is_cooldown(interact, self.cooldown_action):
+            etype += EVENT_COOLDOWN
+            return
+
+        await cmd_helper_maintenance(interact)
+        await save_log(
+            lock=interact.client.log_lock,
+            type=etype,
+            cmd="btn.main.edit-price",
+            interact=interact,
+            msg=f"TradeView -> edit_price",
+        )
+
+    @discord.ui.button(  # 거래 글 닫기
+        label=ts.get(f"{pf}btn-close"),
+        style=discord.ButtonStyle.danger,
+        custom_id="trade_btn_edit_close",
+    )
+    async def close_trade(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        etype: str = EVENT_TYPE
+
+        if await self.is_cooldown(interact, self.cooldown_action):
+            etype += EVENT_COOLDOWN
+            return
+
+        await cmd_helper_maintenance(interact)
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.event,
+            cmd="btn.trade.toggle_close_party",
+            interact=interact,
+            msg=f"TradeView -> close_trade",
+            # obj=new_status,
+        )
