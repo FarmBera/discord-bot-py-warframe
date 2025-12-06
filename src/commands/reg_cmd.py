@@ -11,8 +11,7 @@ from src.commands.unavailable import cmd_unavailable
 from src.utils.data_manager import ADMINS
 
 ADMIN_EMBED: discord.Embed = discord.Embed(
-    description="# 사용 불가\n\n허가 받은 관리자만 사용 가능한 명령어입니다.\n오류라고 판단되는 경우, 봇 개발 담당자에게 문의부탁드립니다.",
-    color=0xFF0000,
+    description=ts.get(f"general.unable"), color=0xFF0000
 )
 
 
@@ -493,6 +492,8 @@ async def register_main_commands(
     @tree.command(
         name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
     )
-    async def cmd_create_trade(interact: discord.Interaction) -> None:
+    async def cmd_receive_complain(interact: discord.Interaction) -> None:
+        if not await is_admin_user(interact):
+            return
         await cmd_unavailable(interact)
         # await cmd_create_complain_helper(interact=interact)

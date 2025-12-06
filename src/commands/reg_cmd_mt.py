@@ -321,7 +321,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     @tree.command(
         name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
     )
-    async def cmd_create_trade(
+    async def cmd_receive_complain(
         interact: discord.Interaction,
     ) -> None:
         await cmd_helper_maintenance(interact)
