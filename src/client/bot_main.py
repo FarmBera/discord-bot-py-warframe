@@ -411,46 +411,64 @@ class DiscordBot(discord.Client):
                 new_data = (
                     obj_new[-1] if isinstance(obj_new, list) and obj_new else obj_new
                 )
-                # is new baro scheduled (check new baro)
-                if prev_data.get("_id") != new_data.get("_id"):
-                    text_arg = ts.get(f"cmd.void-traders.baro-new")
-                    notification = True
-                    should_save_data = True
-                    embed_color = 0xFFDD00
-                # check exist baro activated
-                if (
-                    # prev_data.get("Activation")
-                    # and new_data.get("Activation")
-                    # and
-                    isBaroActive(
-                        prev_data["Activation"]["$date"]["$numberLong"],
-                        prev_data["Expiry"]["$date"]["$numberLong"],
-                    )
-                    != isBaroActive(
-                        new_data["Activation"]["$date"]["$numberLong"],
-                        new_data["Expiry"]["$date"]["$numberLong"],
-                    )
-                ):
-                    text_arg = ts.get(f"cmd.void-traders.baro-appear")
-                    notification = True
-                    should_save_data = True
+                events: list = []
 
-                if not notification:
+                # 1. is new baro scheduled (check new baro)
+                if prev_data.get("Activation") != new_data.get("Activation"):
+                    events.append(
+                        {
+                            "text_key": "cmd.void-traders.baro-new",
+                            "embed_color": 0xFFDD00,
+                        }
+                    )
+
+                # 2. check exist baro activated
+                if isBaroActive(
+                    prev_data["Activation"]["$date"]["$numberLong"],
+                    prev_data["Expiry"]["$date"]["$numberLong"],
+                ):
+                    events.append(
+                        {
+                            "text_key": "cmd.void-traders.baro-appear",
+                            "embed_color": None,
+                        }
+                    )
+                if not events:
                     continue
 
-                parsed_content = handler["parser"](obj_new, text_arg, embed_color)
-                if not parsed_content:
-                    msg = (
-                        f"[err] parse error in handle_voidtraders {handler['parser']}/{e}",
-                    )
-                    print(timeNowDT(), C.red, msg, e, C.default)
-                    await save_log(
-                        lock=self.log_lock,
-                        type="err",
-                        cmd="check_new_content()",
-                        user=MSG_BOT,
-                        msg=msg,
-                        obj=e,
+                should_save_data = True
+
+                # process events
+                for event in events:
+                    text_arg = ts.get(event["text_key"])
+                    embed_color = event["embed_color"]
+                    # check noti enabled
+                    if not setting["noti"]["list"][key]:
+                        continue
+
+                    # Parse content
+                    parsed_content = handler["parser"](obj_new, text_arg, embed_color)
+                    if not parsed_content:
+                        msg = (
+                            f"[err] parse error in handle_voidtraders {handler['parser']}",
+                        )
+                        print(timeNowDT(), C.red, msg, C.default)
+                        await save_log(
+                            lock=self.log_lock,
+                            type="err",
+                            cmd="check_new_content()",
+                            user=MSG_BOT,
+                            msg=msg,
+                        )
+                        continue
+                    # fetch channel
+                    target_ch = channels.get(handler.get("channel_key", "channel"))
+                    # send msg
+                    await self.send_alert(
+                        parsed_content,
+                        channel_list=target_ch,
+                        setting=setting,
+                        key=key_arg if key_arg else key,
                     )
 
             # parsing: default
