@@ -17,7 +17,7 @@ from src.utils.file_io import open_file
 from src.utils.formatter import time_format
 
 
-async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
+async def cmd_helper_maintenance(interact: discord.Interaction, arg: str = "") -> None:
     time_target = dt.datetime.strptime(
         open_file(STARTED_TIME_FILE_LOC), JSON_DATE_PAT
     ) + dt.timedelta(minutes=int(open_file(DELTA_TIME_LOC)))
@@ -38,6 +38,7 @@ async def cmd_helper_maintenance(interact: discord.Interaction) -> None:
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         interact=interact,
         msg="[info] cmd used in maintenance mode",  # VAR
+        obj=arg,
     )
 
 

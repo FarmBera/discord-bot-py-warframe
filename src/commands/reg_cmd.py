@@ -9,6 +9,8 @@ from src.commands.trade import cmd_create_trade_helper
 from src.commands.complain import cmd_create_complain_helper
 from src.commands.unavailable import cmd_unavailable
 from src.utils.data_manager import ADMINS
+from src.utils.logging_utils import save_log
+from config.config import LOG_TYPE
 
 ADMIN_EMBED: discord.Embed = discord.Embed(
     description=ts.get(f"general.unable"), color=0xFF0000
@@ -374,6 +376,13 @@ async def register_main_commands(
         number_of_user: int = 4,
     ) -> None:
         if not await is_admin_user(interact):
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.cmd,
+                cmd=f"{LOG_TYPE.cmd}.party",
+                interact=interact,
+                msg="[info] cmd used, but not authorized",  # VAR
+            )
             return
         await cmd_create_party_helper(
             interact=interact,
@@ -416,6 +425,13 @@ async def register_main_commands(
         quantity: int = 1,
     ) -> None:
         if not await is_admin_user(interact):
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.cmd,
+                cmd=f"{LOG_TYPE.cmd}.trade",
+                interact=interact,
+                msg="[info] cmd used, but not authorized",  # VAR
+            )
             return
         await cmd_create_trade_helper(
             interact=interact,
@@ -494,6 +510,13 @@ async def register_main_commands(
     )
     async def cmd_receive_complain(interact: discord.Interaction) -> None:
         if not await is_admin_user(interact):
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.cmd,
+                cmd=f"{LOG_TYPE.cmd}.complain",
+                interact=interact,
+                msg="[info] cmd used, but not authorized",  # VAR
+            )
             return
         await cmd_unavailable(interact)
         # await cmd_create_complain_helper(interact=interact)

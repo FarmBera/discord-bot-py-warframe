@@ -47,7 +47,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     async def cmd_patch_note(
         interact: discord.Interaction, is_public_msg: bool = False
     ):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "patch-notee")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -66,7 +66,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     )
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
     async def cmd_news(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "news")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -75,7 +75,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc")
     )
     async def cmd_alerts(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "alerts")
 
     # @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
     # async def cmd_cetus(interact: discord.Interaction):
@@ -88,7 +88,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc")
     )
     async def cmd_sortie(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "sortie")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -97,7 +97,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
     )
     async def cmd_archon_hunt(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "archon-hunt")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -107,7 +107,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         description=ts.get(f"cmd.void-traders.desc"),
     )
     async def cmd_voidTraders(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "voidtrader")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -117,7 +117,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         description=ts.get(f"cmd.steel-path-reward.desc"),
     )
     async def cmd_steel_reward(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "steel-path-reward")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -140,7 +140,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         # types: discord.app_commands.Choice[int],
         # is_include_railjack_node: bool = False,
     ):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "fissures")
 
     # @tree.command(
     #     name=ts.get(f"cmd.duviri-cycle.cmd"),
@@ -175,7 +175,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     async def cmd_calendar(
         interact: discord.Interaction, types: discord.app_commands.Choice[int]
     ):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "hexcal")
 
     # @tree.command(
     #     name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
@@ -190,7 +190,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
     )
     async def cmd_dailyDeals(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "dailydeals")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -199,7 +199,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
     )
     async def cmd_invasions(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "invasions")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -209,7 +209,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         description=ts.get(f"cmd.void-traders-item.desc"),
     )
     async def cmd_traders_item(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "voidtrader-items")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -219,7 +219,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         description=ts.get(f"cmd.market-search.desc"),
     )
     async def cmd_market_search(interact: discord.Interaction, item_name: str):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, f"market-search:{item_name}")
 
     # @tree.command(
     #     name=ts.get(f"cmd.vallis.cmd"),
@@ -250,7 +250,9 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(
+            interact, f"party::{title}::{game_type}::{descriptions}:{number_of_user}"
+        )
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
@@ -282,7 +284,10 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         price: int = 0,
         quantity: int = 1,
     ) -> None:
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(
+            interact,
+            f"trade::{trade_type}::{item_name}::{game_nickname}::{item_rank}::{price}::{item_rank}::{quantity}",
+        )
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -292,7 +297,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         description=ts.get(f"cmd.duviri-circuit.wf-desc"),
     )
     async def cmd_circuit_wf(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "duviri-circuit")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -302,7 +307,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         description=ts.get(f"cmd.duviri-circuit.inc-desc"),
     )
     async def cmd_circuit_inc(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "duviri-incarnon")
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -312,7 +317,7 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         description=ts.get(f"cmd.events.desc"),
     )
     async def cmd_ingame_events(interact: discord.Interaction):
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "events")
 
     # create receive complain
     @discord.app_commands.checks.cooldown(
@@ -324,4 +329,4 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
     async def cmd_receive_complain(
         interact: discord.Interaction,
     ) -> None:
-        await cmd_helper_maintenance(interact)
+        await cmd_helper_maintenance(interact, "complain")
