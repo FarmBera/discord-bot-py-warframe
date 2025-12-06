@@ -18,6 +18,8 @@ maintenance:
 
 general:
   error-cmd: 내부 오류. 관리자에게 문의하세요.
+  unable: |
+    ## 아직 사용할 수 없는 기능입니다
 
 time:
   day: 일
@@ -571,9 +573,9 @@ trs:
   shrine defense: shrine defense
   spy: 첩보활동
   survival: 생존
-  void armageddon: 보이드 대격전 # (exclusive to zariman ten zero)
-  void cascade: 보이드 범람 # (exclusive to zariman ten zero)
-  void flood: 보이드 홍수 # (exclusive to zariman ten zero)
+  void armageddon: 보이드 대격전 # (exclusive to zariman)
+  void cascade: 보이드 범람 # (exclusive to zariman)
+  void flood: 보이드 홍수 # (exclusive to zariman)
   volatile: 격변 # (exclusive to railjack)
 
   # shard

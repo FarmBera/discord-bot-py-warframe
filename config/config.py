@@ -13,5 +13,6 @@ class LOG_TYPE:
     err: str = "err"
     cooldown: str = ".cooldown"
     maintenance: str = "maintenance"
+    unable: str = "unavailable"
     e_event: str = "event.err"
     e_admin: str = "err.admin"
