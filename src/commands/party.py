@@ -1207,7 +1207,7 @@ async def cmd_create_party_helper(
             ephemeral=True,
         )
         number_of_user = 4
-        result += "low number\n"
+        RESULT += "low number\n"
 
     elif number_of_user > MAX_SIZE:
         await interact.followup.send(
@@ -1215,7 +1215,7 @@ async def cmd_create_party_helper(
             ephemeral=True,
         )
         number_of_user = MAX_SIZE
-        result += "high humber\n"
+        RESULT += "high humber\n"
 
     if target_channel and isinstance(target_channel, discord.TextChannel):
         try:
