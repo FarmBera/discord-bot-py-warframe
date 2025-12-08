@@ -3,18 +3,16 @@
 - Python Toy Project for game called 'Warframe'
   - Notify new game contents
   - Commands: check current game contents status
+  - Search items in an external game market (API)
   - Party recruitment system
-  - Search items in an external game market.
+  - Trade system
 
-## External Python Module Used
+## Copyright Notice / 저작권 알림
 
-- discord.py: `v2.6.4`
-- pyyaml: `v6.0.3`
-- requests: `v2.32.5`
+All source code in this repository is (c) 2025. FarmBera. All rights reserved.
 
-## Runtime Info
+This code is made public for viewing and reference purposes only. Any unauthorized copying, modification, distribution, or use of this code for commercial or non-commercial purposes without explicit written permission from the copyright holder is strictly prohibited.
 
-- Dev Env: Python `v3.13.3`, `v3.13.9`
-- Runtime Env
-  - option 1 : [Deployment Env] Ubuntu Server based Linux - Python `v3.12.3`
-  - option 2 : Android Termux App - Python `v3.12.11`
+이 저장소의 모든 소스 코드는 FarmBera에게 저작권이 있으며, 모든 권리는 저작권자가 보유합니다. (All Rights Reserved).
+
+이 코드는 오직 열람 및 참고 목적으로만 공개되었습니다. 저작권자의 명시적인 서면 허가 없이 이 코드를 복제, 수정, 배포하거나, 영리적/비영리적 목적으로 사용하는 행위는 엄격히 금지됩니다.
