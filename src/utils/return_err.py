@@ -4,8 +4,10 @@ import discord
 from src.translator import ts
 
 
-def print_test_err(msg: str = "") -> None:
+def print_test_err(msg: str = "") -> str:
+    tberr: str = traceback.format_exc()
     print(C.magenta, msg, "\n", C.red, traceback.format_exc(), C.default, sep="")
+    return tberr
 
 
 def err_text(err_code: str) -> str:

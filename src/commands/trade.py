@@ -3,6 +3,7 @@ from discord.ext import commands
 import sqlite3
 import asyncio
 
+from src.utils.return_err import print_test_err
 from config.config import LOG_TYPE
 from config.TOKEN import base_url_market_image
 from src.translator import ts
@@ -798,10 +799,10 @@ async def cmd_create_trade_helper(
             )
             return
 
-        market = await API_MarketSearch(log_lock, item_slug)
-
         # automatic price setup
-        async def set_price(market, price) -> int:
+        async def set_price(price) -> int:
+            market = await API_MarketSearch(log_lock, item_slug)
+
             if market.status_code == 404:  # api not found
                 await interact.followup.send(
                     ts.get(f"{pf}err-no-market"), ephemeral=True
@@ -811,6 +812,10 @@ async def cmd_create_trade_helper(
                 raise ValueError("resp-code is not 200 or resp err")
 
             market = categorize(market.json(), rank=item_rank)
+
+            if price:  # price exists
+                return price, market
+
             price_list: list = []
             for i in range(6):
                 price_list.append(market[i]["platinum"])
@@ -822,7 +827,7 @@ async def cmd_create_trade_helper(
             return price, market
 
         try:
-            price, market = await set_price(market, price)
+            price, market = await set_price(price)
         except Exception as e:
             await interact.followup.send(ts.get(f"{pf}err-api"), ephemeral=True)
             await save_log(
@@ -930,7 +935,7 @@ async def cmd_create_trade_helper(
         RESULT += f"HTTPException {e}\n"
     except Exception as e:
         await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
-        RESULT += f"ERROR {e}"
+        RESULT += f"ERROR {print_test_err()}"
 
     await save_log(
         lock=interact.client.log_lock,

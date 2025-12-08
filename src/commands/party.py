@@ -438,7 +438,7 @@ class ConfirmJoinLeaveView(discord.ui.View):
         party_info = self.db.execute(
             "SELECT host_id FROM party WHERE id = ?", (self.party_id,)
         ).fetchone()
-        host_mention = f"<@{party_info[0]}>, " if party_info else ""
+        host_mention = f"<@{party_info[0]}>" if party_info else ""
 
         cursor = self.db.cursor()
 
@@ -1104,25 +1104,19 @@ def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     if data.get("description"):
         description_field = f"{data['description']}"
 
-    description: str = ""
-    if isDelete:
-        description += "~~"
-
-    description += f"""### {data['title']} {status_text}
-
+    description: str = f"""### {data['title']} {status_text}
 - **{ts.get(f'{pf}pb-host')}:** {data['host_mention']}
 - **{ts.get(f'{pf}pb-player-count')}:** {len(data['participants'])} / {data['max_users']}
 - **{ts.get(f'{pf}pb-player-joined')}:** {participants_str}
 - **{ts.get(f'{pf}pb-mission')}:** {data['mission']}
 
-{description_field}
-"""
+{description_field}"""
     # > {ts.get(f'{pf}pb-desc')}
     # ```
     # /w {data['game_nickname']}
     # ```
     if isDelete:
-        description += "~~"
+        description = "~~" + description.replace("~~", "") + "~~"
 
     embed = discord.Embed(
         description=description.strip(), color=color if not isDelete else 0xFF0000

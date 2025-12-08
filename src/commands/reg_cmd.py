@@ -419,7 +419,7 @@ async def register_main_commands(
         interact: discord.Interaction,
         trade_type: discord.app_commands.Choice[int],
         item_name: str,
-        game_nickname: str,
+        game_nickname: str = "",
         item_rank: int = 0,
         price: int = 0,
         quantity: int = 1,
