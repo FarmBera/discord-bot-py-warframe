@@ -89,12 +89,12 @@ def w_duviri_warframe(rotation):
             break
 
         jtem = warframe_list[idx]
-        tstamp += ADD_ONE_WEEK
         output_msg += (
             f"{convert_remain(tstamp)}: "
             + ", ".join([f"{ts.trs(i)} {get_emoji(i)}" for i in jtem])
             + "\n"
         )
+        tstamp += ADD_ONE_WEEK
     return create_embed(output_msg)
 
 
