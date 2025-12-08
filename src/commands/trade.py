@@ -10,6 +10,7 @@ from src.constants.keys import (
     LFG_WEBHOOK_NAME,
     COOLDOWN_BTN_ACTION,
     COOLDOWN_BTN_MANAGE,
+    COOLDOWN_BTN_CALL,
 )
 from src.parser.marketsearch import get_slug_data, categorize, create_market_url
 from src.utils.data_manager import CHANNELS, ADMINS
@@ -402,6 +403,9 @@ class TradeView(discord.ui.View):
         self.cooldown_manage = commands.CooldownMapping.from_cooldown(
             1, COOLDOWN_BTN_MANAGE, commands.BucketType.user
         )
+        self.cooldown_call = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_CALL, commands.BucketType.user
+        )
 
     async def is_cooldown(
         self, interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
@@ -460,7 +464,7 @@ class TradeView(discord.ui.View):
             msg=f"TradeView -> trade_action",
         )
 
-        if await self.is_cooldown(interact, self.cooldown_manage):
+        if await self.is_cooldown(interact, self.cooldown_call):
             return
 
         db = interact.client.db
