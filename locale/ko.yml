@@ -271,10 +271,11 @@ cmd:
     # basic commands
     cmd: 파티생성
     desc: "새로운 파티 구인 글을 생성합니다. (종합 게임 대상)"
-    title: 파티 모집 제목
-    miss-types: 게임 이름
-    descript: "[선택사항] 모집 글에 대한 세부설명"
-    nou: "[선택사항] 최대 파티원 수 (본인 포함)"
+
+    desc-title: 파티 모집 제목
+    desc-miss-types: 게임 이름
+    desc-descript: "[선택사항] 모집 글에 대한 세부설명"
+    desc-nou: "[선택사항] 최대 파티원 수 (본인 포함)"
 
     err: 알 수 없는 오류. 관리자에게 문의해주세요.
     # PartyEditodal
@@ -438,7 +439,12 @@ cmd:
     # interactions
     created-trade: "✅ `{ch}` 에 거래 글을 생성했습니다! {mention}"
     confirm-trade: "# 정말로 거래를 요청할까요?"
-    trade-request: "{host_mention}, {user_mention} 님이 거래를 요청했어요!"
+    trade-request: |
+      {host_mention}, {user_mention} 님이 거래를 요청했어요!
+      > 초대 명령어 복사 (드래그 또는 우측 복사버튼 이용)
+      ```
+      /inv {user}
+      ```
     confirm-delete: "# 정말로 이 거래 글을 닫을까요?\n거래가 종료되면 게시글을 수정할 수 없고, **다시 활성화할 수 없어요!**"
     deleted: "> 거래 게시자가 거래를 종료했어요."
     canceled: "작업이 취소되었어요."

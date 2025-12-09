@@ -10,6 +10,10 @@ def print_test_err(msg: str = "") -> str:
     return tberr
 
 
+def return_test_err() -> str:
+    return traceback.format_exc()
+
+
 def err_text(err_code: str) -> str:
     return ts.get("general.error-cmd") + err_code
 

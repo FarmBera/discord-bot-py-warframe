@@ -3,7 +3,7 @@ from discord.ext import commands
 import sqlite3
 import asyncio
 
-from src.utils.return_err import print_test_err
+from src.utils.return_err import print_test_err, return_test_err
 from config.config import LOG_TYPE
 from config.TOKEN import base_url_market_image
 from src.translator import ts
@@ -353,7 +353,11 @@ class ConfirmTradeView(discord.ui.View):
 
             await self.original_message.channel.send(
                 ts.get(f"{pf}trade-request").format(
-                    host_mention=host_mention, user_mention=interact.user.mention
+                    host_mention=host_mention,
+                    user_mention=interact.user.mention,
+                    user=parseNickname(
+                        interact.user.display_name
+                    ),  # TODO: 닉네임 호출 기능
                 )
             )
             await interact.delete_original_response()
@@ -687,25 +691,28 @@ def build_trade_embed(
 
     # color
     color = 0x00FF00 if not isDelete else 0xFF0000
+    ttype_rev: str = (  # reverse trade type
+        ts.get("cmd.trade.type-buy")
+        if data["trade_type"] == ts.get(f"cmd.trade.type-sell")
+        else ts.get(f"cmd.trade.type-sell")
+    )
 
     description: str = "~~" if isDelete else ""
     description += f"""
 - **{ts.get(f'{pf}creator')}:** {data['host_mention']}
 - **{ts.get(f'{pf}item-name')}:** {create_market_url(data['item_name'])}
-- **{ts.get(f'{pf}price-per')}:** `{data['price']:,} {ts.get(f'{pf}platinum')}` (총 {data['price'] * data['quantity']:,} 플레)
+- **{ts.get(f'{pf}price-per')}:** `{data['price']:,} {ts.get(f'{pf}platinum')}` (총합 {data['price'] * data['quantity']:,} 플레)
 - **{ts.get(f'{pf}quantity')}:** `{data['quantity']:,}` 개
 """
+    rank: int = (
+        f" ({data['item_rank']} 랭크)" if int(data["item_rank"]) not in [0, 1] else ""
+    )
     if not isDelete:
         description += f"""
-> 귓속말 명령어 복사
+> 귓속말 명령어 복사 (드래그 또는 우측 복사버튼 이용)
 ```
-/w {data['game_nickname']}
-```
-> 파티 초대 명령어 복사
-```
-/inv {data['game_nickname']}
-```
-"""
+/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' {data['quantity']}개를 {data['price']} 플레로 {ttype_rev}하고 싶어요.
+```"""
     if isDelete:
         description += "~~"
 
@@ -785,6 +792,8 @@ async def cmd_create_trade_helper(
     # setup nickname
     game_nickname = parseNickname(interact.user.display_name)
 
+    OUTPUT_MSG: str = ""
+
     # search market
     try:
         flag: bool = False
@@ -801,12 +810,11 @@ async def cmd_create_trade_helper(
 
         # automatic price setup
         async def set_price(price) -> int:
+            nonlocal OUTPUT_MSG
             market = await API_MarketSearch(log_lock, item_slug)
 
             if market.status_code == 404:  # api not found
-                await interact.followup.send(
-                    ts.get(f"{pf}err-no-market"), ephemeral=True
-                )
+                OUTPUT_MSG += f"{ts.get(f"{pf}err-no-market")}\n\n"
                 return price if price else 0, market.json()
             elif market.status_code != 200:
                 raise ValueError("resp-code is not 200 or resp err")
@@ -817,26 +825,25 @@ async def cmd_create_trade_helper(
                 return price, market
 
             price_list: list = []
-            for i in range(6):
+            length: int = len(market)
+            for i in range(length if length < 6 else 6):
                 price_list.append(market[i]["platinum"])
 
             price = sum(price_list) // len(price_list)
-            await interact.followup.send(
-                ts.get(f"{pf}auto-price").format(price=price), ephemeral=True
-            )
+            OUTPUT_MSG += f"{ts.get(f"{pf}auto-price").format(price=price)}\n\n"
             return price, market
 
         try:
             price, market = await set_price(price)
         except Exception as e:
-            await interact.followup.send(ts.get(f"{pf}err-api"), ephemeral=True)
+            OUTPUT_MSG += f"{ts.get(f"{pf}err-api")}\n\n"
             await save_log(
                 lock=interact.client.log_lock,
                 type="cmd.api",
                 cmd=f"cmd.trade",
                 interact=interact,
                 msg="[err] Market API Failed",
-                obj=f"{RESULT}Type:{trade_type}, Item:{item_name}, Qty:{quantity}, Price:{price}",
+                obj=f"{RESULT}Type:{trade_type}, Item:{item_name}, Qty:{quantity}, Price:{price}\n{OUTPUT_MSG}{return_test_err()}",
             )
             price = price if price else 0
 
@@ -888,12 +895,10 @@ async def cmd_create_trade_helper(
         thread = await thread_starter_msg.create_thread(name=thread_name)
 
         # send created msg
-        await interact.followup.send(
-            ts.get(f"{pf}created-trade").format(
-                ch=target_channel.name, mention=thread.mention
-            ),
-            ephemeral=True,
+        OUTPUT_MSG += ts.get(f"{pf}created-trade").format(
+            ch=target_channel.name, mention=thread.mention
         )
+        await interact.followup.send(OUTPUT_MSG, ephemeral=True)
 
         ############################
         initial_data = {
