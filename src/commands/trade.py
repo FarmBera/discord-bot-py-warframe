@@ -61,7 +61,7 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
                 msg=f"EditTradeModal -> Clicked Submit",
                 obj=f"{self.input_nickname.value}",
             )
-        except Exception as e:
+        except Exception:
             await interact.response.send_message(
                 ts.get(f"{pf}err-edit"), ephemeral=True
             )
@@ -71,7 +71,7 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
                 cmd="btn.edit.article",
                 interact=interact,
                 msg=f"EditTradeModal -> Clicked Submit",
-                obj=f"{e}\nT:{self.input_nickname.value}",
+                obj=f"T:{self.input_nickname.value}\n{return_test_err()}",
             )
 
 
@@ -125,7 +125,7 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
                 msg=f"EditQuantityModal -> Clicked Submit",
                 obj=new_quantity_str,
             )
-        except Exception as e:
+        except Exception:
             await interact.response.send_message(
                 ts.get(f"{pf}err-edit"), ephemeral=True
             )
@@ -135,7 +135,7 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
                 cmd="btn.edit.quantity",
                 interact=interact,
                 msg=f"EditQuantityModal -> Clicked Submit '{new_quantity_str}'",
-                obj=e,
+                obj=return_test_err(),
             )
 
 
@@ -182,7 +182,7 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
                 msg=f"EditPriceModal -> Clicked Submit",
                 obj=new_price_str,
             )
-        except Exception as e:
+        except Exception:
             await interact.response.send_message(
                 ts.get(f"{pf}err-edit"), ephemeral=True
             )
@@ -192,7 +192,7 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
                 cmd="btn.edit.price",
                 interact=interact,
                 msg=f"EditPriceModal -> Clicked Submit '{new_price_str}' but ERR",
-                obj=e,
+                obj=return_test_err(),
             )
 
 
@@ -280,15 +280,15 @@ class ConfirmDeleteView(discord.ui.View):
                 interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes | but Forbidden\n{e}",
             )
-        except Exception as e:
+        except Exception:
             await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.event,
                 cmd="btn.confirm.delete",
                 interact=interact,
-                msg=f"ConfirmDeleteView -> clicked yes | but ERR\n{e}",
-                obj=e,
+                msg=f"ConfirmDeleteView -> clicked yes | but ERR",
+                obj=return_test_err(),
             )
 
         self.value = True
@@ -363,7 +363,7 @@ class ConfirmTradeView(discord.ui.View):
             await interact.delete_original_response()
             self.value = True
             self.stop()
-        except Exception as e:
+        except Exception:
             if not interact.response.is_done():
                 await interact.response.edit_message(
                     content=ts.get(f"{pf}err-general"), view=None
@@ -377,7 +377,7 @@ class ConfirmTradeView(discord.ui.View):
                 cmd="btn.confirm.trade",
                 interact=interact,
                 msg=f"ConfirmTradeView -> ERR",
-                obj=e,
+                obj=return_test_err(),
             )
 
     @discord.ui.button(
@@ -705,7 +705,9 @@ def build_trade_embed(
 - **{ts.get(f'{pf}quantity')}:** `{data['quantity']:,}` 개
 """
     rank: int = (
-        f" ({data['item_rank']} 랭크)" if int(data["item_rank"]) not in [0, 1] else ""
+        f" ({data['item_rank']} 랭크)"
+        if data.get("item_rank") and int(data.get("item_rank")) not in [0, 1]
+        else ""
     )
     if not isDelete:
         description += f"""
@@ -835,7 +837,7 @@ async def cmd_create_trade_helper(
 
         try:
             price, market = await set_price(price)
-        except Exception as e:
+        except Exception:
             OUTPUT_MSG += f"{ts.get(f"{pf}err-api")}\n\n"
             await save_log(
                 lock=interact.client.log_lock,
@@ -938,7 +940,7 @@ async def cmd_create_trade_helper(
             ephemeral=True,
         )
         RESULT += f"HTTPException {e}\n"
-    except Exception as e:
+    except Exception:
         await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
         RESULT += f"ERROR {print_test_err()}"
 
