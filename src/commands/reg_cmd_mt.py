@@ -13,9 +13,10 @@ from src.constants.keys import (
 
 from src.commands.cmd_helper_text import cmd_helper_txt
 from src.commands.cmd_maintenance import cmd_helper_maintenance
+from src.parser.marketsearch import get_market_item_names
 
 
-async def register_maintenance_commands(tree: discord.app_commands.CommandTree) -> None:
+async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> None:
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
@@ -215,84 +216,6 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
-        name=ts.get(f"cmd.market-search.cmd"),
-        description=ts.get(f"cmd.market-search.desc"),
-    )
-    async def cmd_market_search(interact: discord.Interaction, item_name: str):
-        await cmd_helper_maintenance(interact, f"market-search:{item_name}")
-
-    # @tree.command(
-    #     name=ts.get(f"cmd.vallis.cmd"),
-    #     description=ts.get(f"cmd.vallis.desc"),
-    # )
-    # async def cmd_vallis(interact: discord.Interaction):
-    #     await cmd_helper_maintenance(interact)
-
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
-    )
-    @tree.command(
-        name=ts.get(f"cmd.party.cmd"),
-        description=ts.get("cmd.party.desc"),
-    )
-    @discord.app_commands.describe(
-        title=ts.get("cmd.party.title"),
-        # game_nickname="인게임 닉네임",
-        game_type=ts.get(f"cmd.party.miss-types"),
-        descriptions=ts.get("cmd.party.descript"),
-        number_of_user=ts.get("cmd.party.nou"),
-    )
-    async def cmd_create_party(
-        interact: discord.Interaction,
-        title: str,
-        # game_nickname: str,
-        game_type: str,
-        descriptions: str = "(설명 없음)",
-        number_of_user: int = 4,
-    ) -> None:
-        await cmd_helper_maintenance(
-            interact, f"party::{title}::{game_type}::{descriptions}:{number_of_user}"
-        )
-
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
-    )
-    @tree.command(
-        name=ts.get(f"cmd.trade.cmd"),
-        description=ts.get("cmd.trade.desc"),
-    )
-    @discord.app_commands.choices(
-        trade_type=[
-            discord.app_commands.Choice(name=ts.get(f"cmd.trade.type-sell"), value=1),
-            discord.app_commands.Choice(name=ts.get("cmd.trade.type-buy"), value=2),
-        ]
-    )
-    @discord.app_commands.describe(
-        trade_type=ts.get(f"cmd.trade.desc-trade-type"),
-        item_name=ts.get(f"cmd.trade.desc-item-name"),
-        item_rank=ts.get(f"cmd.trade.desc-item-rank"),
-        game_nickname=ts.get(f"cmd.trade.desc-nickname"),
-        price=ts.get("cmd.trade.desc-price"),
-        quantity=ts.get("cmd.trade.desc-qty"),
-    )
-    async def cmd_create_trade(
-        interact: discord.Interaction,
-        trade_type: discord.app_commands.Choice[int],
-        item_name: str,
-        game_nickname: str = "",
-        item_rank: int = 0,
-        price: int = 0,
-        quantity: int = 1,
-    ) -> None:
-        await cmd_helper_maintenance(
-            interact,
-            f"trade::{trade_type}::{item_name}::{game_nickname}::{item_rank}::{price}::{item_rank}::{quantity}",
-        )
-
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
-    )
-    @tree.command(
         name=ts.get(f"cmd.duviri-circuit.wf-cmd"),
         description=ts.get(f"cmd.duviri-circuit.wf-desc"),
     )
@@ -330,3 +253,214 @@ async def register_maintenance_commands(tree: discord.app_commands.CommandTree) 
         interact: discord.Interaction,
     ) -> None:
         await cmd_helper_maintenance(interact, "complain")
+
+
+async def register_mt_sub_cmds(tree: discord.app_commands.CommandTree) -> None:
+    # search 'warframe.market' commnad
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.market-search.cmd"),
+        description=ts.get(f"cmd.market-search.desc"),
+    )
+    async def cmd_market_search(
+        interact: discord.Interaction, item_name: str, item_rank: int = None
+    ):
+        await cmd_helper_maintenance(interact, f"market-search:{item_name}:{item_rank}")
+
+    @cmd_market_search.autocomplete("item_name")
+    async def market_search_autocomplete(
+        interact: discord.Interaction,
+        current: str,
+    ) -> list[discord.app_commands.Choice[str]]:
+        """Autocompletes the item name for the market search."""
+        choices = [
+            discord.app_commands.Choice(name=name, value=name)
+            for name in get_market_item_names()
+            if current.lower() in name.lower()
+        ]
+        return choices[:25]
+
+    # create party
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.party.cmd"),
+        description=ts.get("cmd.party.desc"),
+    )
+    @discord.app_commands.describe(
+        title=ts.get("cmd.party.title"),
+        # game_nickname="인게임 닉네임",
+        game_type=ts.get(f"cmd.party.miss-types"),
+        descriptions=ts.get("cmd.party.descript"),
+        number_of_user=ts.get("cmd.party.nou"),
+    )
+    async def cmd_create_party(
+        interact: discord.Interaction,
+        title: str,
+        # game_nickname: str,
+        game_type: str,
+        descriptions: str = "(설명 없음)",
+        number_of_user: int = 4,
+    ) -> None:
+        await cmd_helper_maintenance(
+            interact, f"party::{title}::{game_type}::{descriptions}:{number_of_user}"
+        )
+
+    # create trade article
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.trade.cmd"),
+        description=ts.get("cmd.trade.desc"),
+    )
+    @discord.app_commands.choices(
+        trade_type=[
+            discord.app_commands.Choice(name=ts.get(f"cmd.trade.type-sell"), value=1),
+            discord.app_commands.Choice(name=ts.get("cmd.trade.type-buy"), value=2),
+        ]
+    )
+    @discord.app_commands.describe(
+        trade_type=ts.get(f"cmd.trade.desc-trade-type"),
+        item_name=ts.get(f"cmd.trade.desc-item-name"),
+        item_rank=ts.get(f"cmd.trade.desc-item-rank"),
+        game_nickname=ts.get(f"cmd.trade.desc-nickname"),
+        price=ts.get("cmd.trade.desc-price"),
+        quantity=ts.get("cmd.trade.desc-qty"),
+    )
+    async def cmd_create_trade(
+        interact: discord.Interaction,
+        trade_type: discord.app_commands.Choice[int],
+        item_name: str,
+        game_nickname: str = "",
+        item_rank: int = 0,
+        price: int = 0,
+        quantity: int = 1,
+    ) -> None:
+        await cmd_helper_maintenance(
+            interact,
+            f"trade::{trade_type}::{item_name}::{game_nickname}::{item_rank}::{price}::{item_rank}::{quantity}",
+        )
+
+    @cmd_create_trade.autocomplete("item_name")
+    async def trade_item_name_autocomplete(
+        interact: discord.Interaction,
+        current: str,
+    ) -> list[discord.app_commands.Choice[str]]:
+        """Autocompletes the item name for the market search."""
+        choices = [
+            discord.app_commands.Choice(name=name, value=name)
+            for name in get_market_item_names()
+            if current.lower() in name.lower()
+        ]
+        return choices[:25]
+
+
+async def register_mt_ko_cmds(tree: discord.app_commands.CommandTree) -> None:
+    # search 'warframe.market' commnad
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.market-search.cmd"),
+        description=ts.get(f"cmd.market-search.desc"),
+    )
+    async def cmd_market_search(
+        interact: discord.Interaction, 아이템_이름: str, 아이템_랭크: int = None
+    ):
+        await cmd_helper_maintenance(
+            interact, f"market-search:{아이템_이름}:{아이템_랭크}"
+        )
+
+    @cmd_market_search.autocomplete("아이템_이름")
+    async def market_search_autocomplete(
+        interact: discord.Interaction,
+        current: str,
+    ) -> list[discord.app_commands.Choice[str]]:
+        """Autocompletes the item name for the market search."""
+        choices = [
+            discord.app_commands.Choice(name=name, value=name)
+            for name in get_market_item_names()
+            if current.lower() in name.lower()
+        ]
+        return choices[:25]
+
+    # create party
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.party.cmd"),
+        description=ts.get("cmd.party.desc"),
+    )
+    @discord.app_commands.describe(
+        파티_제목=ts.get("cmd.party.desc-title"),
+        # game_nickname="인게임 닉네임",
+        같이_할_게임이름=ts.get(f"cmd.party.desc-miss-types"),
+        파티_설명=ts.get("cmd.party.desc-descript"),
+        모집_인원수=ts.get("cmd.party.desc-nou"),
+    )
+    async def cmd_create_party(
+        interact: discord.Interaction,
+        파티_제목: str,
+        # game_nickname: str,
+        같이_할_게임이름: str,
+        파티_설명: str = "(설명 없음)",
+        모집_인원수: int = 4,
+    ) -> None:
+        await cmd_helper_maintenance(
+            interact,
+            f"party::{파티_제목}::{같이_할_게임이름}::{파티_설명}:{모집_인원수}",
+        )
+
+    # create trade article
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.trade.cmd"),
+        description=ts.get("cmd.trade.desc"),
+    )
+    @discord.app_commands.choices(
+        거래_종류=[
+            discord.app_commands.Choice(name=ts.get(f"cmd.trade.type-sell"), value=1),
+            discord.app_commands.Choice(name=ts.get("cmd.trade.type-buy"), value=2),
+        ]
+    )
+    @discord.app_commands.describe(
+        거래_종류=ts.get(f"cmd.trade.desc-trade-type"),
+        아이템_이름=ts.get(f"cmd.trade.desc-item-name"),
+        아이템_랭크=ts.get(f"cmd.trade.desc-item-rank"),
+        워프레임_닉네임=ts.get(f"cmd.trade.desc-nickname"),
+        개당_가격=ts.get("cmd.trade.desc-price"),
+        수량=ts.get("cmd.trade.desc-qty"),
+    )
+    async def cmd_create_trade(
+        interact: discord.Interaction,
+        거래_종류: discord.app_commands.Choice[int],
+        아이템_이름: str,
+        워프레임_닉네임: str = "",
+        아이템_랭크: int = 0,
+        개당_가격: int = 0,
+        수량: int = 1,
+    ) -> None:
+        await cmd_helper_maintenance(
+            interact,
+            f"trade::{거래_종류}::{아이템_이름}::{워프레임_닉네임}::{아이템_랭크}::{개당_가격}::{수량}",
+        )
+
+    @cmd_create_trade.autocomplete("아이템_이름")
+    async def trade_item_name_autocomplete(
+        interact: discord.Interaction,
+        current: str,
+    ) -> list[discord.app_commands.Choice[str]]:
+        """Autocompletes the item name for the market search."""
+        choices = [
+            discord.app_commands.Choice(name=name, value=name)
+            for name in get_market_item_names()
+            if current.lower() in name.lower()
+        ]
+        return choices[:25]

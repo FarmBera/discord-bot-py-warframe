@@ -73,7 +73,7 @@ from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
 
 
-async def register_main_commands(
+async def register_main_cmds(
     tree: discord.app_commands.CommandTree, db_conn: sqlite3.Connection
 ) -> None:
 
@@ -310,6 +310,81 @@ async def register_main_commands(
     async def cmd_traders_item(interact: discord.Interaction):
         await cmd_helper(interact, key=VOIDTRADERS, parser_func=w_voidTradersItem)
 
+    # vallisCycle command
+    # @tree.command(
+    #     name=ts.get(f"cmd.vallis.cmd"),
+    #     description=ts.get(f"cmd.vallis.desc"),
+    # )
+    # async def cmd_vallis(interact: discord.Interaction):
+    #     await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)
+
+    # duviri-circuit-warframe
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.duviri-circuit.wf-cmd"),
+        description=ts.get(f"cmd.duviri-circuit.wf-desc"),
+    )
+    async def cmd_circuit_wf(interact: discord.Interaction):
+        await cmd_helper(
+            interact,
+            key=DUVIRI_ROTATION,
+            parser_func=w_duviri_warframe,
+            isFollowUp=True,
+        )
+
+    # duviri-circuit-incarnon
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.duviri-circuit.inc-cmd"),
+        description=ts.get(f"cmd.duviri-circuit.inc-desc"),
+    )
+    async def cmd_circuit_inc(interact: discord.Interaction):
+        await cmd_helper(
+            interact,
+            key=DUVIRI_ROTATION,
+            parser_func=w_duviri_incarnon,
+            isFollowUp=True,
+        )
+
+    # events (like thermina, fomorian)
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.events.cmd"),
+        description=ts.get(f"cmd.events.desc"),
+    )
+    async def cmd_ingame_events(interact: discord.Interaction):
+        await cmd_helper(interact, key=EVENTS, parser_func=w_events)
+
+    # create receive complain
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
+    )
+    async def cmd_receive_complain(interact: discord.Interaction) -> None:
+        if not await is_admin_user(interact):
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.cmd,
+                cmd=f"{LOG_TYPE.cmd}.complain",
+                interact=interact,
+                msg="[info] cmd used, but not authorized",  # VAR
+            )
+            return
+        await cmd_unavailable(interact)
+        # await cmd_create_complain_helper(interact=interact)
+
+
+async def register_sub_cmds(
+    tree: discord.app_commands.CommandTree, db_conn: sqlite3.Connection
+) -> None:
     # search 'warframe.market' commnad
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -343,14 +418,6 @@ async def register_main_commands(
             if current.lower() in name.lower()
         ]
         return choices[:25]
-
-    # vallisCycle command
-    # @tree.command(
-    #     name=ts.get(f"cmd.vallis.cmd"),
-    #     description=ts.get(f"cmd.vallis.desc"),
-    # )
-    # async def cmd_vallis(interact: discord.Interaction):
-    #     await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)
 
     # create party
     @discord.app_commands.checks.cooldown(
@@ -458,65 +525,146 @@ async def register_main_commands(
         ]
         return choices[:25]
 
-    # duviri-circuit-warframe
+
+async def register_ko_cmds(
+    tree: discord.app_commands.CommandTree, db_conn: sqlite3.Connection
+) -> None:
+    # search 'warframe.market' commnad
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
-        name=ts.get(f"cmd.duviri-circuit.wf-cmd"),
-        description=ts.get(f"cmd.duviri-circuit.wf-desc"),
+        name=ts.get(f"cmd.market-search.cmd"),
+        description=ts.get(f"cmd.market-search.desc"),
     )
-    async def cmd_circuit_wf(interact: discord.Interaction):
+    async def cmd_market_search(
+        interact: discord.Interaction, 아이템_이름: str, 아이템_랭크: int = None
+    ):
+        """Search for an item on warframe.market."""
         await cmd_helper(
             interact,
-            key=DUVIRI_ROTATION,
-            parser_func=w_duviri_warframe,
+            key=MARKET_SEARCH,
+            parser_func=w_market_search,
             isFollowUp=True,
+            isMarketQuery=True,
+            marketQuery=(아이템_이름, 아이템_랭크),
         )
 
-    # duviri-circuit-incarnon
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
-    )
-    @tree.command(
-        name=ts.get(f"cmd.duviri-circuit.inc-cmd"),
-        description=ts.get(f"cmd.duviri-circuit.inc-desc"),
-    )
-    async def cmd_circuit_inc(interact: discord.Interaction):
-        await cmd_helper(
-            interact,
-            key=DUVIRI_ROTATION,
-            parser_func=w_duviri_incarnon,
-            isFollowUp=True,
-        )
+    @cmd_market_search.autocomplete("아이템_이름")
+    async def market_search_autocomplete(
+        interact: discord.Interaction,
+        current: str,
+    ) -> list[discord.app_commands.Choice[str]]:
+        """Autocompletes the item name for the market search."""
+        choices = [
+            discord.app_commands.Choice(name=name, value=name)
+            for name in get_market_item_names()
+            if current.lower() in name.lower()
+        ]
+        return choices[:25]
 
-    # events (like thermina, fomorian)
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
-    )
-    @tree.command(
-        name=ts.get(f"cmd.events.cmd"),
-        description=ts.get(f"cmd.events.desc"),
-    )
-    async def cmd_ingame_events(interact: discord.Interaction):
-        await cmd_helper(interact, key=EVENTS, parser_func=w_events)
-
-    # create receive complain
+    # create party
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
-        name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
+        name=ts.get(f"cmd.party.cmd"),
+        description=ts.get("cmd.party.desc"),
     )
-    async def cmd_receive_complain(interact: discord.Interaction) -> None:
+    @discord.app_commands.describe(
+        파티_제목=ts.get("cmd.party.desc-title"),
+        # game_nickname="인게임 닉네임",
+        같이_할_게임이름=ts.get(f"cmd.party.desc-miss-types"),
+        파티_설명=ts.get("cmd.party.desc-descript"),
+        모집_인원수=ts.get("cmd.party.desc-nou"),
+    )
+    async def cmd_create_party(
+        interact: discord.Interaction,
+        파티_제목: str,
+        # game_nickname: str,
+        같이_할_게임이름: str,
+        파티_설명: str = "(설명 없음)",
+        모집_인원수: int = 4,
+    ) -> None:
         if not await is_admin_user(interact):
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.cmd,
-                cmd=f"{LOG_TYPE.cmd}.complain",
+                cmd=f"{LOG_TYPE.cmd}.party",
                 interact=interact,
                 msg="[info] cmd used, but not authorized",  # VAR
             )
             return
-        await cmd_unavailable(interact)
-        # await cmd_create_complain_helper(interact=interact)
+        await cmd_create_party_helper(
+            interact=interact,
+            db_conn=db_conn,
+            title=파티_제목,
+            number_of_user=모집_인원수,
+            mission_type=같이_할_게임이름,
+            description=파티_설명,
+        )
+
+    # create trade article
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.trade.cmd"),
+        description=ts.get("cmd.trade.desc"),
+    )
+    @discord.app_commands.choices(
+        거래_종류=[
+            discord.app_commands.Choice(name=ts.get(f"cmd.trade.type-sell"), value=1),
+            discord.app_commands.Choice(name=ts.get("cmd.trade.type-buy"), value=2),
+        ]
+    )
+    @discord.app_commands.describe(
+        거래_종류=ts.get(f"cmd.trade.desc-trade-type"),
+        아이템_이름=ts.get(f"cmd.trade.desc-item-name"),
+        아이템_랭크=ts.get(f"cmd.trade.desc-item-rank"),
+        워프레임_닉네임=ts.get(f"cmd.trade.desc-nickname"),
+        개당_가격=ts.get("cmd.trade.desc-price"),
+        수량=ts.get("cmd.trade.desc-qty"),
+    )
+    async def cmd_create_trade(
+        interact: discord.Interaction,
+        거래_종류: discord.app_commands.Choice[int],
+        아이템_이름: str,
+        워프레임_닉네임: str = "",
+        아이템_랭크: int = 0,
+        개당_가격: int = 0,
+        수량: int = 1,
+    ) -> None:
+        if not await is_admin_user(interact):
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.cmd,
+                cmd=f"{LOG_TYPE.cmd}.trade",
+                interact=interact,
+                msg="[info] cmd used, but not authorized",  # VAR
+            )
+            return
+        await cmd_create_trade_helper(
+            interact=interact,
+            db_conn=db_conn,
+            trade_type=거래_종류.name,
+            game_nickname=워프레임_닉네임,
+            item_name=아이템_이름,
+            item_rank=아이템_랭크,
+            price=개당_가격,
+            quantity=수량,
+            # description=descriptions,
+        )
+
+    @cmd_create_trade.autocomplete("아이템_이름")
+    async def trade_item_name_autocomplete(
+        interact: discord.Interaction,
+        current: str,
+    ) -> list[discord.app_commands.Choice[str]]:
+        """Autocompletes the item name for the market search."""
+        choices = [
+            discord.app_commands.Choice(name=name, value=name)
+            for name in get_market_item_names()
+            if current.lower() in name.lower()
+        ]
+        return choices[:25]

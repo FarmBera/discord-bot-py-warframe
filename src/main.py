@@ -7,6 +7,7 @@ import traceback
 
 log_lock = asyncio.Lock()
 
+from config.config import language as lang, Lang
 from config.TOKEN import TOKEN as BOT_TOKEN
 from db.query import *
 from src.constants.color import C
@@ -15,8 +16,16 @@ from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
 
-from src.commands.reg_cmd import register_main_commands
-from src.commands.reg_cmd_mt import register_maintenance_commands
+from src.commands.reg_cmd import (
+    register_main_cmds,
+    register_sub_cmds,
+    register_ko_cmds,
+)
+from src.commands.reg_cmd_mt import (
+    register_maintenance_cmds,
+    register_mt_sub_cmds,
+    register_mt_ko_cmds,
+)
 
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
@@ -102,14 +111,23 @@ async def main_manager() -> None:
             db_conn.commit()
             current_bot.db = db_conn
 
-            await register_main_commands(tree, db_conn)
+            await register_main_cmds(tree, db_conn)
+            if lang == Lang.KO:
+                await register_ko_cmds(tree, db_conn)
+            else:
+                await register_sub_cmds(tree, db_conn)
 
         elif bot_mode == CMD_MAINTENANCE:
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
             current_bot = MaintanceBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
-            await register_maintenance_commands(tree)
+
+            await register_maintenance_cmds(tree)
+            if lang == Lang.KO:
+                await register_mt_ko_cmds(tree)
+            else:
+                await register_mt_sub_cmds(tree)
 
         else:
             break
