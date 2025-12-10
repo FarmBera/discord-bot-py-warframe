@@ -73,10 +73,7 @@ from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
 
 
-async def register_main_cmds(
-    tree: discord.app_commands.CommandTree, db_conn: sqlite3.Connection
-) -> None:
-
+async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:
     # help command
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -382,9 +379,7 @@ async def register_main_cmds(
         # await cmd_create_complain_helper(interact=interact)
 
 
-async def register_sub_cmds(
-    tree: discord.app_commands.CommandTree, db_conn: sqlite3.Connection
-) -> None:
+async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:
     # search 'warframe.market' commnad
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -430,7 +425,7 @@ async def register_sub_cmds(
     @discord.app_commands.describe(
         title=ts.get("cmd.party.title"),
         # game_nickname="인게임 닉네임",
-        game_type=ts.get(f"cmd.party.miss-types"),
+        game_name=ts.get(f"cmd.party.miss-types"),
         descriptions=ts.get("cmd.party.descript"),
         number_of_user=ts.get("cmd.party.nou"),
     )
@@ -438,7 +433,7 @@ async def register_sub_cmds(
         interact: discord.Interaction,
         title: str,
         # game_nickname: str,
-        game_type: str,
+        game_name: str,
         descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
@@ -453,10 +448,10 @@ async def register_sub_cmds(
             return
         await cmd_create_party_helper(
             interact=interact,
-            db_conn=db_conn,
+            db_pool=db_pool,
             title=title,
             number_of_user=number_of_user,
-            mission_type=game_type,
+            game_name=game_name,
             description=descriptions,
         )
 
@@ -502,7 +497,7 @@ async def register_sub_cmds(
             return
         await cmd_create_trade_helper(
             interact=interact,
-            db_conn=db_conn,
+            db_pool=db_pool,
             trade_type=trade_type.name,
             game_nickname=game_nickname,
             item_name=item_name,
@@ -526,9 +521,7 @@ async def register_sub_cmds(
         return choices[:25]
 
 
-async def register_ko_cmds(
-    tree: discord.app_commands.CommandTree, db_conn: sqlite3.Connection
-) -> None:
+async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:
     # search 'warframe.market' commnad
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -597,10 +590,10 @@ async def register_ko_cmds(
             return
         await cmd_create_party_helper(
             interact=interact,
-            db_conn=db_conn,
+            db_pool=db_pool,
             title=파티_제목,
             number_of_user=모집_인원수,
-            mission_type=같이_할_게임이름,
+            game_name=같이_할_게임이름,
             description=파티_설명,
         )
 
@@ -646,7 +639,7 @@ async def register_ko_cmds(
             return
         await cmd_create_trade_helper(
             interact=interact,
-            db_conn=db_conn,
+            db_pool=db_pool,
             trade_type=거래_종류.name,
             game_nickname=워프레임_닉네임,
             item_name=아이템_이름,

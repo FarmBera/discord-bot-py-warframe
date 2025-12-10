@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import sqlite3
 
 from config.config import LOG_TYPE
 from src.translator import ts
@@ -12,6 +11,8 @@ from src.constants.keys import (
 )
 from src.utils.data_manager import CHANNELS, ADMINS
 from src.utils.logging_utils import save_log
+from src.utils.return_err import print_test_err, return_test_err
+from src.utils.db_helper import transaction, query_reader
 
 MIN_SIZE: int = 2
 MAX_SIZE: int = 20
@@ -20,7 +21,7 @@ pf: str = "cmd.party."
 
 
 def parseNickname(nickname: str) -> str:
-    return nickname.split(" ")[-1]
+    return nickname.split("]")[-1].strip()
 
 
 # define article editor modal
@@ -51,24 +52,22 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf}edit-title")):
         self.add_item(self.desc_input)
 
     async def on_submit(self, interact: discord.Interaction):
+        db_pool = interact.client.db
         try:
-            db = interact.client.db
-            cursor = db.cursor()
-
-            # update DB
-            cursor.execute(
-                "UPDATE party SET title = ?, mission_type = ?, description = ? WHERE message_id = ?",
-                (
-                    self.title_input.value,
-                    self.mission_input.value,
-                    self.desc_input.value,
-                    interact.message.id,
-                ),
-            )
-            db.commit()
+            async with transaction(db_pool) as cursor:
+                # update DB
+                await cursor.execute(
+                    "UPDATE party SET title = %s, game_name = %s, description = %s WHERE message_id = %s",
+                    (
+                        self.title_input.value,
+                        self.mission_input.value,
+                        self.desc_input.value,
+                        interact.message.id,
+                    ),
+                )
 
             # refresh Embed
-            new_embed = await build_party_embed_from_db(interact.message.id, db)
+            new_embed = await build_party_embed_from_db(interact.message.id, db_pool)
             await interact.response.edit_message(embed=new_embed)
 
             # edit thread title & webhook msg
@@ -103,17 +102,18 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf}edit-title")):
                 obj=f"{self.title_input.value}\n{self.mission_input.value}\n{self.desc_input.value}",
             )
 
-        except Exception as e:
-            await interact.response.send_message(
-                ts.get(f"{pf}edit-err"), ephemeral=True
-            )
+        except Exception:
+            if not interact.response.is_done():
+                await interact.response.send_message(
+                    ts.get(f"{pf}edit-err"), ephemeral=True
+                )
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.e_event,
                 cmd="btn.edit.article",
                 interact=interact,
                 msg=f"PartyEditModal -> Clicked Submit",
-                obj=f"{e}\nT:{self.title_input.value}\nTYP:{self.mission_input.value}\nDESC:{self.desc_input.value}",
+                obj=f"T:{self.title_input.value}\nTYP:{self.mission_input.value}\nDESC:{self.desc_input.value}\n{return_test_err()}",
             )
 
 
@@ -149,32 +149,38 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
                 return
 
             new_max_size = int(new_max_size_str)
-            db = interact.client.db
-            cursor = db.cursor()
+            db_pool = interact.client.db
 
-            # check the current number of participants
-            current_participants_count = cursor.execute(
-                "SELECT COUNT(*) FROM participants p JOIN party pa ON p.party_id = pa.id WHERE pa.message_id = ?",
-                (interact.message.id,),
-            ).fetchone()[0]
-
-            # overflow current participants
-            if new_max_size < current_participants_count:
-                await interact.response.send_message(
-                    f"{ts.get(f'{pf}size-err-high-1').format(size=current_participants_count)}",
-                    ephemeral=True,
+            async with transaction(db_pool) as cursor:
+                # check the current number of participants
+                await cursor.execute(
+                    "SELECT COUNT(*) as cnt FROM participants p JOIN party pa ON p.party_id = pa.id WHERE pa.message_id = %s",
+                    (interact.message.id,),
                 )
-                return
+                result = await cursor.fetchone()
+                current_participants_count = result.get("cnt")
 
-            # update DB
-            cursor.execute(
-                "UPDATE party SET max_users = ? WHERE message_id = ?",
-                (new_max_size, interact.message.id),
-            )
-            db.commit()
+                if not current_participants_count:
+                    await interact.response.send_message(
+                        ts.get(f"{pf}err-party-count"), ephemeral=True
+                    )
+
+                # overflow current participants
+                if new_max_size < current_participants_count:
+                    await interact.response.send_message(
+                        f"{ts.get(f'{pf}size-err-high-1').format(size=current_participants_count)}",
+                        ephemeral=True,
+                    )
+                    return
+
+                # update DB
+                await cursor.execute(
+                    "UPDATE party SET max_users = %s WHERE message_id = %s",
+                    (new_max_size, interact.message.id),
+                )
 
             # refresh Embed
-            new_embed = await build_party_embed_from_db(interact.message.id, db)
+            new_embed = await build_party_embed_from_db(interact.message.id, db_pool)
             await interact.response.edit_message(embed=new_embed)
 
             await save_log(
@@ -186,15 +192,16 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
                 obj=new_max_size_str,
             )
 
-        except Exception as e:
-            await interact.response.send_message(ts.get(f"{pf}err"), ephemeral=True)
+        except Exception:
+            if not interact.response.is_done():
+                await interact.response.send_message(ts.get(f"{pf}err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.e_event,
                 cmd="btn.edit.partysize",
                 interact=interact,
                 msg=f"PartySizeModal -> Clicked Submit '{new_max_size_str}'",
-                obj=e,
+                obj=return_test_err(),
             )
 
 
@@ -217,10 +224,14 @@ class ConfirmDeleteView(discord.ui.View):
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
         await interact.response.defer()
-
         try:
-            db = interact.client.db
-            cursor = db.cursor()
+            await interact.delete_original_response()
+            db_pool = interact.client.db
+            # delete party info from DB
+            async with transaction(db_pool) as cursor:
+                await cursor.execute(
+                    "DELETE FROM party WHERE thread_id = %s", (interact.channel.id,)
+                )
 
             # refresh Embed
             message = await interact.channel.fetch_message(self.msgid)
@@ -255,12 +266,6 @@ class ConfirmDeleteView(discord.ui.View):
             except discord.NotFound:
                 pass  # starter msg not found, maybe deleted manually
 
-            # delete party info from DB
-            cursor.execute(
-                "DELETE FROM party WHERE thread_id = ?", (interact.channel.id,)
-            )
-            db.commit()
-
             # lock the thread
             if isinstance(interact.channel, discord.Thread):
                 await interact.channel.edit(locked=True)
@@ -274,7 +279,8 @@ class ConfirmDeleteView(discord.ui.View):
             )
 
         except discord.Forbidden as e:
-            await interact.response.send_message(ts.get(f"{pf}del-err"), ephemeral=True)
+            await interact.delete_original_response()
+            await interact.followup.send(ts.get(f"{pf}del-err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.event,
@@ -283,16 +289,16 @@ class ConfirmDeleteView(discord.ui.View):
                 msg=f"ConfirmDeleteView -> clicked yes | but Forbidden\n{e}",
             )
         except Exception as e:
-            await interact.response.send_message(ts.get(f"{pf}err"), ephemeral=True)
+            await interact.delete_original_response()
+            await interact.followup.send(ts.get(f"{pf}err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.event,
                 cmd="btn.confirm.delete",
                 interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes | but ERR\n{e}",
-                obj=e,
+                obj=return_test_err(),
             )
-        await interact.delete_original_response()
         self.value = True
         self.stop()
 
@@ -340,39 +346,39 @@ class KickMemberSelect(discord.ui.Select):
 
     async def callback(self, interact: discord.Interaction):
         selected_user_id = int(self.values[0])
-        db = interact.client.db
-        cursor = db.cursor()
+        db_pool = interact.client.db
+        kicked_user_mention = f"<@{selected_user_id}>"
 
         await interact.response.defer(ephemeral=True)
 
         try:
-            party_data = db.execute(
-                "SELECT id, host_id FROM party WHERE message_id = ?",
-                (self.original_message_id,),
-            ).fetchone()
-            if not party_data:
-                await interact.response.send_message(
-                    content=ts.get(f"{pf}pv-not-found"), ephemeral=True
+            async with transaction(db_pool) as cursor:
+                await cursor.execute(
+                    "SELECT id, host_id FROM party WHERE message_id = %s",
+                    (self.original_message_id,),
                 )
-                return
+                party_data = await cursor.fetchone()
 
-            party_id = party_data["id"]
-            kicked_user_mention = f"<@{selected_user_id}>"
+                if not party_data:
+                    return
 
-            cursor.execute(
-                "DELETE FROM participants WHERE party_id = ? AND user_id = ?",
-                (party_id, selected_user_id),
-            )
-            db.commit()
+                party_id = party_data["id"]
+                # host_id = party_data["host_id"]
+
+                await cursor.execute(
+                    "DELETE FROM participants WHERE party_id = %s AND user_id = %s",
+                    (party_id, selected_user_id),
+                )
 
             # Fetch the original party message and edit it
             original_message = await interact.channel.fetch_message(
                 self.original_message_id
             )
-            new_embed = await build_party_embed_from_db(self.original_message_id, db)
+            new_embed = await build_party_embed_from_db(
+                self.original_message_id, db_pool
+            )
             await original_message.edit(embed=new_embed)
 
-            host_mention = f"<@{party_data['host_id']}>, "
             # Send notification to the thread and confirmation to the user
             await interact.followup.send(
                 ts.get(f"{pf}pv-kick-success").format(name=kicked_user_mention)
@@ -383,7 +389,7 @@ class KickMemberSelect(discord.ui.Select):
                 type=LOG_TYPE.event,
                 cmd="select.kick.member",
                 interact=interact,
-                msg=f"Kicked user {selected_user_id}",
+                msg=f"Kicked user {selected_user_id} from party {party_id}",
             )
 
         except Exception as e:
@@ -411,7 +417,7 @@ class ConfirmJoinLeaveView(discord.ui.View):
     def __init__(
         self,
         action: str,
-        db: sqlite3.Connection,
+        db_pool,
         party_id: int,
         user_id: int,
         user_mention: str,
@@ -420,7 +426,7 @@ class ConfirmJoinLeaveView(discord.ui.View):
         super().__init__(timeout=60)
         self.value = None
         self.action = action
-        self.db = db
+        self.db_pool = db_pool
         self.party_id = party_id
         self.user_id = user_id
         self.user_mention = user_mention
@@ -434,26 +440,35 @@ class ConfirmJoinLeaveView(discord.ui.View):
     async def yes_button(
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
-        # Get host_id to mention the host
-        party_info = self.db.execute(
-            "SELECT host_id FROM party WHERE id = ?", (self.party_id,)
-        ).fetchone()
-        host_mention = f"<@{party_info[0]}>" if party_info else ""
-
-        cursor = self.db.cursor()
+        host_mention = ""
 
         try:
-            if self.action == "join":
-                cursor.execute(
-                    "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (?, ?, ?, ?)",
-                    (
-                        self.party_id,
-                        self.user_id,
-                        self.user_mention,
-                        interact.user.display_name,
-                    ),
+            async with transaction(self.db_pool) as cursor:
+                # Get host_id to mention the host
+                await cursor.execute(
+                    "SELECT host_id FROM party WHERE id = %s", (self.party_id,)
                 )
-                self.db.commit()
+                party_info = await cursor.fetchone()
+                host_mention = f"<@{party_info['host_id']}>" if party_info else ""
+
+                if self.action == "join":
+                    await cursor.execute(
+                        "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (%s, %s, %s, %s)",
+                        (
+                            self.party_id,
+                            self.user_id,
+                            self.user_mention,
+                            interact.user.display_name,
+                        ),
+                    )
+                elif self.action == "leave":
+                    await cursor.execute(
+                        "DELETE FROM participants WHERE party_id = %s AND user_id = %s",
+                        (self.party_id, self.user_id),
+                    )
+
+            # discord msg
+            if self.action == "join":
                 # reply confirm chat
                 await interact.response.edit_message(
                     content=ts.get(f"{pf}pv-joined"), view=None
@@ -461,13 +476,11 @@ class ConfirmJoinLeaveView(discord.ui.View):
                 # Send a public message to the thread channel
                 # TODO: random join message
                 rint = 1
-
                 await self.original_message.channel.send(
                     ts.get(f"{pf}pc-joined{rint}").format(
                         host=host_mention, user=interact.user.mention
                     )
                 )
-
                 await save_log(
                     lock=interact.client.log_lock,
                     type=LOG_TYPE.event,
@@ -477,11 +490,6 @@ class ConfirmJoinLeaveView(discord.ui.View):
                 )
 
             elif self.action == "leave":
-                cursor.execute(
-                    "DELETE FROM participants WHERE party_id = ? AND user_id = ?",
-                    (self.party_id, self.user_id),
-                )
-                self.db.commit()
                 # reply confirm chat
                 await interact.response.edit_message(
                     content=ts.get(f"{pf}pv-exited"), view=None
@@ -492,7 +500,6 @@ class ConfirmJoinLeaveView(discord.ui.View):
                         host=host_mention, user=interact.user.mention
                     )
                 )
-
                 await save_log(
                     lock=interact.client.log_lock,
                     type=LOG_TYPE.event,
@@ -503,7 +510,7 @@ class ConfirmJoinLeaveView(discord.ui.View):
 
             # refresh party embed article
             new_embed = await build_party_embed_from_db(
-                self.original_message.id, self.db
+                self.original_message.id, self.db_pool
             )
             await self.original_message.edit(embed=new_embed)
 
@@ -583,31 +590,33 @@ class PartyView(discord.ui.View):
 
     async def fetch_party_data(self, interact: discord.Interaction):
         """fetch party and participant data from DB"""
-        db = interact.client.db
-        db.row_factory = sqlite3.Row
+        db_pool = interact.client.db
 
-        # search party using message id
-        party_data = db.execute(
-            "SELECT * FROM party WHERE message_id = ?", (interact.message.id,)
-        ).fetchone()
+        async with query_reader(db_pool) as cursor:
+            # search party using message id
+            await cursor.execute(
+                "SELECT * FROM party WHERE message_id = %s", (interact.message.id,)
+            )
+            party_data = await cursor.fetchone()
 
-        if not party_data:
-            if not interact.response.is_done():
-                await interact.response.send_message(
-                    ts.get(f"{pf}pv-not-found"), ephemeral=True
-                )
-            else:
-                await interact.followup.send(
-                    ts.get(f"{pf}pv-not-found"), ephemeral=True
-                )
-            return None, None
+            if not party_data:
+                if not interact.response.is_done():
+                    await interact.response.send_message(
+                        ts.get(f"{pf}pv-not-found"), ephemeral=True
+                    )
+                else:
+                    await interact.followup.send(
+                        ts.get(f"{pf}pv-not-found"), ephemeral=True
+                    )
+                return None, None
 
-        # search participants
-        participants_list = db.execute(
-            "SELECT * FROM participants WHERE party_id = ?", (party_data["id"],)
-        ).fetchall()
+            # search participants
+            await cursor.execute(
+                "SELECT * FROM participants WHERE party_id = %s", (party_data["id"],)
+            )
+            participants_list = await cursor.fetchall()
 
-        return dict(party_data), [dict(p) for p in participants_list]
+            return party_data, participants_list
 
     @discord.ui.button(  # 참여하기
         label=ts.get(f"{pf}pv-join-btn"),
@@ -628,12 +637,9 @@ class PartyView(discord.ui.View):
         if await self.is_cooldown(interact, self.cooldown_action):
             return
 
-        db = interact.client.db
+        db_pool = interact.client.db
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
-            )
             return
 
         user_id = interact.user.id
@@ -652,7 +658,7 @@ class PartyView(discord.ui.View):
 
         view = ConfirmJoinLeaveView(
             action="join",
-            db=db,
+            db_pool=db_pool,
             party_id=party_data["id"],
             user_id=user_id,
             user_mention=interact.user.mention,
@@ -690,13 +696,10 @@ class PartyView(discord.ui.View):
         if await self.is_cooldown(interact, self.cooldown_action):
             return
 
-        db = interact.client.db
+        db_pool = interact.client.db
 
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
-            )
             return
 
         party_id = party_data["id"]
@@ -720,7 +723,7 @@ class PartyView(discord.ui.View):
 
         view = ConfirmJoinLeaveView(
             action="leave",
-            db=db,
+            db_pool=db_pool,
             party_id=party_id,
             user_id=user_id,
             user_mention=interact.user.mention,
@@ -758,9 +761,6 @@ class PartyView(discord.ui.View):
 
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
-            )
             return
 
         if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
@@ -793,9 +793,6 @@ class PartyView(discord.ui.View):
 
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
-            )
             return
 
         if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
@@ -806,7 +803,7 @@ class PartyView(discord.ui.View):
 
         modal = PartyEditModal(
             current_title=party_data["title"],
-            current_mission=party_data["mission_type"],
+            current_mission=party_data["game_name"],
             current_desc=party_data.get("description", "") or "",
         )
         await interact.response.send_modal(modal)
@@ -831,14 +828,9 @@ class PartyView(discord.ui.View):
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
 
-        db = interact.client.db
-        cursor = db.cursor()
-
+        db_pool = interact.client.db
         party_data, _ = await self.fetch_party_data(interact)
         if not party_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
-            )
             return
 
         if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
@@ -853,11 +845,23 @@ class PartyView(discord.ui.View):
             if party_data["status"] == ts.get(f"{pf}pv-ing")
             else ts.get(f"{pf}pv-ing")
         )
-
-        cursor.execute(
-            "UPDATE party SET status = ? WHERE id = ?", (new_status, party_data["id"])
-        )
-        db.commit()
+        # update
+        try:
+            async with transaction(db_pool) as cursor:
+                await cursor.execute(
+                    "UPDATE party SET status = %s WHERE id = %s",
+                    (new_status, party_data["id"]),
+                )
+        except Exception as e:
+            await interact.response.send_message(ts.get(f"{pf}err"), ephemeral=True)
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.e_event,
+                interact=interact,
+                msg=f"DB Error on party close toggle: {e}",
+                obj=return_test_err(),
+            )
+            return
 
         # edit webhook msg
         try:
@@ -865,7 +869,7 @@ class PartyView(discord.ui.View):
             webhooks = await interact.channel.parent.webhooks()
             webhook = discord.utils.get(webhooks, name=webhook_name)
 
-            # original_content = f"[{party_data['mission_type']}] {party_data['title']}"
+            # original_content = f"[{party_data['game_name']}] {party_data['title']}"
             if new_status == ts.get(f"{pf}pv-done"):
                 new_content = ts.get(f"{pf}pv-tgl-done")
                 # f"**[{ts.get(f'{pf}pv-done')}]** ~~{original_content}~~"
@@ -894,7 +898,7 @@ class PartyView(discord.ui.View):
             )
 
         # refresh embed
-        new_embed = await build_party_embed_from_db(interact.message.id, db)
+        new_embed = await build_party_embed_from_db(interact.message.id, db_pool)
 
         # change button label & style
         join_btn = discord.utils.get(self.children, custom_id="party_join")
@@ -944,9 +948,6 @@ class PartyView(discord.ui.View):
 
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
-            )
             return
 
         if interact.user.id != party_data["host_id"]:
@@ -992,9 +993,6 @@ class PartyView(discord.ui.View):
 
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
-            )
             return
 
         if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
@@ -1039,9 +1037,6 @@ class PartyView(discord.ui.View):
 
         party_data, participants_list = await self.fetch_party_data(interact)
         if not party_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}pdb-not-found-party"), ephemeral=True
-            )
             return
 
         if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
@@ -1060,8 +1055,7 @@ class PartyView(discord.ui.View):
                 "host_mention": f"<@{party_data['host_id']}>",
                 "max_users": party_data["max_users"],
                 "participants": [p["user_mention"] for p in participants_list],
-                "mission": party_data["mission_type"],
-                "game_nickname": party_data["game_nickname"],
+                "mission": party_data["game_name"],
                 "description": party_data["description"] or "",
             },
         )
@@ -1111,10 +1105,6 @@ def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
 - **{ts.get(f'{pf}pb-mission')}:** {data['mission']}
 
 {description_field}"""
-    # > {ts.get(f'{pf}pb-desc')}
-    # ```
-    # /w {data['game_nickname']}
-    # ```
     if isDelete:
         description = "~~" + description.replace("~~", "") + "~~"
 
@@ -1125,56 +1115,58 @@ def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     return embed
 
 
-async def build_party_embed_from_db(
-    message_id: int, db: sqlite3.Connection
-) -> discord.Embed:
-    """[for external use] creates an embed using a message_id & db connection"""
-    db.row_factory = sqlite3.Row
+async def build_party_embed_from_db(message_id: int, db_pool) -> discord.Embed:
+    """[for external use] creates an embed using a message_id & db pool"""
 
-    # 1. select party info
-    party_data = db.execute(
-        "SELECT * FROM party WHERE message_id = ?", (message_id,)
-    ).fetchone()
-    if not party_data:
-        return discord.Embed(
-            title=ts.get(f"{pf}err"),
-            description=ts.get(f"{pf}pdb-not-found-party"),
-            color=discord.Color.dark_red(),
+    async with query_reader(db_pool) as cursor:
+        # 1. select party info
+        await cursor.execute("SELECT * FROM party WHERE message_id = %s", (message_id,))
+        party_data = await cursor.fetchone()
+
+        if not party_data:
+            return discord.Embed(
+                title=ts.get(f"{pf}err"),
+                description=ts.get(f"{pf}pv-not-found"),
+                color=discord.Color.dark_red(),
+            )
+
+        # 2. select participant list
+        await cursor.execute(
+            "SELECT user_mention FROM participants WHERE party_id = %s",
+            (party_data["id"],),
+        )
+        participants_list = await cursor.fetchall()
+
+        # host mention
+        await cursor.execute(
+            "SELECT user_mention FROM participants WHERE party_id = %s AND user_id = %s",
+            (party_data["id"], party_data["host_id"]),
+        )
+        host_data = await cursor.fetchone()
+        host_mention = (
+            host_data["user_mention"] if host_data else f"<@{party_data['host_id']}>"
         )
 
-    # 2. select participant list
-    participants_list = db.execute(
-        "SELECT user_mention FROM participants WHERE party_id = ?", (party_data["id"],)
-    ).fetchall()
+        # 3. assemble into dictionary format required by build_party_embed
+        data_dict = {
+            "id": party_data["id"],
+            "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
+            "title": party_data["title"],
+            "host_mention": host_mention,
+            "max_users": party_data["max_users"],
+            "participants": [p["user_mention"] for p in participants_list],
+            "mission": party_data["game_name"],
+            "description": party_data["description"] or "",
+        }
 
-    # 3. assemble into dictionary format required by build_party_embed
-    data_dict = {
-        "id": party_data["id"],
-        "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
-        "title": party_data["title"],
-        "host_mention": (
-            db.execute(
-                "SELECT user_mention FROM participants WHERE party_id = ? AND user_id = ?",
-                (party_data["id"], party_data["host_id"]),
-            ).fetchone()
-            or [f"<@{party_data['host_id']}>"]
-        )[0],
-        "max_users": party_data["max_users"],
-        "participants": [p["user_mention"] for p in participants_list],
-        "mission": party_data["mission_type"],
-        "game_nickname": party_data["game_nickname"],
-        "description": party_data["description"] or "",
-    }
-
-    return build_party_embed(data_dict)
+        return build_party_embed(data_dict)
 
 
 async def cmd_create_party_helper(
     interact: discord.Interaction,
-    db_conn: sqlite3.Connection,
+    db_pool,
     title: str,
-    # game_nickname: str,
-    mission_type: str,
+    game_name: str,
     description: str = "(설명 없음)",
     number_of_user: int = 4,
 ) -> None:
@@ -1191,11 +1183,7 @@ async def cmd_create_party_helper(
         )
         return
 
-    db = db_conn
-    db.row_factory = sqlite3.Row
-
     RESULT: str = ""
-    game_nickname = parseNickname(interact.user.display_name)
     ch_file = CHANNELS["party"]
     target_channel = interact.client.get_channel(ch_file)
 
@@ -1219,35 +1207,34 @@ async def cmd_create_party_helper(
 
     if target_channel and isinstance(target_channel, discord.TextChannel):
         try:
-            cursor = db.cursor()
+            # 1. INSERT
+            async with transaction(db_pool) as cursor:
+                # 1.1. INSERT party information into the table
+                await cursor.execute(
+                    "INSERT INTO party (host_id, title, game_name, max_users, status, description) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (
+                        interact.user.id,
+                        title,
+                        game_name,
+                        number_of_user,
+                        ts.get(f"{pf}pv-ing"),
+                        description,
+                    ),
+                )
+                PARTY_ID = cursor.lastrowid  # the unique ID of the newly created party
 
-            # 1.1. INSERT party information into the table
-            cursor.execute(
-                "INSERT INTO party (host_id, title, mission_type, max_users, game_nickname, status, description) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (
-                    interact.user.id,
-                    title,
-                    mission_type,
-                    number_of_user,
-                    game_nickname,
-                    ts.get(f"{pf}pv-ing"),
-                    description,
-                ),
-            )
-            PARTY_ID = cursor.lastrowid  # the unique ID of the newly created party
+                # 1.2. INSERT the host as the first participant
+                await cursor.execute(
+                    "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (%s, %s, %s, %s)",
+                    (
+                        PARTY_ID,
+                        interact.user.id,
+                        interact.user.mention,
+                        interact.user.display_name,
+                    ),
+                )
 
-            # 1.2. INSERT the host as the first participant
-            cursor.execute(
-                "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (?, ?, ?, ?)",
-                (
-                    PARTY_ID,
-                    interact.user.id,
-                    interact.user.mention,
-                    interact.user.display_name,
-                ),
-            )
-            db.commit()  # fisrt commit (party creation)
-
+            # 2. webhook & discord
             # create a webhook
             webhook_name = LFG_WEBHOOK_NAME
             webhooks = await target_channel.webhooks()
@@ -1266,7 +1253,7 @@ async def cmd_create_party_helper(
 
             # create thread from starter msg (webhook)
             thread = await thread_starter_msg.create_thread(
-                name=f"[{mission_type}] {title}",
+                name=f"[{game_name}] {title}",
                 reason=f"Thread for {interact.user.display_name}'s party",
             )
 
@@ -1280,9 +1267,8 @@ async def cmd_create_party_helper(
                 "id": PARTY_ID,
                 # "host_id": interact.user.id,
                 "host_mention": interact.user.mention,
-                "game_nickname": game_nickname,
                 "title": title,
-                "mission": mission_type,
+                "mission": game_name,
                 "max_users": number_of_user,
                 "participants": [interact.user.mention],
                 # "participant_ids": [interact.user.id],
@@ -1297,11 +1283,11 @@ async def cmd_create_party_helper(
             msg = await thread.send(embed=embed, view=view)
 
             # 4.1. UPDATE thread_id & message_id
-            cursor.execute(
-                "UPDATE party SET thread_id = ?, message_id = ? WHERE id = ?",
-                (thread.id, msg.id, PARTY_ID),
-            )
-            db.commit()  # secondary commit (update ID info)
+            async with transaction(db_pool) as cursor:
+                await cursor.execute(
+                    "UPDATE party SET thread_id = %s, message_id = %s WHERE id = %s",
+                    (thread.id, msg.id, PARTY_ID),
+                )
 
             RESULT += "DONE!\n"
 
@@ -1321,7 +1307,7 @@ async def cmd_create_party_helper(
             await interact.followup.send(
                 f"{ts.get(f'{pf}err-unknown')}", ephemeral=True
             )
-            RESULT += f"ERROR {e}"
+            RESULT += f"ERROR {e}\n{return_test_err()}"
     else:
         await interact.followup.send(ts.get(f"{pf}not-found-ch"), ephemeral=True)
 
@@ -1331,5 +1317,5 @@ async def cmd_create_party_helper(
         cmd=f"cmd.party",
         interact=interact,
         msg="[info] cmd used",  # VAR
-        obj=f"{RESULT}T:{title}\nTYPE:{mission_type}\nDESC:{description}\n{number_of_user}",
+        obj=f"{RESULT}T:{title}\nTYPE:{game_name}\nDESC:{description}\n{number_of_user}",
     )

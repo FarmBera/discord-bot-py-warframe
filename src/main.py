@@ -2,20 +2,18 @@ import discord
 import asyncio
 import sys
 import logging
-import sqlite3
+import aiomysql
 import traceback
 
 log_lock = asyncio.Lock()
 
 from config.config import language as lang, Lang
-from config.TOKEN import TOKEN as BOT_TOKEN
-from db.query import *
+from config.TOKEN import TOKEN as BOT_TOKEN, DB_USER, DB_PW, DB_HOST, DB_PORT, DB_NAME
 from src.constants.color import C
-from src.constants.keys import DB_NAME
 from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
-
+from src.utils.return_err import print_test_err, return_test_err
 from src.commands.reg_cmd import (
     register_main_cmds,
     register_sub_cmds,
@@ -31,6 +29,7 @@ from src.commands.reg_cmd_mt import (
 discord.utils.setup_logging(level=logging.INFO, root=False)
 
 tree = None
+db_pool = None
 
 # main thread
 
@@ -62,10 +61,10 @@ async def main_manager() -> None:
     """
     manage bot state, and switch bot status depends on console input
     """
-    global tree
+    global tree, db_pool
 
-    # bot_mode = CMD_MAIN  # init mode
-    bot_mode = input("Starting Bot Mode > ").lower()
+    bot_mode = CMD_MAIN  # init mode
+    # bot_mode = input("Starting Bot Mode > ").lower()
     if not bot_mode:
         print(
             f"\033[A\r{C.yellow}Unknown Mode > '{C.red}{bot_mode}{C.yellow}' / setup default mode: {C.cyan}`main`{C.default}"
@@ -76,7 +75,7 @@ async def main_manager() -> None:
         intents = discord.Intents.default()
         intents.message_content = True
         if bot_mode == CMD_MAIN:
-            print(f"{C.cyan}[info] Starting Main Bot...{C.default}", end=" ")  # VAR
+            print(f"{C.cyan}[info] Starting Main Bot...{C.default}")  # VAR
             current_bot = DiscordBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
@@ -99,23 +98,32 @@ async def main_manager() -> None:
                 else:  # other type of error
                     print(f"Unhandled app command error: {error}")
 
-            db_conn = sqlite3.connect(f"db/{DB_NAME}.db")
-            # db_conn.execute("PRAGMA foreign_keys = ON;")
-            db_conn.execute("PRAGMA journal_mode=WAL;")
-            db_conn.execute(CREATE_TABLE_PARTY)
-            db_conn.execute(CREATE_TABLE_PARTICIPANTS)
-            db_conn.execute(CREATE_TABLE_TRADES)
-            db_conn.execute(CREATE_TRIGGER_PARTY)
-            db_conn.execute(CREATE_TRIGGER_PARTICIPANTS)
-            db_conn.execute(CREATE_TRIGGER_TRADES)
-            db_conn.commit()
-            current_bot.db = db_conn
+            try:
+                db_pool = await aiomysql.create_pool(
+                    host=DB_HOST,
+                    port=DB_PORT,
+                    user=DB_USER,
+                    password=DB_PW,
+                    db=DB_NAME,
+                    autocommit=False,
+                    minsize=1,
+                    maxsize=10,
+                    connect_timeout=5,
+                )
+                print(f"{C.green}Connected to MariaDB Platform via aiomysql{C.default}")
 
-            await register_main_cmds(tree, db_conn)
+            except Exception:
+                print(
+                    f"{C.yellow}Error connecting to MariaDB Platform\n{C.red}\n{return_test_err()}"
+                )
+                sys.exit(1)
+            current_bot.db = db_pool
+
+            await register_main_cmds(tree, db_pool)
             if lang == Lang.KO:
-                await register_ko_cmds(tree, db_conn)
+                await register_ko_cmds(tree, db_pool)
             else:
-                await register_sub_cmds(tree, db_conn)
+                await register_sub_cmds(tree, db_pool)
 
         elif bot_mode == CMD_MAINTENANCE:
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
@@ -167,6 +175,15 @@ async def main_manager() -> None:
         # quit currently running bot & skip to next loop
         print(f"{C.default}[info] Terminating current bot...")  # VAR
         await current_bot.close()
+
+        # terminate db connection
+        print(f"{C.yellow}Terminating DB connection...", end="")
+        if db_pool is not None:
+            db_pool.close()
+            await db_pool.wait_closed()
+            print(f"{C.green}Connection Pool closed cleanly.")
+            db_pool = None
+
         for task in pending:  # cancel remaining task
             task.cancel()
 
@@ -191,5 +208,5 @@ if __name__ == "__main__":
         print(C.red, traceback.format_exc(), sep="")
         ERR_COUNT += 1
         print(f"Continuously Error #{ERR_COUNT} >> {e}")
-        if ERR_COUNT > 20:
-            exit()
+        # if ERR_COUNT > 20:
+        #     sys.exit(1)

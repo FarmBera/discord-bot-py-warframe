@@ -13,7 +13,6 @@ filePfx: str = f"docs/{lang}/"
 configPfx: str = "config/"
 JSON: str = "api_cache"
 fileExt: str = ".md"
-DB_NAME: str = "party"
 
 # json file location
 # DEFAULT_JSON_PATH: str = f"data/Warframe.json"
