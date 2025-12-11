@@ -2,7 +2,7 @@
 .obsidian
 .vscode
 archive
-# /db
+/db/db-private
 docs
 img-tmp
 data

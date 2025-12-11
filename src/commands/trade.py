@@ -12,8 +12,9 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
+from src.commands.admin import is_admin_user
 from src.parser.marketsearch import get_slug_data, categorize, create_market_url
-from src.utils.data_manager import CHANNELS, ADMINS
+from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.api_request import API_MarketSearch
 from src.utils.db_helper import transaction, query_reader
@@ -92,15 +93,15 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
         try:
             new_quantity_str = self.quantity_input.value
 
-            if not new_quantity_str.isdigit() or int(new_quantity_str) < 1:
+            if not new_quantity_str.isdigit():
                 await interact.response.send_message(
-                    ts.get(f"{pf}err-size-low"), ephemeral=True
+                    ts.get(f"{pf}err-invalid-value"), ephemeral=True
                 )
                 return
 
-            if not new_quantity_str.isdigit() or int(new_quantity_str) >= 12:
+            if not int(new_quantity_str) < 1:
                 await interact.response.send_message(
-                    ts.get(f"{pf}err-size-high"), ephemeral=True
+                    ts.get(f"{pf}err-size-low"), ephemeral=True
                 )
                 return
 
@@ -522,7 +523,9 @@ class TradeView(discord.ui.View):
         if not trade_data:
             return
 
-        if interact.user.id != trade_data["host_id"]:
+        if interact.user.id != trade_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
             )
@@ -556,7 +559,9 @@ class TradeView(discord.ui.View):
         if not trade_data:
             return
 
-        if interact.user.id != trade_data["host_id"]:
+        if interact.user.id != trade_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
             )
@@ -591,7 +596,7 @@ class TradeView(discord.ui.View):
             return
 
         # TODO-temporary
-        if interact.user.id not in ADMINS:
+        if not await is_admin_user(interact):
             await interact.response.send_message(
                 "기능을 사용할 권한이 없어요.", ephemeral=True
             )
@@ -626,7 +631,9 @@ class TradeView(discord.ui.View):
         if not trade_data:
             return
 
-        if interact.user.id != trade_data["host_id"] and interact.user.id not in ADMINS:
+        if interact.user.id != trade_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
             )

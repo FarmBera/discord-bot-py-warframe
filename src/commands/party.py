@@ -9,7 +9,8 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
-from src.utils.data_manager import CHANNELS, ADMINS
+from src.commands.admin import is_admin_user
+from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.return_err import print_test_err, return_test_err
 from src.utils.db_helper import transaction, query_reader
@@ -269,6 +270,10 @@ class ConfirmDeleteView(discord.ui.View):
             # lock the thread
             if isinstance(interact.channel, discord.Thread):
                 await interact.channel.edit(locked=True)
+
+            await interact.followup.send(
+                "파티모집 종료 작업이 완료되었어요.", ephemeral=True
+            )
 
             await save_log(
                 lock=interact.client.log_lock,
@@ -763,7 +768,9 @@ class PartyView(discord.ui.View):
         if not party_data:
             return
 
-        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
+        if interact.user.id != party_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-only-host"), ephemeral=True
             )
@@ -795,7 +802,9 @@ class PartyView(discord.ui.View):
         if not party_data:
             return
 
-        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
+        if interact.user.id != party_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-mod-article"), ephemeral=True
             )
@@ -833,7 +842,9 @@ class PartyView(discord.ui.View):
         if not party_data:
             return
 
-        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
+        if interact.user.id != party_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-only-status"), ephemeral=True
             )
@@ -995,7 +1006,9 @@ class PartyView(discord.ui.View):
         if not party_data:
             return
 
-        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
+        if interact.user.id != party_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-only-host-kick"), ephemeral=True
             )
@@ -1039,7 +1052,9 @@ class PartyView(discord.ui.View):
         if not party_data:
             return
 
-        if interact.user.id != party_data["host_id"] and interact.user.id not in ADMINS:
+        if interact.user.id != party_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}pv-del-only-host"), ephemeral=True
             )

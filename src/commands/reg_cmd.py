@@ -1,5 +1,4 @@
 import discord
-import sqlite3
 
 from src.translator import ts
 from src.commands.cmd_helper import cmd_helper
@@ -8,21 +7,9 @@ from src.commands.party import cmd_create_party_helper
 from src.commands.trade import cmd_create_trade_helper
 from src.commands.complain import cmd_create_complain_helper
 from src.commands.unavailable import cmd_unavailable
-from src.utils.data_manager import ADMINS
+from src.commands.admin import is_admin_user
 from src.utils.logging_utils import save_log
 from config.config import LOG_TYPE
-
-ADMIN_EMBED: discord.Embed = discord.Embed(
-    description=ts.get(f"general.unable"), color=0xFF0000
-)
-
-
-async def is_admin_user(interact: discord.Interaction):
-    if interact.user.id not in ADMINS:
-        await interact.response.send_message(embed=ADMIN_EMBED, ephemeral=True)
-        return False
-    return True
-
 
 from src.constants.keys import (
     # cooldown var

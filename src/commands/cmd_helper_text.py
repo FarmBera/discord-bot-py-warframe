@@ -4,7 +4,7 @@ from config.config import LOG_TYPE
 from src.translator import ts
 from src.constants.color import C
 from src.constants.keys import FOOTER_FILE_LOC
-from src.utils.data_manager import ADMINS
+from src.commands.admin import is_admin_user
 from src.utils.logging_utils import save_log
 from src.utils.file_io import open_file
 from src.utils.return_err import err_embed
@@ -13,10 +13,7 @@ from src.utils.return_err import err_embed
 async def cmd_helper_txt(
     interact: discord.Interaction, file_name: str, isPublicMsg: bool = False
 ) -> None:
-    # is custom admin user
-    admins = ADMINS
-
-    if isPublicMsg and interact.user.id not in admins:
+    if isPublicMsg and not is_admin_user(interact):
         msg: str = ts.get("cmd.no-permission")
         embed = discord.Embed(
             title=ts.get("cmd.no-perm-title"), description=msg, color=0xFF0000
