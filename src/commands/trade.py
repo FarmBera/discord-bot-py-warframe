@@ -699,7 +699,7 @@ def build_trade_embed(
         description += f"""
 > 귓속말 명령어 복사 (드래그 또는 우측 복사버튼 이용)
 ```
-/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' {data['quantity']}개를 {data['price']} 플레로 {ttype_rev}하고 싶어요.
+/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' {data['quantity':,]}개를 {data['price'] * data['quantity']:,} 플레로 {ttype_rev}하고 싶어요.
 ```"""
     if isDelete:
         description += "~~"
