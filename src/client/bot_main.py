@@ -423,9 +423,12 @@ class DiscordBot(discord.Client):
                     )
 
                 # 2. check exist baro activated
-                if isBaroActive(
+                if not isBaroActive(
                     prev_data["Activation"]["$date"]["$numberLong"],
                     prev_data["Expiry"]["$date"]["$numberLong"],
+                ) and isBaroActive(
+                    new_data["Activation"]["$date"]["$numberLong"],
+                    new_data["Expiry"]["$date"]["$numberLong"],
                 ):
                     events.append(
                         {

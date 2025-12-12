@@ -1,5 +1,3 @@
-use dbot_test;
-
 -- Tables
 CREATE TABLE IF NOT EXISTS party (
     id INTEGER NOT NULL AUTO_INCREMENT,
