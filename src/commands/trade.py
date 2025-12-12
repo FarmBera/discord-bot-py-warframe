@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import sqlite3
 import asyncio
 
 from src.utils.return_err import print_test_err, return_test_err
@@ -13,10 +12,12 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
+from src.commands.admin import is_admin_user
 from src.parser.marketsearch import get_slug_data, categorize, create_market_url
-from src.utils.data_manager import CHANNELS, ADMINS
+from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.api_request import API_MarketSearch
+from src.utils.db_helper import transaction, query_reader
 
 pf: str = "cmd.trade."
 
@@ -26,9 +27,9 @@ def parseNickname(nickname: str) -> str:
 
 
 class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
-    def __init__(self, curr_nickname: str, db: sqlite3.Connection):
+    def __init__(self, curr_nickname: str, db_pool):
         super().__init__(timeout=None)
-        self.db = db
+        self.db_pool = db_pool
 
         self.input_nickname = discord.ui.TextInput(
             label=ts.get(f"{pf}edit-nick-label"),
@@ -40,17 +41,16 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
 
     async def on_submit(self, interact: discord.Interaction):
         try:
-            cursor = self.db.cursor()
-
-            # update DB
-            cursor.execute(
-                "UPDATE trades SET game_nickname = ? WHERE message_id = ?",
-                (self.input_nickname.value, interact.message.id),
-            )
-            self.db.commit()
+            async with transaction(self.db_pool) as cursor:
+                await cursor.execute(
+                    "UPDATE trades SET game_nickname = %s WHERE message_id = %s",
+                    (self.input_nickname.value, interact.message.id),
+                )
 
             # refresh Embed
-            new_embed = await build_trade_embed_from_db(interact.message.id, self.db)
+            new_embed = await build_trade_embed_from_db(
+                interact.message.id, self.db_pool
+            )
             await interact.response.edit_message(embed=new_embed)
 
             await save_log(
@@ -62,9 +62,10 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
                 obj=f"{self.input_nickname.value}",
             )
         except Exception:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-edit"), ephemeral=True
-            )
+            if not interact.response.is_done():
+                await interact.response.send_message(
+                    ts.get(f"{pf}err-edit"), ephemeral=True
+                )
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.e_event,
@@ -76,9 +77,9 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
 
 
 class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
-    def __init__(self, current_quantity: int, db: sqlite3.Connection):
+    def __init__(self, current_quantity: int, db_pool):
         super().__init__(timeout=None)
-        self.db = db
+        self.db_pool = db_pool
 
         self.quantity_input = discord.ui.TextInput(
             label=ts.get(f"{pf}edit-qty-label"),
@@ -92,29 +93,30 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
         try:
             new_quantity_str = self.quantity_input.value
 
-            if not new_quantity_str.isdigit() or int(new_quantity_str) < 1:
+            if not new_quantity_str.isdigit():
+                await interact.response.send_message(
+                    ts.get(f"{pf}err-invalid-value"), ephemeral=True
+                )
+                return
+
+            if not int(new_quantity_str) < 1:
                 await interact.response.send_message(
                     ts.get(f"{pf}err-size-low"), ephemeral=True
                 )
                 return
 
-            if not new_quantity_str.isdigit() or int(new_quantity_str) >= 12:
-                await interact.response.send_message(
-                    ts.get(f"{pf}err-size-high"), ephemeral=True
-                )
-                return
-
             new_quantity = int(new_quantity_str)
-            cursor = self.db.cursor()
 
-            cursor.execute(
-                "UPDATE trades SET quantity = ? WHERE message_id = ?",
-                (new_quantity, interact.message.id),
-            )
-            self.db.commit()
+            async with transaction(self.db_pool) as cursor:
+                await cursor.execute(
+                    "UPDATE trades SET quantity = %s WHERE message_id = %s",
+                    (new_quantity, interact.message.id),
+                )
 
             # refresh Embed
-            new_embed = await build_trade_embed_from_db(interact.message.id, self.db)
+            new_embed = await build_trade_embed_from_db(
+                interact.message.id, self.db_pool
+            )
             await interact.response.edit_message(embed=new_embed)
 
             await save_log(
@@ -126,9 +128,10 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
                 obj=new_quantity_str,
             )
         except Exception:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-edit"), ephemeral=True
-            )
+            if not interact.response.is_done():
+                await interact.response.send_message(
+                    ts.get(f"{pf}err-edit"), ephemeral=True
+                )
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.e_event,
@@ -140,9 +143,9 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
 
 
 class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
-    def __init__(self, current_price: int, db: sqlite3.Connection):
+    def __init__(self, current_price: int, db_pool):
         super().__init__(timeout=None)
-        self.db = db
+        self.db_pool = db_pool
 
         self.price_input = discord.ui.TextInput(
             label=ts.get(f"{pf}edit-price-label"),
@@ -163,15 +166,16 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
                 return
 
             new_price = int(new_price_str)
-            cursor = self.db.cursor()
 
-            cursor.execute(
-                "UPDATE trades SET price = ? WHERE message_id = ?",
-                (new_price, interact.message.id),
+            async with transaction(self.db_pool) as cursor:
+                await cursor.execute(
+                    "UPDATE trades SET price = %s WHERE message_id = %s",
+                    (new_price, interact.message.id),
+                )
+
+            new_embed = await build_trade_embed_from_db(
+                interact.message.id, self.db_pool
             )
-            self.db.commit()
-
-            new_embed = await build_trade_embed_from_db(interact.message.id, self.db)
             await interact.response.edit_message(embed=new_embed)
 
             await save_log(
@@ -183,9 +187,10 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
                 obj=new_price_str,
             )
         except Exception:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-edit"), ephemeral=True
-            )
+            if not interact.response.is_done():
+                await interact.response.send_message(
+                    ts.get(f"{pf}err-edit"), ephemeral=True
+                )
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.e_event,
@@ -214,7 +219,7 @@ class ConfirmDeleteView(discord.ui.View):
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
         await interact.response.defer()
-
+        await interact.delete_original_response()
         await save_log(
             lock=interact.client.log_lock,
             type=LOG_TYPE.event,
@@ -222,12 +227,12 @@ class ConfirmDeleteView(discord.ui.View):
             interact=interact,
             msg=f"ConfirmDeleteView -> clicked yes",
         )
-        # remove this view
-        await interact.delete_original_response()
-
         try:
-            db = interact.client.db
-            cursor = db.cursor()
+            # delete trade info from DB
+            async with transaction(interact.client.db) as cursor:
+                await cursor.execute(
+                    "DELETE FROM trades WHERE thread_id = %s", (interact.channel.id,)
+                )
 
             # refresh Embed
             message = await interact.channel.fetch_message(self.msgid)
@@ -261,12 +266,6 @@ class ConfirmDeleteView(discord.ui.View):
             except discord.NotFound:
                 # print("스레드의 첫 메시지를 찾을 수 없습니다.")
                 pass  # starter msg not found, maybe deleted manually
-
-            # delete trade info from DB
-            cursor.execute(
-                "DELETE FROM trades WHERE thread_id = ?", (interact.channel.id,)
-            )
-            db.commit()
 
             # lock the thread
             if isinstance(interact.channel, discord.Thread):
@@ -317,13 +316,13 @@ class ConfirmDeleteView(discord.ui.View):
 class ConfirmTradeView(discord.ui.View):
     def __init__(
         self,
-        db: sqlite3.Connection,
+        db_pool,
         trade_id: int,
         original_message: discord.Message,
     ):
         super().__init__(timeout=60)
         self.value = None
-        self.db = db
+        self.db_pool = db_pool
         self.trade_id = trade_id
         self.original_message = original_message
 
@@ -336,7 +335,7 @@ class ConfirmTradeView(discord.ui.View):
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
         await interact.response.defer()
-
+        await interact.delete_original_response()
         await save_log(
             lock=interact.client.log_lock,
             type=LOG_TYPE.event,
@@ -346,10 +345,13 @@ class ConfirmTradeView(discord.ui.View):
         )
 
         try:
-            trade_info = self.db.execute(
-                "SELECT host_id FROM trades WHERE id = ?", (self.trade_id,)
-            ).fetchone()
-            host_mention = f"<@{trade_info['host_id']}>" if trade_info else ""
+            host_mention = ""
+            async with query_reader(self.db_pool) as cursor:
+                await cursor.execute(
+                    "SELECT host_id FROM trades WHERE id = %s", (self.trade_id,)
+                )
+                trade_info = await cursor.fetchone()
+                host_mention = f"<@{trade_info['host_id']}>" if trade_info else ""
 
             await self.original_message.channel.send(
                 ts.get(f"{pf}trade-request").format(
@@ -360,7 +362,6 @@ class ConfirmTradeView(discord.ui.View):
                     ),  # TODO: 닉네임 호출 기능
                 )
             )
-            await interact.delete_original_response()
             self.value = True
             self.stop()
         except Exception:
@@ -433,12 +434,13 @@ class TradeView(discord.ui.View):
 
     async def fetch_trade_data(self, interact: discord.Interaction):
         """fetch trade data from DB"""
-        db = interact.client.db
-        db.row_factory = sqlite3.Row
+        db_pool = interact.client.db
 
-        trade_data = db.execute(
-            "SELECT * FROM trades WHERE message_id = ?", (interact.message.id,)
-        ).fetchone()
+        async with query_reader(db_pool) as cursor:
+            await cursor.execute(
+                "SELECT * FROM trades WHERE message_id = %s", (interact.message.id,)
+            )
+            trade_data = await cursor.fetchone()
 
         if not trade_data:
             if not interact.response.is_done():
@@ -451,7 +453,7 @@ class TradeView(discord.ui.View):
                 )
             return None
 
-        return dict(trade_data)
+        return trade_data
 
     @discord.ui.button(  # 거래하기
         label=ts.get(f"{pf}btn-trade"),
@@ -472,12 +474,9 @@ class TradeView(discord.ui.View):
         if await self.is_cooldown(interact, self.cooldown_call):
             return
 
-        db = interact.client.db
+        db_pool = interact.client.db
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
             return
 
         if interact.user.id == trade_data["host_id"]:
@@ -487,7 +486,7 @@ class TradeView(discord.ui.View):
             return
 
         view = ConfirmTradeView(
-            db=db,
+            db_pool=db_pool,
             trade_id=trade_data["id"],
             original_message=interact.message,
         )
@@ -522,19 +521,18 @@ class TradeView(discord.ui.View):
 
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
             return
 
-        if interact.user.id != trade_data["host_id"]:
+        if interact.user.id != trade_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
             )
             return
 
         modal = EditQuantityModal(
-            db=interact.client.db, current_quantity=trade_data["quantity"]
+            db_pool=interact.client.db, current_quantity=trade_data["quantity"]
         )
         await interact.response.send_modal(modal)
 
@@ -559,18 +557,19 @@ class TradeView(discord.ui.View):
 
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
             return
 
-        if interact.user.id != trade_data["host_id"]:
+        if interact.user.id != trade_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
             )
             return
 
-        modal = EditPriceModal(db=interact.client.db, current_price=trade_data["price"])
+        modal = EditPriceModal(
+            db_pool=interact.client.db, current_price=trade_data["price"]
+        )
         await interact.response.send_modal(modal)
 
     @discord.ui.button(  # 닉네임 변경
@@ -594,26 +593,17 @@ class TradeView(discord.ui.View):
 
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
             return
 
-        # on manual estup nickname
-        # if interact.user.id != trade_data["host_id"] and interact.user.id not in ADMINS:
-        #     await interact.response.send_message(
-        #         ts.get(f"{pf}err-only-host"), ephemeral=True
-        #     )
-        #     return
-
-        if interact.user.id not in ADMINS:
+        # TODO-temporary
+        if not await is_admin_user(interact):
             await interact.response.send_message(
                 "기능을 사용할 권한이 없어요.", ephemeral=True
             )
             return
 
         modal = EditNicknameModal(
-            db=interact.client.db, curr_nickname=trade_data["game_nickname"]
+            db_pool=interact.client.db, curr_nickname=trade_data["game_nickname"]
         )
         await interact.response.send_modal(modal)
 
@@ -637,17 +627,13 @@ class TradeView(discord.ui.View):
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
 
-        # db = interact.client.db
-        # cursor = db.cursor()
-
         trade_data = await self.fetch_trade_data(interact)
         if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
             return
 
-        if interact.user.id != trade_data["host_id"] and interact.user.id not in ADMINS:
+        if interact.user.id != trade_data["host_id"] and not await is_admin_user(
+            interact
+        ):
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
             )
@@ -713,7 +699,7 @@ def build_trade_embed(
         description += f"""
 > 귓속말 명령어 복사 (드래그 또는 우측 복사버튼 이용)
 ```
-/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' {data['quantity']}개를 {data['price']} 플레로 {ttype_rev}하고 싶어요.
+/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' {data['quantity':,]}개를 {data['price'] * data['quantity']:,} 플레로 {ttype_rev}하고 싶어요.
 ```"""
     if isDelete:
         description += "~~"
@@ -725,40 +711,39 @@ def build_trade_embed(
     return embed
 
 
-async def build_trade_embed_from_db(
-    message_id: int, db: sqlite3.Connection
-) -> discord.Embed:
-    """[for external use] creates an embed using a message_id & db connection"""
-    db.row_factory = sqlite3.Row
-
-    trade_data = db.execute(
-        "SELECT * FROM trades WHERE message_id = ?", (message_id,)
-    ).fetchone()
-    if not trade_data:
-        return discord.Embed(
-            title=ts.get(f"{pf}err"),
-            description=ts.get(f"{pf}err-not-found"),
-            color=discord.Color.dark_red(),
+async def build_trade_embed_from_db(message_id: int, db_pool) -> discord.Embed:
+    """[for external use] creates an embed using a message_id & db pool"""
+    async with query_reader(db_pool) as cursor:
+        await cursor.execute(
+            "SELECT * FROM trades WHERE message_id = %s", (message_id,)
         )
+        trade_data = await cursor.fetchone()
 
-    return build_trade_embed(
-        {
-            "id": trade_data["id"],
-            "host_id": trade_data["host_id"],
-            "host_mention": f"<@{trade_data['host_id']}>",
-            "game_nickname": trade_data["game_nickname"],
-            "trade_type": trade_data["trade_type"],
-            "item_name": trade_data["item_name"],
-            "item_rank": trade_data["item_rank"],
-            "quantity": trade_data["quantity"],
-            "price": trade_data["price"],
-        }
-    )
+        if not trade_data:
+            return discord.Embed(
+                title=ts.get(f"{pf}err"),
+                description=ts.get(f"{pf}err-not-found"),
+                color=discord.Color.dark_red(),
+            )
+
+        return build_trade_embed(
+            {
+                "id": trade_data["id"],
+                "host_id": trade_data["host_id"],
+                "host_mention": f"<@{trade_data['host_id']}>",
+                "game_nickname": trade_data["game_nickname"],
+                "trade_type": trade_data["trade_type"],
+                "item_name": trade_data["item_name"],
+                "item_rank": trade_data["item_rank"],
+                "quantity": trade_data["quantity"],
+                "price": trade_data["price"],
+            }
+        )
 
 
 async def cmd_create_trade_helper(
     interact: discord.Interaction,
-    db_conn: sqlite3.Connection,
+    db_pool,  # renamed from db_conn
     trade_type: str,
     item_name: str,
     item_rank: int,
@@ -766,8 +751,6 @@ async def cmd_create_trade_helper(
     quantity: int,
     game_nickname: str = "",
 ) -> None:
-    db = db_conn
-    db.row_factory = sqlite3.Row
     log_lock: asyncio.Lock = interact.client.log_lock
 
     isRankItem: bool = False
@@ -779,7 +762,7 @@ async def cmd_create_trade_helper(
     # check trade_type
     types = [ts.get(f"cmd.trade.type-sell"), ts.get("cmd.trade.type-buy")]
     if trade_type not in types:
-        interact.followup.send(
+        await interact.followup.send(
             ts.get(f"{pf}err-type").format(
                 type=trade_type, list=", ".join(f"**{i}**" for i in types)
             )
@@ -816,7 +799,7 @@ async def cmd_create_trade_helper(
             market = await API_MarketSearch(log_lock, item_slug)
 
             if market.status_code == 404:  # api not found
-                OUTPUT_MSG += f"{ts.get(f"{pf}err-no-market")}\n\n"
+                OUTPUT_MSG += f"{ts.get(f'{pf}err-no-market')}\n\n"
                 return price if price else 0, market.json()
             elif market.status_code != 200:
                 raise ValueError("resp-code is not 200 or resp err")
@@ -832,13 +815,13 @@ async def cmd_create_trade_helper(
                 price_list.append(market[i]["platinum"])
 
             price = sum(price_list) // len(price_list)
-            OUTPUT_MSG += f"{ts.get(f"{pf}auto-price").format(price=price)}\n\n"
+            OUTPUT_MSG += f"{ts.get(f'{pf}auto-price').format(price=price)}\n\n"
             return price, market
 
         try:
             price, market = await set_price(price)
         except Exception:
-            OUTPUT_MSG += f"{ts.get(f"{pf}err-api")}\n\n"
+            OUTPUT_MSG += f"{ts.get(f'{pf}err-api')}\n\n"
             await save_log(
                 lock=interact.client.log_lock,
                 type="cmd.api",
@@ -850,21 +833,20 @@ async def cmd_create_trade_helper(
             price = price if price else 0
 
         ########### db ############
-        cursor = db.cursor()
-        cursor.execute(
-            "INSERT INTO trades (host_id, game_nickname, trade_type, item_name, item_rank, quantity, price) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (
-                interact.user.id,
-                game_nickname,
-                trade_type,
-                item_name,
-                item_rank,
-                quantity,
-                price,
-            ),
-        )
-        TRADE_ID = cursor.lastrowid
-        db.commit()
+        async with transaction(db_pool) as cursor:
+            await cursor.execute(
+                "INSERT INTO trades (host_id, game_nickname, trade_type, item_name, item_rank, quantity, price) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (
+                    interact.user.id,
+                    game_nickname,
+                    trade_type,
+                    item_name,
+                    item_rank,
+                    quantity,
+                    price,
+                ),
+            )
+            TRADE_ID = cursor.lastrowid
 
         # check item have rank
         isRankItem = True if market[0].get("rank", None) is not None else False
@@ -920,13 +902,13 @@ async def cmd_create_trade_helper(
 
         msg = await thread.send(embed=embed, view=view)
 
-        cursor.execute(
-            "UPDATE trades SET thread_id = ?, message_id = ? WHERE id = ?",
-            (thread.id, msg.id, TRADE_ID),
-        )
-        db.commit()
+        async with transaction(db_pool) as cursor:
+            await cursor.execute(
+                "UPDATE trades SET thread_id = %s, message_id = %s WHERE id = %s",
+                (thread.id, msg.id, TRADE_ID),
+            )
 
-        RESULT += "DONE!\n"
+            RESULT += "DONE!\n"
 
     except discord.Forbidden as e:
         await interact.followup.send(

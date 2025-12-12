@@ -2,11 +2,13 @@
 .obsidian
 .vscode
 archive
-# /db
+/backup
+/db/db-private
 docs
 img-tmp
 data
 log
+/script
 tmp
 
 # exclude pattern

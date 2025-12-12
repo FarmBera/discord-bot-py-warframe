@@ -7,9 +7,10 @@ from src.translator import ts
 from src.constants.color import C
 from src.constants.keys import COOLDOWN_DEFAULT
 from src.utils.return_err import print_test_err
-from src.utils.data_manager import CHANNELS, ADMINYML
+from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.times import timeNowDT
+from src.utils.db_helper import query_reader
 
 pf: str = "cmd.complain."
 
@@ -65,8 +66,16 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
 {self.input_desc}"""
 
             # Send DM to User
-            target_user = await interact.client.fetch_user(ADMINYML["dm_target"])
-            await target_user.send(embed=discord.Embed(title=title, description=desc))
+            async with query_reader(interact.client.db) as cursor:
+                await cursor.execute(
+                    "SELECT user_id, is_dm_target FROM admins WHERE is_dm_target = TRUE"
+                )
+                result = await cursor.fetchone()
+            if result is not None and bool(result.get("is_dm_target")):
+                target_user = await interact.client.fetch_user(result["user_id"])
+                await target_user.send(
+                    embed=discord.Embed(title=title, description=desc)
+                )
 
             # Post New Article in Forum Channel
             forum_channel = interact.client.get_channel(CHANNELS["complain"])
