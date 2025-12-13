@@ -67,7 +67,7 @@ cmd:
   alerts:
     cmd: 얼럿
     desc: 현재 활성화된 얼럿 미션을 확인할 수 있어요.
-    desc-none: "### 현재 활성화된 얼럿 미션이 없습니다!"
+    desc-none: "## 현재 활성화된 얼럿 미션이 없습니다!"
     title: "활성화된 얼럿: {count}"
     credit: 크레딧
 
@@ -721,7 +721,9 @@ trs:
   # week 5
   torid: 토리드 # Torid
   dual toxocyst: 듀얼 톡소시스트 # Dual Toxocyst
+  dualtoxocyst: 듀얼 톡소시스트 # Dual Toxocyst
   dual ichor: 듀얼 이코르 # Dual Ichor
+  dualichor: 듀얼 이코르 # Dual Ichor
   miter: 마이터 # Miter
   atomos: 아토모스 # Atomos
   # week 6
