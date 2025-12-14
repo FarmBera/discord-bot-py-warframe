@@ -13,7 +13,7 @@ from src.constants.color import C
 from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
-from src.utils.return_err import print_test_err, return_test_err
+from src.utils.return_err import return_test_err, print_test_err
 from src.commands.reg_cmd import (
     register_main_cmds,
     register_sub_cmds,
@@ -24,7 +24,6 @@ from src.commands.reg_cmd_mt import (
     register_mt_sub_cmds,
     register_mt_ko_cmds,
 )
-
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
 
@@ -71,6 +70,25 @@ async def main_manager() -> None:
         )
         bot_mode = CMD_MAIN
 
+    try:  # init db connection
+        db_pool = await aiomysql.create_pool(
+            host=DB_HOST,
+            port=DB_PORT,
+            user=DB_USER,
+            password=DB_PW,
+            db=DB_NAME,
+            autocommit=False,
+            minsize=1,
+            maxsize=10,
+            connect_timeout=5,
+        )
+        print(f"{C.green}Connected to MariaDB Platform via aiomysql{C.default}")
+    except Exception:
+        print(
+            f"{C.yellow}Error connecting to MariaDB Platform\n{C.red}\n{return_test_err()}"
+        )
+        sys.exit(1)
+
     while bot_mode not in EXIT_CMD:
         intents = discord.Intents.default()
         intents.message_content = True
@@ -79,6 +97,7 @@ async def main_manager() -> None:
             current_bot = DiscordBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
+            current_bot.db = db_pool
 
             @tree.error
             async def on_app_command_error(
@@ -98,27 +117,6 @@ async def main_manager() -> None:
                 else:  # other type of error
                     print(f"Unhandled app command error: {error}")
 
-            try:
-                db_pool = await aiomysql.create_pool(
-                    host=DB_HOST,
-                    port=DB_PORT,
-                    user=DB_USER,
-                    password=DB_PW,
-                    db=DB_NAME,
-                    autocommit=False,
-                    minsize=1,
-                    maxsize=10,
-                    connect_timeout=5,
-                )
-                print(f"{C.green}Connected to MariaDB Platform via aiomysql{C.default}")
-
-            except Exception:
-                print(
-                    f"{C.yellow}Error connecting to MariaDB Platform\n{C.red}\n{return_test_err()}"
-                )
-                sys.exit(1)
-            current_bot.db = db_pool
-
             await register_main_cmds(tree, db_pool)
             if lang == Lang.KO:
                 await register_ko_cmds(tree, db_pool)
@@ -130,6 +128,7 @@ async def main_manager() -> None:
             current_bot = MaintanceBot(intents=intents, log_lock=log_lock)
             tree = discord.app_commands.CommandTree(current_bot)
             current_bot.tree = tree
+            current_bot.db = db_pool
 
             await register_maintenance_cmds(tree)
             if lang == Lang.KO:

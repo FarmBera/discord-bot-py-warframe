@@ -4,11 +4,11 @@ import asyncio
 
 # from src.main import tree
 from src.translator import ts
-from src.utils.times import JSON_DATE_PAT, timeNowDT
 from src.constants.color import C
-from src.constants.keys import STARTED_TIME_FILE_LOC, MSG_BOT
+from src.constants.keys import MSG_BOT
+from src.utils.times import timeNowDT
 from src.utils.logging_utils import save_log
-from src.utils.file_io import save_file
+from src.utils.db_helper import transaction
 from src.commands.cmd_maintenance import PartyView, TradeView
 
 
@@ -16,6 +16,7 @@ class MaintanceBot(discord.Client):
     def __init__(self, *, intents: discord.Intents, log_lock: asyncio.Lock, **options):
         super().__init__(intents=intents, **options)
         self.tree = None
+        self.db = None
         self.log_lock = log_lock
 
     async def setup_hook(self) -> None:
@@ -37,11 +38,10 @@ class MaintanceBot(discord.Client):
         print(
             f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.default}"
         )
-
-        save_file(
-            STARTED_TIME_FILE_LOC,
-            dt.datetime.strftime(timeNowDT(), JSON_DATE_PAT),
-        )
+        async with transaction(self.db) as cursor:
+            await cursor.execute(
+                "UPDATE vari SET value = CURRENT_TIMESTAMP() WHERE name = 'start_time'"
+            )
 
         print(f"{C.magenta}[info] Bot is on Maintance Mode!{C.default}")
 

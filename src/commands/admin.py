@@ -30,5 +30,5 @@ async def is_admin_user(interact: discord.Interaction) -> bool:
             return False
         return True
     except Exception:
-        print_test_err()
+        # print_test_err()
         return False

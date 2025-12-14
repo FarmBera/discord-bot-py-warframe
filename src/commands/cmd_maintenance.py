@@ -4,28 +4,35 @@ import datetime as dt
 
 from config.config import LOG_TYPE
 from src.translator import ts
-from src.utils.times import JSON_DATE_PAT, timeNowDT, convert_remain
+from src.utils.times import convert_remain
 from src.constants.keys import (
-    STARTED_TIME_FILE_LOC,
-    DELTA_TIME_LOC,
     COOLDOWN_BTN_ACTION,
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
 from src.utils.logging_utils import save_log
-from src.utils.file_io import open_file
-from src.utils.formatter import time_format
+from src.utils.db_helper import query_reader
 
 
 async def cmd_helper_maintenance(interact: discord.Interaction, arg: str = "") -> None:
-    time_target = dt.datetime.strptime(
-        open_file(STARTED_TIME_FILE_LOC), JSON_DATE_PAT
-    ) + dt.timedelta(minutes=int(open_file(DELTA_TIME_LOC)))
+    # delta time
+    async with query_reader(interact.client.db) as cursor:
+        await cursor.execute("SELECT value FROM vari WHERE name='delta_time'")
+        delta_time = await cursor.fetchone()
+        delta_time = int(delta_time["value"])
+
+    # get started time
+    async with query_reader(interact.client.db) as cursor:
+        await cursor.execute("SELECT updated_at FROM vari WHERE name='start_time'")
+        start_time = await cursor.fetchone()
+        start_time = start_time["updated_at"]
+
+    # calculate time
+    time_target = start_time + dt.timedelta(minutes=delta_time)
 
     txt = ts.get("maintenance.content").format(
         remain=convert_remain(time_target.timestamp())
     )
-    # > 예상 완료 시간: {dt.datetime.strftime(time_target,"%Y년 %m월 %d일, %H시 %M분")}
 
     # send message
     await interact.response.send_message(
