@@ -5,7 +5,7 @@ import requests
 import asyncio
 
 from config.TOKEN import WF_JSON_PATH
-from config.config import Lang, language as lang
+from config.config import Lang, language as lang, LOG_TYPE
 from config.roles import ROLES
 from src.translator import ts
 from src.utils.times import KST, alert_times, timeNowDT
@@ -19,11 +19,14 @@ from src.constants.keys import (
     STEELPATH,
     DUVIRI_ROTATION,
     DUVIRI_CACHE,
+    LFG_WEBHOOK_NAME,
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
 from src.utils.file_io import json_load
 from src.utils.discord_file import img_file
+from src.utils.db_helper import query_reader, transaction
+from src.utils.return_err import return_test_err, print_test_err
 from src.utils.data_manager import (
     get_obj,
     set_obj,
@@ -47,7 +50,7 @@ from src.parser.duviriRotation import (
     setDuvIncarnon,
 )
 
-from src.commands.party import PartyView
+from src.commands.party import PartyView, build_party_embed_from_db
 from src.commands.trade import TradeView
 
 
@@ -116,6 +119,8 @@ class DiscordBot(discord.Client):
                 f"{C.green}{ts.get('start.crt-each')}",
                 "week_start_noti (for KO only)",
             )
+        if lang == Lang.KO and not self.auto_party_expire.is_running():
+            self.auto_party_expire.start()
         print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
     async def send_alert(
@@ -614,3 +619,111 @@ class DiscordBot(discord.Client):
             return
 
         await self.send_alert(w_steelPath(get_obj(STEELPATH)))
+
+    # party auto expire
+    @tasks.loop(time=dt.time(hour=3, minute=0, tzinfo=KST))
+    async def auto_party_expire(self) -> None:
+        await save_log(
+            lock=self.log_lock,
+            type=LOG_TYPE.info,
+            cmd="auto_party_expire",
+            user=MSG_BOT,
+            msg=f"START Party AutoDelete",
+            obj=timeNowDT(),
+        )
+        async with query_reader(self.db) as cursor:
+            await cursor.execute("SELECT value FROM vari WHERE name='party_exp_time'")
+            party_exp_time = await cursor.fetchone()
+            party_exp_time = int(party_exp_time["value"])
+
+        # delete time
+        expiration_time = timeNowDT() - dt.timedelta(days=party_exp_time)
+
+        # fetch all message from db
+        async with query_reader(self.db) as cursor:
+            await cursor.execute(
+                "SELECT id, thread_id, message_id FROM party WHERE created_at < %s",
+                (expiration_time,),
+            )
+            expired_parties = await cursor.fetchall()
+
+        for party in expired_parties:
+            print(party["id"])
+            try:
+                thread = self.get_channel(party["thread_id"])
+
+                await thread.edit(locked=True)  # lock thread
+
+                msg = await thread.fetch_message(party["message_id"])
+
+                try:  # edit thread starter (webhook) msg
+                    webhook = discord.utils.get(
+                        await thread.parent.webhooks(), name=LFG_WEBHOOK_NAME
+                    )
+                    if webhook and msg:
+                        await webhook.edit_message(
+                            message_id=party["message_id"],
+                            content=ts.get(f"cmd.party.del-deleted"),
+                        )
+                except discord.NotFound:
+                    pass  # starter msg not found, maybe deleted manually
+
+                # disable all buttons on the original PartyView
+                new_party_view = PartyView()
+                for item in new_party_view.children:
+                    if isinstance(item, discord.ui.Button):
+                        item.disabled = True
+
+                # refresh Embed
+                new_embed = await build_party_embed_from_db(
+                    party["message_id"], self.db, isDelete=True
+                )
+                await msg.edit(embed=new_embed, view=new_party_view)
+
+                # remove from db
+                async with transaction(self.db) as cursor:
+                    await cursor.execute(
+                        "DELETE FROM party WHERE id = %s", (party["id"],)
+                    )
+                omsg = f"Expired party {party['id']} deleted."
+                await save_log(
+                    lock=self.log_lock,
+                    type=LOG_TYPE.warn,
+                    cmd="auto_party_expire",
+                    user=MSG_BOT,
+                    msg=f"Party AutoDelete",
+                    obj=omsg,
+                )
+            except discord.NotFound:
+                await save_log(
+                    lock=self.log_lock,
+                    type=LOG_TYPE.warn,
+                    cmd="auto_party_expire",
+                    user=MSG_BOT,
+                    msg=f"Party AutoDelete, but msg not found",
+                    obj=return_test_err(),
+                )
+                # msg deleted manually
+                async with transaction(self.db) as cursor:
+                    await cursor.execute(
+                        "DELETE FROM party WHERE id = %s", (party["id"],)
+                    )
+            except Exception as e:
+                await save_log(
+                    lock=self.log_lock,
+                    type=LOG_TYPE.err,
+                    cmd="auto_party_expire",
+                    user=MSG_BOT,
+                    msg=f"Party AutoDelete, but error occurred!",
+                    obj=return_test_err(),
+                )
+            await asyncio.sleep(15)
+
+        await save_log(
+            lock=self.log_lock,
+            type=LOG_TYPE.info,
+            cmd="auto_party_expire",
+            user=MSG_BOT,
+            msg=f"END Party AutoDelete",
+            obj=timeNowDT(),
+        )

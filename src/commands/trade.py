@@ -26,6 +26,14 @@ def parseNickname(nickname: str) -> str:
     return nickname.split("]")[-1].strip()
 
 
+def revTradeType(trade_type: str) -> str:
+    return (
+        ts.get("cmd.trade.type-buy")
+        if trade_type == ts.get(f"cmd.trade.type-sell")
+        else ts.get(f"cmd.trade.type-sell")
+    )
+
+
 class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
     def __init__(self, curr_nickname: str, db_pool):
         super().__init__(timeout=None)
@@ -43,7 +51,7 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
         try:
             async with transaction(self.db_pool) as cursor:
                 await cursor.execute(
-                    "UPDATE trades SET game_nickname = %s WHERE message_id = %s",
+                    "UPDATE trade SET game_nickname = %s WHERE message_id = %s",
                     (self.input_nickname.value, interact.message.id),
                 )
 
@@ -109,7 +117,7 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
 
             async with transaction(self.db_pool) as cursor:
                 await cursor.execute(
-                    "UPDATE trades SET quantity = %s WHERE message_id = %s",
+                    "UPDATE trade SET quantity = %s WHERE message_id = %s",
                     (new_quantity, interact.message.id),
                 )
 
@@ -169,7 +177,7 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
 
             async with transaction(self.db_pool) as cursor:
                 await cursor.execute(
-                    "UPDATE trades SET price = %s WHERE message_id = %s",
+                    "UPDATE trade SET price = %s WHERE message_id = %s",
                     (new_price, interact.message.id),
                 )
 
@@ -231,7 +239,7 @@ class ConfirmDeleteView(discord.ui.View):
             # delete trade info from DB
             async with transaction(interact.client.db) as cursor:
                 await cursor.execute(
-                    "DELETE FROM trades WHERE thread_id = %s", (interact.channel.id,)
+                    "DELETE FROM trade WHERE thread_id = %s", (interact.channel.id,)
                 )
 
             # refresh Embed
@@ -343,15 +351,15 @@ class ConfirmTradeView(discord.ui.View):
             interact=interact,
             msg=f"ConfirmTradeView -> YES",
         )
-
         try:
             host_mention = ""
             async with query_reader(self.db_pool) as cursor:
                 await cursor.execute(
-                    "SELECT host_id FROM trades WHERE id = %s", (self.trade_id,)
+                    "SELECT host_id,trade_type,price FROM trade WHERE id = %s",
+                    (self.trade_id,),
                 )
                 trade_info = await cursor.fetchone()
-                host_mention = f"<@{trade_info['host_id']}>" if trade_info else ""
+                host_mention = f"<@{trade_info['host_id']}>"
 
             await self.original_message.channel.send(
                 ts.get(f"{pf}trade-request").format(
@@ -360,6 +368,8 @@ class ConfirmTradeView(discord.ui.View):
                     user=parseNickname(
                         interact.user.display_name
                     ),  # TODO: 닉네임 호출 기능
+                    price=trade_info["price"],
+                    type=revTradeType(trade_info["trade_type"]),
                 )
             )
             self.value = True
@@ -438,7 +448,7 @@ class TradeView(discord.ui.View):
 
         async with query_reader(db_pool) as cursor:
             await cursor.execute(
-                "SELECT * FROM trades WHERE message_id = %s", (interact.message.id,)
+                "SELECT * FROM trade WHERE message_id = %s", (interact.message.id,)
             )
             trade_data = await cursor.fetchone()
 
@@ -677,11 +687,6 @@ def build_trade_embed(
 
     # color
     color = 0x00FF00 if not isDelete else 0xFF0000
-    ttype_rev: str = (  # reverse trade type
-        ts.get("cmd.trade.type-buy")
-        if data["trade_type"] == ts.get(f"cmd.trade.type-sell")
-        else ts.get(f"cmd.trade.type-sell")
-    )
 
     description: str = "~~" if isDelete else ""
     description += f"""
@@ -699,7 +704,7 @@ def build_trade_embed(
         description += f"""
 > 귓속말 명령어 복사 (드래그 또는 우측 복사버튼 이용)
 ```
-/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' {data['quantity':,]}개를 {data['price'] * data['quantity']:,} 플레로 {ttype_rev}하고 싶어요.
+/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' 를 {data['price']} 플레로 {revTradeType(data["trade_type"])}하고 싶어요.
 ```"""
     if isDelete:
         description += "~~"
@@ -714,9 +719,7 @@ def build_trade_embed(
 async def build_trade_embed_from_db(message_id: int, db_pool) -> discord.Embed:
     """[for external use] creates an embed using a message_id & db pool"""
     async with query_reader(db_pool) as cursor:
-        await cursor.execute(
-            "SELECT * FROM trades WHERE message_id = %s", (message_id,)
-        )
+        await cursor.execute("SELECT * FROM trade WHERE message_id = %s", (message_id,))
         trade_data = await cursor.fetchone()
 
         if not trade_data:
@@ -835,7 +838,7 @@ async def cmd_create_trade_helper(
         ########### db ############
         async with transaction(db_pool) as cursor:
             await cursor.execute(
-                "INSERT INTO trades (host_id, game_nickname, trade_type, item_name, item_rank, quantity, price) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                "INSERT INTO trade (host_id, game_nickname, trade_type, item_name, item_rank, quantity, price) VALUES (%s, %s, %s, %s, %s, %s, %s)",
                 (
                     interact.user.id,
                     game_nickname,
@@ -878,12 +881,6 @@ async def cmd_create_trade_helper(
         # create thread from starter msg (webhook)
         thread = await thread_starter_msg.create_thread(name=thread_name)
 
-        # send created msg
-        OUTPUT_MSG += ts.get(f"{pf}created-trade").format(
-            ch=target_channel.name, mention=thread.mention
-        )
-        await interact.followup.send(OUTPUT_MSG, ephemeral=True)
-
         ############################
         initial_data = {
             "id": TRADE_ID,
@@ -904,11 +901,16 @@ async def cmd_create_trade_helper(
 
         async with transaction(db_pool) as cursor:
             await cursor.execute(
-                "UPDATE trades SET thread_id = %s, message_id = %s WHERE id = %s",
+                "UPDATE trade SET thread_id = %s, message_id = %s WHERE id = %s",
                 (thread.id, msg.id, TRADE_ID),
             )
-
             RESULT += "DONE!\n"
+
+        # send created msg
+        OUTPUT_MSG += ts.get(f"{pf}created-trade").format(
+            ch=target_channel.name, mention=thread.mention
+        )
+        await interact.followup.send(OUTPUT_MSG, ephemeral=True)
 
     except discord.Forbidden as e:
         await interact.followup.send(

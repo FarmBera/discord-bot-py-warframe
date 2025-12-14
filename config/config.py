@@ -9,7 +9,9 @@ language = Lang.
 
 class LOG_TYPE:
     cmd: str = "cmd"
+    info: str = "info"
     event: str = "event"
+    warn: str = "warn"
     err: str = "err"
     cooldown: str = ".cooldown"
     maintenance: str = "maintenance"

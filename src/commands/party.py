@@ -225,8 +225,8 @@ class ConfirmDeleteView(discord.ui.View):
         self, interact: discord.Interaction, button: discord.ui.Button
     ):
         await interact.response.defer()
+        await interact.delete_original_response()
         try:
-            await interact.delete_original_response()
             db_pool = interact.client.db
             # delete party info from DB
             async with transaction(db_pool) as cursor:
@@ -1130,7 +1130,9 @@ def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     return embed
 
 
-async def build_party_embed_from_db(message_id: int, db_pool) -> discord.Embed:
+async def build_party_embed_from_db(
+    message_id: int, db_pool, isDelete: bool = False
+) -> discord.Embed:
     """[for external use] creates an embed using a message_id & db pool"""
 
     async with query_reader(db_pool) as cursor:
@@ -1138,13 +1140,14 @@ async def build_party_embed_from_db(message_id: int, db_pool) -> discord.Embed:
         await cursor.execute("SELECT * FROM party WHERE message_id = %s", (message_id,))
         party_data = await cursor.fetchone()
 
-        if not party_data:
-            return discord.Embed(
-                title=ts.get(f"{pf}err"),
-                description=ts.get(f"{pf}pv-not-found"),
-                color=discord.Color.dark_red(),
-            )
+    if not party_data:
+        return discord.Embed(
+            title=ts.get(f"{pf}err"),
+            description=ts.get(f"{pf}pv-not-found"),
+            color=discord.Color.dark_red(),
+        )
 
+    async with query_reader(db_pool) as cursor:
         # 2. select participant list
         await cursor.execute(
             "SELECT user_mention FROM participants WHERE party_id = %s",
@@ -1158,23 +1161,24 @@ async def build_party_embed_from_db(message_id: int, db_pool) -> discord.Embed:
             (party_data["id"], party_data["host_id"]),
         )
         host_data = await cursor.fetchone()
-        host_mention = (
-            host_data["user_mention"] if host_data else f"<@{party_data['host_id']}>"
-        )
 
-        # 3. assemble into dictionary format required by build_party_embed
-        data_dict = {
-            "id": party_data["id"],
-            "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
-            "title": party_data["title"],
-            "host_mention": host_mention,
-            "max_users": party_data["max_users"],
-            "participants": [p["user_mention"] for p in participants_list],
-            "mission": party_data["game_name"],
-            "description": party_data["description"] or "",
-        }
+    host_mention = (
+        host_data["user_mention"] if host_data else f"<@{party_data['host_id']}>"
+    )
 
-        return build_party_embed(data_dict)
+    # 3. assemble into dictionary format required by build_party_embed
+    data_dict = {
+        "id": party_data["id"],
+        "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
+        "title": party_data["title"],
+        "host_mention": host_mention,
+        "max_users": party_data["max_users"],
+        "participants": [p["user_mention"] for p in participants_list],
+        "mission": party_data["game_name"],
+        "description": party_data["description"] or "",
+    }
+
+    return build_party_embed(data_dict, isDelete=isDelete)
 
 
 async def cmd_create_party_helper(
