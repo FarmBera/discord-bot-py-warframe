@@ -362,8 +362,8 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
                 msg="[info] cmd used, but not authorized",  # VAR
             )
             return
-        await cmd_unavailable(interact)
-        # await cmd_create_complain_helper(interact=interact)
+        # await cmd_unavailable(interact)
+        await cmd_create_complain_helper(interact=interact)
 
 
 async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:

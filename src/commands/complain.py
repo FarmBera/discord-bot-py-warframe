@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
+import asyncio
 
 from config.config import LOG_TYPE
 from config.TOKEN import HOMEPAGE, SERVER_NAME
 from src.translator import ts
 from src.constants.color import C
 from src.constants.keys import COOLDOWN_DEFAULT
-from src.utils.return_err import print_test_err
+from src.utils.return_err import return_test_err, print_test_err
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.times import timeNowDT
@@ -59,6 +60,12 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
         try:
             await interact.response.defer(ephemeral=True)
 
+            await self.button_interact.edit_original_response(
+                content=ts.get(f"> 처리 중입니다. 잠시만 기다려주세요..."),
+                embed=None,
+                view=None,
+            )
+
             title: str = f"[{self.input_category}] {self.input_title}"
             desc: str = f"""{ts.get(f'{pf}created').format(user=interact.user.display_name)}
 (사용자 ID: {interact.user.name})
@@ -70,12 +77,17 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
                 await cursor.execute(
                     "SELECT user_id, is_dm_target FROM admins WHERE is_dm_target = TRUE"
                 )
-                result = await cursor.fetchone()
-            if result is not None and bool(result.get("is_dm_target")):
-                target_user = await interact.client.fetch_user(result["user_id"])
+                result = await cursor.fetchall()
+
+            if result is None or not result:  # or bool(result.get("is_dm_target")):
+                raise NameError("DM Target Not Found!")
+
+            for user in result:
+                target_user = await interact.client.fetch_user(user["user_id"])
                 await target_user.send(
                     embed=discord.Embed(title=title, description=desc)
                 )
+                await asyncio.sleep(1)
 
             # Post New Article in Forum Channel
             forum_channel = interact.client.get_channel(CHANNELS["complain"])
@@ -114,7 +126,7 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
                 cmd="btn.complain.submit",
                 interact=interact,
                 msg=f"Complain submitted, but error",
-                obj=f"TITLE: {self.input_title}\nCATEGORY: {self.input_category}\nDESC: {self.input_desc}\n{e}",
+                obj=f"TITLE: {self.input_title}\nCATEGORY: {self.input_category}\nDESC: {self.input_desc}\n{return_test_err()}",
             )
 
 
