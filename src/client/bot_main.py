@@ -361,7 +361,7 @@ class DiscordBot(discord.Client):
 
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
                 is_new = set(duv_warframe["Choices"]) != set(obj_new[0]["Choices"])
-                if is_new:
+                if not is_new:
                     continue
 
                 try:
@@ -385,7 +385,7 @@ class DiscordBot(discord.Client):
 
             elif special_logic == "handle_duviri_rotation-2":  # circuit-incarnon
                 is_new = set(duv_incarnon["Choices"]) != set(obj_new[1]["Choices"])
-                if is_new:
+                if not is_new:
                     continue
 
                 try:

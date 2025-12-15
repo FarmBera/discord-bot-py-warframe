@@ -50,7 +50,7 @@ def create_embed(output_msg: str, color=None):
     return embed
 
 
-def w_duviri_warframe(rotation):
+def w_duviri_warframe(rotation) -> discord.Embed:
     if not rotation:
         return err_embed("w_duviri_warframe")
 
@@ -98,7 +98,7 @@ def w_duviri_warframe(rotation):
     return create_embed(output_msg)
 
 
-def w_duviri_incarnon(incarnon):
+def w_duviri_incarnon(incarnon) -> discord.Embed:
     if not incarnon:
         return err_embed("w_duviri_warframe")
 

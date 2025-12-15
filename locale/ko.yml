@@ -717,20 +717,18 @@ trs:
   magistar: 마기스타 # Magistar
   boltor: 볼터 # Boltor
   bronco: 브롱코 # Bronco
-  ceramic dagger: 세라믹 대거 # Ceramic Dagger
+  ceramicdagger: 세라믹 대거 # Ceramic Dagger
   # week 5
   torid: 토리드 # Torid
-  dual toxocyst: 듀얼 톡소시스트 # Dual Toxocyst
   dualtoxocyst: 듀얼 톡소시스트 # Dual Toxocyst
-  dual ichor: 듀얼 이코르 # Dual Ichor
   dualichor: 듀얼 이코르 # Dual Ichor
   miter: 마이터 # Miter
   atomos: 아토모스 # Atomos
   # week 6
-  ack & brunt: 아크&브런트 # "Ack & Brunt"
+  ackandbrunt: 아크&브런트 # "Ack & Brunt"
   soma: 소마 # Soma
   vasto: 바스토 # Vasto
-  nami solo: 나미 솔로 # Nami Solo
+  namisolo: 나미 솔로 # Nami Solo
   burston: 버스튼 # Burston
   # week 7
   zylok: 자일락 # Zylok
