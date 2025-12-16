@@ -75,12 +75,13 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
             # Send DM to User
             async with query_reader(interact.client.db) as cursor:
                 await cursor.execute(
-                    "SELECT user_id, is_dm_target FROM admins WHERE is_dm_target = TRUE"
+                    "SELECT user_id, is_dm_target FROM admins WHERE is_dm_target=TRUE"
                 )
                 result = await cursor.fetchall()
 
-            if result is None or not result:  # or bool(result.get("is_dm_target")):
-                raise NameError("DM Target Not Found!")
+            if result is None or not result:
+                pass
+                # raise NameError("DM Target Not Found!")
 
             for user in result:
                 target_user = await interact.client.fetch_user(user["user_id"])

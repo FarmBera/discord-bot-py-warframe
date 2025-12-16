@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 async def transaction(pool):
     async with pool.acquire() as conn:
         async with conn.cursor(aiomysql.DictCursor) as cursor:
+            await conn.begin()
             try:
                 yield cursor
                 await conn.commit()
@@ -19,4 +20,5 @@ async def transaction(pool):
 async def query_reader(pool):
     async with pool.acquire() as conn:
         async with conn.cursor(aiomysql.DictCursor) as cursor:
+            await conn.commit()
             yield cursor
