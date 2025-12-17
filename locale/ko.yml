@@ -451,7 +451,7 @@ cmd:
       {host_mention}, {user_mention} 님이 **{price}** 플레에 {type}를 요청했어요!
       > 초대 명령어 복사 (드래그 또는 우측 복사버튼 이용)
       ```
-      /inv {user}
+      /invite {user}
       ```
     confirm-delete: "# 정말로 이 거래 글을 닫을까요?\n거래가 종료되면 게시글을 수정할 수 없고, **다시 활성화할 수 없어요!**"
     deleted: "> 거래가 완료된 아이템입니다."
