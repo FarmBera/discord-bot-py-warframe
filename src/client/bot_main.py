@@ -276,7 +276,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=e,
+                        obj=return_test_err(),
                     )
 
             elif special_logic == "handle_missing_invasions":  # invasions
@@ -331,7 +331,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=e,
+                        obj=return_test_err(),
                     )
 
             elif special_logic == "handle_fissures":  # fissures
@@ -492,7 +492,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=e,
+                        obj=return_test_err(),
                     )
                 notification = True
                 should_save_data = True
