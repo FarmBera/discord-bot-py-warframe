@@ -73,7 +73,7 @@ cmd:
 
     lvl: "레벨: `{lvl}`"
     waves: "웨이브 수: `{wave}`"
-    exp: "**{time} 만료**됩니다."
+    exp: "**{time}** 만료"
 
   news:
     cmd: 뉴스
