@@ -24,19 +24,20 @@ from src.constants.keys import (
     # cmd obj
     ALERTS,
     NEWS,
-    CETUSCYCLE,
+    # CETUSCYCLE,
     SORTIE,
     ARCHONHUNT,
     VOIDTRADERS,
     STEELPATH,
-    DUVIRICYCLE,
+    ARCHIMEDEA,
+    # DUVIRICYCLE,
     FISSURES,
     CALENDAR,
-    CAMBIONCYCLE,
+    # CAMBIONCYCLE,
     DAILYDEALS,
     INVASIONS,
     MARKET_SEARCH,
-    VALLISCYCLE,
+    # VALLISCYCLE,
     DUVIRI_ROTATION,
     EVENTS,
 )
@@ -50,6 +51,8 @@ from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
 from src.parser.steelPath import w_steelPath
 from src.parser.duviriCycle import w_duviriCycle
 from src.parser.fissures import w_fissures
+from src.parser.deepArchimedea import w_deepArchimedea
+from src.parser.temporalArchimedea import w_temporalArchimedia
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
@@ -215,6 +218,32 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
             parser_func=w_fissures,
             parser_args=(ts.get("cmd.fissures.choice-fast"), False),
             # parser_args=(types.name, is_include_railjack_node),
+        )
+
+    # deep-archimedea command
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.deep-archimedea.cmd"),
+        description=ts.get(f"cmd.deep-archimedea.desc"),
+    )
+    async def cmd_alerts(interact: discord.Interaction):
+        await cmd_helper(
+            interact=interact, key=ARCHIMEDEA, parser_func=w_deepArchimedea
+        )
+
+    # temporal-archimedea command
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.temporal-archimedea.cmd"),
+        description=ts.get(f"cmd.temporal-archimedea.desc"),
+    )
+    async def cmd_alerts(interact: discord.Interaction):
+        await cmd_helper(
+            interact=interact, key=ARCHIMEDEA, parser_func=w_temporalArchimedia
         )
 
     # duviriCycle command

@@ -44,17 +44,39 @@ def w_alerts(alerts):
                 for item in ms["missionReward"].get("countedItems", [])
             ]
         )
+        try:  # check emeny level
+            enemy_lvl = f"{ms['minEnemyLevel']}-{ms['maxEnemyLevel']}"
+        except:
+            enemy_lvl = ""
 
-        enemy_lvl = f"{ms['minEnemyLevel']}-{ms['maxEnemyLevel']}"
-        max_wave = ms["maxWaveNum"]
+        try:  # check max wave
+            max_wave = ms["maxWaveNum"]
+        except:
+            max_wave = ""
 
-        output_msg += f"### {idx}. {reward}\n\n"
+        # title
+        output_msg += f"### {idx}. {reward}\n"
+        # location
         output_msg += f"- **{mission_type}** - {mission_location}\n"
-        output_msg += f"- {ts.get(f'{pf}exp').format(time=expiry)}\n"
-        output_msg += f"- {ts.get(f'{pf}lvl').format(lvl=enemy_lvl)} / {ts.get(f'{pf}waves').format(wave=max_wave)}\n"
+        # expiry
+        output_msg += f"- {ts.get(f'{pf}exp').format(time=expiry)}\n- "
+        # level
+        output_msg += ts.get(f"{pf}lvl").format(lvl=enemy_lvl) if enemy_lvl else ""
+        # separator
+        output_msg += " / " if enemy_lvl and max_wave else ""
+        # max wave
+        output_msg += ts.get(f"{pf}waves").format(wave=max_wave) if max_wave else ""
+
+        output_msg += "\n"
         idx += 1
 
     f = "alert"
     embed = discord.Embed(description=output_msg, color=color_decision(alerts))
     embed.set_thumbnail(url="attachment://i.png")
     return embed, f
+
+
+# from src.utils.data_manager import get_obj
+# from src.constants.keys import ALERTS
+
+# print(w_alerts(get_obj(ALERTS))[0].description)

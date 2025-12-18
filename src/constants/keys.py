@@ -35,21 +35,20 @@ MSG_BOT: str = "bot.self"
 
 ALERTS: str = "Alerts"
 NEWS: str = "Events"
-CETUSCYCLE: str = "cetusCycle"
+# CETUSCYCLE: str = "cetusCycle"
 SORTIE: str = "Sorties"
 ARCHONHUNT: str = "LiteSorties"
 VOIDTRADERS: str = "VoidTraders"
 STEELPATH: str = "steelPath"
-DUVIRICYCLE: str = "duviriCycle"
-DEEPARCHIMEDEA: str = "deepArchimedea"
-TEMPORALARCHIMEDEA: str = "temporalArchimedea"
+# DUVIRICYCLE: str = "duviriCycle"
+ARCHIMEDEA: str = "Conquests"
 FISSURES: str = "ActiveMissions"
 CALENDAR: str = "KnownCalendarSeasons"
-CAMBIONCYCLE: str = "cambionCycle"
+# CAMBIONCYCLE: str = "cambionCycle"
 DAILYDEALS: str = "DailyDeals"
 INVASIONS: str = "Invasions"
 MARKET_SEARCH: str = "market-search"
-VALLISCYCLE: str = "vallisCycle"
+# VALLISCYCLE: str = "vallisCycle"
 DUVIRI_ROTATION: str = "EndlessXpChoices"
 EVENTS: str = "Goals"
 # CODA: str = ""  # coda weapon
@@ -68,8 +67,7 @@ keys: list = [
     VOIDTRADERS,
     # STEELPATH,
     # DUVIRICYCLE,
-    # DEEPARCHIMEDEA,
-    # TEMPORALARCHIMEDEA,
+    ARCHIMEDEA,
     FISSURES,
     CALENDAR,
     # CAMBIONCYCLE,
