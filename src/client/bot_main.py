@@ -763,6 +763,17 @@ class DiscordBot(discord.Client):
                 # isEnabled alerts
                 if not setting["noti"]["list"][origin_key]:
                     continue
+
+                # fetch channel
+                ch_key = handler.get("channel_key", "channel")
+                target_ch = channels.get(ch_key)
+                await self.send_alert(
+                    parsed_content,
+                    channel_list=target_ch,
+                    setting=setting,
+                    key=key_arg if key_arg else key,
+                )
+
                 await self.broadcast_webhook(origin_key, parsed_content)
 
         return  # End Of check_new_content()
