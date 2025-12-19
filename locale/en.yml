@@ -13,13 +13,22 @@ maintenance:
     # Server Maintenance in Progress
     Due to server maintenance and patching, **bots are currently unavailable.**
     We apologize for any inconvenience this may cause.
-
     ## Estimated time remaining until completion: **{remain}**
-
     Please note that maintenance may end early or be delayed.
 
 general:
   error-cmd: Internal Error. Please contact the administrator.
+  unable: |
+    ## This feature is not yet available...
+    This command is currently under development.
+  # If you believe this is an error, please contact the bot developer.
+  admin: |
+    ## No permission
+    - **Only server administrators can use this.**
+    - If you are an administrator and cannot use it, please contact the bot developer.
+  developer: |
+    ## No permission
+    - This feature is only available to developers.
 
 time:
   day: d
@@ -34,6 +43,7 @@ cmd:
 
     If you believe this is an error, please contact the bot developer.
   err-limit-server: "This command is only available on the selected server."
+  err-perm-webhook: "❌ The bot requires ‘webhook management’ permissions."
   err-cooldown:
     title: Cooldown
     desc: You must wait {time} more second(s) to use this command again.
@@ -273,10 +283,11 @@ cmd:
     # basic commands
     cmd: create-party
     desc: "Creates a new party listing."
-    title: Party Title
-    miss-types: Game Name
-    descript: "[Optional] Detailed description for the recruitment post"
-    nou: "[Optional] Max party size (including yourself)"
+
+    desc-title: Party Title
+    desc-miss-types: Game Name
+    desc-descript: "[Optional] Detailed description for the recruitment post"
+    desc-nou: "[Optional] Max party size (including yourself)"
 
     err: Unknown Error. Please contact the admin."
     # PartyEditModal
@@ -381,6 +392,7 @@ cmd:
     err-creation: "❌ Error: A problem occurred while creating the thread. Please contact an admin."
     err-unknown: "❌ Unknown Error"
     not-found-ch: "❌ Error: Could not find the specified text channel. Please contact an admin."
+    err-party-count: "Failed to retrieve the number of party members.\nPlease contact the administrator."
 
     created-party: "Created a party!"
 
@@ -440,7 +452,12 @@ cmd:
     # interactions
     created-trade: "✅ Created a trade post in `{ch}`! {mention}"
     confirm-trade: "## Are you sure you want to request this trade?"
-    trade-request: "{host_mention}, {user_mention} has requested a trade!"
+    trade-request: |
+      {host_mention}, {user_mention} requested {type} for the **{price}** platinum!
+      > Copy invite command (drag or use the copy button on the right)
+      ```
+      /invite {user}
+      ```
     confirm-delete: "## Are you sure you want to close this trade listing?\nOnce closed, **it cannot be reopened!**"
     deleted: "> The trade has been closed by the poster."
     canceled: "The operation has been canceled."
@@ -463,9 +480,14 @@ cmd:
     err-forbidden: "The bot cannot access the trade post. Please contact an administrator."
     err-self-trade: "You cannot request a trade on your own post."
     err-invalid-value: "Please enter a valid number."
+    err-size-low: "You cannot enter a value smaller than 1."
     err-no-market: "No search results from 'Warframe Market'. Please enter the price manually.\n(Use the edit price feature.)"
     err-api: "The automatic pricing feature is currently unavailable (API error).\nPlease enter the price manually."
-    err-edit: "An error occurred while editing. If the problem persists, please contact an administrator."
+    err-edit: |
+      An error occurred during editing.
+      Did you enter a non-numeric value?
+
+      If the error persists, please contact the administrator.
 
   duviri-circuit:
     wf-cmd: circuit-warfrmae
@@ -534,3 +556,20 @@ cmd:
     # error
     err: "An error occurred during submission.\n\nIf the error persists, please contact an administrator."
     err-channel: "Error: The suggestion channel could not be found.\nPlease contact an administrator."
+
+  alert-set:
+    cmd: Notification Settings
+    desc: Subscribe to selected Warframe news in the current channel.
+
+    select-msg: Please select the items to subscribe to from the menu below.
+    select-placeholder: Select all notifications you wish to receive (multiple selections allowed)
+    done: “✅ Settings saved! ({count} notifications subscribed)”
+
+  alert-delete:
+    cmd: Unsubscribe
+    desc: Unsubscribe from notifications currently set for this channel.
+
+    select-msg: Please select the notifications you wish to unsubscribe from in the menu below.
+    select-placeholder: Select all notifications you wish to unsubscribe from (multiple selections allowed)
+    done: “✅ {count} notifications have been unsubscribed.”
+    reason: Unsubscribe from all notifications
