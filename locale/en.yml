@@ -558,7 +558,7 @@ cmd:
     err-channel: "Error: The suggestion channel could not be found.\nPlease contact an administrator."
 
   alert-set:
-    cmd: Notification Settings
+    cmd: alert-setup
     desc: Subscribe to selected Warframe news in the current channel.
 
     select-msg: Please select the items to subscribe to from the menu below.
@@ -566,7 +566,7 @@ cmd:
     done: “✅ Settings saved! ({count} notifications subscribed)”
 
   alert-delete:
-    cmd: Unsubscribe
+    cmd: alert-remove
     desc: Unsubscribe from notifications currently set for this channel.
 
     select-msg: Please select the notifications you wish to unsubscribe from in the menu below.
