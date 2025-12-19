@@ -6,6 +6,7 @@ COOLDOWN_DEFAULT: float = 10.0
 COOLDOWN_CREATE: float = 60.0
 COOLDOWN_BTN_ACTION: float = 15.0  # btn join/leave
 COOLDOWN_BTN_MANAGE: float = 15.0  # btn modify/remove
+COOLDOWN_5_MIN: float = 300.0  # 5 minute cooldown
 COOLDOWN_BTN_CALL: float = 900.0  # btn call members
 
 

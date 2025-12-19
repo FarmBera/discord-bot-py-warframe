@@ -16,6 +16,7 @@ from src.constants.keys import (
     # cooldown var
     COOLDOWN_DEFAULT,
     COOLDOWN_CREATE,
+    COOLDOWN_5_MIN,
     # docs file
     HELP_FILE_LOC,
     ANNOUNCE_FILE_LOC,
@@ -377,7 +378,7 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
 
     # create receive complain
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
@@ -461,7 +462,7 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
 
     # create party
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.party.cmd"),
@@ -502,7 +503,7 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
 
     # create trade article
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.trade.cmd"),
@@ -603,7 +604,7 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
 
     # create party
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.party.cmd"),
@@ -644,7 +645,7 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
 
     # create trade article
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.trade.cmd"),
