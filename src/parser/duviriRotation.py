@@ -20,6 +20,16 @@ ADD_ONE_WEEK: int = 604800
 pf: str = "cmd.duviri-circuit."
 
 
+def getDuvWarframe():
+    global duv_warframe
+    return duv_warframe
+
+
+def getDuvIncarnon():
+    global duv_incarnon
+    return duv_incarnon
+
+
 def setDuviriRotate():
     global rotation_data
     rotation_data = get_obj(DUVIRI_CACHE)

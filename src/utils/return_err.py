@@ -20,6 +20,6 @@ def err_text(err_code: str) -> str:
 
 def err_embed(err_code: str) -> discord.Embed:
     return discord.Embed(
-        description=f"{ts.get('general.error-cmd')} {err_code}",
+        description=f"{ts.get('general.error-cmd')}\n{err_code}",
         color=0xFF0000,
     )

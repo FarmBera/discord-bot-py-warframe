@@ -1,8 +1,11 @@
 import discord
 from discord.ext import tasks
 import datetime as dt
+import os
 import requests
+import json
 import asyncio
+import aiohttp
 
 from config.TOKEN import WF_JSON_PATH
 from config.config import Lang, language as lang, LOG_TYPE
@@ -40,18 +43,27 @@ from src.handler.handler_config import DATA_HANDLERS
 from src.parser.sortie import w_sortie
 from src.parser.voidTraders import isBaroActive
 from src.parser.steelPath import w_steelPath
+from src.parser.archimedea import (
+    archimedea_deep,
+    archimedea_temporal,
+    setDeepArchimedea,
+    setTemporalArchimedea,
+    CT_LAB,
+    CT_HEX,
+)
 from src.parser.duviriRotation import (
     setDuviriRotate,
     w_duviri_warframe,
     w_duviri_incarnon,
-    duv_warframe,
-    duv_incarnon,
+    getDuvWarframe,
+    getDuvIncarnon,
     setDuvWarframe,
     setDuvIncarnon,
 )
 
 from src.commands.party import PartyView, build_party_embed_from_db
 from src.commands.trade import TradeView
+from src.commands.noti_channel import DB_COLUMN_MAP, PROFILE_CONFIG
 
 
 class DiscordBot(discord.Client):
@@ -178,6 +190,193 @@ class DiscordBot(discord.Client):
                 )
                 await channel.send(value)
 
+    async def broadcast_webhook(self, noti_key: str, content) -> None:
+        """
+        search the webhook subscribed to that notification (noti_key) in the database and sends it.
+        """
+        # check db column mapping
+        db_column = DB_COLUMN_MAP.get(noti_key)
+        if not db_column:
+            msg = f"[warn] Unmapped notification key: {noti_key}"
+            await save_log(
+                lock=self.log_lock,
+                type="warn",
+                cmd="broadcast_webhook",
+                user=MSG_BOT,
+                msg=msg,
+            )
+            print(C.yellow, msg, C.default)
+            return
+
+        # search subscribers in db
+        async with query_reader(self.db) as cursor:
+            print(db_column)  # TODO-remove
+            await cursor.execute(
+                f"SELECT webhook_url, custom_msg FROM webhooks WHERE {db_column} = 1"
+            )
+            subscribers = await cursor.fetchall()
+
+        if not subscribers:
+            return
+
+        # prepare payload data
+        embed_data = None
+        text_content = ""
+        files_to_upload = []
+
+        # process embed
+        if isinstance(content, discord.Embed):
+            embed_data = content.to_dict()
+
+        # process tuple (embed, file)
+        elif isinstance(content, tuple):
+            eb, file_info = content
+            embed_data = eb.to_dict()
+            real_file_path = None
+
+            # img path is string
+            if isinstance(file_info, str):
+                path = f"img/{file_info}.png"
+                if os.path.exists(path):
+                    real_file_path = path
+                    content_file_name = "i.png"
+                else:
+                    real_file_path = file_info
+                    content_file_name = os.path.basename(file_info)
+
+            # read file
+            if real_file_path:
+                try:
+                    with open(real_file_path, "rb") as f:
+                        files_to_upload.append(
+                            {
+                                "name": "file",
+                                "filename": content_file_name,
+                                "data": f.read(),
+                            }
+                        )
+                    print(f"[INFO] 콘텐츠 파일 로드: {real_file_path}")  # TODO-remove
+                except Exception as e:
+                    msg = f"[err] Failed to read image file: {e}"
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="broadcast_webhook",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=return_test_err(),
+                    )
+                    print(C.red, msg, C.default)
+
+        # string only
+        else:
+            text_content = str(content)
+
+        # setup profile img
+        bot_name = self.user.name
+        bot_avatar_url = self.user.display_avatar.url if self.user else None
+
+        # get setting
+        profile_conf = PROFILE_CONFIG.get(noti_key)
+
+        final_username = bot_name
+        final_avatar_url = bot_avatar_url
+
+        if profile_conf:
+            final_username = profile_conf.get("name", bot_name)
+            conf_avatar = profile_conf.get("avatar")
+
+            if conf_avatar:
+                # URL
+                if conf_avatar.startswith("http"):
+                    final_avatar_url = conf_avatar
+
+                else:  # read local file
+                    if os.path.exists(conf_avatar):
+                        try:
+                            with open(conf_avatar, "rb") as f:
+                                files_to_upload.append(
+                                    {
+                                        "name": "avatar_file",
+                                        "filename": "avatar.png",
+                                        "data": f.read(),
+                                    }
+                                )
+                            final_avatar_url = "attachment://avatar.png"
+                        except Exception as e:
+                            msg = f"[warn] Failed to read local profile: {e}"
+                            print(C.red, msg, C.default)
+                            await save_log(
+                                lock=self.log_lock,
+                                type="err",
+                                cmd="broadcast_webhook",
+                                user=MSG_BOT,
+                                msg=msg,
+                                obj=return_test_err(),
+                            )
+                    else:
+                        msg = f"[warn] Local profile path not found: {conf_avatar}"
+                        print(C.red, msg, C.default)
+                        await save_log(
+                            lock=self.log_lock,
+                            type="warn",
+                            cmd="broadcast_webhook",
+                            user=MSG_BOT,
+                            msg=msg,
+                        )
+
+        # send alert & check result
+        async with aiohttp.ClientSession() as session:
+            for row in subscribers:
+                url = row["webhook_url"]
+                custom_msg = row.get("custom_msg", "")
+
+                # verify URL
+                if not url or not str(url).startswith("http"):
+                    continue
+
+                # combine msg
+                final_text = (
+                    f"{custom_msg}\n{text_content}" if custom_msg else text_content
+                )
+                payload = {
+                    "username": final_username,
+                    "avatar_url": final_avatar_url,
+                    "content": final_text.strip(),
+                }
+                if embed_data:
+                    payload["embeds"] = [embed_data]
+
+                try:
+                    if files_to_upload:
+                        # [send file] multipart/form-data
+                        form = aiohttp.FormData()
+                        form.add_field("payload_json", json.dumps(payload))
+
+                        # upload all file
+                        for file_obj in files_to_upload:
+                            form.add_field(
+                                file_obj["name"],
+                                file_obj["data"],
+                                filename=file_obj["filename"],
+                                content_type="application/octet-stream",
+                            )
+
+                        async with session.post(url, data=form) as response:
+                            if not (200 <= response.status < 300):
+                                err_text = await response.text()
+                                print(
+                                    f"[FAIL] Failed to send Multipart ({response.status}): {err_text}"
+                                )
+                    else:
+                        # general send (json)
+                        async with session.post(url, json=payload) as response:
+                            if not (200 <= response.status < 300):
+                                print(f"[FAIL] Failed to send ({response.status})")
+
+                except Exception as e:
+                    print(f"[err] ERROR on sending : {e}")
+
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
     async def check_new_content(self) -> None:
@@ -197,6 +396,11 @@ class DiscordBot(discord.Client):
 
         # check for new content & send alert
         for key, handler in DATA_HANDLERS.items():
+            origin_key = key
+            special_key = handler.get("key")
+            if special_key:
+                key = special_key
+
             try:
                 obj_prev = get_obj(key)
                 obj_new = latest_data[key]
@@ -209,7 +413,7 @@ class DiscordBot(discord.Client):
                     cmd="check_new_content()",
                     user=MSG_BOT,
                     msg=msg,
-                    obj=e,
+                    obj=return_test_err(),
                 )
                 continue
 
@@ -360,7 +564,7 @@ class DiscordBot(discord.Client):
                     )
 
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
-                is_new = set(duv_warframe["Choices"]) != set(obj_new[0]["Choices"])
+                is_new = getDuvWarframe()["Choices"] != obj_new[0]["Choices"]
                 if not is_new:
                     continue
 
@@ -380,11 +584,11 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=e,
+                        obj=return_test_err(),
                     )
 
             elif special_logic == "handle_duviri_rotation-2":  # circuit-incarnon
-                is_new = set(duv_incarnon["Choices"]) != set(obj_new[1]["Choices"])
+                is_new = getDuvIncarnon()["Choices"] != obj_new[1]["Choices"]
                 if not is_new:
                     continue
 
@@ -404,7 +608,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=e,
+                        obj=return_test_err(),
                     )
 
             elif special_logic == "handle_voidtraders":
@@ -479,6 +683,61 @@ class DiscordBot(discord.Client):
                         key=key_arg if key_arg else key,
                     )
 
+            elif special_logic == "handle_deep_archimedea":
+                obj_new = next(i for i in obj_new if i.get("Type") == CT_LAB)
+                is_new = (
+                    archimedea_deep["Activation"]["$date"]["$numberLong"]
+                    != obj_new["Activation"]["$date"]["$numberLong"]
+                )
+                if not is_new:
+                    continue
+
+                try:
+                    parsed_content = handler["parser"](obj_new)
+                    notification = True
+                    should_save_data = True
+                    setDeepArchimedea(obj_new)
+                except Exception as e:
+                    msg = (
+                        f"[err] parse error in handle_deep_archimedea {handler['parser']}/{e}",
+                    )
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="check_new_content()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=return_test_err(),
+                    )
+
+            elif special_logic == "handle_temporal_archimedea":
+                obj_new = next(i for i in obj_new if i.get("Type") == CT_HEX)
+                is_new = archimedea_temporal["Activation"]["$date"]["$numberLong"] != (
+                    obj_new["Activation"]["$date"]["$numberLong"]
+                )
+                if not is_new:
+                    continue
+
+                try:
+                    parsed_content = handler["parser"](obj_new)
+                    notification = True
+                    should_save_data = True
+                    setTemporalArchimedea(obj_new)
+                except Exception as e:
+                    msg = (
+                        f"[err] parse error in handle_deep_archimedea {handler['parser']}/{e}",
+                    )
+                    print(timeNowDT(), C.red, msg, e, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type="err",
+                        cmd="check_new_content()",
+                        user=MSG_BOT,
+                        msg=msg,
+                        obj=return_test_err(),
+                    )
+
             # parsing: default
             elif handler["update_check"](obj_prev, obj_new):
                 try:
@@ -492,7 +751,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=return_test_err(),
+                        obj=print_test_err(),
                     )
                 notification = True
                 should_save_data = True
@@ -500,10 +759,9 @@ class DiscordBot(discord.Client):
             if should_save_data:  # save data
                 set_obj(obj_new, key)
 
-            # send msg
             if notification and parsed_content:
                 # isEnabled alerts
-                if not setting["noti"]["list"][key]:
+                if not setting["noti"]["list"][origin_key]:
                     continue
 
                 # fetch channel
@@ -515,6 +773,8 @@ class DiscordBot(discord.Client):
                     setting=setting,
                     key=key_arg if key_arg else key,
                 )
+
+                await self.broadcast_webhook(origin_key, parsed_content)
 
         return  # End Of check_new_content()
 

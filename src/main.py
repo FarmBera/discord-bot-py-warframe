@@ -180,7 +180,7 @@ async def main_manager() -> None:
         if db_pool is not None:
             db_pool.close()
             await db_pool.wait_closed()
-            print(f"{C.green}Connection Pool closed cleanly.")
+            print(f"{C.green}Connection Pool closed cleanly.{C.default}")
             db_pool = None
 
         for task in pending:  # cancel remaining task

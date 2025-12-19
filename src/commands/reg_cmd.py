@@ -1,6 +1,8 @@
 import discord
 
 from src.translator import ts
+from config.config import LOG_TYPE
+from src.utils.logging_utils import save_log
 from src.commands.cmd_helper import cmd_helper
 from src.commands.cmd_helper_text import cmd_helper_txt
 from src.commands.party import cmd_create_party_helper
@@ -8,13 +10,13 @@ from src.commands.trade import cmd_create_trade_helper
 from src.commands.complain import cmd_create_complain_helper
 from src.commands.unavailable import cmd_unavailable
 from src.commands.admin import is_admin_user
-from src.utils.logging_utils import save_log
-from config.config import LOG_TYPE
+from src.commands.noti_channel import SettingView, UnSettingView
 
 from src.constants.keys import (
     # cooldown var
     COOLDOWN_DEFAULT,
     COOLDOWN_CREATE,
+    COOLDOWN_5_MIN,
     # docs file
     HELP_FILE_LOC,
     ANNOUNCE_FILE_LOC,
@@ -51,8 +53,8 @@ from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
 from src.parser.steelPath import w_steelPath
 from src.parser.duviriCycle import w_duviriCycle
 from src.parser.fissures import w_fissures
-from src.parser.deepArchimedea import w_deepArchimedea
-from src.parser.temporalArchimedea import w_temporalArchimedia
+from src.parser.archimedea import w_deepArchimedea
+from src.parser.archimedea import w_temporalArchimedia
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
@@ -376,7 +378,7 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
 
     # create receive complain
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
@@ -393,6 +395,34 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
             return
         # await cmd_unavailable(interact)
         await cmd_create_complain_helper(interact=interact)
+
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.alert-set.cmd"),
+        description=ts.get(f"cmd.alert-set.desc"),
+    )
+    async def noti_subscribe(interact: discord.Interaction):
+        await interact.response.send_message(
+            ts.get(f"cmd.alert-set.select-msg"),
+            view=SettingView(),
+            ephemeral=True,
+        )
+
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.alert-delete.cmd"),
+        description=ts.get(f"cmd.alert-delete.desc"),
+    )
+    async def noti_subscribe(interact: discord.Interaction):
+        await interact.response.send_message(
+            ts.get(f"cmd.alert-delete.select-msg"),
+            view=UnSettingView(),
+            ephemeral=True,
+        )
 
 
 async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:
@@ -432,7 +462,7 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
 
     # create party
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.party.cmd"),
@@ -473,7 +503,7 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
 
     # create trade article
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.trade.cmd"),
@@ -574,7 +604,7 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
 
     # create party
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.party.cmd"),
@@ -615,7 +645,7 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
 
     # create trade article
     @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_CREATE, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(
         name=ts.get(f"cmd.trade.cmd"),

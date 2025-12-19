@@ -4,7 +4,14 @@ import requests
 from src.constants.color import C
 from src.utils.api_legacy import API_Request
 from src.utils.data_manager import get_obj, set_obj
-from src.constants.keys import keys, JSON, DUVIRI_ROTATION
+from src.constants.keys import (
+    keys,
+    JSON,
+    DUVIRI_ROTATION,
+    ARCHIMEDEA,
+    ARCHIMEDEA_DEEP,
+    ARCHIMEDEA_TEMPORAL,
+)
 
 
 print("API Requesting...")
@@ -50,5 +57,8 @@ for item in keys:
 unique_obj = get_obj(DUVIRI_ROTATION)
 set_obj(unique_obj[0], f"{DUVIRI_ROTATION}Warframe")
 set_obj(unique_obj[1], f"{DUVIRI_ROTATION}Incarnon")
+unique_obj = get_obj(ARCHIMEDEA)
+set_obj(unique_obj[0], f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
+set_obj(unique_obj[1], f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 
 print(C.default, end="")

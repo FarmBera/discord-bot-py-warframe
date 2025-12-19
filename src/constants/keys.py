@@ -6,6 +6,7 @@ COOLDOWN_DEFAULT: float = 10.0
 COOLDOWN_CREATE: float = 60.0
 COOLDOWN_BTN_ACTION: float = 15.0  # btn join/leave
 COOLDOWN_BTN_MANAGE: float = 15.0  # btn modify/remove
+COOLDOWN_5_MIN: float = 300.0  # 5 minute cooldown
 COOLDOWN_BTN_CALL: float = 900.0  # btn call members
 
 
@@ -35,28 +36,32 @@ MSG_BOT: str = "bot.self"
 
 ALERTS: str = "Alerts"
 NEWS: str = "Events"
-# CETUSCYCLE: str = "cetusCycle"
+CETUSCYCLE: str = "cetusCycle"  # deprecated
 SORTIE: str = "Sorties"
 ARCHONHUNT: str = "LiteSorties"
 VOIDTRADERS: str = "VoidTraders"
 STEELPATH: str = "steelPath"
-# DUVIRICYCLE: str = "duviriCycle"
+DUVIRICYCLE: str = "duviriCycle"  # deprecated
 ARCHIMEDEA: str = "Conquests"
 FISSURES: str = "ActiveMissions"
 CALENDAR: str = "KnownCalendarSeasons"
-# CAMBIONCYCLE: str = "cambionCycle"
+CAMBIONCYCLE: str = "cambionCycle"  # deprecated
 DAILYDEALS: str = "DailyDeals"
 INVASIONS: str = "Invasions"
 MARKET_SEARCH: str = "market-search"
-# VALLISCYCLE: str = "vallisCycle"
+VALLISCYCLE: str = "vallisCycle"  # deprecated
 DUVIRI_ROTATION: str = "EndlessXpChoices"
 EVENTS: str = "Goals"
 # CODA: str = ""  # coda weapon
 EVENT_BOOSTER: str = ""
+DESCENDIA: str = "Descents"
 
 DUVIRI_U_K_W: str = "Warframe"
 DUVIRI_U_K_I: str = "Incarnon"
 DUVIRI_CACHE: str = "RotationDuviri"
+
+ARCHIMEDEA_DEEP: str = "Deep"
+ARCHIMEDEA_TEMPORAL: str = "Temporal"
 
 keys: list = [
     ALERTS,
@@ -76,6 +81,7 @@ keys: list = [
     # VALLISCYCLE,
     DUVIRI_ROTATION,
     EVENTS,
+    DESCENDIA,
 ]
 
 LFG_WEBHOOK_NAME: str = "warframe-lfg-bot"
