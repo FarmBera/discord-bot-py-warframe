@@ -5,11 +5,17 @@ from src.constants.keys import (
     SORTIE,
     ARCHONHUNT,
     VOIDTRADERS,
+    # STEELPATH,
     FISSURES,
+    ARCHIMEDEA,
+    ARCHIMEDEA_DEEP,
+    ARCHIMEDEA_TEMPORAL,
     CALENDAR,
     DAILYDEALS,
     INVASIONS,
     DUVIRI_ROTATION,
+    DUVIRI_U_K_W,
+    DUVIRI_U_K_I,
     EVENTS,
 )
 from src.parser.alerts import w_alerts
@@ -19,6 +25,7 @@ from src.parser.sortie import w_sortie
 from src.parser.archonHunt import w_archonHunt
 from src.parser.voidTraders import w_voidTraders
 from src.parser.steelPath import w_steelPath
+from src.parser.archimedea import w_deepArchimedea, w_temporalArchimedia
 from src.parser.duviriCycle import w_duviriCycle
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
@@ -69,6 +76,16 @@ DATA_HANDLERS = {
     #     or prev["activation"] != new["activation"],
     # },
     FISSURES: {"special_logic": "handle_fissures"},
+    f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": {
+        "key": ARCHIMEDEA,
+        "parser": w_deepArchimedea,
+        "special_logic": "handle_deep_archimedea",
+    },
+    f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": {
+        "key": ARCHIMEDEA,
+        "parser": w_temporalArchimedia,
+        "special_logic": "handle_temporal_archimedea",
+    },
     CALENDAR: {
         "parser": lambda data: w_calendar(data, ts.get("cmd.calendar.choice-prize")),
         "update_check": lambda prev, new: prev[0]["Activation"]["$date"]["$numberLong"]
@@ -89,11 +106,13 @@ DATA_HANDLERS = {
         "special_logic": "handle_missing_invasions",
         "channel_key": "invasions",
     },
-    DUVIRI_ROTATION: {  # circuit-warframe
+    f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": {  # circuit-warframe
+        "key": DUVIRI_ROTATION,
         "parser": w_duviri_warframe,
         "special_logic": "handle_duviri_rotation-1",
     },
-    DUVIRI_ROTATION: {  # circuit-incarnon
+    f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": {  # circuit-incarnon
+        "key": DUVIRI_ROTATION,
         "parser": w_duviri_incarnon,
         "special_logic": "handle_duviri_rotation-2",
     },
