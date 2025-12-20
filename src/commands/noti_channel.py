@@ -112,18 +112,13 @@ class NotificationSelect(discord.ui.Select):
 
                 webhook = await interact.channel.create_webhook(name=bot_name)
 
-        sql_base = "INSERT INTO webhooks (channel_id, guild_id, webhook_url, custom_msg, {cols}) VALUES (%s, %s, %s, %s, {vals}) ON DUPLICATE KEY UPDATE webhook_url=%s, {updates}"
+        sql_base = "INSERT INTO webhooks (channel_id, guild_id, webhook_url, {cols}) VALUES (%s, %s, %s, %s, {vals}) ON DUPLICATE KEY UPDATE webhook_url=%s, {updates}"
 
         col_names = []
         val_placeholders = []
         update_clauses = []
 
-        insert_values = [
-            interact.channel_id,
-            interact.guild_id,
-            webhook.url,
-            "",  # custom_msg
-        ]
+        insert_values = [interact.channel_id, interact.guild_id, webhook.url]
         update_values = [webhook.url]
 
         for key, col_name in DB_COLUMN_MAP.items():

@@ -82,7 +82,6 @@ CREATE TABLE IF NOT EXISTS webhooks (
     channel_id BIGINT NOT NULL,
     guild_id BIGINT NOT NULL,
     webhook_url TEXT NOT NULL,
-    custom_msg TEXT,
     -- notification flags (1: ON, 0: OFF)
     sub_alerts BOOLEAN DEFAULT 0, -- 얼럿 미션
     sub_news BOOLEAN DEFAULT 0, -- 워프레임 뉴스

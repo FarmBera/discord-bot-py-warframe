@@ -212,7 +212,7 @@ class DiscordBot(discord.Client):
         async with query_reader(self.db) as cursor:
             print(db_column)  # TODO-remove
             await cursor.execute(
-                f"SELECT webhook_url, custom_msg FROM webhooks WHERE {db_column} = 1"
+                f"SELECT webhook_url FROM webhooks WHERE {db_column} = 1"
             )
             subscribers = await cursor.fetchall()
 
@@ -329,20 +329,20 @@ class DiscordBot(discord.Client):
         async with aiohttp.ClientSession() as session:
             for row in subscribers:
                 url = row["webhook_url"]
-                custom_msg = row.get("custom_msg", "")
+                # custom_msg = row.get("custom_msg", "")
 
                 # verify URL
                 if not url or not str(url).startswith("http"):
                     continue
 
                 # combine msg
-                final_text = (
-                    f"{custom_msg}\n{text_content}" if custom_msg else text_content
-                )
+                # final_text = (
+                #     f"{custom_msg}\n{text_content}" if custom_msg else text_content
+                # )
                 payload = {
                     "username": final_username,
                     "avatar_url": final_avatar_url,
-                    "content": final_text.strip(),
+                    "content": text_content.strip(),  # final_text
                 }
                 if embed_data:
                     payload["embeds"] = [embed_data]
