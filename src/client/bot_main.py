@@ -210,7 +210,7 @@ class DiscordBot(discord.Client):
 
         # search subscribers in db
         async with query_reader(self.db) as cursor:
-            print(db_column)  # TODO-remove
+            # print(db_column)  # TODO-remove
             await cursor.execute(
                 f"SELECT webhook_url FROM webhooks WHERE {db_column} = 1"
             )
@@ -255,7 +255,7 @@ class DiscordBot(discord.Client):
                                 "data": f.read(),
                             }
                         )
-                    print(f"[INFO] 콘텐츠 파일 로드: {real_file_path}")  # TODO-remove
+                    # print(f"[INFO] 콘텐츠 파일 로드: {real_file_path}")  # TODO-remove
                 except Exception as e:
                     msg = f"[err] Failed to read image file: {e}"
                     await save_log(
