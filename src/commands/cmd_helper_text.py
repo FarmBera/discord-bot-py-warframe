@@ -18,7 +18,7 @@ async def cmd_helper_txt(
         embed = discord.Embed(
             title=ts.get("cmd.no-perm-title"), description=msg, color=0xFF0000
         )
-        embed.set_footer(text=open_file(FOOTER_FILE_LOC))
+        # embed.set_footer(text=open_file(FOOTER_FILE_LOC))
         await interact.response.send_message(embed=embed, ephemeral=True)
         await save_log(
             lock=interact.client.log_lock,
@@ -36,7 +36,7 @@ async def cmd_helper_txt(
         txt = txt1 + txt2
     except Exception as e:  # send err msg
         msg: str = "[err] open_file err in cmd_helper_txt"  # VAR
-        await interact.response.send_message(embed=err_embed(msg), ephemeral=True)
+        await interact.response.send_message(embed=err_embed(), ephemeral=True)
         print(C.red, msg, C.default, sep="")
         await save_log(
             lock=interact.client.log_lock,

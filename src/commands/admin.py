@@ -2,15 +2,22 @@ import discord
 
 from src.translator import ts
 from src.utils.db_helper import query_reader
-from src.utils.return_err import print_test_err
+from src.utils.return_err import return_test_err, print_test_err
+from src.utils.data_manager import CHANNELS
+from src.utils.logging_utils import save_log
 
 
+GUILD_EMBED: discord.Embed = discord.Embed(
+    description=ts.get(f"cmd.err-limit-server"), color=0xFF0000
+)
 ADMIN_EMBED: discord.Embed = discord.Embed(
     description=ts.get(f"general.admin"), color=0xFF0000
 )
 
 
-async def is_admin_user(interact: discord.Interaction) -> bool:
+async def is_admin_user(
+    interact: discord.Interaction, isFollowUp: bool = False
+) -> bool:
     """check interaction user is admin
 
     Args:
@@ -26,9 +33,56 @@ async def is_admin_user(interact: discord.Interaction) -> bool:
         result = await cursor.fetchone()
     try:
         if result is None or interact.user.id != result.get("user_id"):
-            await interact.response.send_message(embed=ADMIN_EMBED, ephemeral=True)
+            if isFollowUp:
+                await interact.followup.send(embed=ADMIN_EMBED, ephemeral=True)
+            else:
+                await interact.response.send_message(embed=ADMIN_EMBED, ephemeral=True)
+            await save_log(
+                lock=interact.client.log_lock,
+                type="cmd",
+                interact=interact,
+                msg="[info] cmd used, but no permission",
+                obj=return_test_err(),
+            )
             return False
         return True
     except Exception:
-        # print_test_err()
+        print_test_err()
+        await save_log(
+            lock=interact.client.log_lock,
+            type="err",
+            interact=interact,
+            msg="undefined error (from is_admin_user)",
+            obj=return_test_err(),
+        )
+        return False
+
+
+async def is_valid_guild(
+    interact: discord.Interaction, isFollowUp: bool = False
+) -> bool:
+    try:
+        if interact.guild_id == CHANNELS["guild"]:
+            return True
+
+        if isFollowUp:
+            await interact.followup.send(embed=GUILD_EMBED, ephemeral=True)
+        else:
+            await interact.response.send_message(embed=GUILD_EMBED, ephemeral=True)
+        await save_log(
+            lock=interact.client.log_lock,
+            type="info",
+            interact=interact,
+            msg="[info] cmd used, but unauthorized server",
+            obj=GUILD_EMBED.description,
+        )
+        return False
+    except Exception:
+        await save_log(
+            lock=interact.client.log_lock,
+            type="err",
+            interact=interact,
+            msg="[info] validation err (in is_valid_guild)",
+            obj=return_test_err(),
+        )
         return False

@@ -12,7 +12,8 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
-from src.commands.admin import is_admin_user
+from src.commands.admin import is_admin_user, is_valid_guild
+from src.commands.user_warn import is_banned_user
 from src.parser.marketsearch import get_slug_data, categorize, create_market_url
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
@@ -754,13 +755,19 @@ async def cmd_create_trade_helper(
     quantity: int,
     game_nickname: str = "",
 ) -> None:
+    await interact.response.defer(ephemeral=True)
+
+    if not await is_valid_guild(interact, isFollowUp=True):
+        return
+
+    if await is_banned_user(interact, isFollowUp=True):
+        return
+
     log_lock: asyncio.Lock = interact.client.log_lock
 
     isRankItem: bool = False
     RESULT: str = ""
     target_channel = interact.client.get_channel(CHANNELS["trade"])
-
-    await interact.response.defer(ephemeral=True)
 
     # check trade_type
     types = [ts.get(f"cmd.trade.type-sell"), ts.get("cmd.trade.type-buy")]

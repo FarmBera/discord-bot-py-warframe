@@ -7,6 +7,7 @@ from config.TOKEN import HOMEPAGE, SERVER_NAME
 from src.translator import ts
 from src.constants.color import C
 from src.constants.keys import COOLDOWN_DEFAULT
+from src.commands.admin import is_valid_guild
 from src.utils.return_err import return_test_err, print_test_err
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
@@ -173,17 +174,7 @@ class ApplyButtonView(discord.ui.View):
 async def cmd_create_complain_helper(interact: discord.Interaction) -> None:
     await interact.response.defer(ephemeral=True)
 
-    if interact.guild_id != CHANNELS["guild"]:
-        msg_obj = ts.get(f"cmd.err-limit-server")
-        await interact.followup.send(msg_obj, ephemeral=True)
-        await save_log(
-            lock=interact.client.log_lock,
-            type="cmd",
-            cmd=f"cmd.complain",
-            interact=interact,
-            msg="[warn] cmd used, but unauthorized server",
-            obj=msg_obj,
-        )
+    if not await is_valid_guild(interact, isFollowUp=True):
         return
 
     target_channel = interact.client.get_channel(CHANNELS["complain"])

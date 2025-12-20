@@ -47,16 +47,17 @@ CREATE TABLE IF NOT EXISTS trade (
 언제, 무슨 이유(note)로 경고를 받았는지 각각 기록
 이 사람의 경고가 몇 회인지를 알기 위해 COUNT(*) 사용
 */
-CREATE TABLE IF NOT EXISTS user_warnings (
-    -- id INTEGER NOT NULL AUTO_INCREMENT,
-    user_id BIGINT NOT NULL UNIQUE,
-    display_name VARCHAR(50) NOT NULL,
-    is_ban BOOLEAN NOT NULL,
-    category VARCHAR(20) NOT NULL,
-    note VARCHAR(150),
+CREATE TABLE IF NOT EXISTS warnings (
+    id INTEGER NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    display_name VARCHAR(100) NOT NULL, -- 경고 당시 닉네임 기록 (스냅샷 용도)
+    game_nickname VARCHAR(150) NOT NULL,
+    category VARCHAR(20) NOT NULL, -- 예: '욕설', '도배' 등
+    note VARCHAR(500), -- 사유 상세
+    banned BOOLEAN DEFAULT FALSE, -- 이 경고로 인해 밴 처리가 되었는지 여부
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (id),
+    INDEX idx_user_id (user_id) -- user_id 기준 조회를 빠르게 하기 위한 인덱스
 ) DEFAULT CHARACTER SET = 'utf8mb4';
 
 CREATE TABLE IF NOT EXISTS admins (

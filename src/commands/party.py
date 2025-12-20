@@ -9,7 +9,8 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
-from src.commands.admin import is_admin_user
+from src.commands.admin import is_admin_user, is_valid_guild
+from src.commands.user_warn import is_banned_user
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.return_err import print_test_err, return_test_err
@@ -1189,24 +1190,17 @@ async def cmd_create_party_helper(
     description: str = "(설명 없음)",
     number_of_user: int = 4,
 ) -> None:
-    if interact.guild.id != CHANNELS["guild"]:
-        msg_obj = ts.get(f"cmd.err-limit-server")
-        await interact.response.send_message(msg_obj, ephemeral=True)
-        await save_log(
-            lock=interact.client.log_lock,
-            type="cmd",
-            cmd=f"cmd.party",
-            interact=interact,
-            msg="[info] cmd used, but unauthorized server",
-            obj=msg_obj,
-        )
+    await interact.response.defer(ephemeral=True)
+
+    if not await is_valid_guild(interact, isFollowUp=True):
+        return
+
+    if await is_banned_user(interact, isFollowUp=True):
         return
 
     RESULT: str = ""
     ch_file = CHANNELS["party"]
     target_channel = interact.client.get_channel(ch_file)
-
-    await interact.response.defer(ephemeral=True)
 
     if number_of_user < MIN_SIZE:
         await interact.followup.send(

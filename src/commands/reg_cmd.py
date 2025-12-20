@@ -9,6 +9,7 @@ from src.commands.party import cmd_create_party_helper
 from src.commands.trade import cmd_create_trade_helper
 from src.commands.complain import cmd_create_complain_helper
 from src.commands.unavailable import cmd_unavailable
+from src.commands.user_warn import cmd_user_warn_helper
 from src.commands.admin import is_admin_user
 from src.commands.noti_channel import SettingView, UnSettingView
 
@@ -566,6 +567,36 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
         ]
         return choices[:25]
 
+    # warn or ban user
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.user-ban.cmd"),
+        description=ts.get("cmd.user-ban.desc"),
+    )
+    async def cmd_user_warn(
+        interact: discord.Interaction,
+        member: discord.Member,
+    ) -> None:
+        if not await is_admin_user(interact):
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.cmd,
+                cmd=f"{LOG_TYPE.cmd}.user-ban",
+                interact=interact,
+                msg="[info] cmd used, but not authorized",  # VAR
+            )
+            return
+
+        if member.id == interact.client.user.id:
+            await interact.response.send_message(
+                ts.get("cmd.user-ban.self-unable"), ephemeral=True
+            )
+            return
+
+        await cmd_user_warn_helper(interact=interact, user=member)
+
 
 async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:
     # search 'warframe.market' commnad
@@ -707,3 +738,36 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
             if current.lower() in name.lower()
         ]
         return choices[:25]
+
+    # warn or ban user
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.user-ban.cmd"),
+        description=ts.get("cmd.user-ban.desc"),
+    )
+    @discord.app_commands.describe(
+        사용자_아이디=ts.get(f"cmd.user-ban.desc-uid"),
+    )
+    async def cmd_user_warn(
+        interact: discord.Interaction,
+        사용자_아이디: discord.Member,
+    ) -> None:
+        if not await is_admin_user(interact):
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.cmd,
+                cmd=f"{LOG_TYPE.cmd}.user-ban",
+                interact=interact,
+                msg="[info] cmd used, but not authorized",  # VAR
+            )
+            return
+
+        if 사용자_아이디.id == interact.client.user.id:
+            await interact.response.send_message(
+                ts.get("cmd.user-ban.self-unable"), ephemeral=True
+            )
+            return
+
+        await cmd_user_warn_helper(interact=interact, user=사용자_아이디)
