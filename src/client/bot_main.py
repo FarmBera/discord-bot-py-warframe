@@ -62,7 +62,7 @@ from src.parser.duviriRotation import (
 )
 
 from src.commands.party import PartyView, build_party_embed_from_db
-from src.commands.trade import TradeView
+from src.commands.trade import TradeView, build_trade_embed_from_db
 from src.commands.noti_channel import DB_COLUMN_MAP, PROFILE_CONFIG
 
 
@@ -131,8 +131,13 @@ class DiscordBot(discord.Client):
                 f"{C.green}{ts.get('start.crt-each')}",
                 "week_start_noti (for KO only)",
             )
+        # automatic party delete
         if lang == Lang.KO and not self.auto_party_expire.is_running():
             self.auto_party_expire.start()
+        # automatic trade delete
+        if lang == Lang.KO and not self.auto_trade_expire.is_running():
+            self.auto_trade_expire.start()
+
         print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
 
     async def send_alert(
@@ -908,7 +913,6 @@ class DiscordBot(discord.Client):
             expired_parties = await cursor.fetchall()
 
         for party in expired_parties:
-            print(party["id"])
             try:
                 thread = self.get_channel(party["thread_id"])
 
@@ -977,7 +981,7 @@ class DiscordBot(discord.Client):
                     msg=f"Party AutoDelete, but error occurred!",
                     obj=return_test_err(),
                 )
-            await asyncio.sleep(15)
+            await asyncio.sleep(5)
 
         await save_log(
             lock=self.log_lock,
@@ -985,5 +989,117 @@ class DiscordBot(discord.Client):
             cmd="auto_party_expire",
             user=MSG_BOT,
             msg=f"END Party AutoDelete",
+            obj=timeNowDT(),
+        )
+
+    # trade auto expire
+    @tasks.loop(time=dt.time(hour=4, minute=0, tzinfo=KST))
+    async def auto_trade_expire(self) -> None:
+        await save_log(
+            lock=self.log_lock,
+            type=LOG_TYPE.info,
+            cmd="auto_trade_expire",
+            user=MSG_BOT,
+            msg=f"START Trade AutoDelete",
+            obj=timeNowDT(),
+        )
+        async with query_reader(self.db) as cursor:
+            await cursor.execute("SELECT value FROM vari WHERE name='trade_exp_time'")
+            trade_exp_time = await cursor.fetchone()
+            trade_exp_time = int(trade_exp_time["value"])
+
+        # delete time
+        expiration_time = timeNowDT() - dt.timedelta(days=trade_exp_time)
+
+        # fetch all message from db
+        async with query_reader(self.db) as cursor:
+            await cursor.execute(
+                "SELECT id, thread_id, message_id FROM trade WHERE created_at < %s",
+                (expiration_time,),
+            )
+            expired_trades = await cursor.fetchall()
+
+        for trade in expired_trades:
+            try:
+                thread = self.get_channel(trade["thread_id"])
+
+                await thread.edit(locked=True)  # lock thread
+
+                msg = await thread.fetch_message(trade["message_id"])
+
+                try:  # edit web hook msg
+                    webhooks = await thread.parent.webhooks()
+                    webhook = discord.utils.get(webhooks, name=LFG_WEBHOOK_NAME)
+
+                    if webhook:
+                        starter_message = await thread.parent.fetch_message(thread.id)
+                        if starter_message:
+                            await webhook.edit_message(
+                                message_id=thread.id,
+                                content=ts.get("cmd.trade.expired"),
+                            )
+                    else:  #  if webhook is not found
+                        starter_message = await thread.parent.fetch_message(thread.id)
+                        await starter_message.edit(content=ts.get("cmd.trade.expired"))
+                except discord.NotFound:
+                    pass
+
+                # disable all buttons on the original TradeView
+                new_trade_view = TradeView()
+                for item in new_trade_view.children:
+                    if isinstance(item, discord.ui.Button):
+                        item.disabled = True
+
+                # refresh Embed
+                new_embed = await build_trade_embed_from_db(
+                    trade["message_id"], self.db, isDelete=True
+                )
+                await msg.edit(embed=new_embed, view=new_trade_view)
+
+                # remove from db
+                async with transaction(self.db) as cursor:
+                    await cursor.execute(
+                        "DELETE FROM trade WHERE id = %s", (trade["id"],)
+                    )
+                omsg = f"Expired trade {trade['id']} deleted."
+                await save_log(
+                    lock=self.log_lock,
+                    type=LOG_TYPE.warn,
+                    cmd="auto_trade_expire",
+                    user=MSG_BOT,
+                    msg=f"Trade AutoDelete",
+                    obj=omsg,
+                )
+            except discord.NotFound:
+                await save_log(
+                    lock=self.log_lock,
+                    type=LOG_TYPE.warn,
+                    cmd="auto_trade_expire",
+                    user=MSG_BOT,
+                    msg=f"Trade AutoDelete, but msg not found",
+                    obj=return_test_err(),
+                )
+                # msg deleted manually
+                async with transaction(self.db) as cursor:
+                    await cursor.execute(
+                        "DELETE FROM trade WHERE id = %s", (trade["id"],)
+                    )
+            except Exception as e:
+                await save_log(
+                    lock=self.log_lock,
+                    type=LOG_TYPE.err,
+                    cmd="auto_trade_expire",
+                    user=MSG_BOT,
+                    msg=f"Trade AutoDelete, but error occurred! {e}",
+                    obj=return_test_err(),
+                )
+            await asyncio.sleep(5)
+
+        await save_log(
+            lock=self.log_lock,
+            type=LOG_TYPE.info,
+            cmd="auto_trade_expire",
+            user=MSG_BOT,
+            msg=f"END Trade AutoDelete",
             obj=timeNowDT(),
         )

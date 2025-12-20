@@ -717,7 +717,9 @@ def build_trade_embed(
     return embed
 
 
-async def build_trade_embed_from_db(message_id: int, db_pool) -> discord.Embed:
+async def build_trade_embed_from_db(
+    message_id: int, db_pool, isDelete: bool = False
+) -> discord.Embed:
     """[for external use] creates an embed using a message_id & db pool"""
     async with query_reader(db_pool) as cursor:
         await cursor.execute("SELECT * FROM trade WHERE message_id = %s", (message_id,))
@@ -741,7 +743,8 @@ async def build_trade_embed_from_db(message_id: int, db_pool) -> discord.Embed:
                 "item_rank": trade_data["item_rank"],
                 "quantity": trade_data["quantity"],
                 "price": trade_data["price"],
-            }
+            },
+            isDelete=isDelete,
         )
 
 

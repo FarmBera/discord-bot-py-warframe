@@ -313,6 +313,7 @@ cmd:
     del-err: "❌ 오류: 스레드를 삭제할 권한이 없어요.\n관리자에게 문의해주세요."
     del-cancel: 작업이 취소되었어요.
     del-deleted: "> 모집이 종료 되었어요."
+    expired: "> 활동이 없어 모집이 자동으로 종료되었어요."
     # ConfirmJoinLeaveView
     pc-joined1: "{host}, {user} 님이 파티에 참여했어요!"
     pc-joined2: "{host}, {user} 님이 후다닭 들어왔어요"
@@ -466,6 +467,7 @@ cmd:
     confirm-delete: "# 정말로 이 거래 글을 닫을까요?\n거래가 종료되면 게시글을 수정할 수 없고, **다시 활성화할 수 없어요!**"
     deleted: "> 거래가 완료된 아이템입니다."
     canceled: "작업이 취소되었어요."
+    expired: "> 활동이 없어 거래가 자동으로 만료되었습니다."
 
     # modals
     edit-qty-title: "수량 수정"
