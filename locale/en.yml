@@ -26,6 +26,10 @@ general:
     ## No permission
     - **Only server administrators can use this.**
     - If you are an administrator and cannot use it, please contact the bot developer.
+  banned: |
+    ## Your access to this feature has been blocked.
+    - This restriction is due to accumulated warnings resulting from violations of the bot's terms of service.
+    - For further details, please contact the administration team.
   developer: |
     ## No permission
     - This feature is only available to developers.
@@ -48,6 +52,7 @@ cmd:
     title: Cooldown
     desc: You must wait {time} more second(s) to use this command again.
     btn: You must wait {time} more seconds(s) to use this button again.
+  err-db: “❌ A database error has occurred”
 
   help:
     cmd: help
@@ -573,3 +578,26 @@ cmd:
     select-placeholder: Select all notifications you wish to unsubscribe from (multiple selections allowed)
     done: “✅ {count} notifications have been unsubscribed.”
     reason: Unsubscribe from all notifications
+
+  user-ban:
+    cmd: user-warning
+    desc: Give a warning to users who improperly used bots
+    self-unable: |
+      ## Beep beep??
+      I cannot give warnings to myself, human. 🤖
+    already-ban: 🚫 **{user}** is already banned user.
+    modal-title: Warning Issuance Form
+    m-type-label: Warning Type
+    m-type-desc: (e.g., Swearing, AFK, Provoking Conflict, Spamming, etc.)
+    m-game-nic-label: Warframe Nickname
+    m-game-nic-desc: Please enter game nickname
+    m-reason-label: Reason for Warning
+    m-reason-desc: Please provide a detailed explanation for the warning (Maximum 500 characters)
+
+    msg-body: |
+      ## ⚠️ User Warning Applied
+      - **User Name**: {original_name}
+      - **Guild Nickname**: {display_name}
+      - **Game Nickname**: {game_nickname}
+      - **Reason**: {warn_reason}
+    banned: “\n\n🚨 **Exceeded the cumulative warning threshold of {ban_threshold} times and have been automatically banned.**”
