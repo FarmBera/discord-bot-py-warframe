@@ -1,6 +1,7 @@
 import discord
 
 from src.translator import ts
+from config.config import LOG_TYPE
 from src.utils.db_helper import query_reader
 from src.utils.return_err import return_test_err, print_test_err
 from src.utils.data_manager import CHANNELS
@@ -39,7 +40,7 @@ async def is_admin_user(
                 await interact.response.send_message(embed=ADMIN_EMBED, ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
-                type="cmd",
+                type=LOG_TYPE.warn,
                 interact=interact,
                 msg="[info] cmd used, but no permission",
                 obj=return_test_err(),
@@ -71,7 +72,7 @@ async def is_valid_guild(
             await interact.response.send_message(embed=GUILD_EMBED, ephemeral=True)
         await save_log(
             lock=interact.client.log_lock,
-            type="info",
+            type=LOG_TYPE.warn,
             interact=interact,
             msg="[info] cmd used, but unauthorized server",
             obj=GUILD_EMBED.description,

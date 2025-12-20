@@ -30,6 +30,12 @@ async def is_banned_user(interact: discord.Interaction, isFollowUp: bool = False
             await interact.followup.send(embed=BANNED_EMBED, ephemeral=True)
         else:
             await interact.response.send_message(embed=BANNED_EMBED, ephemeral=True)
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.warn,
+            interact=interact,
+            msg="[info] cmd used, but banned user",  # VAR
+        )
         return True
     return False
 

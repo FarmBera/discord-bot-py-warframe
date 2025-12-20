@@ -755,13 +755,6 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
         사용자_아이디: discord.Member,
     ) -> None:
         if not await is_admin_user(interact):
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.cmd,
-                cmd=f"{LOG_TYPE.cmd}.user-ban",
-                interact=interact,
-                msg="[info] cmd used, but not authorized",  # VAR
-            )
             return
 
         if 사용자_아이디.id == interact.client.user.id:
