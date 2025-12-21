@@ -71,10 +71,48 @@ pfs: str = "cmd.alert-set."  # prefix select
 pfu: str = "cmd.alert-delete."  # prefix unselect
 
 
+async def fetch_current_subscriptions(db, log_lock, channel_id: int) -> list:
+    """
+    get the current list of notifications subscribed to interacted channel from the db.
+    """
+    active_labels = []
+    try:
+        async with transaction(db) as cursor:
+            cols = list(DB_COLUMN_MAP.values())
+            # column name mapping
+            col_to_key = {v: k for k, v in DB_COLUMN_MAP.items()}
+
+            query = f"SELECT {', '.join(cols)} FROM webhooks WHERE channel_id = %s"
+            async with transaction(db) as cursor:
+                await cursor.execute(query, (channel_id,))
+                row = await cursor.fetchone()
+
+            if row:
+                for col_name in cols:
+                    val = row[col_name]
+
+                    if val == 1:
+                        key = col_to_key.get(col_name)
+                        # convert labels
+                        if key and key in NOTI_LABELS:
+                            active_labels.append(NOTI_LABELS[key])
+    except Exception as e:
+        await save_log(
+            lock=log_lock,
+            type=LOG_TYPE.cmd,
+            cmd="fetch_current_subscriptions",
+            msg="[info] db select error",  # VAR
+            obj=return_traceback(),
+        )
+        print(f"[Error] fetch_current_subscriptions: {e}")
+
+    return active_labels
+
+
 class NotificationSelect(discord.ui.Select):
     def __init__(self):
         options = []
-        # creat options
+        # create options
         for key, label in NOTI_LABELS.items():
             options.append(discord.SelectOption(label=label, value=key))
 
@@ -113,7 +151,6 @@ class NotificationSelect(discord.ui.Select):
                     name=bot_name, avatar=avatar_bytes
                 )
             except Exception:
-
                 webhook = await interact.channel.create_webhook(name=bot_name)
 
         sql_base = "INSERT INTO webhooks (channel_id, guild_id, webhook_url, {cols}) VALUES (%s, %s, %s, {vals}) ON DUPLICATE KEY UPDATE webhook_url=%s, {updates}"
@@ -158,8 +195,16 @@ class NotificationSelect(discord.ui.Select):
                 obj=return_traceback(),
             )
             return
+
+        # display current subscription status
+        current_subs = await fetch_current_subscriptions(
+            interact.client.db, interact.client.log_lock, interact.channel_id
+        )
+        subs_str = ", ".join(current_subs) if current_subs else ts.get("cmd.alert.none")
+
         await interact.edit_original_response(
-            content=ts.get(f"{pfs}done").format(count=len(self.values)),
+            content=ts.get(f"{pfs}done").format(count=len(self.values))
+            + ts.get("cmd.alert.current").format(sub_list=subs_str),
             embed=None,
             view=None,
         )
@@ -244,6 +289,17 @@ class NotificationUnSelect(discord.ui.Select):
                     await webhook.delete(reason=ts.get(f"{pfu}reason"))
             except:
                 pass
+            # notify all alert is removed
+            msg += ts.get(f"{pfu}all-unsub")
+        else:
+            # display remain subscriptions
+            current_subs = await fetch_current_subscriptions(
+                interact.client.db, interact.client.log_lock, interact.channel_id
+            )
+            subs_str = (
+                ", ".join(current_subs) if current_subs else ts.get("cmd.alert.none")
+            )
+            msg += ts.get("cmd.alert.current").format(sub_list=subs_str)
 
         await interact.edit_original_response(
             content=msg,
@@ -262,3 +318,35 @@ class UnSettingView(discord.ui.View):
     def __init__(self):
         super().__init__()
         self.add_item(NotificationUnSelect())
+
+
+async def noti_subscribe_helper(interact: discord.Interaction):
+    await interact.response.defer(ephemeral=True)
+
+    current_subs = await fetch_current_subscriptions(
+        interact.client.db, interact.client.log_lock, interact.channel_id
+    )
+    subs_str = ", ".join(current_subs) if current_subs else ts.get(f"cmd.alert.none")
+
+    await interact.followup.send(
+        content=ts.get(f"{pfs}select-msg")
+        + ts.get("cmd.alert.current").format(sub_list=subs_str),
+        view=SettingView(),
+        ephemeral=True,
+    )
+
+
+async def noti_unsubscribe_helper(interact: discord.Interaction):
+    await interact.response.defer(ephemeral=True)
+
+    current_subs = await fetch_current_subscriptions(
+        interact.client.db, interact.client.log_lock, interact.channel_id
+    )
+    subs_str = ", ".join(current_subs) if current_subs else ts.get(f"cmd.alert.none")
+
+    await interact.followup.send(
+        content=ts.get(f"{pfu}select-msg")
+        + ts.get("cmd.alert.current").format(sub_list=subs_str),
+        view=UnSettingView(),
+        ephemeral=True,
+    )

@@ -11,7 +11,7 @@ from src.commands.complain import cmd_create_complain_helper
 from src.commands.unavailable import cmd_unavailable
 from src.commands.user_warn import cmd_user_warn_helper
 from src.commands.admin import is_admin_user
-from src.commands.noti_channel import SettingView, UnSettingView
+from src.commands.noti_channel import noti_subscribe_helper, noti_unsubscribe_helper
 
 from src.constants.keys import (
     # cooldown var
@@ -405,11 +405,7 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         description=ts.get(f"cmd.alert-set.desc"),
     )
     async def noti_subscribe(interact: discord.Interaction):
-        await interact.response.send_message(
-            ts.get(f"cmd.alert-set.select-msg"),
-            view=SettingView(),
-            ephemeral=True,
-        )
+        await noti_subscribe_helper(interact)
 
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
@@ -418,12 +414,8 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.alert-delete.cmd"),
         description=ts.get(f"cmd.alert-delete.desc"),
     )
-    async def noti_subscribe(interact: discord.Interaction):
-        await interact.response.send_message(
-            ts.get(f"cmd.alert-delete.select-msg"),
-            view=UnSettingView(),
-            ephemeral=True,
-        )
+    async def noti_unsubscribe(interact: discord.Interaction):
+        await noti_unsubscribe_helper(interact)
 
 
 async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:
