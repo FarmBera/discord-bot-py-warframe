@@ -55,7 +55,7 @@ def create_embed(output_msg: str, color=None):
     )
     if lang != Lang.KO:
         f = "zariman"
-        embed.set_thumbnail(url="attachment://i.png")
+        embed.set_thumbnail(url="attachment://i.webp")
         return embed, f
     return embed
 

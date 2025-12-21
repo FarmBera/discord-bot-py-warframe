@@ -26,6 +26,6 @@ def w_cetusCycle(cetus) -> tuple:
 
     f = img_file(f"cetus-{STATE}")
     embed = discord.Embed(description=output_msg, color=cetus_color[STATE])
-    embed.set_thumbnail(url="attachment://i.png")
+    embed.set_thumbnail(url="attachment://i.webp")
 
     return embed, f

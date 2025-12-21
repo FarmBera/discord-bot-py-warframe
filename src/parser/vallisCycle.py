@@ -24,6 +24,6 @@ def w_vallisCycle(vallis) -> tuple:
 
     f = img_file(status)
     embed = discord.Embed(description=output_msg, color=color_decision(status))
-    embed.set_thumbnail(url="attachment://i.png")
+    embed.set_thumbnail(url="attachment://i.webp")
 
     return embed, f

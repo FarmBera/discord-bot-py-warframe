@@ -119,6 +119,6 @@ def w_invasions_se(invasions) -> discord.Embed:
     # color=embed_color if embed_color else color_decision(trader),
     f = "invasion"
     embed = discord.Embed(description=output_msg)
-    embed.set_thumbnail(url="attachment://i.png")
+    embed.set_thumbnail(url="attachment://i.webp")
 
     return embed, f

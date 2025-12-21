@@ -99,7 +99,7 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
         description=output_msg,
         color=embed_color if embed_color else color_decision(trader),
     )
-    embed.set_thumbnail(url="attachment://i.png")
+    embed.set_thumbnail(url="attachment://i.webp")
 
     return embed, f
 

@@ -76,12 +76,14 @@ class DiscordBot(discord.Client):
     async def setup_hooks(self) -> None:
         self.add_view(PartyView())
         self.add_view(TradeView())
-        print(f"{C.green}Persistent Views successfully registered.{C.default}")
+        print(
+            f"{C.blue}[{LOG_TYPE.info}] {C.green}Persistent Views successfully registered.{C.default}"
+        )
 
     async def on_ready(self) -> None:
         await self.setup_hooks()
         print(
-            f"{C.blue}[info] {C.yellow}{ts.get('start.sync')}...{C.default}",
+            f"{C.blue}[{LOG_TYPE.info}] {C.yellow}{ts.get('start.sync')}...{C.default}",
             end="",
         )
         await self.wait_until_ready()
@@ -90,20 +92,21 @@ class DiscordBot(discord.Client):
             await self.tree.sync()
             print(f"{C.green}Synced Tree Commands")
         else:
-            print(f"{C.red}Commands Not Synced!")
+            print(f"{C.blue}[{LOG_TYPE.info}] {C.red}Commands Not Synced!")
 
         await self.change_presence(
             status=discord.Status.online,
             activity=discord.Game(ts.get("start.bot-status-msg")),
         )
         print(
-            f"{C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>{C.green} {ts.get(f'start.final2')}{C.default}",
+            f"{C.blue}[{LOG_TYPE.info}] {C.cyan}{ts.get('start.final')} <<{C.white}{self.user}{C.cyan}>>"
         )
+        print(f"{C.green}{ts.get(f'start.final2')}{C.default}")
         await save_log(
             lock=self.log_lock,
             cmd="bot.BOOTED",
             user=MSG_BOT,
-            msg="[info] Bot booted up.",
+            msg=f"[{LOG_TYPE.info}] Bot booted up.",
         )
         # start coroutune
         if not SETTINGS["noti"]["isEnabled"]:
@@ -112,33 +115,42 @@ class DiscordBot(discord.Client):
         # check new content
         if not self.check_new_content.is_running():
             self.check_new_content.start()
-            print(f"{C.green}{ts.get('start.crt-each')}", "check_new_content")
-        # alert daily sortie
-        if lang == Lang.EN and not self.auto_noti.is_running():
-            self.auto_noti.start()
             print(
-                f"{C.green}{ts.get('start.crt-each')}",
-                "auto_noti (for daily sortie alert)",
+                f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.crt-each')}",
+                "check_new_content",
             )
         # weekly task (auto refresh)
         if lang == Lang.EN and not self.weekly_task.is_running():
             self.weekly_task.start()
-            print(f"{C.green}{ts.get('start.crt-each')}", "weekly_task")
+            print(
+                f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.crt-each')}",
+                "weekly_task",
+            )
         # week start noti (for KO only)
         if lang == Lang.KO and not self.week_start_noti.is_running():
             self.week_start_noti.start()
             print(
-                f"{C.green}{ts.get('start.crt-each')}",
+                f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.crt-each')}",
                 "week_start_noti (for KO only)",
             )
         # automatic party delete
         if lang == Lang.KO and not self.auto_party_expire.is_running():
             self.auto_party_expire.start()
+            print(
+                f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.crt-each')}",
+                "auto_party_expire",
+            )
         # automatic trade delete
         if lang == Lang.KO and not self.auto_trade_expire.is_running():
             self.auto_trade_expire.start()
+            print(
+                f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.crt-each')}",
+                "auto_trade_expire",
+            )
 
-        print(f"{C.green}{ts.get('start.coroutine')}{C.default}")
+        print(
+            f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.coroutine')}{C.default}"
+        )
 
     async def send_alert(
         self, value, channel_list=None, setting=None, key=None
@@ -202,10 +214,10 @@ class DiscordBot(discord.Client):
         # check db column mapping
         db_column = DB_COLUMN_MAP.get(noti_key)
         if not db_column:
-            msg = f"[warn] Unmapped notification key: {noti_key}"
+            msg = f"[{LOG_TYPE.err}] Unmapped notification key: {noti_key}"
             await save_log(
                 lock=self.log_lock,
-                type="warn",
+                type=LOG_TYPE.err,
                 cmd="broadcast_webhook",
                 user=MSG_BOT,
                 msg=msg,
@@ -224,6 +236,9 @@ class DiscordBot(discord.Client):
         if not subscribers:
             return
 
+        # initialize counters
+        total_subscribers = len(subscribers)
+        success_count = 0
         # prepare payload data
         embed_data = None
         text_content = ""
@@ -241,13 +256,13 @@ class DiscordBot(discord.Client):
 
             # img path is string
             if isinstance(file_info, str):
-                path = f"img/{file_info}.png"
+                path = f"img/{file_info}.webp"
                 if os.path.exists(path):
                     real_file_path = path
-                    content_file_name = "i.png"
-                else:
-                    real_file_path = file_info
-                    content_file_name = os.path.basename(file_info)
+                    content_file_name = "i.webp"
+                # else:
+                #     real_file_path = file_info
+                #     content_file_name = os.path.basename(file_info)
 
             # read file
             if real_file_path:
@@ -260,7 +275,7 @@ class DiscordBot(discord.Client):
                                 "data": f.read(),
                             }
                         )
-                    # print(f"[INFO] 콘텐츠 파일 로드: {real_file_path}")  # TODO-remove
+                    # print(f"[debug] 콘텐츠 파일 로드: {real_file_path}")  # TODO-remove
                 except Exception as e:
                     msg = f"[err] Failed to read image file: {e}"
                     await save_log(
@@ -296,39 +311,16 @@ class DiscordBot(discord.Client):
                 if conf_avatar.startswith("http"):
                     final_avatar_url = conf_avatar
 
-                else:  # read local file
-                    if os.path.exists(conf_avatar):
-                        try:
-                            with open(conf_avatar, "rb") as f:
-                                files_to_upload.append(
-                                    {
-                                        "name": "avatar_file",
-                                        "filename": "avatar.png",
-                                        "data": f.read(),
-                                    }
-                                )
-                            final_avatar_url = "attachment://avatar.png"
-                        except Exception as e:
-                            msg = f"[warn] Failed to read local profile: {e}"
-                            print(C.red, msg, C.default)
-                            await save_log(
-                                lock=self.log_lock,
-                                type="err",
-                                cmd="broadcast_webhook",
-                                user=MSG_BOT,
-                                msg=msg,
-                                obj=return_test_err(),
-                            )
-                    else:
-                        msg = f"[warn] Local profile path not found: {conf_avatar}"
-                        print(C.red, msg, C.default)
-                        await save_log(
-                            lock=self.log_lock,
-                            type="warn",
-                            cmd="broadcast_webhook",
-                            user=MSG_BOT,
-                            msg=msg,
-                        )
+                else:
+                    msg = f"[{LOG_TYPE.err}] profile picture http only: {conf_avatar}"
+                    print(C.red, msg, C.default)
+                    await save_log(
+                        lock=self.log_lock,
+                        type=LOG_TYPE.err,
+                        cmd="broadcast_webhook",
+                        user=MSG_BOT,
+                        msg=msg,
+                    )
 
         # send alert & check result
         async with aiohttp.ClientSession() as session:
@@ -368,26 +360,57 @@ class DiscordBot(discord.Client):
                             )
 
                         async with session.post(url, data=form) as response:
-                            if not (200 <= response.status < 300):
+                            if 200 <= response.status < 300:
+                                success_count += 1
+                            else:
                                 err_text = await response.text()
-                                print(
-                                    f"[FAIL] Failed to send Multipart ({response.status}): {err_text}"
+                                await save_log(
+                                    lock=self.log_lock,
+                                    type=LOG_TYPE.err,
+                                    cmd="broadcast_webhook",
+                                    user=MSG_BOT,
+                                    msg=f"Failed to send {noti_key} Multipart ({response.status})",
+                                    obj=err_text,
                                 )
-                    else:
-                        # general send (json)
+                    else:  # general send (json)
                         async with session.post(url, json=payload) as response:
-                            if not (200 <= response.status < 300):
-                                print(f"[FAIL] Failed to send ({response.status})")
+                            if 200 <= response.status < 300:
+                                success_count += 1
+                            else:
+                                err_text = await response.text()
+                                await save_log(
+                                    lock=self.log_lock,
+                                    type=LOG_TYPE.err,
+                                    cmd="broadcast_webhook",
+                                    user=MSG_BOT,
+                                    msg=f"Failed to send {noti_key} Multipart ({response.status})",
+                                    obj=err_text,
+                                )
 
                 except Exception as e:
-                    print(f"[err] ERROR on sending : {e}")
+                    await save_log(
+                        lock=self.log_lock,
+                        type=LOG_TYPE.msg,
+                        cmd="broadcast_webhook",
+                        user=MSG_BOT,
+                        msg=f"ERROR on sending msg: {noti_key}",
+                        obj=return_test_err(),
+                    )
+
+        # logging
+        log_msg = f"[info] {noti_key} sent. {success_count}/{total_subscribers}"
+        await save_log(
+            lock=self.log_lock,
+            type=LOG_TYPE.msg,
+            cmd="broadcast_webhook",
+            user=MSG_BOT,
+            msg=log_msg,
+            obj=f"{noti_key}//{success_count}/{total_subscribers}",
+        )
 
     # auto api request & check new contents
-    @tasks.loop(minutes=5.0)
+    @tasks.loop(minutes=1.0)  # TODO-revert
     async def check_new_content(self) -> None:
-        setting = SETTINGS
-        channels = CHANNELS
-
         if lang == Lang.EN:
             latest_data: requests.Response = await API_Request(
                 self.log_lock, "check_new_content()"
@@ -660,7 +683,7 @@ class DiscordBot(discord.Client):
                     text_arg = ts.get(event["text_key"])
                     embed_color = event["embed_color"]
                     # check noti enabled
-                    if not setting["noti"]["list"][key]:
+                    if not SETTINGS["noti"]["list"][key]:
                         continue
 
                     # Parse content
@@ -678,15 +701,19 @@ class DiscordBot(discord.Client):
                             msg=msg,
                         )
                         continue
-                    # fetch channel
-                    target_ch = channels.get(handler.get("channel_key", "channel"))
-                    # send msg
-                    await self.send_alert(
-                        parsed_content,
-                        channel_list=target_ch,
-                        setting=setting,
-                        key=key_arg if key_arg else key,
-                    )
+
+                    await self.broadcast_webhook(origin_key, parsed_content)
+
+                    # legacy alert service
+                    # # fetch channel
+                    # target_ch = channels.get(handler.get("channel_key", "channel"))
+                    # # send msg
+                    # await self.send_alert(
+                    #     parsed_content,
+                    #     channel_list=target_ch,
+                    #     setting=setting,
+                    #     key=key_arg if key_arg else key,
+                    # )
 
             elif special_logic == "handle_deep_archimedea":
                 obj_new = next(i for i in obj_new if i.get("Type") == CT_LAB)
@@ -766,34 +793,22 @@ class DiscordBot(discord.Client):
 
             if notification and parsed_content:
                 # isEnabled alerts
-                if not setting["noti"]["list"][origin_key]:
+                if not SETTINGS["noti"]["list"][origin_key]:
                     continue
 
-                # fetch channel
-                ch_key = handler.get("channel_key", "channel")
-                target_ch = channels.get(ch_key)
-                await self.send_alert(
-                    parsed_content,
-                    channel_list=target_ch,
-                    setting=setting,
-                    key=key_arg if key_arg else key,
-                )
+                # # fetch channel
+                # ch_key = handler.get("channel_key", "channel")
+                # target_ch = channels.get(ch_key)
+                # await self.send_alert(
+                #     parsed_content,
+                #     channel_list=target_ch,
+                #     setting=setting,
+                #     key=key_arg if key_arg else key,
+                # )
 
                 await self.broadcast_webhook(origin_key, parsed_content)
 
         return  # End Of check_new_content()
-
-    # sortie alert
-    @tasks.loop(time=alert_times)
-    async def auto_noti(self) -> None:
-        ch_list = CHANNELS
-
-        try:
-            ch_list = ch_list["sortie"]
-        except Exception:
-            ch_list = ch_list["channel"]
-
-        await self.send_alert(w_sortie(get_obj(SORTIE)), ch_list)
 
     # weekly reset task
     @tasks.loop(time=dt.time(hour=8, minute=55, tzinfo=KST))
@@ -824,38 +839,48 @@ class DiscordBot(discord.Client):
             msg = f"[info] Steel Path reward index updated {curr_idx} -> {new_idx}"
             await save_log(
                 lock=self.log_lock,
-                cmd="bot.WEEKLY_TASK",
+                cmd="bot.WEEKLY_TASK.steelpath",
                 user=MSG_BOT,
                 msg=msg,
                 obj=timeNowDT(),
             )
         except Exception as e:
             msg = f"[err] Failed to update Steel Path reward index: {C.red}{e}"
-            print(C.yellow, msg, C.default)
+            print(C.red, msg, C.default)
             await save_log(
                 lock=self.log_lock,
-                cmd="bot.WEEKLY_TASK",
+                cmd="bot.WEEKLY_TASK.steelpath",
                 user=MSG_BOT,
                 msg=msg,
-                obj=timeNowDT(),
+                obj=return_test_err(),
             )
 
-        # update duviri-rotation time
-        duviri_data: dict = get_obj(DUVIRI_CACHE)
-        curr = duviri_data["expiry"]
-        duviri_data["expiry"] = (
-            dt.datetime.fromtimestamp(duviri_data["expiry"]) + dt.timedelta(weeks=1)
-        ).timestamp()
-        set_obj(duviri_data, DUVIRI_CACHE)
-        setDuviriRotate()
-        msg = f"[info] Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
-        await save_log(
-            lock=self.log_lock,
-            cmd="bot.WEEKLY_TASK.duviri-cache",
-            user=MSG_BOT,
-            msg=msg,
-            obj=timeNowDT(),
-        )
+        try:
+            # update duviri-rotation time
+            duviri_data: dict = get_obj(DUVIRI_CACHE)
+            curr = duviri_data["expiry"]
+            duviri_data["expiry"] = (
+                dt.datetime.fromtimestamp(duviri_data["expiry"]) + dt.timedelta(weeks=1)
+            ).timestamp()
+            set_obj(duviri_data, DUVIRI_CACHE)
+            setDuviriRotate()
+            msg = f"[info] Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
+            await save_log(
+                lock=self.log_lock,
+                cmd="bot.WEEKLY_TASK.duviri-cache",
+                user=MSG_BOT,
+                msg=msg,
+            )
+        except Exception:
+            msg = f"[err] Failed to update duviri-cache data"
+            print(C.red, msg, C.default)
+            await save_log(
+                lock=self.log_lock,
+                cmd="bot.WEEKLY_TASK.duviri-cache",
+                user=MSG_BOT,
+                msg=msg,
+                obj=return_test_err(),
+            )
 
     # weekly alert
     @tasks.loop(time=dt.time(hour=9, minute=10, tzinfo=KST))
@@ -872,13 +897,13 @@ class DiscordBot(discord.Client):
 
         # duviri notification
         setDuviriRotate()
-        dlist: list = [
+        data_list: list = [
             w_duviri_warframe(get_obj(DUVIRI_ROTATION)),
             w_duviri_incarnon(get_obj(DUVIRI_ROTATION)),
         ]
-        for i in range(len(dlist)):
-            dlist[i].description = f"<@&{ROLES[i]}>\n" + dlist[i].description
-            await self.send_alert(dlist[i])
+        for i in range(len(data_list)):
+            data_list[i].description = f"<@&{ROLES[i]}>\n" + data_list[i].description
+            await self.send_alert(data_list[i])
 
         if lang == Lang.KO:
             return
@@ -915,11 +940,9 @@ class DiscordBot(discord.Client):
         for party in expired_parties:
             try:
                 thread = self.get_channel(party["thread_id"])
-
                 await thread.edit(locked=True)  # lock thread
 
                 msg = await thread.fetch_message(party["message_id"])
-
                 try:  # edit thread starter (webhook) msg
                     webhook = discord.utils.get(
                         await thread.parent.webhooks(), name=LFG_WEBHOOK_NAME
@@ -952,7 +975,7 @@ class DiscordBot(discord.Client):
                 omsg = f"Expired party {party['id']} deleted."
                 await save_log(
                     lock=self.log_lock,
-                    type=LOG_TYPE.warn,
+                    type=LOG_TYPE.info,
                     cmd="auto_party_expire",
                     user=MSG_BOT,
                     msg=f"Party AutoDelete",
@@ -972,7 +995,7 @@ class DiscordBot(discord.Client):
                     await cursor.execute(
                         "DELETE FROM party WHERE id = %s", (party["id"],)
                     )
-            except Exception as e:
+            except Exception:
                 await save_log(
                     lock=self.log_lock,
                     type=LOG_TYPE.err,
@@ -1022,11 +1045,9 @@ class DiscordBot(discord.Client):
         for trade in expired_trades:
             try:
                 thread = self.get_channel(trade["thread_id"])
-
                 await thread.edit(locked=True)  # lock thread
 
                 msg = await thread.fetch_message(trade["message_id"])
-
                 try:  # edit web hook msg
                     webhooks = await thread.parent.webhooks()
                     webhook = discord.utils.get(webhooks, name=LFG_WEBHOOK_NAME)
@@ -1064,7 +1085,7 @@ class DiscordBot(discord.Client):
                 omsg = f"Expired trade {trade['id']} deleted."
                 await save_log(
                     lock=self.log_lock,
-                    type=LOG_TYPE.warn,
+                    type=LOG_TYPE.info,
                     cmd="auto_trade_expire",
                     user=MSG_BOT,
                     msg=f"Trade AutoDelete",

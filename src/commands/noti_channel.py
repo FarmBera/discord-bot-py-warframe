@@ -2,9 +2,11 @@ import discord
 import aiohttp
 import asyncio
 
+from config.config import LOG_TYPE
 from src.translator import ts
 from src.utils.logging_utils import save_log
 from src.utils.db_helper import transaction, query_reader
+from src.utils.return_err import return_traceback
 from src.constants.keys import (
     ALERTS,
     NEWS,
@@ -44,7 +46,9 @@ DB_COLUMN_MAP = {
 }
 
 # set profile with alert type
-PROFILE_CONFIG = {VOIDTRADERS: {"name": "바로 키 티어", "avatar": "baro-ki-teer"}}
+PROFILE_CONFIG = {
+    # VOIDTRADERS: {"name": "바로 키 티어", "avatar": "baro-ki-teer"},
+}
 
 # UI selection
 NOTI_LABELS = {
@@ -112,7 +116,7 @@ class NotificationSelect(discord.ui.Select):
 
                 webhook = await interact.channel.create_webhook(name=bot_name)
 
-        sql_base = "INSERT INTO webhooks (channel_id, guild_id, webhook_url, {cols}) VALUES (%s, %s, %s, %s, {vals}) ON DUPLICATE KEY UPDATE webhook_url=%s, {updates}"
+        sql_base = "INSERT INTO webhooks (channel_id, guild_id, webhook_url, {cols}) VALUES (%s, %s, %s, {vals}) ON DUPLICATE KEY UPDATE webhook_url=%s, {updates}"
 
         col_names = []
         val_placeholders = []
@@ -143,7 +147,15 @@ class NotificationSelect(discord.ui.Select):
                 await cursor.execute(final_sql, insert_values + update_values)
         except Exception:
             await interact.edit_original_response(
-                content=ts.get(f"general-cmd"), embed=None, view=None
+                content=ts.get(f"general.error-cmd"), embed=None, view=None
+            )
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.cmd,
+                cmd=f"{LOG_TYPE.cmd}.set-noti",
+                interact=interact,
+                msg="[info] db error",  # VAR
+                obj=return_traceback(),
             )
             return
         await interact.edit_original_response(
@@ -197,7 +209,8 @@ class NotificationUnSelect(discord.ui.Select):
 
             if set_clauses:
                 sql_update = f"UPDATE webhooks SET {', '.join(set_clauses)} WHERE channel_id = %s"
-                await cursor.execute(sql_update, (interact.channel_id,))
+                async with transaction(db_pool) as cursor:
+                    await cursor.execute(sql_update, (interact.channel_id,))
 
         # verify all notifications are turned off (DELETE)
         all_columns = list(DB_COLUMN_MAP.values())

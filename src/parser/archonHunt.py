@@ -57,5 +57,5 @@ def w_archonHunt(archon) -> str:
 
     f = "archon"
     embed = discord.Embed(description=output_msg, color=shard_color[shard])
-    embed.set_thumbnail(url="attachment://i.png")
+    embed.set_thumbnail(url="attachment://i.webp")
     return embed, f

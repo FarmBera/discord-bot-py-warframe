@@ -8,13 +8,18 @@ language = Lang.
 
 
 class LOG_TYPE:
-    cmd: str = "cmd"
+    debug: str = "debug"
     info: str = "info"
-    event: str = "event"
     warn: str = "warn"
     err: str = "err"
+    crit: str = "critical"
+
+    cmd: str = "cmd"
+    msg: str = "msg"
+    event: str = "event"
+    unable: str = "unavailable"
+
     cooldown: str = ".cooldown"
     maintenance: str = "maintenance"
-    unable: str = "unavailable"
     e_event: str = "event.err"
     e_admin: str = "err.admin"
