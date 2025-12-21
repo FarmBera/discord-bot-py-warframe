@@ -3,7 +3,7 @@ import discord
 from src.translator import ts
 from config.config import LOG_TYPE
 from src.utils.db_helper import query_reader
-from src.utils.return_err import return_test_err, print_test_err
+from src.utils.return_err import return_traceback, print_test_err
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 
@@ -43,7 +43,7 @@ async def is_admin_user(
                 type=LOG_TYPE.warn,
                 interact=interact,
                 msg="[info] cmd used, but no permission",
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
             return False
         return True
@@ -54,7 +54,7 @@ async def is_admin_user(
             type="err",
             interact=interact,
             msg="undefined error (from is_admin_user)",
-            obj=return_test_err(),
+            obj=return_traceback(),
         )
         return False
 
@@ -84,6 +84,6 @@ async def is_valid_guild(
             type="err",
             interact=interact,
             msg="[info] validation err (in is_valid_guild)",
-            obj=return_test_err(),
+            obj=return_traceback(),
         )
         return False

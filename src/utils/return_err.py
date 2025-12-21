@@ -10,7 +10,7 @@ def print_test_err(msg: str = "") -> str:
     return tberr
 
 
-def return_test_err() -> str:
+def return_traceback() -> str:
     return traceback.format_exc()
 
 

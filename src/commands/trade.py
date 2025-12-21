@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import asyncio
 
-from src.utils.return_err import print_test_err, return_test_err
+from src.utils.return_err import print_test_err, return_traceback
 from config.config import LOG_TYPE
 from config.TOKEN import base_url_market_image
 from src.translator import ts
@@ -81,7 +81,7 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
                 cmd="btn.edit.article",
                 interact=interact,
                 msg=f"EditTradeModal -> Clicked Submit",
-                obj=f"T:{self.input_nickname.value}\n{return_test_err()}",
+                obj=f"T:{self.input_nickname.value}\n{return_traceback()}",
             )
 
 
@@ -147,7 +147,7 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
                 cmd="btn.edit.quantity",
                 interact=interact,
                 msg=f"EditQuantityModal -> Clicked Submit '{new_quantity_str}'",
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
 
 
@@ -206,7 +206,7 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
                 cmd="btn.edit.price",
                 interact=interact,
                 msg=f"EditPriceModal -> Clicked Submit '{new_price_str}' but ERR",
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
 
 
@@ -296,7 +296,7 @@ class ConfirmDeleteView(discord.ui.View):
                 cmd="btn.confirm.delete",
                 interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes | but ERR",
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
 
         self.value = True
@@ -389,7 +389,7 @@ class ConfirmTradeView(discord.ui.View):
                 cmd="btn.confirm.trade",
                 interact=interact,
                 msg=f"ConfirmTradeView -> ERR",
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
 
     @discord.ui.button(
@@ -841,7 +841,7 @@ async def cmd_create_trade_helper(
                 cmd=f"cmd.trade",
                 interact=interact,
                 msg="[err] Market API Failed",
-                obj=f"{RESULT}Type:{trade_type}, Item:{item_name}, Qty:{quantity}, Price:{price}\n{OUTPUT_MSG}{return_test_err()}",
+                obj=f"{RESULT}Type:{trade_type}, Item:{item_name}, Qty:{quantity}, Price:{price}\n{OUTPUT_MSG}{return_traceback()}",
             )
             price = price if price else 0
 

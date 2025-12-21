@@ -13,7 +13,7 @@ from src.commands.admin import is_admin_user, is_valid_guild
 from src.commands.user_warn import is_banned_user
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
-from src.utils.return_err import print_test_err, return_test_err
+from src.utils.return_err import print_test_err, return_traceback
 from src.utils.db_helper import transaction, query_reader
 
 MIN_SIZE: int = 2
@@ -115,7 +115,7 @@ class PartyEditModal(discord.ui.Modal, title=ts.get(f"{pf}edit-title")):
                 cmd="btn.edit.article",
                 interact=interact,
                 msg=f"PartyEditModal -> Clicked Submit",
-                obj=f"T:{self.title_input.value}\nTYP:{self.mission_input.value}\nDESC:{self.desc_input.value}\n{return_test_err()}",
+                obj=f"T:{self.title_input.value}\nTYP:{self.mission_input.value}\nDESC:{self.desc_input.value}\n{return_traceback()}",
             )
 
 
@@ -203,7 +203,7 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
                 cmd="btn.edit.partysize",
                 interact=interact,
                 msg=f"PartySizeModal -> Clicked Submit '{new_max_size_str}'",
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
 
 
@@ -303,7 +303,7 @@ class ConfirmDeleteView(discord.ui.View):
                 cmd="btn.confirm.delete",
                 interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes | but ERR\n{e}",
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
         self.value = True
         self.stop()
@@ -871,7 +871,7 @@ class PartyView(discord.ui.View):
                 type=LOG_TYPE.e_event,
                 interact=interact,
                 msg=f"DB Error on party close toggle: {e}",
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
             return
 
@@ -1320,7 +1320,7 @@ async def cmd_create_party_helper(
             await interact.followup.send(
                 f"{ts.get(f'{pf}err-unknown')}", ephemeral=True
             )
-            RESULT += f"ERROR {e}\n{return_test_err()}"
+            RESULT += f"ERROR {e}\n{return_traceback()}"
     else:
         await interact.followup.send(ts.get(f"{pf}not-found-ch"), ephemeral=True)
 

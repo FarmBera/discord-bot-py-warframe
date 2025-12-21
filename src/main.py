@@ -13,7 +13,7 @@ from src.constants.color import C
 from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
-from src.utils.return_err import return_test_err, print_test_err
+from src.utils.return_err import return_traceback, print_test_err
 from src.commands.reg_cmd import (
     register_main_cmds,
     register_sub_cmds,
@@ -85,7 +85,7 @@ async def main_manager() -> None:
         print(f"{C.green}Connected to MariaDB Platform via aiomysql{C.default}")
     except Exception:
         print(
-            f"{C.yellow}Error connecting to MariaDB Platform\n{C.red}\n{return_test_err()}"
+            f"{C.yellow}Error connecting to MariaDB Platform\n{C.red}\n{return_traceback()}"
         )
         sys.exit(1)
 

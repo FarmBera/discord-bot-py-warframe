@@ -8,7 +8,7 @@ from src.translator import ts
 from src.constants.color import C
 from src.constants.keys import COOLDOWN_DEFAULT
 from src.commands.admin import is_valid_guild
-from src.utils.return_err import return_test_err, print_test_err
+from src.utils.return_err import return_traceback, print_test_err
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.times import timeNowDT
@@ -128,7 +128,7 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
                 cmd="btn.complain.submit",
                 interact=interact,
                 msg=f"Complain submitted, but error",
-                obj=f"TITLE: {self.input_title}\nCATEGORY: {self.input_category}\nDESC: {self.input_desc}\n{return_test_err()}",
+                obj=f"TITLE: {self.input_title}\nCATEGORY: {self.input_category}\nDESC: {self.input_desc}\n{return_traceback()}",
             )
 
 

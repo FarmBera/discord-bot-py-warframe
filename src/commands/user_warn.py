@@ -6,7 +6,7 @@ from config.config import LOG_TYPE
 from src.commands.admin import is_admin_user, is_valid_guild
 from src.utils.logging_utils import save_log
 from src.utils.db_helper import query_reader, transaction
-from src.utils.return_err import return_test_err, print_test_err
+from src.utils.return_err import return_traceback, print_test_err
 
 BAN_THRESHOLD: int = 3
 
@@ -114,7 +114,7 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
                 cmd=pf,
                 interact=interact,
                 msg="[info] cmd used",  # VAR
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
             return
 
@@ -193,5 +193,5 @@ async def cmd_user_warn_helper(
                 cmd=pf,
                 interact=interact,
                 msg=f"[info] cmd used, but ERR: {e}",  # VAR
-                obj=return_test_err(),
+                obj=return_traceback(),
             )

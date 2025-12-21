@@ -29,7 +29,7 @@ from src.utils.logging_utils import save_log
 from src.utils.file_io import json_load
 from src.utils.discord_file import img_file
 from src.utils.db_helper import query_reader, transaction
-from src.utils.return_err import return_test_err, print_test_err
+from src.utils.return_err import return_traceback, print_test_err
 from src.utils.data_manager import (
     get_obj,
     set_obj,
@@ -284,7 +284,7 @@ class DiscordBot(discord.Client):
                         cmd="broadcast_webhook",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=return_test_err(),
+                        obj=return_traceback(),
                     )
                     print(C.red, msg, C.default)
 
@@ -394,7 +394,7 @@ class DiscordBot(discord.Client):
                         cmd="broadcast_webhook",
                         user=MSG_BOT,
                         msg=f"ERROR on sending msg: {noti_key}",
-                        obj=return_test_err(),
+                        obj=return_traceback(),
                     )
 
         # logging
@@ -441,7 +441,7 @@ class DiscordBot(discord.Client):
                     cmd="check_new_content()",
                     user=MSG_BOT,
                     msg=msg,
-                    obj=return_test_err(),
+                    obj=return_traceback(),
                 )
                 continue
 
@@ -508,7 +508,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=return_test_err(),
+                        obj=return_traceback(),
                     )
 
             elif special_logic == "handle_missing_invasions":  # invasions
@@ -563,7 +563,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=return_test_err(),
+                        obj=return_traceback(),
                     )
 
             elif special_logic == "handle_fissures":  # fissures
@@ -612,7 +612,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=return_test_err(),
+                        obj=return_traceback(),
                     )
 
             elif special_logic == "handle_duviri_rotation-2":  # circuit-incarnon
@@ -636,7 +636,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=return_test_err(),
+                        obj=return_traceback(),
                     )
 
             elif special_logic == "handle_voidtraders":
@@ -740,7 +740,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=return_test_err(),
+                        obj=return_traceback(),
                     )
 
             elif special_logic == "handle_temporal_archimedea":
@@ -767,7 +767,7 @@ class DiscordBot(discord.Client):
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=return_test_err(),
+                        obj=return_traceback(),
                     )
 
             # parsing: default
@@ -852,7 +852,7 @@ class DiscordBot(discord.Client):
                 cmd="bot.WEEKLY_TASK.steelpath",
                 user=MSG_BOT,
                 msg=msg,
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
 
         try:
@@ -879,7 +879,7 @@ class DiscordBot(discord.Client):
                 cmd="bot.WEEKLY_TASK.duviri-cache",
                 user=MSG_BOT,
                 msg=msg,
-                obj=return_test_err(),
+                obj=return_traceback(),
             )
 
     # weekly alert
@@ -988,7 +988,7 @@ class DiscordBot(discord.Client):
                     cmd="auto_party_expire",
                     user=MSG_BOT,
                     msg=f"Party AutoDelete, but msg not found",
-                    obj=return_test_err(),
+                    obj=return_traceback(),
                 )
                 # msg deleted manually
                 async with transaction(self.db) as cursor:
@@ -1002,7 +1002,7 @@ class DiscordBot(discord.Client):
                     cmd="auto_party_expire",
                     user=MSG_BOT,
                     msg=f"Party AutoDelete, but error occurred!",
-                    obj=return_test_err(),
+                    obj=return_traceback(),
                 )
             await asyncio.sleep(5)
 
@@ -1098,7 +1098,7 @@ class DiscordBot(discord.Client):
                     cmd="auto_trade_expire",
                     user=MSG_BOT,
                     msg=f"Trade AutoDelete, but msg not found",
-                    obj=return_test_err(),
+                    obj=return_traceback(),
                 )
                 # msg deleted manually
                 async with transaction(self.db) as cursor:
@@ -1112,7 +1112,7 @@ class DiscordBot(discord.Client):
                     cmd="auto_trade_expire",
                     user=MSG_BOT,
                     msg=f"Trade AutoDelete, but error occurred! {e}",
-                    obj=return_test_err(),
+                    obj=return_traceback(),
                 )
             await asyncio.sleep(5)
 
