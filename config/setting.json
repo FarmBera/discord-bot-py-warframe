@@ -21,6 +21,8 @@
             "Invasions": true,
             "vallisCycle": false,
             "EndlessXpChoices": true,
+            "EndlessXpChoicesIncarnon": true,
+            "EndlessXpChoicesWarframe": true,
             "Goals": true
         }
     },

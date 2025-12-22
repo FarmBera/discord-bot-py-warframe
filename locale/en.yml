@@ -313,6 +313,7 @@ cmd:
     del-err: "❌ Error: I don't have permission to delete this thread. Please contact an admin."
     del-cancel: "The action has been canceled."
     del-deleted: "> The party listing has been deleted."
+    expired: "> The recruitment has automatically closed due to inactivity."
     # ConfirmJoinLeaveView
     pc-joined1: "{host}, {user} has joined the party!"
     pc-joined2: "{host}, {user} has quickly joined!"
@@ -466,6 +467,7 @@ cmd:
     confirm-delete: "## Are you sure you want to close this trade listing?\nOnce closed, **it cannot be reopened!**"
     deleted: "> The trade has been closed by the poster."
     canceled: "The operation has been canceled."
+    expired: "> The transaction has automatically expired due to inactivity.."
 
     # modals
     edit-qty-title: "Edit Quantity"
@@ -562,6 +564,10 @@ cmd:
     err: "An error occurred during submission.\n\nIf the error persists, please contact an administrator."
     err-channel: "Error: The suggestion channel could not be found.\nPlease contact an administrator."
 
+  alert:
+    none: None
+    current: "\n\n> 🔔 Currently Subscribed: {sub_list}"
+
   alert-set:
     cmd: alert-setup
     desc: Subscribe to selected Warframe news in the current channel.
@@ -578,6 +584,7 @@ cmd:
     select-placeholder: Select all notifications you wish to unsubscribe from (multiple selections allowed)
     done: “✅ {count} notifications have been unsubscribed.”
     reason: Unsubscribe from all notifications
+    all-unsub: "\n\n> 🗑️ All notifications have been unsubscribed."
 
   user-ban:
     cmd: user-warning
