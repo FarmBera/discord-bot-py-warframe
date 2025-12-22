@@ -134,7 +134,7 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
             cmd=pf,
             interact=interact,
             msg="[info] warning user",  # VAR
-            obj=f"isBanned: {is_executed_ban}",
+            obj=f"{user_id}//{original_name}//{display_name}//{game_nickname}\nisBanned: {is_executed_ban}\n{warn_type}\n{warn_reason}",
         )
 
 

@@ -245,7 +245,9 @@ class ConfirmDeleteView(discord.ui.View):
 
             # refresh Embed
             message = await interact.channel.fetch_message(self.msgid)
-            new_embed = build_trade_embed(self.data, isDelete=True)
+            new_embed = await build_trade_embed(
+                self.data, interact.client.db, isDelete=True
+            )
 
             # disable all buttons on the original PartyView
             for item in self.party_view.children:
@@ -670,26 +672,35 @@ class TradeView(discord.ui.View):
 
 
 # embed creation helper function
-def build_trade_embed(
-    data: dict, isDelete: bool = False, isRank: bool = False
+async def build_trade_embed(
+    data: dict, db_pool, isDelete: bool = False, isRank: bool = False
 ) -> discord.Embed:
     """Creates a trade embed from a dictionary."""
 
     flag, _, __, img_url = get_slug_data(data["item_name"])
 
     # title
-    title: str = "~~" if isDelete else ""
-    title += f"[{data['trade_type']}] {data['item_name']}"
-    if isRank:
-        title += f" ({ts.get(f'{pf}rank-simple').format(rank=data['item_rank'])})"
+    description: str = ""
 
-    if isDelete:
-        title += "~~"
+    async with query_reader(db_pool) as cursor:
+        await cursor.execute(
+            "SELECT COUNT(user_id) as count from warnings where user_id=%s",
+            (data["host_id"],),
+        )
+        host_warn = await cursor.fetchone()
+
+    if host_warn:
+        description += ts.get(f"cmd.warning-count").format(count=host_warn["count"])
+
+    # title
+    description += f"### [{data['trade_type']}] {data['item_name']}"
+    if isRank:
+        description += f" ({ts.get(f'{pf}rank-simple').format(rank=data['item_rank'])})"
 
     # color
     color = 0x00FF00 if not isDelete else 0xFF0000
 
-    description: str = "~~" if isDelete else ""
+    # description
     description += f"""
 - **{ts.get(f'{pf}creator')}:** {data['host_mention']}
 - **{ts.get(f'{pf}item-name')}:** {create_market_url(data['item_name'])}
@@ -707,10 +718,13 @@ def build_trade_embed(
 ```
 /w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' 를 {data['price']} 플레로 {revTradeType(data["trade_type"])}하고 싶어요.
 ```"""
+    # process final
     if isDelete:
-        description += "~~"
+        description = f"~~{description.strip().replace("~~", "")}~~"
+    else:
+        description = description.strip()
 
-    embed = discord.Embed(title=title, description=description.strip(), color=color)
+    embed = discord.Embed(description=description, color=color)
     embed.set_footer(text=f"ID: {data['id']}")
     if flag and img_url:
         embed.set_thumbnail(url=f"{base_url_market_image}{img_url}")
@@ -725,27 +739,28 @@ async def build_trade_embed_from_db(
         await cursor.execute("SELECT * FROM trade WHERE message_id = %s", (message_id,))
         trade_data = await cursor.fetchone()
 
-        if not trade_data:
-            return discord.Embed(
-                title=ts.get(f"{pf}err"),
-                description=ts.get(f"{pf}err-not-found"),
-                color=discord.Color.dark_red(),
-            )
-
-        return build_trade_embed(
-            {
-                "id": trade_data["id"],
-                "host_id": trade_data["host_id"],
-                "host_mention": f"<@{trade_data['host_id']}>",
-                "game_nickname": trade_data["game_nickname"],
-                "trade_type": trade_data["trade_type"],
-                "item_name": trade_data["item_name"],
-                "item_rank": trade_data["item_rank"],
-                "quantity": trade_data["quantity"],
-                "price": trade_data["price"],
-            },
-            isDelete=isDelete,
+    if not trade_data:
+        return discord.Embed(
+            title=ts.get(f"{pf}err"),
+            description=ts.get(f"{pf}err-not-found"),
+            color=discord.Color.dark_red(),
         )
+
+    return await build_trade_embed(
+        {
+            "id": trade_data["id"],
+            "host_id": trade_data["host_id"],
+            "host_mention": f"<@{trade_data['host_id']}>",
+            "game_nickname": trade_data["game_nickname"],
+            "trade_type": trade_data["trade_type"],
+            "item_name": trade_data["item_name"],
+            "item_rank": trade_data["item_rank"],
+            "quantity": trade_data["quantity"],
+            "price": trade_data["price"],
+        },
+        db_pool,
+        isDelete=isDelete,
+    )
 
 
 async def cmd_create_trade_helper(
@@ -904,7 +919,7 @@ async def cmd_create_trade_helper(
             "price": price,
         }
 
-        embed = build_trade_embed(initial_data, isRank=isRankItem)
+        embed = await build_trade_embed(initial_data, db_pool, isRank=isRankItem)
         view = TradeView()
 
         msg = await thread.send(embed=embed, view=view)

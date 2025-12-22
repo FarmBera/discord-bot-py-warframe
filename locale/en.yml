@@ -53,6 +53,10 @@ cmd:
     desc: You must wait {time} more second(s) to use this command again.
     btn: You must wait {time} more seconds(s) to use this button again.
   err-db: “❌ A database error has occurred”
+  warning-count: |
+    ```diff
+    -This user has received {count} warnings from the admin.
+    ```
 
   help:
     cmd: help

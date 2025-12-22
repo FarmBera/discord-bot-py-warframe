@@ -237,7 +237,7 @@ class ConfirmDeleteView(discord.ui.View):
 
             # refresh Embed
             message = await interact.channel.fetch_message(self.msgid)
-            new_embed = build_party_embed(self.data, isDelete=True)
+            new_embed = await build_party_embed(self.data, db_pool, isDelete=True)
 
             # disable all buttons on the original PartyView
             for item in self.party_view.children:
@@ -295,7 +295,6 @@ class ConfirmDeleteView(discord.ui.View):
                 msg=f"ConfirmDeleteView -> clicked yes | but Forbidden\n{e}",
             )
         except Exception as e:
-            await interact.delete_original_response()
             await interact.followup.send(ts.get(f"{pf}err"), ephemeral=True)
             await save_log(
                 lock=interact.client.log_lock,
@@ -1066,6 +1065,7 @@ class PartyView(discord.ui.View):
             party_view=self,
             party_data={
                 "id": party_data["id"],
+                "host_id": party_data["host_id"],
                 "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
                 "title": party_data["title"],
                 "host_mention": f"<@{party_data['host_id']}>",
@@ -1097,7 +1097,9 @@ class PartyView(discord.ui.View):
 
 
 # embed creation helper function
-def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
+async def build_party_embed(
+    data: dict, db_pool, isDelete: bool = False
+) -> discord.Embed:
     """[for internal use] creates an embed based on a formatted dictionary"""
     color = discord.Color.orange() if data.get("is_closed") else discord.Color.blue()
     status_text = (
@@ -1105,6 +1107,14 @@ def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
         if data.get("is_closed")
         else f"({ts.get(f'{pf}pv-ing2')})"
     )
+
+    async with query_reader(db_pool) as cursor:
+        await cursor.execute(
+            "SELECT COUNT(user_id) as count from warnings where user_id=%s",
+            (data["host_id"],),
+        )
+        host_warn = await cursor.fetchone()
+        # print(type(host_warn), host_warn)
 
     participants_str = ", ".join(data["participants"])
     if not participants_str:
@@ -1114,7 +1124,11 @@ def build_party_embed(data: dict, isDelete: bool = False) -> discord.Embed:
     if data.get("description"):
         description_field = f"{data['description']}"
 
-    description: str = f"""### {data['title']} {status_text}
+    description: str = ""
+    if host_warn:
+        description += ts.get(f"cmd.warning-count").format(count=host_warn["count"])
+
+    description += f"""### {data['title']} {status_text}
 - **{ts.get(f'{pf}pb-host')}:** {data['host_mention']}
 - **{ts.get(f'{pf}pb-player-count')}:** {len(data['participants'])} / {data['max_users']}
 - **{ts.get(f'{pf}pb-player-joined')}:** {participants_str}
@@ -1170,6 +1184,7 @@ async def build_party_embed_from_db(
     # 3. assemble into dictionary format required by build_party_embed
     data_dict = {
         "id": party_data["id"],
+        "host_id": party_data["host_id"],
         "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
         "title": party_data["title"],
         "host_mention": host_mention,
@@ -1179,7 +1194,7 @@ async def build_party_embed_from_db(
         "description": party_data["description"] or "",
     }
 
-    return build_party_embed(data_dict, isDelete=isDelete)
+    return await build_party_embed(data_dict, db_pool, isDelete=isDelete)
 
 
 async def cmd_create_party_helper(
@@ -1278,7 +1293,7 @@ async def cmd_create_party_helper(
             # initial data
             initial_data = {
                 "id": PARTY_ID,
-                # "host_id": interact.user.id,
+                "host_id": interact.user.id,
                 "host_mention": interact.user.mention,
                 "title": title,
                 "mission": game_name,
@@ -1289,7 +1304,7 @@ async def cmd_create_party_helper(
                 "description": description or "",
             }
 
-            embed = build_party_embed(initial_data)
+            embed = await build_party_embed(initial_data, db_pool)
             view = PartyView()
 
             # 4. send message & update DB
