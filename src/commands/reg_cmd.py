@@ -43,6 +43,7 @@ from src.constants.keys import (
     # VALLISCYCLE,
     DUVIRI_ROTATION,
     EVENTS,
+    DESCENDIA,
 )
 
 from src.parser.alerts import w_alerts
@@ -64,6 +65,7 @@ from src.parser.vallisCycle import w_vallisCycle
 from src.parser.marketsearch import w_market_search, get_market_item_names
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
+from src.parser.descendia import w_descendia
 
 
 async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:
@@ -416,6 +418,16 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
     )
     async def noti_unsubscribe(interact: discord.Interaction):
         await noti_unsubscribe_helper(interact)
+
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.descendia.cmd"),
+        description=ts.get(f"cmd.descendia.desc"),
+    )
+    async def cmd_descendia(interact: discord.Interaction):
+        await cmd_helper(interact, key=DESCENDIA, parser_func=w_descendia)
 
 
 async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:

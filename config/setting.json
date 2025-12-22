@@ -23,7 +23,8 @@
             "EndlessXpChoices": true,
             "EndlessXpChoicesIncarnon": true,
             "EndlessXpChoicesWarframe": true,
-            "Goals": true
+            "Goals": true,
+            "Descents": false
         }
     },
     "fissures": {

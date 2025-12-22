@@ -47,7 +47,7 @@ def save_file(filepath: str, content: str) -> None:
 # json
 
 
-def json_load(file_path):
+def json_load(file_path) -> dict:
     """
     read json file at provided path and return
 

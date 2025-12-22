@@ -608,3 +608,9 @@ cmd:
       - **Game Nickname**: {game_nickname}
       - **Reason**: {warn_reason}
     banned: “\n\n🚨 **Exceeded the cumulative warning threshold of {ban_threshold} times and have been automatically banned.**”
+
+  descendia:
+    cmd: descendia
+    desc: "[Beta] Display this week's Descendia mission list."
+
+    title: "# Weekly Descendia Challenges\n"

@@ -143,6 +143,28 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
     ):
         await cmd_helper_maintenance(interact, "fissures")
 
+    # deep-archimedea command
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.deep-archimedea.cmd"),
+        description=ts.get(f"cmd.deep-archimedea.desc"),
+    )
+    async def cmd_alerts(interact: discord.Interaction):
+        await cmd_helper_maintenance(interact, "deep-archimedea")
+
+    # temporal-archimedea command
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.temporal-archimedea.cmd"),
+        description=ts.get(f"cmd.temporal-archimedea.desc"),
+    )
+    async def cmd_alerts(interact: discord.Interaction):
+        await cmd_helper_maintenance(interact, "temporal-archimedea")
+
     # @tree.command(
     #     name=ts.get(f"cmd.duviri-cycle.cmd"),
     #     description=ts.get(f"cmd.duviri-cycle.desc"),
@@ -254,6 +276,36 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
     ) -> None:
         await cmd_helper_maintenance(interact, "complain")
 
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.alert-set.cmd"),
+        description=ts.get(f"cmd.alert-set.desc"),
+    )
+    async def noti_subscribe(interact: discord.Interaction):
+        await cmd_helper_maintenance(interact, "alert-set")
+
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.alert-delete.cmd"),
+        description=ts.get(f"cmd.alert-delete.desc"),
+    )
+    async def noti_unsubscribe(interact: discord.Interaction):
+        await cmd_helper_maintenance(interact, "alert-delete")
+
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.descendia.cmd"),
+        description=ts.get(f"cmd.descendia.desc"),
+    )
+    async def cmd_descendia(interact: discord.Interaction):
+        await cmd_helper_maintenance(interact, "descendia")
+
 
 async def register_mt_sub_cmds(tree: discord.app_commands.CommandTree) -> None:
     # search 'warframe.market' commnad
@@ -357,6 +409,20 @@ async def register_mt_sub_cmds(tree: discord.app_commands.CommandTree) -> None:
             if current.lower() in name.lower()
         ]
         return choices[:25]
+
+    # warn or ban user
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.user-ban.cmd"),
+        description=ts.get("cmd.user-ban.desc"),
+    )
+    async def cmd_user_warn(
+        interact: discord.Interaction,
+        member: discord.Member,
+    ) -> None:
+        await cmd_helper_maintenance(interact, "user-ban")
 
 
 async def register_mt_ko_cmds(tree: discord.app_commands.CommandTree) -> None:
@@ -464,3 +530,20 @@ async def register_mt_ko_cmds(tree: discord.app_commands.CommandTree) -> None:
             if current.lower() in name.lower()
         ]
         return choices[:25]
+
+    # warn or ban user
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @tree.command(
+        name=ts.get(f"cmd.user-ban.cmd"),
+        description=ts.get("cmd.user-ban.desc"),
+    )
+    @discord.app_commands.describe(
+        사용자_아이디=ts.get(f"cmd.user-ban.desc-uid"),
+    )
+    async def cmd_user_warn(
+        interact: discord.Interaction,
+        사용자_아이디: discord.Member,
+    ) -> None:
+        await cmd_helper_maintenance(interact, f"user-warn:{사용자_아이디}")
