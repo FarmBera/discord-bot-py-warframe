@@ -11,6 +11,8 @@
             "steelPath": true,
             "duviriCycle": false,
             "Conquests": true,
+            "ConquestsDeep": true,
+            "ConquestsTemporal": true,
             "ActiveMissions": true,
             "KnownCalendarSeasons": true,
             "cambionCycle": false,
