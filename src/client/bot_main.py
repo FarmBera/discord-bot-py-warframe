@@ -227,7 +227,6 @@ class DiscordBot(discord.Client):
 
         # search subscribers in db
         async with query_reader(self.db) as cursor:
-            # print(db_column)  # TODO-remove
             await cursor.execute(
                 f"SELECT webhook_url FROM webhooks WHERE {db_column} = 1"
             )
@@ -275,7 +274,6 @@ class DiscordBot(discord.Client):
                                 "data": f.read(),
                             }
                         )
-                    # print(f"[debug] 콘텐츠 파일 로드: {real_file_path}")  # TODO-remove
                 except Exception as e:
                     msg = f"[err] Failed to read image file: {e}"
                     await save_log(
@@ -409,7 +407,7 @@ class DiscordBot(discord.Client):
         )
 
     # auto api request & check new contents
-    @tasks.loop(minutes=1.0)  # TODO-revert
+    @tasks.loop(minutes=5.0)
     async def check_new_content(self) -> None:
         if lang == Lang.EN:
             latest_data: requests.Response = await API_Request(
