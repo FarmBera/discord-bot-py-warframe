@@ -27,6 +27,30 @@ def setTemporalArchimedea(object):
     set_obj(object, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 
 
+def generateVariables(object) -> str:
+    text = "## Global Variables"
+    for var in object["Variables"]:
+        text += f"\n- {var}"
+
+    return text
+
+
+def generateMissions(object) -> str:
+    text = ""
+    idx = 1
+    for item in object["Missions"]:
+        text += f"{idx}. **{getMissionType(item['missionType'])}**: "
+        # ({getFactions(item['faction'])})\n"
+        for jtem in item["difficulties"]:
+            if jtem.get("type") == "CD_HARD":
+                text += ", ".join(jtem.get("risks"))
+                break
+        text += "\n"
+        idx += 1
+
+    return text
+
+
 pfd: str = "cmd.deep-archimedea."
 
 
@@ -37,6 +61,7 @@ def w_deepArchimedea(archimedea) -> str:
         for item in archimedea:
             if item.get("Type") == CT_LAB:
                 deep = item
+                break
     except:
         deep = archimedea
 
@@ -47,14 +72,10 @@ def w_deepArchimedea(archimedea) -> str:
     output_msg = ts.get(f"{pfd}content").format(
         time=convert_remain(deep["Expiry"]["$date"]["$numberLong"])
     )
-    idx = 1
-    for item in deep["Missions"]:
-        output_msg += f"{idx}. {getMissionType(item['missionType'])}\n"  # ({getFactions(item['faction'])})\n"
-        # for jtem in item["difficulties"]:
-        #     if jtem.get("type") == "CD_HARD":
-        #         output_msg += ", ".join(jtem.get("risks")) + "\n"
-        #         break
-        idx += 1
+    # missions
+    output_msg += generateMissions(deep)
+    # global variables
+    output_msg += generateVariables(deep)
 
     return output_msg
 
@@ -69,6 +90,7 @@ def w_temporalArchimedia(archimedea) -> str:
         for item in archimedea:
             if item.get("Type") == CT_HEX:
                 temporal = item
+                break
     except:
         temporal = archimedea
 
@@ -79,14 +101,10 @@ def w_temporalArchimedia(archimedea) -> str:
     output_msg = ts.get(f"{pft}content").format(
         time=convert_remain(temporal["Expiry"]["$date"]["$numberLong"]),
     )
-    idx = 1
-    for item in temporal["Missions"]:
-        output_msg += f"{idx}. {getMissionType(item['missionType'])} ({getFactions(item['faction'])})\n"
-        # for jtem in item["difficulties"]:
-        #     if jtem.get("type") == "CD_HARD":
-        #         output_msg += ", ".join(jtem.get("risks")) + "\n"
-        #         break
-        idx += 1
+    # missions
+    output_msg += generateMissions(temporal)
+    # global variables
+    output_msg += generateVariables(temporal)
 
     return output_msg
 
@@ -94,7 +112,5 @@ def w_temporalArchimedia(archimedea) -> str:
 # from src.constants.keys import ARCHIMEDEA
 # from src.utils.data_manager import get_obj
 
-# print(w_temporalArchimedia(get_obj(ARCHIMEDEA)))
-
-
 # print(w_deepArchimedea(get_obj(ARCHIMEDEA)))
+# print(w_temporalArchimedia(get_obj(ARCHIMEDEA)))
