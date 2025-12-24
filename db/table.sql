@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS party (
     host_id BIGINT,
     title TEXT,
     game_name TEXT,
+    departure TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     max_users INTEGER,
     description TEXT,
     status VARCHAR(20) DEFAULT '모집 중',

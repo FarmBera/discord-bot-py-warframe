@@ -304,13 +304,18 @@ cmd:
     edit-title-input: 제목
     edit-mission-input: 게임 이름
     edit-desc-input: 기타 설명
-    edit-err: 수정 중 오류 발생
+    edit-err: 수정 중 오류 발생. 개발자에게 문의해주세요.
     # PartySizeModal
     size-ui-title: 파티원 수 조정
     size-label: 최대 파티원 수 (숫자만 입력)
     size-err-low: 숫자만 입력해야 하며, 파티원 수는 {min}명 이상 {max}명 이하로 설정해주세요.
     size-err-high: 모집 인원은 {max}명을 넘을 수 없어요.
     size-err-high-1: 최대 인원은 현재 인원 `{size}` 보다 작을 수 없어요.
+    # PartyDateEditModal
+    date-btn: "출발일 변경"
+    date-title: 출발 시각 & 날짜 수정하기
+    date-input: 변경할 날짜 및 시간을 입력해주세요.
+    date-placeholder: "예) 내일 오후 3시, 다음주 토요일 15시, 23일 17시 등"
     # ConfirmDeleteView
     del-btny: Yes (진행)
     del-btnn: No (취소)
@@ -386,6 +391,7 @@ cmd:
     pb-host: 호스트
     pb-player-count: 파티원 수
     pb-player-joined: 참여한 파티원
+    pb-departure: 출발일
     pb-mission: 게임
     pb-desc: "> 귓속말 명령어 복사"
     pb-pid: 파티 ID

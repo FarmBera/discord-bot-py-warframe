@@ -15,6 +15,7 @@ from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.return_err import print_test_err, return_traceback
 from src.utils.db_helper import transaction, query_reader
+from src.utils.times import parseKoreanDatetime, convert_remain
 
 MIN_SIZE: int = 2
 MAX_SIZE: int = 20
@@ -204,6 +205,55 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
                 interact=interact,
                 msg=f"PartySizeModal -> Clicked Submit '{new_max_size_str}'",
                 obj=return_traceback(),
+            )
+
+
+# define article editor modal
+class PartyDateEditModal(discord.ui.Modal, title=ts.get(f"{pf}date-title")):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+        self.date_input = discord.ui.TextInput(
+            label=ts.get(f"{pf}date-input"),
+            placeholder=ts.get(f"{pf}date-placeholder"),
+            style=discord.TextStyle.short,
+            default=None,
+            required=True,
+        )
+        self.add_item(self.date_input)
+
+    async def on_submit(self, interact: discord.Interaction):
+        db_pool = interact.client.db
+        converted_date = parseKoreanDatetime(self.date_input.value)
+        try:  # update DB
+            async with transaction(db_pool) as cursor:
+                await cursor.execute(
+                    "UPDATE party SET departure = %s WHERE message_id = %s",
+                    (converted_date, interact.message.id),
+                )
+            # refresh Embed
+            new_embed = await build_party_embed_from_db(interact.message.id, db_pool)
+            await interact.response.edit_message(embed=new_embed)
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.event,
+                cmd="btn.edit.date",
+                interact=interact,
+                msg=f"PartyDateEditModal -> Clicked Submit",
+                obj=f"{self.date_input.value}->{converted_date}",
+            )
+        except Exception:
+            if not interact.response.is_done():
+                await interact.response.send_message(
+                    ts.get(f"{pf}edit-err"), ephemeral=True
+                )
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.e_event,
+                cmd="btn.edit.date",
+                interact=interact,
+                msg=f"PartyDateEditModal -> Clicked Submit, but ERR",
+                obj=f"{self.date_input.value}\n{return_traceback()}",
             )
 
 
@@ -817,6 +867,38 @@ class PartyView(discord.ui.View):
         )
         await interact.response.send_modal(modal)
 
+    @discord.ui.button(  # 날짜 수정
+        label=ts.get(f"{pf}date-btn"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="party_edit_departure",
+    )
+    async def edit_departure(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.event,
+            cmd="btn.main.edit_departure",
+            interact=interact,
+            msg=f"PartyView -> edit_departure",
+        )
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        party_data, _ = await self.fetch_party_data(interact)
+        if not party_data:
+            return
+
+        if interact.user.id != party_data["host_id"] and not await is_admin_user(
+            interact
+        ):
+            await interact.response.send_message(
+                ts.get(f"{pf}pv-err-mod-article"), ephemeral=True
+            )
+            return
+
+        await interact.response.send_modal(PartyDateEditModal())
+
     @discord.ui.button(  # 모집 완료
         label=ts.get(f"{pf}pv-done"),
         style=discord.ButtonStyle.primary,
@@ -1125,14 +1207,18 @@ async def build_party_embed(
         description_field = f"{data['description']}"
 
     description: str = ""
-    if host_warn:
+    if host_warn["count"] >= 1:
         description += ts.get(f"cmd.warning-count").format(count=host_warn["count"])
 
+    discord_timestamp = convert_remain(
+        parseKoreanDatetime(data["departure"]).timestamp()
+    )
     description += f"""### {data['title']} {status_text}
 - **{ts.get(f'{pf}pb-host')}:** {data['host_mention']}
 - **{ts.get(f'{pf}pb-player-count')}:** {len(data['participants'])} / {data['max_users']}
 - **{ts.get(f'{pf}pb-player-joined')}:** {participants_str}
 - **{ts.get(f'{pf}pb-mission')}:** {data['mission']}
+- **{ts.get(f'{pf}pb-departure')}:** {discord_timestamp}
 
 {description_field}"""
     if isDelete:
@@ -1182,19 +1268,22 @@ async def build_party_embed_from_db(
     )
 
     # 3. assemble into dictionary format required by build_party_embed
-    data_dict = {
-        "id": party_data["id"],
-        "host_id": party_data["host_id"],
-        "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
-        "title": party_data["title"],
-        "host_mention": host_mention,
-        "max_users": party_data["max_users"],
-        "participants": [p["user_mention"] for p in participants_list],
-        "mission": party_data["game_name"],
-        "description": party_data["description"] or "",
-    }
-
-    return await build_party_embed(data_dict, db_pool, isDelete=isDelete)
+    return await build_party_embed(
+        {
+            "id": party_data["id"],
+            "host_id": party_data["host_id"],
+            "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
+            "title": party_data["title"],
+            "host_mention": host_mention,
+            "max_users": party_data["max_users"],
+            "participants": [p["user_mention"] for p in participants_list],
+            "mission": party_data["game_name"],
+            "departure": party_data["departure"],
+            "description": party_data["description"] or "",
+        },
+        db_pool,
+        isDelete=isDelete,
+    )
 
 
 async def cmd_create_party_helper(
@@ -1202,6 +1291,7 @@ async def cmd_create_party_helper(
     db_pool,
     title: str,
     game_name: str,
+    departure: str,
     description: str = "(설명 없음)",
     number_of_user: int = 4,
 ) -> None:
@@ -1216,6 +1306,10 @@ async def cmd_create_party_helper(
     RESULT: str = ""
     ch_file = CHANNELS["party"]
     target_channel = interact.client.get_channel(ch_file)
+
+    if not target_channel and not isinstance(target_channel, discord.TextChannel):
+        await interact.followup.send(ts.get(f"{pf}not-found-ch"), ephemeral=True)
+        return
 
     if number_of_user < MIN_SIZE:
         await interact.followup.send(
@@ -1233,111 +1327,107 @@ async def cmd_create_party_helper(
         number_of_user = MAX_SIZE
         RESULT += "high humber\n"
 
-    if target_channel and isinstance(target_channel, discord.TextChannel):
-        try:
-            # 1. INSERT
-            async with transaction(db_pool) as cursor:
-                # 1.1. INSERT party information into the table
-                await cursor.execute(
-                    "INSERT INTO party (host_id, title, game_name, max_users, status, description) VALUES (%s, %s, %s, %s, %s, %s)",
-                    (
-                        interact.user.id,
-                        title,
-                        game_name,
-                        number_of_user,
-                        ts.get(f"{pf}pv-ing"),
-                        description,
-                    ),
-                )
-                PARTY_ID = cursor.lastrowid  # the unique ID of the newly created party
+    departure_datetime = parseKoreanDatetime(departure)
 
-                # 1.2. INSERT the host as the first participant
-                await cursor.execute(
-                    "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (%s, %s, %s, %s)",
-                    (
-                        PARTY_ID,
-                        interact.user.id,
-                        interact.user.mention,
-                        interact.user.display_name,
-                    ),
-                )
+    try:
+        # 1. INSERT
+        async with transaction(db_pool) as cursor:
+            # 1.1. INSERT party information into the table
+            await cursor.execute(
+                "INSERT INTO party (host_id, title, game_name, departure, max_users, status, description) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (
+                    interact.user.id,
+                    title,
+                    game_name,
+                    departure_datetime,
+                    number_of_user,
+                    ts.get(f"{pf}pv-ing"),
+                    description,
+                ),
+            )
+            PARTY_ID = cursor.lastrowid  # the unique ID of the newly created party
 
-            # 2. webhook & discord
-            # create a webhook
-            webhook_name = LFG_WEBHOOK_NAME
-            webhooks = await target_channel.webhooks()
-            webhook = discord.utils.get(webhooks, name=webhook_name)
-            if webhook is None:
-                webhook = await target_channel.create_webhook(name=webhook_name)
-
-            # send msg via webhook to impersonate the user
-            # msg: starting point of the thread.
-            thread_starter_msg = await webhook.send(
-                content=ts.get(f"{pf}created-party"),
-                username=interact.user.display_name,
-                avatar_url=interact.user.display_avatar.url,
-                wait=True,
+            # 1.2. INSERT the host as the first participant
+            await cursor.execute(
+                "INSERT INTO participants (party_id, user_id, user_mention, display_name) VALUES (%s, %s, %s, %s)",
+                (
+                    PARTY_ID,
+                    interact.user.id,
+                    interact.user.mention,
+                    interact.user.display_name,
+                ),
             )
 
-            # create thread from starter msg (webhook)
-            thread = await thread_starter_msg.create_thread(
-                name=f"[{game_name}] {title}",
-                reason=f"Thread for {interact.user.display_name}'s party",
-            )
+        # 2. webhook & discord
+        # create a webhook
+        webhook_name = LFG_WEBHOOK_NAME
+        webhooks = await target_channel.webhooks()
+        webhook = discord.utils.get(webhooks, name=webhook_name)
+        if webhook is None:
+            webhook = await target_channel.create_webhook(name=webhook_name)
 
-            await interact.followup.send(
-                f"✅ '{target_channel.name}' {ts.get(f'{pf}pt-create')} {thread.mention}",
-                ephemeral=True,
-            )
+        # send msg via webhook to impersonate the user
+        # msg: starting point of the thread.
+        thread_starter_msg = await webhook.send(
+            content=ts.get(f"{pf}created-party"),
+            username=interact.user.display_name,
+            avatar_url=interact.user.display_avatar.url,
+            wait=True,
+        )
 
-            # initial data
-            initial_data = {
+        # create thread from starter msg (webhook)
+        thread = await thread_starter_msg.create_thread(
+            name=f"[{game_name}] {title}",
+            reason=f"Thread for {interact.user.display_name}'s party",
+        )
+
+        await interact.followup.send(
+            f"✅ '{target_channel.name}' {ts.get(f'{pf}pt-create')} {thread.mention}",
+            ephemeral=True,
+        )
+
+        embed = await build_party_embed(
+            {
                 "id": PARTY_ID,
                 "host_id": interact.user.id,
                 "host_mention": interact.user.mention,
                 "title": title,
                 "mission": game_name,
+                "departure": departure,
                 "max_users": number_of_user,
                 "participants": [interact.user.mention],
                 # "participant_ids": [interact.user.id],
                 "is_closed": False,
                 "description": description or "",
-            }
+            },
+            db_pool,
+        )
+        # 4. send message & update DB
+        msg = await thread.send(embed=embed, view=PartyView())
 
-            embed = await build_party_embed(initial_data, db_pool)
-            view = PartyView()
-
-            # 4. send message & update DB
-            msg = await thread.send(embed=embed, view=view)
-
-            # 4.1. UPDATE thread_id & message_id
-            async with transaction(db_pool) as cursor:
-                await cursor.execute(
-                    "UPDATE party SET thread_id = %s, message_id = %s WHERE id = %s",
-                    (thread.id, msg.id, PARTY_ID),
-                )
-
-            RESULT += "DONE!\n"
-
-        except discord.Forbidden as e:
-            await interact.followup.send(
-                ts.get(f"{pf}no-thread-permission"),
-                ephemeral=True,
+        # 4.1. UPDATE thread_id & message_id
+        async with transaction(db_pool) as cursor:
+            await cursor.execute(
+                "UPDATE party SET thread_id = %s, message_id = %s WHERE id = %s",
+                (thread.id, msg.id, PARTY_ID),
             )
-            RESULT += f"Forbidden {e}\n"
-        except discord.HTTPException as e:
-            await interact.followup.send(
-                f"{ts.get(f'{pf}err-creation')}",
-                ephemeral=True,
-            )
-            RESULT += f"HTTPException {e}\n"
-        except Exception as e:
-            await interact.followup.send(
-                f"{ts.get(f'{pf}err-unknown')}", ephemeral=True
-            )
-            RESULT += f"ERROR {e}\n{return_traceback()}"
-    else:
-        await interact.followup.send(ts.get(f"{pf}not-found-ch"), ephemeral=True)
+        RESULT += "DONE!\n"
+
+    except discord.Forbidden as e:
+        await interact.followup.send(
+            ts.get(f"{pf}no-thread-permission"),
+            ephemeral=True,
+        )
+        RESULT += f"Forbidden {e}\n"
+    except discord.HTTPException as e:
+        await interact.followup.send(
+            f"{ts.get(f'{pf}err-creation')}",
+            ephemeral=True,
+        )
+        RESULT += f"HTTPException {e}\n"
+    except Exception as e:
+        await interact.followup.send(f"{ts.get(f'{pf}err-unknown')}", ephemeral=True)
+        RESULT += f"ERROR: {return_traceback()}"
 
     await save_log(
         lock=interact.client.log_lock,

@@ -485,6 +485,7 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
         title: str,
         # game_nickname: str,
         game_name: str,
+        departure: str = "",
         descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
@@ -502,6 +503,7 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
             db_pool=db_pool,
             title=title,
             number_of_user=number_of_user,
+            departure=departure,
             game_name=game_name,
             description=descriptions,
         )
@@ -657,6 +659,7 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
         파티_제목: str,
         # game_nickname: str,
         같이_할_게임이름: str,
+        출발_일자: str = "",
         파티_설명: str = "(설명 없음)",
         모집_인원수: int = 4,
     ) -> None:
@@ -675,6 +678,7 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
             title=파티_제목,
             number_of_user=모집_인원수,
             game_name=같이_할_게임이름,
+            departure=출발_일자,
             description=파티_설명,
         )
 
