@@ -1,12 +1,10 @@
 import discord
-import datetime as dt
-from dateutil.relativedelta import relativedelta
 
 from src.translator import ts, Lang, language as lang
 from src.constants.keys import DUVIRI_ROTATION, DUVIRI_U_K_W, DUVIRI_U_K_I, DUVIRI_CACHE
 from src.utils.emoji import get_emoji
-from src.utils.data_manager import get_obj, set_obj
-from src.utils.times import timeNowDT, convert_remain
+from src.utils.data_manager import get_obj, get_obj_async, set_obj_async
+from src.utils.times import convert_remain
 from src.utils.return_err import err_embed
 
 rotation_data = get_obj(DUVIRI_CACHE)
@@ -30,21 +28,21 @@ def getDuvIncarnon():
     return duv_incarnon
 
 
-def setDuviriRotate():
+async def setDuviriRotate():
     global rotation_data
-    rotation_data = get_obj(DUVIRI_CACHE)
+    rotation_data = await get_obj_async(DUVIRI_CACHE)
 
 
-def setDuvWarframe(obj):
+async def setDuvWarframe(obj):
     global duv_warframe
     duv_warframe = obj
-    set_obj(obj, f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}")
+    await set_obj_async(obj, f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}")
 
 
-def setDuvIncarnon(obj):
+async def setDuvIncarnon(obj):
     global duv_incarnon
     duv_incarnon = obj
-    set_obj(obj, f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}")
+    await set_obj_async(obj, f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}")
 
 
 def create_embed(output_msg: str, color=None):

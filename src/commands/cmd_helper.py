@@ -3,7 +3,7 @@ import discord
 from config.config import LOG_TYPE
 from src.utils.logging_utils import save_log
 from src.utils.discord_file import img_file
-from src.utils.data_manager import get_obj
+from src.utils.data_manager import get_obj_async
 
 
 async def cmd_helper(
@@ -21,11 +21,11 @@ async def cmd_helper(
 
     # parse objects
     if parser_args:
-        obj = parser_func(get_obj(key), parser_args)
+        obj = parser_func(await get_obj_async(key), parser_args)
     elif isMarketQuery:
         obj = await parser_func(interact.client.log_lock, marketQuery)
     else:
-        obj = parser_func(get_obj(key))
+        obj = parser_func(await get_obj_async(key))
 
     # send message
     resp_head = interact.followup if isFollowUp else interact.response

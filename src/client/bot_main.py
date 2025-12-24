@@ -26,13 +26,13 @@ from src.constants.keys import (
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
-from src.utils.file_io import json_load
+from src.utils.file_io import json_load_async
 from src.utils.discord_file import img_file
 from src.utils.db_helper import query_reader, transaction
 from src.utils.return_err import return_traceback, print_test_err
 from src.utils.data_manager import (
-    get_obj,
-    set_obj,
+    get_obj_async,
+    set_obj_async,
     SETTINGS,
     CHANNELS,
     getLanguage,
@@ -418,7 +418,7 @@ class DiscordBot(discord.Client):
 
             latest_data = latest_data.json()
         else:
-            latest_data = json_load(WF_JSON_PATH)
+            latest_data = await json_load_async(WF_JSON_PATH)
 
         # check for new content & send alert
         for key, handler in DATA_HANDLERS.items():
@@ -428,7 +428,7 @@ class DiscordBot(discord.Client):
                 key = special_key
 
             try:
-                obj_prev = get_obj(key)
+                obj_prev = await get_obj_async(key)
                 obj_new = latest_data[key]
             except Exception as e:
                 msg = f"[err] Error with loading original data (from check_new_content/DATA_HANDLERS for loop)"
@@ -598,7 +598,7 @@ class DiscordBot(discord.Client):
                     parsed_content = handler["parser"](obj_new)
                     notification = True
                     should_save_data = True
-                    setDuvWarframe(obj_new[0])
+                    await setDuvWarframe(obj_new[0])
                 except Exception as e:
                     msg = (
                         f"[err] parse error in handle_duviri_rotation-1 {handler['parser']}/{e}",
@@ -726,7 +726,7 @@ class DiscordBot(discord.Client):
                     parsed_content = handler["parser"](obj_new)
                     notification = True
                     should_save_data = True
-                    setDeepArchimedea(obj_new)
+                    await setDeepArchimedea(obj_new)
                 except Exception as e:
                     msg = (
                         f"[err] parse error in handle_deep_archimedea {handler['parser']}/{e}",
@@ -753,7 +753,7 @@ class DiscordBot(discord.Client):
                     parsed_content = handler["parser"](obj_new)
                     notification = True
                     should_save_data = True
-                    setTemporalArchimedea(obj_new)
+                    await setTemporalArchimedea(obj_new)
                 except Exception as e:
                     msg = (
                         f"[err] parse error in handle_deep_archimedea {handler['parser']}/{e}",
@@ -787,7 +787,7 @@ class DiscordBot(discord.Client):
                 should_save_data = True
 
             if should_save_data:  # save data
-                set_obj(obj_new, key)
+                await set_obj_async(obj_new, key)
 
             if notification and parsed_content:
                 # isEnabled alerts
@@ -823,7 +823,7 @@ class DiscordBot(discord.Client):
 
         # update steelPath reward index
         try:
-            steel_data: dict = get_obj(STEELPATH)
+            steel_data: dict = await get_obj_async(STEELPATH)
             rotation_list: list = steel_data["rotation"]
             curr_idx: int = steel_data["currentReward"]
 
@@ -832,7 +832,7 @@ class DiscordBot(discord.Client):
             steel_data["currentReward"] = new_idx
 
             # save index
-            set_obj(steel_data, STEELPATH)
+            await set_obj_async(steel_data, STEELPATH)
 
             msg = f"[info] Steel Path reward index updated {curr_idx} -> {new_idx}"
             await save_log(
@@ -855,13 +855,13 @@ class DiscordBot(discord.Client):
 
         try:
             # update duviri-rotation time
-            duviri_data: dict = get_obj(DUVIRI_CACHE)
+            duviri_data: dict = await get_obj_async(DUVIRI_CACHE)
             curr = duviri_data["expiry"]
             duviri_data["expiry"] = (
                 dt.datetime.fromtimestamp(duviri_data["expiry"]) + dt.timedelta(weeks=1)
             ).timestamp()
-            set_obj(duviri_data, DUVIRI_CACHE)
-            setDuviriRotate()
+            await set_obj_async(duviri_data, DUVIRI_CACHE)
+            await setDuviriRotate()
             msg = f"[info] Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
             await save_log(
                 lock=self.log_lock,
@@ -894,10 +894,10 @@ class DiscordBot(discord.Client):
             return
 
         # duviri notification
-        setDuviriRotate()
+        await setDuviriRotate()
         data_list: list = [
-            w_duviri_warframe(get_obj(DUVIRI_ROTATION)),
-            w_duviri_incarnon(get_obj(DUVIRI_ROTATION)),
+            w_duviri_warframe(await get_obj_async(DUVIRI_ROTATION)),
+            w_duviri_incarnon(await get_obj_async(DUVIRI_ROTATION)),
         ]
         for i in range(len(data_list)):
             data_list[i].description = f"<@&{ROLES[i]}>\n" + data_list[i].description
@@ -906,7 +906,9 @@ class DiscordBot(discord.Client):
         if lang == Lang.KO:
             return
 
-        await self.send_alert(w_steelPath(get_obj(STEELPATH)))
+        await self.broadcast_webhook(
+            STEELPATH, w_steelPath(await get_obj_async(STEELPATH))
+        )
 
     # party auto expire
     @tasks.loop(time=dt.time(hour=3, minute=0, tzinfo=KST))

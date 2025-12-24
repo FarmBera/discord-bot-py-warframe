@@ -6,7 +6,7 @@ from src.constants.color import C
 from src.constants.keys import FOOTER_FILE_LOC
 from src.commands.admin import is_admin_user
 from src.utils.logging_utils import save_log
-from src.utils.file_io import open_file
+from src.utils.file_io import open_file_async
 from src.utils.return_err import err_embed
 
 
@@ -31,8 +31,8 @@ async def cmd_helper_txt(
 
     # open & read file
     try:
-        txt1 = open_file(file_name)
-        txt2 = open_file(FOOTER_FILE_LOC)
+        txt1 = await open_file_async(file_name)
+        txt2 = await open_file_async(FOOTER_FILE_LOC)
         txt = txt1 + txt2
     except Exception as e:  # send err msg
         msg: str = "[err] open_file err in cmd_helper_txt"  # VAR

@@ -3,7 +3,8 @@ import datetime as dt
 
 from src.translator import ts, language as lang
 from src.utils.times import convert_remain, timeNow, KST
-from src.utils.data_manager import json_load, get_obj
+from src.utils.data_manager import get_obj
+from src.utils.file_io import json_load
 
 descendiaLanguage = json_load(f"data/{lang}/descendiaLanguages.json")
 

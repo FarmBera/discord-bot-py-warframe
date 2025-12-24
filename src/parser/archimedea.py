@@ -3,7 +3,7 @@ import discord
 from src.translator import ts
 from src.constants.keys import ARCHIMEDEA, ARCHIMEDEA_DEEP, ARCHIMEDEA_TEMPORAL
 from src.utils.emoji import get_emoji
-from src.utils.data_manager import get_obj, set_obj, getMissionType, getFactions
+from src.utils.data_manager import get_obj, set_obj_async, getMissionType, getFactions
 from src.utils.times import timeNowDT, convert_remain
 from src.utils.return_err import err_embed, err_text
 
@@ -15,16 +15,16 @@ CT_LAB = "CT_LAB"
 CT_HEX = "CT_HEX"
 
 
-def setDeepArchimedea(object):
+async def setDeepArchimedea(object):
     global archimedea_deep
     archimedea_deep = object
-    set_obj(object, f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
+    set_obj_async(object, f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
 
 
-def setTemporalArchimedea(object):
+async def setTemporalArchimedea(object):
     global archimedea_temporal
     archimedea_temporal = object
-    set_obj(object, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
+    set_obj_async(object, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 
 
 def generateVariables(object) -> str:

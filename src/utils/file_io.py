@@ -1,10 +1,8 @@
 import json
 import yaml
+import aiofiles
 
 from src.constants.color import C
-
-
-# general files
 
 
 def open_file(file_path):
@@ -42,9 +40,6 @@ def save_file(filepath: str, content: str) -> None:
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return None
-
-
-# json
 
 
 def json_load(file_path) -> dict:
@@ -96,9 +91,6 @@ def json_save(data, file_path) -> bool:
         return False
 
 
-# yaml
-
-
 def yaml_open(fname):
     obj = None
     try:
@@ -106,5 +98,116 @@ def yaml_open(fname):
             obj = yaml.safe_load(f)
     except FileNotFoundError:
         print(f"[warn]: '{fname}' not found.")
+
+    return obj
+
+
+# with async
+
+
+async def open_file_async(file_path):
+    """
+    read file at provided path and return
+
+    Args:
+        file_path (str): every text file path
+
+    Returns:
+        string
+        None: file not found || parse error
+    """
+    try:
+        async with aiofiles.open(file_path, "r", encoding="utf-8") as f:
+            data = await f.read()
+        return data
+    except FileNotFoundError:
+        print(f"{C.red}[err] File Not Found > {file_path}{C.default}")
+        return None
+    except Exception as e:
+        print(f"{C.red}[err] Unknown Error in [open_file] func: {e}")
+        return None
+
+
+async def save_file_async(filepath: str, content: str) -> bool:
+    """
+    save file (Async)
+    """
+    try:
+        async with aiofiles.open(filepath, "w", encoding="utf-8") as f:
+            await f.write(content)
+        return True
+
+    except IOError as e:
+        print(f"An I/O error occurred while saving the file: {e}")
+        return False
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return False
+
+
+async def json_load_async(file_path) -> dict:
+    """
+    read json file at provided path and return
+
+    Args:
+        file_path (str): JSON file path
+
+    Returns:
+        dict or list: JSON file object.
+        None: file not found || parse error
+    """
+    try:
+        async with aiofiles.open(file_path, "r", encoding="utf-8") as f:
+            content = await f.read()
+
+        data = json.loads(content)
+        return data
+
+    except FileNotFoundError:
+        print(f"{C.yellow}ERR: File Not Found > {file_path}{C.default}")
+        return None
+    except json.JSONDecodeError:
+        print(f"{C.yellow}ERR: JSON Decode Exception > {file_path}{C.default}")
+        return None
+    except Exception as e:
+        print(f"{C.red}ERR: {e}")
+        return None
+
+
+async def json_save_async(data, file_path) -> bool:
+    """
+    convert object(dict or list) and save as JSON file
+
+    Args:
+        data (dict or list): to save data
+        file_path (str): JSON file path
+
+    Returns:
+        bool: save success True, failed to save
+    """
+    try:
+        content = json.dumps(data, ensure_ascii=False, indent=4)
+
+        async with aiofiles.open(file_path, "w", encoding="utf-8") as f:
+            await f.write(content)
+        return True
+    except TypeError as e:
+        print(f"{C.red}[err] Convertion Error > {e}")
+        return False
+    except Exception as e:
+        print(f"{C.red}[err] Unknown Error in [json_save] func > {e}")
+        return False
+
+
+async def yaml_open_async(fname):
+    obj = None
+    try:
+        async with aiofiles.open(f"{fname}.yml", "r", encoding="utf-8") as f:
+            content = await f.read()
+        obj = yaml.safe_load(content)
+    except FileNotFoundError:
+        print(f"[warn]: '{fname}' not found.")
+    except Exception as e:
+        print(f"[err]: YAML load error > {e}")
 
     return obj

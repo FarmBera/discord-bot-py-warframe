@@ -4,7 +4,6 @@ import datetime as dt
 from src.translator import ts
 from src.utils.times import convert_remain, timeNow
 from src.utils.data_manager import SETTINGS
-from src.utils.file_io import json_load
 from src.utils.emoji import get_emoji
 from src.utils.formatter import txt_length_check
 from src.utils.data_manager import getFissure, getSolNode, getMissionType, getNodeEnemy

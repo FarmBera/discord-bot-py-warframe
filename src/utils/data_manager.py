@@ -1,4 +1,10 @@
-from src.utils.file_io import json_load, json_save, yaml_open
+from src.utils.file_io import (
+    json_load,
+    json_save,
+    yaml_open,
+    json_load_async,
+    json_save_async,
+)
 from src.constants.color import C
 from src.translator import language as lang
 from src.constants.keys import JSON, CHANNEL_FILE_LOC, SETTING_FILE_LOC
@@ -12,8 +18,16 @@ def set_obj(obj, filename: str) -> bool:
     return json_save(obj, f"{JSON}/{filename}.json")
 
 
-def cmd_obj_check(name):
-    obj = get_obj(name)
+async def get_obj_async(json_name: str):
+    return await json_load_async(f"{JSON}/{json_name}.json")
+
+
+async def set_obj_async(obj, filename: str) -> bool:
+    return await json_save_async(obj, f"{JSON}/{filename}.json")
+
+
+async def cmd_obj_check(name):
+    obj = get_obj_async(name)
     if not obj:  # or not obj:
         print(f"{C.red}[err] Unknown '{name}' command. (from cmd_obj_check){C.default}")
         return False
