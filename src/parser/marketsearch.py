@@ -49,7 +49,7 @@ def get_slug_data(name) -> tuple[bool, str, str, str]:
     # find slug data
     flag: bool = False
     for i in SLUGS:
-        if item_slug in i["i18n"][lang]["name"]:
+        if item_slug == i["i18n"][lang]["name"]:
             item_slug = i["slug"]
             item_name = i["i18n"][lang]["name"]
             item_img_url = i["i18n"][lang]["icon"]

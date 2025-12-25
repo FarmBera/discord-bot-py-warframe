@@ -387,15 +387,11 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
     )
     async def cmd_receive_complain(interact: discord.Interaction) -> None:
-        if not await is_admin_user(interact):
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.cmd,
-                cmd=f"{LOG_TYPE.cmd}.complain",
-                interact=interact,
-                msg="[info] cmd used, but not authorized",  # VAR
-            )
+        if not await is_admin_user(
+            interact, cmd=f"{LOG_TYPE.cmd}.complain", notify=True
+        ):
             return
+
         # await cmd_unavailable(interact)
         await cmd_create_complain_helper(interact=interact)
 
@@ -475,7 +471,7 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
     )
     @discord.app_commands.describe(
         title=ts.get("cmd.party.title"),
-        # game_nickname="인게임 닉네임",
+        departure=ts.get("cmd.party.date-placeholder"),
         game_name=ts.get(f"cmd.party.miss-types"),
         descriptions=ts.get("cmd.party.descript"),
         number_of_user=ts.get("cmd.party.nou"),
@@ -483,21 +479,14 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
     async def cmd_create_party(
         interact: discord.Interaction,
         title: str,
-        # game_nickname: str,
         game_name: str,
-        departure: str = "",
+        departure: str = None,
         descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
-        if not await is_admin_user(interact):
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.cmd,
-                cmd=f"{LOG_TYPE.cmd}.party",
-                interact=interact,
-                msg="[info] cmd used, but not authorized",  # VAR
-            )
+        if not await is_admin_user(interact, cmd=f"{LOG_TYPE.cmd}.party", notify=True):
             return
+
         await cmd_create_party_helper(
             interact=interact,
             db_pool=db_pool,
@@ -539,15 +528,9 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
         price: int = 0,
         quantity: int = 1,
     ) -> None:
-        if not await is_admin_user(interact):
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.cmd,
-                cmd=f"{LOG_TYPE.cmd}.trade",
-                interact=interact,
-                msg="[info] cmd used, but not authorized",  # VAR
-            )
+        if not await is_admin_user(interact, cmd=f"{LOG_TYPE.cmd}.trade", notify=True):
             return
+
         await cmd_create_trade_helper(
             interact=interact,
             db_pool=db_pool,
@@ -585,16 +568,6 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
         interact: discord.Interaction,
         member: discord.Member,
     ) -> None:
-        if not await is_admin_user(interact):
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.cmd,
-                cmd=f"{LOG_TYPE.cmd}.user-ban",
-                interact=interact,
-                msg="[info] cmd used, but not authorized",  # VAR
-            )
-            return
-
         if member.id == interact.client.user.id:
             await interact.response.send_message(
                 ts.get("cmd.user-ban.self-unable"), ephemeral=True
@@ -649,7 +622,7 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
     )
     @discord.app_commands.describe(
         파티_제목=ts.get("cmd.party.desc-title"),
-        # game_nickname="인게임 닉네임",
+        출발_일자=ts.get("cmd.party.date-placeholder"),
         같이_할_게임이름=ts.get(f"cmd.party.desc-miss-types"),
         파티_설명=ts.get("cmd.party.desc-descript"),
         모집_인원수=ts.get("cmd.party.desc-nou"),
@@ -657,21 +630,14 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
     async def cmd_create_party(
         interact: discord.Interaction,
         파티_제목: str,
-        # game_nickname: str,
         같이_할_게임이름: str,
-        출발_일자: str = "",
+        출발_일자: str = None,
         파티_설명: str = "(설명 없음)",
         모집_인원수: int = 4,
     ) -> None:
-        if not await is_admin_user(interact):
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.cmd,
-                cmd=f"{LOG_TYPE.cmd}.party",
-                interact=interact,
-                msg="[info] cmd used, but not authorized",  # VAR
-            )
+        if not await is_admin_user(interact, cmd=f"{LOG_TYPE.cmd}.party", notify=True):
             return
+
         await cmd_create_party_helper(
             interact=interact,
             db_pool=db_pool,
@@ -713,15 +679,9 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
         개당_가격: int = 0,
         수량: int = 1,
     ) -> None:
-        if not await is_admin_user(interact):
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.cmd,
-                cmd=f"{LOG_TYPE.cmd}.trade",
-                interact=interact,
-                msg="[info] cmd used, but not authorized",  # VAR
-            )
+        if not await is_admin_user(interact, cmd=f"{LOG_TYPE.cmd}.trade", notify=True):
             return
+
         await cmd_create_trade_helper(
             interact=interact,
             db_pool=db_pool,
@@ -762,7 +722,7 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
         interact: discord.Interaction,
         사용자_아이디: discord.Member,
     ) -> None:
-        if not await is_admin_user(interact):
+        if not await is_admin_user(interact, cmd="warn_user", notify=True):
             return
 
         if 사용자_아이디.id == interact.client.user.id:

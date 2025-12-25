@@ -90,6 +90,11 @@ def parseKoreanDatetime(text):
     if not isinstance(text, str):
         return text
 
+    from src.translator import ts
+
+    if text == ts.get(f"cmd.party.pb-departure-none"):
+        return None
+
     now = dt.datetime.now()
     target_date = now
 

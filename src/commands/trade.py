@@ -108,18 +108,16 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
                 )
                 return
 
-            if not int(new_quantity_str) < 1:
+            if int(new_quantity_str) < 1:
                 await interact.response.send_message(
                     ts.get(f"{pf}err-size-low"), ephemeral=True
                 )
                 return
 
-            new_quantity = int(new_quantity_str)
-
             async with transaction(self.db_pool) as cursor:
                 await cursor.execute(
                     "UPDATE trade SET quantity = %s WHERE message_id = %s",
-                    (new_quantity, interact.message.id),
+                    (new_quantity_str, interact.message.id),
                 )
 
             # refresh Embed
@@ -354,7 +352,22 @@ class ConfirmTradeView(discord.ui.View):
             interact=interact,
             msg=f"ConfirmTradeView -> YES",
         )
+        trade_request_text: str = ""
+
         try:
+            # search host warnings
+            async with query_reader(interact.client.db) as cursor:
+                await cursor.execute(
+                    "SELECT COUNT(user_id) as count from warnings where user_id=%s",
+                    (interact.user.id,),
+                )
+                host_warn = await cursor.fetchone()
+
+            if host_warn["count"] >= 1:
+                trade_request_text += ts.get(f"cmd.warning-count").format(
+                    count=host_warn["count"]
+                )
+
             host_mention = ""
             async with query_reader(self.db_pool) as cursor:
                 await cursor.execute(
@@ -364,17 +377,16 @@ class ConfirmTradeView(discord.ui.View):
                 trade_info = await cursor.fetchone()
                 host_mention = f"<@{trade_info['host_id']}>"
 
-            await self.original_message.channel.send(
-                ts.get(f"{pf}trade-request").format(
-                    host_mention=host_mention,
-                    user_mention=interact.user.mention,
-                    user=parseNickname(
-                        interact.user.display_name
-                    ),  # TODO: 닉네임 호출 기능
-                    price=trade_info["price"],
-                    type=revTradeType(trade_info["trade_type"]),
-                )
+            trade_request_text += ts.get(f"{pf}trade-request").format(
+                host_mention=host_mention,
+                user_mention=interact.user.mention,
+                user=parseNickname(
+                    interact.user.display_name
+                ),  # TODO: 닉네임 호출 기능
+                price=trade_info["price"],
+                type=revTradeType(trade_info["trade_type"]),
             )
+            await self.original_message.channel.send(trade_request_text)
             self.value = True
             self.stop()
         except Exception:
@@ -537,7 +549,7 @@ class TradeView(discord.ui.View):
             return
 
         if interact.user.id != trade_data["host_id"] and not await is_admin_user(
-            interact
+            interact, cmd="trade.edit_qty"
         ):
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
@@ -573,7 +585,7 @@ class TradeView(discord.ui.View):
             return
 
         if interact.user.id != trade_data["host_id"] and not await is_admin_user(
-            interact
+            interact, cmd="trade.edit_price"
         ):
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
@@ -609,16 +621,14 @@ class TradeView(discord.ui.View):
             return
 
         # TODO-temporary
-        if not await is_admin_user(interact):
-            await interact.response.send_message(
-                "기능을 사용할 권한이 없어요.", ephemeral=True
-            )
+        if not await is_admin_user(interact, cmd="trade_edit_nickname", notify=True):
             return
 
-        modal = EditNicknameModal(
-            db_pool=interact.client.db, curr_nickname=trade_data["game_nickname"]
+        await interact.response.send_modal(
+            EditNicknameModal(
+                db_pool=interact.client.db, curr_nickname=trade_data["game_nickname"]
+            )
         )
-        await interact.response.send_modal(modal)
 
     @discord.ui.button(  # 거래 글 닫기
         label=ts.get(f"{pf}btn-close"),
@@ -645,7 +655,7 @@ class TradeView(discord.ui.View):
             return
 
         if interact.user.id != trade_data["host_id"] and not await is_admin_user(
-            interact
+            interact, cmd="trade.close_trade"
         ):
             await interact.response.send_message(
                 ts.get(f"{pf}err-only-host"), ephemeral=True
@@ -682,6 +692,7 @@ async def build_trade_embed(
     # title
     description: str = ""
 
+    # search host warnings
     async with query_reader(db_pool) as cursor:
         await cursor.execute(
             "SELECT COUNT(user_id) as count from warnings where user_id=%s",
@@ -689,7 +700,7 @@ async def build_trade_embed(
         )
         host_warn = await cursor.fetchone()
 
-    if host_warn:
+    if host_warn["count"] >= 1:
         description += ts.get(f"cmd.warning-count").format(count=host_warn["count"])
 
     # title
@@ -716,7 +727,7 @@ async def build_trade_embed(
         description += f"""
 > 귓속말 명령어 복사 (드래그 또는 우측 복사버튼 이용)
 ```
-/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' 를 {data['price']} 플레로 {revTradeType(data["trade_type"])}하고 싶어요.
+/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank}' (을)를 {data['price']} 플레로 {revTradeType(data["trade_type"])}하고 싶어요.
 ```"""
     # process final
     if isDelete:
@@ -824,15 +835,15 @@ async def cmd_create_trade_helper(
         # automatic price setup
         async def set_price(price) -> int:
             nonlocal OUTPUT_MSG
-            market = await API_MarketSearch(log_lock, item_slug)
+            market_api_result = await API_MarketSearch(log_lock, item_slug)
 
-            if market.status_code == 404:  # api not found
+            market = categorize(market_api_result.json(), rank=item_rank)
+
+            if market_api_result.status_code == 404:  # api not found
                 OUTPUT_MSG += f"{ts.get(f'{pf}err-no-market')}\n\n"
-                return price if price else 0, market.json()
-            elif market.status_code != 200:
+                return price if price else 0, market
+            elif market_api_result.status_code != 200:
                 raise ValueError("resp-code is not 200 or resp err")
-
-            market = categorize(market.json(), rank=item_rank)
 
             if price:  # price exists
                 return price, market
