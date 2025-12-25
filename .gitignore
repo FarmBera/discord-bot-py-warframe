@@ -5,6 +5,7 @@ archive
 /backup
 /db/db-private
 docs
+img/*.sh
 img-tmp
 data
 log
