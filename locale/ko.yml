@@ -52,7 +52,7 @@ cmd:
     title: "❌ 재사용 대기시간"
     desc: 이 명령어를 다시 사용하려면 {time}초 더 기다려야 합니다.
     btn: 버튼을 다시 사용하려면 {time}초 더 기다려야 합니다.
-  err-db: "❌ 데이터베이스 오류가 발생했습니다"
+  err-db: "❌ 데이터베이스에 오류가 발생했습니다"
   warning-count: |
     ```diff
     -관리자에게 {count}회 경고를 받은 사용자입니다.
@@ -295,6 +295,7 @@ cmd:
 
     desc-title: 파티 모집 제목
     desc-miss-types: 게임 이름
+    desc-departure: "예) 미정, 내일 오후 3시, 다음주 토요일 15시, 23일 17시 등"
     desc-descript: "[선택사항] 모집 글에 대한 세부설명"
     desc-nou: "[선택사항] 최대 파티원 수 (본인 포함)"
 
@@ -309,13 +310,13 @@ cmd:
     size-ui-title: 파티원 수 조정
     size-label: 최대 파티원 수 (숫자만 입력)
     size-err-low: 숫자만 입력해야 하며, 파티원 수는 {min}명 이상 {max}명 이하로 설정해주세요.
-    size-err-high: 모집 인원은 {max}명을 넘을 수 없어요.
+    size-err-high: 모집 인원은 {max}보다 클 수 없어요.
     size-err-high-1: 최대 인원은 현재 인원 `{size}` 보다 작을 수 없어요.
     # PartyDateEditModal
     date-btn: "출발일 변경"
     date-title: 출발 시각 & 날짜 수정하기
     date-input: 변경할 날짜 및 시간을 입력해주세요.
-    date-placeholder: "예) 내일 오후 3시, 다음주 토요일 15시, 23일 17시 등"
+    date-placeholder: "예) 미정, 내일 오후 3시, 다음주 토요일 15시, 23일 17시 등"
     # ConfirmDeleteView
     del-btny: Yes (진행)
     del-btnn: No (취소)
@@ -338,8 +339,8 @@ cmd:
       오류: 파티 정보를 찾을 수 없어요. (모집 글이 삭제되었을 수도 있습니다.)
 
       만약 오류라고 판단된다면 관리자에게 문의해주세요.
-    pv-join-btn: "참여하기"
-    pv-leave-btn: "탈퇴하기"
+    pv-join-btn: 참여하기
+    pv-leave-btn: 탈퇴하기
     pv-host-exit-err: 호스트는 파티에서 탈퇴할 수 없어요.
     pv-exited: 파티에서 탈퇴했어요.
     pv-full: 파티가 꽉 찼어요
@@ -383,15 +384,16 @@ cmd:
     # delete_party btn
     pv-del-label: 모집 종료
     pv-del-only-host: 파티 호스트만 모집을 종료할 수 있어요.
-    pv-del-confirm: "# 정말로 파티원 모집을 종료할까요?\n- 모집이 종료된 게시글은 파티원의 참여/탈퇴, 글 수정, 모집 상태 등 **게시글 수정이 불가**합니다."
+    pv-del-confirm: "# 정말로 파티원 모집을 종료할까요?\n- 모집이 종료된 게시글은 파티원의 참여/탈퇴, 글 수정, 모집 상태 등 **게시글 수정이 불가** 합니다."
     pv-del-cancel: 시간이 초과되어 작업이 취소되었어요.
 
     # build_party_embed
     pb-no-player: 참가자 없음
-    pb-host: 호스트
+    pb-host: 방장
     pb-player-count: 파티원 수
     pb-player-joined: 참여한 파티원
     pb-departure: 출발일
+    pb-departure-none: 미정
     pb-mission: 게임
     pb-desc: "> 귓속말 명령어 복사"
     pb-pid: 파티 ID
@@ -496,15 +498,15 @@ cmd:
     err-not-found: "오류. 거래 정보를 찾을 수 없어요.\n관리자에게 문의해주세요."
     err-forbidden: "봇이 거래 게시글에 접근할 수 없어요. 관리자에게 문의해주세요."
     err-self-trade: "자신이 올린 글에는 거래를 요청할 수 없어요."
-    err-invalid-value: "올바른 숫자 값을 입력해주세요."
-    err-size-low: "1보다 작은 값은 입려할 수 없어요."
+    err-invalid-value: "숫자가 아닌 값은 입력할 수 없어요."
+    err-size-low: "1보다 작은 값은 입력할 수 없어요."
     err-no-market: "'워프레임 마켓' 검색 결과가 없습니다.\n가격 변경 기능을 이용하여 직접 가격을 입력해주세요."
     err-api: "현재 자동 가격 책정 기능은 이용할 수 없어요 (API 오류)\n직접 가격을 입력해주세요."
     err-edit: |
       수정 중 오류가 발생했어요.
       숫자가 아닌 값을 입력하셨나요?
 
-      오류가 지속된다면 관리자에게 문의해주세요.
+      오류가 지속된다면 개발자에게 문의해주세요.
 
   duviri-circuit:
     wf-cmd: 순환로-워프레임

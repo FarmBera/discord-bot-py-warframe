@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import datetime as dt
 
 from config.config import LOG_TYPE
 from src.translator import ts
@@ -140,14 +141,15 @@ class PartySizeModal(discord.ui.Modal, title=ts.get(f"{pf}size-ui-title")):
             # NaN || < 0
             if not new_max_size_str.isdigit() or int(new_max_size_str) < MIN_SIZE:
                 await interact.response.send_message(
-                    ts.get(f"{pf}size-err-low").format(max=MAX_SIZE), ephemeral=True
+                    ts.get(f"{pf}size-err-low").format(min=MIN_SIZE, max=MAX_SIZE),
+                    ephemeral=True,
                 )
                 return
 
             # overflow max size
             if not new_max_size_str.isdigit() or int(new_max_size_str) > MAX_SIZE:
                 await interact.response.send_message(
-                    ts.get(f"{pf}size-err-high"), ephemeral=True
+                    ts.get(f"{pf}size-err-high").format(max=MAX_SIZE), ephemeral=True
                 )
                 return
 
@@ -218,7 +220,6 @@ class PartyDateEditModal(discord.ui.Modal, title=ts.get(f"{pf}date-title")):
             placeholder=ts.get(f"{pf}date-placeholder"),
             style=discord.TextStyle.short,
             default=None,
-            required=True,
         )
         self.add_item(self.date_input)
 
@@ -818,8 +819,8 @@ class PartyView(discord.ui.View):
         if not party_data:
             return
 
-        if interact.user.id != party_data["host_id"] and not await is_admin_user(
-            interact
+        if interact.user.id != party_data["host_id"] or not await is_admin_user(
+            interact, cmd="party.edit-size"
         ):
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-only-host"), ephemeral=True
@@ -1148,6 +1149,7 @@ class PartyView(discord.ui.View):
             party_data={
                 "id": party_data["id"],
                 "host_id": party_data["host_id"],
+                "departure": party_data["departure"],
                 "is_closed": party_data["status"] == ts.get(f"{pf}pv-done"),
                 "title": party_data["title"],
                 "host_mention": f"<@{party_data['host_id']}>",
@@ -1190,6 +1192,7 @@ async def build_party_embed(
         else f"({ts.get(f'{pf}pv-ing2')})"
     )
 
+    # search host warnings
     async with query_reader(db_pool) as cursor:
         await cursor.execute(
             "SELECT COUNT(user_id) as count from warnings where user_id=%s",
@@ -1210,15 +1213,21 @@ async def build_party_embed(
     if host_warn["count"] >= 1:
         description += ts.get(f"cmd.warning-count").format(count=host_warn["count"])
 
-    discord_timestamp = convert_remain(
-        parseKoreanDatetime(data["departure"]).timestamp()
-    )
+    departure_data = data["departure"]
+    if isinstance(departure_data, dt.datetime):
+        time_output = convert_remain(data["departure"].timestamp())
+    else:
+        time_output = (
+            convert_remain(parseKoreanDatetime(departure_data).timestamp())
+            if departure_data
+            else ts.get(f"{pf}pb-departure-none")
+        )
     description += f"""### {data['title']} {status_text}
+- **{ts.get(f'{pf}pb-departure')}:** {time_output}
 - **{ts.get(f'{pf}pb-host')}:** {data['host_mention']}
 - **{ts.get(f'{pf}pb-player-count')}:** {len(data['participants'])} / {data['max_users']}
 - **{ts.get(f'{pf}pb-player-joined')}:** {participants_str}
 - **{ts.get(f'{pf}pb-mission')}:** {data['mission']}
-- **{ts.get(f'{pf}pb-departure')}:** {discord_timestamp}
 
 {description_field}"""
     if isDelete:
@@ -1327,7 +1336,7 @@ async def cmd_create_party_helper(
         number_of_user = MAX_SIZE
         RESULT += "high humber\n"
 
-    departure_datetime = parseKoreanDatetime(departure)
+    departure_datetime = parseKoreanDatetime(departure) if departure else None
 
     try:
         # 1. INSERT

@@ -17,7 +17,10 @@ ADMIN_EMBED: discord.Embed = discord.Embed(
 
 
 async def is_admin_user(
-    interact: discord.Interaction, isFollowUp: bool = False
+    interact: discord.Interaction,
+    cmd="",
+    isFollowUp: bool = False,
+    notify: bool = False,
 ) -> bool:
     """check interaction user is admin
 
@@ -33,20 +36,22 @@ async def is_admin_user(
         )
         result = await cursor.fetchone()
     try:
-        if result is None or interact.user.id != result.get("user_id"):
+        if result and interact.user.id == result.get("user_id"):
+            return True
+
+        if notify:
             if isFollowUp:
                 await interact.followup.send(embed=ADMIN_EMBED, ephemeral=True)
             else:
                 await interact.response.send_message(embed=ADMIN_EMBED, ephemeral=True)
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.warn,
-                interact=interact,
-                msg="[info] cmd used, but no permission",
-                obj=return_traceback(),
-            )
-            return False
-        return True
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.warn,
+            interact=interact,
+            msg=f"[info] cmd '{cmd}' used, but no permission",
+            obj=return_traceback(),
+        )
+        return False
     except Exception:
         print_test_err()
         await save_log(
