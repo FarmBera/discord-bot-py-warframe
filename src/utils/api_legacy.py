@@ -2,7 +2,8 @@ import requests
 import json
 import datetime as dt
 
-from config.TOKEN import base_url_warframe, WF_JSON_PATH
+from src.translator import language as lang
+from config.TOKEN import base_url_warframe, base_url_market, WF_JSON_PATH
 from src.utils.times import KST, timeNowDT
 from src.constants.color import C
 
@@ -53,3 +54,44 @@ def API_Request() -> requests.Response | None:
         print(timeNowDT(), C.red, msg, elapsed_time, C.default)
 
     return response
+
+
+def API_MarketSearch(item_name: str):
+    response: requests.Response = None
+
+    try:
+        response = requests.get(
+            url=f"{base_url_market}orders/item/{item_name}",
+            headers={"Language": lang, "Platform": "pc"},
+            timeout=60,
+        )
+    except Exception as e:
+        msg = f"[err] API request failed! (from API_MarketSearch)"
+        print(timeNowDT(), C.yellow, msg, C.red, e, C.default)
+        return None
+
+    # check response code
+    # res_code: int = response.status_code
+    # if res_code != 200:
+    #     msg = f"[warn] response code is not 200 (from API_MarketSearch)"
+    #     print(C.red, res_code, msg, C.default)
+    #     return response
+
+    # check response (is not empty)
+    if response is None:
+        msg = f"[err] response is Empty!"
+        print(C.red, msg, C.default)
+        return response
+
+    try:
+        with open("market-search-result.json", "w", encoding="utf-8") as json_file:
+            json.dump(response.json(), json_file, ensure_ascii=False, indent=2)
+    except Exception as e:
+        msg = f"[err] Error on saving file!"
+        # obj = f"{elapsed_time}/{e}"
+        print(timeNowDT(), C.red, msg, C.default)
+
+    return response
+
+
+# API_MarketSearch("gauss_prime_set")
