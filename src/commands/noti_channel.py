@@ -123,6 +123,21 @@ class NotificationSelect(discord.ui.Select):
             options=options,
         )
 
+    async def on_error(
+        self, interact: discord.Interaction, error: Exception, item: discord.ui.Item
+    ) -> None:
+        await interact.edit_original_response(
+            content=ts.get(f"general.error-cmd"), embed=None, view=None
+        )
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.cmd,
+            cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
+            interact=interact,
+            msg=f"[info] error: {error}",
+            obj=f"{self.values}\n{item}\n{return_traceback()}",
+        )
+
     async def callback(self, interact: discord.Interaction):
         await interact.response.defer(ephemeral=True)
 
@@ -184,7 +199,7 @@ class NotificationSelect(discord.ui.Select):
                 await cursor.execute(final_sql, insert_values + update_values)
         except Exception:
             await interact.edit_original_response(
-                content=ts.get(f"general.error-cmd"), embed=None, view=None
+                content=ts.get(f"cmd.err-db"), embed=None, view=None
             )
             await save_log(
                 lock=interact.client.log_lock,
@@ -208,6 +223,14 @@ class NotificationSelect(discord.ui.Select):
             embed=None,
             view=None,
         )
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.cmd,
+            cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
+            interact=interact,
+            msg="[info] successfully inserted",
+            obj=f"{self.values}",
+        )
 
 
 class NotificationUnSelect(discord.ui.Select):
@@ -222,6 +245,21 @@ class NotificationUnSelect(discord.ui.Select):
             min_values=1,  # select at least one
             max_values=len(NOTI_LABELS),
             options=options,
+        )
+
+    async def on_error(
+        self, interact: discord.Interaction, error: Exception, item: discord.ui.Item
+    ) -> None:
+        await interact.edit_original_response(
+            content=ts.get(f"general.error-cmd"), embed=None, view=None
+        )
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.cmd,
+            cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
+            interact=interact,
+            msg="[info] unknown error",
+            obj=f"{self.values}\n{return_traceback()}",
         )
 
     async def callback(self, interact: discord.Interaction):
@@ -274,6 +312,14 @@ class NotificationUnSelect(discord.ui.Select):
             await interact.edit_original_response(
                 content=ts.get(f"general-cmd"), embed=None, view=None
             )
+            await save_log(
+                lock=interact.client.log_lock,
+                type=LOG_TYPE.cmd,
+                cmd=f"{LOG_TYPE.cmd}.delete-noti",
+                interact=interact,
+                msg="[info] db error",
+                obj=return_traceback(),
+            )
             return
 
         # send msg
@@ -301,10 +347,14 @@ class NotificationUnSelect(discord.ui.Select):
             )
             msg += ts.get("cmd.alert.current").format(sub_list=subs_str)
 
-        await interact.edit_original_response(
-            content=msg,
-            embed=None,
-            view=None,
+        await interact.edit_original_response(content=msg, embed=None, view=None)
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.cmd,
+            cmd=f"{LOG_TYPE.cmd}.delete-noti",
+            interact=interact,
+            msg="[info] successfully deleted",
+            obj=f"{self.values}",
         )
 
 
@@ -334,6 +384,13 @@ async def noti_subscribe_helper(interact: discord.Interaction):
         view=SettingView(),
         ephemeral=True,
     )
+    await save_log(
+        lock=interact.client.log_lock,
+        type=LOG_TYPE.cmd,
+        cmd=f"{LOG_TYPE.cmd}.set-noti",
+        interact=interact,
+        msg="[info] cmd used",
+    )
 
 
 async def noti_unsubscribe_helper(interact: discord.Interaction):
@@ -349,4 +406,11 @@ async def noti_unsubscribe_helper(interact: discord.Interaction):
         + ts.get("cmd.alert.current").format(sub_list=subs_str),
         view=UnSettingView(),
         ephemeral=True,
+    )
+    await save_log(
+        lock=interact.client.log_lock,
+        type=LOG_TYPE.cmd,
+        cmd=f"{LOG_TYPE.cmd}.delete-noti",
+        interact=interact,
+        msg="[info] cmd used",
     )

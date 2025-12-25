@@ -129,8 +129,8 @@ def _save_log_sync(
         if interact is not None:
             time = interact.created_at
             user = f"{interact.user.display_name}//{interact.user.global_name}//{interact.user.name}//{interact.user.id}"
-            guild = interact.guild
-            channel = interact.channel
+            guild = f"{interact.guild.name}//{interact.guild_id}"
+            channel = f"{interact.channel.name}//{interact.channel_id}"
 
         # time convertion logic
         if time is None:
