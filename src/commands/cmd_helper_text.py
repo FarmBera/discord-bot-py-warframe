@@ -11,23 +11,12 @@ from src.utils.return_err import err_embed
 
 
 async def cmd_helper_txt(
-    interact: discord.Interaction, file_name: str, isPublicMsg: bool = False
+    interact: discord.Interaction, file_name: str, isPrivateMsg: bool = True
 ) -> None:
-    if isPublicMsg and not await is_admin_user(interact):
-        msg: str = ts.get("cmd.no-permission")
-        embed = discord.Embed(
-            title=ts.get("cmd.no-perm-title"), description=msg, color=0xFF0000
-        )
-        # embed.set_footer(text=open_file(FOOTER_FILE_LOC))
-        await interact.response.send_message(embed=embed, ephemeral=True)
-        await save_log(
-            lock=interact.client.log_lock,
-            type=LOG_TYPE.e_admin,
-            cmd="cmd_helper_txt",
-            interact=interact,
-            msg=msg,
-        )
-        return
+    if not isPrivateMsg:
+        is_admin = await is_admin_user(interact=interact, cmd=f"{file_name}")
+        if not is_admin:
+            isPrivateMsg = True
 
     # open & read file
     try:
@@ -51,7 +40,7 @@ async def cmd_helper_txt(
     # send message
     await interact.response.send_message(
         embed=discord.Embed(description=txt, color=0xCEFF00),  # VAR: color
-        ephemeral=not isPublicMsg,
+        ephemeral=isPrivateMsg,
     )
 
     await save_log(
@@ -60,5 +49,5 @@ async def cmd_helper_txt(
         cmd=f"{LOG_TYPE.cmd}.{ts.get(f'cmd.help.cmd')}",
         interact=interact,
         msg="[info] cmd used",  # VAR
-        obj=txt,
+        obj=f"{isPrivateMsg}\n{txt}",
     )

@@ -76,9 +76,9 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
     @tree.command(
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
     )
-    async def cmd_help(interact: discord.Interaction, is_public_msg: bool = False):
+    async def cmd_help(interact: discord.Interaction, developer_options: bool = False):
         await cmd_helper_txt(
-            interact, file_name=HELP_FILE_LOC, isPublicMsg=is_public_msg
+            interact, file_name=HELP_FILE_LOC, isPrivateMsg=developer_options
         )
 
     # announcement command
@@ -90,12 +90,12 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         description=f"{ts.get('cmd.announcement.desc')}",
     )
     async def cmd_announcement(
-        interact: discord.Interaction, is_public_msg: bool = False
+        interact: discord.Interaction, developer_options: bool = False
     ):
         await cmd_helper_txt(
             interact,
             file_name=ANNOUNCE_FILE_LOC,
-            isPublicMsg=is_public_msg,
+            isPrivateMsg=developer_options,
         )
 
     # patch-note command
@@ -107,10 +107,10 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         description=f"{ts.get('cmd.patch-note.desc')}",
     )
     async def cmd_patch_note(
-        interact: discord.Interaction, is_public_msg: bool = False
+        interact: discord.Interaction, developer_options: bool = False
     ):
         await cmd_helper_txt(
-            interact, file_name=PATCHNOTE_FILE_LOC, isPublicMsg=is_public_msg
+            interact, file_name=PATCHNOTE_FILE_LOC, isPrivateMsg=developer_options
         )
 
     # privacy-policy command
@@ -122,10 +122,10 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         description=f"{ts.get('cmd.privacy-policy.desc')}",
     )
     async def cmd_privacy_policy(
-        interact: discord.Interaction, is_public_msg: bool = False
+        interact: discord.Interaction, developer_options: bool = False
     ):
         await cmd_helper_txt(
-            interact, file_name=POLICY_FILE_LOC, isPublicMsg=is_public_msg
+            interact, file_name=POLICY_FILE_LOC, isPrivateMsg=developer_options
         )
 
     # news command
@@ -133,8 +133,10 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
-    async def cmd_news(interact: discord.Interaction):
-        await cmd_helper(interact, key=NEWS, parser_func=w_news)
+    async def cmd_news(interact: discord.Interaction, developer_options: bool = True):
+        await cmd_helper(
+            interact, key=NEWS, parser_func=w_news, isPrivateMsg=developer_options
+        )
 
     # alerts command
     @discord.app_commands.checks.cooldown(
@@ -143,8 +145,13 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
     @tree.command(
         name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc")
     )
-    async def cmd_alerts(interact: discord.Interaction):
-        await cmd_helper(interact=interact, key=ALERTS, parser_func=w_alerts)
+    async def cmd_alerts(interact: discord.Interaction, developer_options: bool = True):
+        await cmd_helper(
+            interact=interact,
+            key=ALERTS,
+            parser_func=w_alerts,
+            isPrivateMsg=developer_options,
+        )
 
     # cetus command (cetusCycle)
     # @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
@@ -158,8 +165,10 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
     @tree.command(
         name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc")
     )
-    async def cmd_sortie(interact: discord.Interaction):
-        await cmd_helper(interact, key=SORTIE, parser_func=w_sortie)
+    async def cmd_sortie(interact: discord.Interaction, developer_options: bool = True):
+        await cmd_helper(
+            interact, key=SORTIE, parser_func=w_sortie, isPrivateMsg=developer_options
+        )
 
     # archon hunt command
     @discord.app_commands.checks.cooldown(
@@ -168,8 +177,15 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
     @tree.command(
         name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
     )
-    async def cmd_archon_hunt(interact: discord.Interaction):
-        await cmd_helper(interact, key=ARCHONHUNT, parser_func=w_archonHunt)
+    async def cmd_archon_hunt(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=ARCHONHUNT,
+            parser_func=w_archonHunt,
+            isPrivateMsg=developer_options,
+        )
 
     # void traders command
     @discord.app_commands.checks.cooldown(
@@ -179,9 +195,15 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.void-traders.cmd"),
         description=ts.get(f"cmd.void-traders.desc"),
     )
-    async def cmd_voidTraders(interact: discord.Interaction):
+    async def cmd_voidTraders(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper(
-            interact, isFollowUp=True, key=VOIDTRADERS, parser_func=w_voidTraders
+            interact,
+            isFollowUp=True,
+            key=VOIDTRADERS,
+            parser_func=w_voidTraders,
+            isPrivateMsg=developer_options,
         )
 
     # steel path reward command
@@ -192,8 +214,15 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.steel-path-reward.cmd"),
         description=ts.get(f"cmd.steel-path-reward.desc"),
     )
-    async def cmd_steel_reward(interact: discord.Interaction):
-        await cmd_helper(interact, key=STEELPATH, parser_func=w_steelPath)
+    async def cmd_steel_reward(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=STEELPATH,
+            parser_func=w_steelPath,
+            isPrivateMsg=developer_options,
+        )
 
     # fissures command
     @discord.app_commands.checks.cooldown(
@@ -216,6 +245,7 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         interact: discord.Interaction,
         # types: discord.app_commands.Choice[int],
         # is_include_railjack_node: bool = False,
+        developer_options: bool = True,
     ):
         await cmd_helper(
             interact,
@@ -223,6 +253,7 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
             parser_func=w_fissures,
             parser_args=(ts.get("cmd.fissures.choice-fast"), False),
             # parser_args=(types.name, is_include_railjack_node),
+            isPrivateMsg=developer_options,
         )
 
     # deep-archimedea command
@@ -233,9 +264,12 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.deep-archimedea.cmd"),
         description=ts.get(f"cmd.deep-archimedea.desc"),
     )
-    async def cmd_alerts(interact: discord.Interaction):
+    async def cmd_alerts(interact: discord.Interaction, developer_options: bool = True):
         await cmd_helper(
-            interact=interact, key=ARCHIMEDEA, parser_func=w_deepArchimedea
+            interact=interact,
+            key=ARCHIMEDEA,
+            parser_func=w_deepArchimedea,
+            isPrivateMsg=developer_options,
         )
 
     # temporal-archimedea command
@@ -246,9 +280,12 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.temporal-archimedea.cmd"),
         description=ts.get(f"cmd.temporal-archimedea.desc"),
     )
-    async def cmd_alerts(interact: discord.Interaction):
+    async def cmd_alerts(interact: discord.Interaction, developer_options: bool = True):
         await cmd_helper(
-            interact=interact, key=ARCHIMEDEA, parser_func=w_temporalArchimedia
+            interact=interact,
+            key=ARCHIMEDEA,
+            parser_func=w_temporalArchimedia,
+            isPrivateMsg=developer_options,
         )
 
     # duviriCycle command
@@ -284,10 +321,16 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         ]
     )
     async def cmd_calendar(
-        interact: discord.Interaction, types: discord.app_commands.Choice[int]
+        interact: discord.Interaction,
+        types: discord.app_commands.Choice[int],
+        developer_options: bool = True,
     ):
         await cmd_helper(
-            interact, key=CALENDAR, parser_func=w_calendar, parser_args=types.name
+            interact,
+            key=CALENDAR,
+            parser_func=w_calendar,
+            parser_args=types.name,
+            isPrivateMsg=developer_options,
         )
 
     # cambion command (cambionCycle)
@@ -304,8 +347,15 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
     @tree.command(
         name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
     )
-    async def cmd_dailyDeals(interact: discord.Interaction):
-        await cmd_helper(interact, key=DAILYDEALS, parser_func=w_dailyDeals)
+    async def cmd_dailyDeals(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=DAILYDEALS,
+            parser_func=w_dailyDeals,
+            isPrivateMsg=developer_options,
+        )
 
     # invasions command
     @discord.app_commands.checks.cooldown(
@@ -314,8 +364,15 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
     @tree.command(
         name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
     )
-    async def cmd_invasions(interact: discord.Interaction):
-        await cmd_helper(interact, key=INVASIONS, parser_func=w_invasions)
+    async def cmd_invasions(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=INVASIONS,
+            parser_func=w_invasions,
+            isPrivateMsg=developer_options,
+        )
 
     # voidTrader item command
     @discord.app_commands.checks.cooldown(
@@ -325,8 +382,15 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.void-traders-item.cmd"),
         description=ts.get(f"cmd.void-traders-item.desc"),
     )
-    async def cmd_traders_item(interact: discord.Interaction):
-        await cmd_helper(interact, key=VOIDTRADERS, parser_func=w_voidTradersItem)
+    async def cmd_traders_item(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=VOIDTRADERS,
+            parser_func=w_voidTradersItem,
+            isPrivateMsg=developer_options,
+        )
 
     # vallisCycle command
     # @tree.command(
@@ -344,12 +408,15 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.duviri-circuit.wf-cmd"),
         description=ts.get(f"cmd.duviri-circuit.wf-desc"),
     )
-    async def cmd_circuit_wf(interact: discord.Interaction):
+    async def cmd_circuit_wf(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper(
             interact,
             key=DUVIRI_ROTATION,
             parser_func=w_duviri_warframe,
             isFollowUp=True,
+            isPrivateMsg=developer_options,
         )
 
     # duviri-circuit-incarnon
@@ -360,12 +427,15 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.duviri-circuit.inc-cmd"),
         description=ts.get(f"cmd.duviri-circuit.inc-desc"),
     )
-    async def cmd_circuit_inc(interact: discord.Interaction):
+    async def cmd_circuit_inc(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper(
             interact,
             key=DUVIRI_ROTATION,
             parser_func=w_duviri_incarnon,
             isFollowUp=True,
+            isPrivateMsg=developer_options,
         )
 
     # events (like thermina, fomorian)
@@ -376,8 +446,12 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.events.cmd"),
         description=ts.get(f"cmd.events.desc"),
     )
-    async def cmd_ingame_events(interact: discord.Interaction):
-        await cmd_helper(interact, key=EVENTS, parser_func=w_events)
+    async def cmd_ingame_events(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact, key=EVENTS, parser_func=w_events, isPrivateMsg=developer_options
+        )
 
     # create receive complain
     @discord.app_commands.checks.cooldown(
@@ -422,8 +496,15 @@ async def register_main_cmds(tree: discord.app_commands.CommandTree, db_pool) ->
         name=ts.get(f"cmd.descendia.cmd"),
         description=ts.get(f"cmd.descendia.desc"),
     )
-    async def cmd_descendia(interact: discord.Interaction):
-        await cmd_helper(interact, key=DESCENDIA, parser_func=w_descendia)
+    async def cmd_descendia(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=DESCENDIA,
+            parser_func=w_descendia,
+            isPrivateMsg=developer_options,
+        )
 
 
 async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> None:
@@ -436,7 +517,10 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
         description=ts.get(f"cmd.market-search.desc"),
     )
     async def cmd_market_search(
-        interact: discord.Interaction, item_name: str, item_rank: int = None
+        interact: discord.Interaction,
+        item_name: str,
+        item_rank: int = None,
+        developer_options: bool = True,
     ):
         """Search for an item on warframe.market."""
         await cmd_helper(
@@ -446,6 +530,7 @@ async def register_sub_cmds(tree: discord.app_commands.CommandTree, db_pool) -> 
             isFollowUp=True,
             isMarketQuery=True,
             marketQuery=(item_name, item_rank),
+            isPrivateMsg=developer_options,
         )
 
     @cmd_market_search.autocomplete("item_name")
@@ -587,7 +672,10 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
         description=ts.get(f"cmd.market-search.desc"),
     )
     async def cmd_market_search(
-        interact: discord.Interaction, 아이템_이름: str, 아이템_랭크: int = None
+        interact: discord.Interaction,
+        아이템_이름: str,
+        아이템_랭크: int = None,
+        개발자용_옵션: bool = True,
     ):
         """Search for an item on warframe.market."""
         await cmd_helper(
@@ -597,6 +685,7 @@ async def register_ko_cmds(tree: discord.app_commands.CommandTree, db_pool) -> N
             isFollowUp=True,
             isMarketQuery=True,
             marketQuery=(아이템_이름, 아이템_랭크),
+            isPrivateMsg=개발자용_옵션,
         )
 
     @cmd_market_search.autocomplete("아이템_이름")

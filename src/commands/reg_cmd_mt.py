@@ -23,7 +23,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
     @tree.command(
         name=ts.get(f"cmd.help.cmd"), description=f"{ts.get('cmd.help.desc')}"
     )
-    async def cmd_help(interact: discord.Interaction, is_public_msg: bool = False):
+    async def cmd_help(interact: discord.Interaction, developer_options: bool = False):
         await cmd_helper_txt(interact, file_name=HELP_FILE_LOC)
 
     @discord.app_commands.checks.cooldown(
@@ -34,7 +34,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         description=f"{ts.get('cmd.announcement.desc')}",
     )
     async def cmd_announcement(
-        interact: discord.Interaction, is_public_msg: bool = False
+        interact: discord.Interaction, developer_options: bool = False
     ):
         await cmd_helper_txt(interact, file_name=ANNOUNCE_FILE_LOC)
 
@@ -46,7 +46,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         description=f"{ts.get('cmd.patch-note.desc')}",
     )
     async def cmd_patch_note(
-        interact: discord.Interaction, is_public_msg: bool = False
+        interact: discord.Interaction, developer_options: bool = False
     ):
         await cmd_helper_maintenance(interact, "patch-notee")
 
@@ -58,7 +58,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         description=f"{ts.get('cmd.privacy-policy.desc')}",
     )
     async def cmd_privacy_policy(
-        interact: discord.Interaction, is_public_msg: bool = False
+        interact: discord.Interaction, developer_options: bool = False
     ):
         await cmd_helper_txt(interact, file_name=POLICY_FILE_LOC)
 
@@ -66,7 +66,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     @tree.command(name=ts.get(f"cmd.news.cmd"), description=ts.get(f"cmd.news.desc"))
-    async def cmd_news(interact: discord.Interaction):
+    async def cmd_news(interact: discord.Interaction, developer_options: bool = True):
         await cmd_helper_maintenance(interact, "news")
 
     @discord.app_commands.checks.cooldown(
@@ -75,7 +75,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
     @tree.command(
         name=ts.get(f"cmd.alerts.cmd"), description=ts.get(f"cmd.alerts.desc")
     )
-    async def cmd_alerts(interact: discord.Interaction):
+    async def cmd_alerts(interact: discord.Interaction, developer_options: bool = True):
         await cmd_helper_maintenance(interact, "alerts")
 
     # @tree.command(name=ts.get(f"cmd.cetus.cmd"), description=ts.get(f"cmd.cetus.desc"))
@@ -88,7 +88,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
     @tree.command(
         name=ts.get(f"cmd.sortie.cmd"), description=ts.get(f"cmd.sortie.desc")
     )
-    async def cmd_sortie(interact: discord.Interaction):
+    async def cmd_sortie(interact: discord.Interaction, developer_options: bool = True):
         await cmd_helper_maintenance(interact, "sortie")
 
     @discord.app_commands.checks.cooldown(
@@ -97,7 +97,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
     @tree.command(
         name=ts.get(f"cmd.archon-hunt.cmd"), description=ts.get(f"cmd.archon-hunt.desc")
     )
-    async def cmd_archon_hunt(interact: discord.Interaction):
+    async def cmd_archon_hunt(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "archon-hunt")
 
     @discord.app_commands.checks.cooldown(
@@ -107,7 +109,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         name=ts.get(f"cmd.void-traders.cmd"),
         description=ts.get(f"cmd.void-traders.desc"),
     )
-    async def cmd_voidTraders(interact: discord.Interaction):
+    async def cmd_voidTraders(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "voidtrader")
 
     @discord.app_commands.checks.cooldown(
@@ -117,7 +121,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         name=ts.get(f"cmd.steel-path-reward.cmd"),
         description=ts.get(f"cmd.steel-path-reward.desc"),
     )
-    async def cmd_steel_reward(interact: discord.Interaction):
+    async def cmd_steel_reward(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "steel-path-reward")
 
     @discord.app_commands.checks.cooldown(
@@ -140,6 +146,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         interact: discord.Interaction,
         # types: discord.app_commands.Choice[int],
         # is_include_railjack_node: bool = False,
+        developer_options: bool = True,
     ):
         await cmd_helper_maintenance(interact, "fissures")
 
@@ -151,7 +158,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         name=ts.get(f"cmd.deep-archimedea.cmd"),
         description=ts.get(f"cmd.deep-archimedea.desc"),
     )
-    async def cmd_alerts(interact: discord.Interaction):
+    async def cmd_alerts(interact: discord.Interaction, developer_options: bool = True):
         await cmd_helper_maintenance(interact, "deep-archimedea")
 
     # temporal-archimedea command
@@ -162,7 +169,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         name=ts.get(f"cmd.temporal-archimedea.cmd"),
         description=ts.get(f"cmd.temporal-archimedea.desc"),
     )
-    async def cmd_alerts(interact: discord.Interaction):
+    async def cmd_alerts(interact: discord.Interaction, developer_options: bool = True):
         await cmd_helper_maintenance(interact, "temporal-archimedea")
 
     # @tree.command(
@@ -196,7 +203,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         ]
     )
     async def cmd_calendar(
-        interact: discord.Interaction, types: discord.app_commands.Choice[int]
+        interact: discord.Interaction,
+        types: discord.app_commands.Choice[int],
+        developer_options: bool = True,
     ):
         await cmd_helper_maintenance(interact, "hexcal")
 
@@ -212,7 +221,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
     @tree.command(
         name=ts.get(f"cmd.dailyDeals.cmd"), description=ts.get(f"cmd.dailyDeals.desc")
     )
-    async def cmd_dailyDeals(interact: discord.Interaction):
+    async def cmd_dailyDeals(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "dailydeals")
 
     @discord.app_commands.checks.cooldown(
@@ -221,7 +232,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
     @tree.command(
         name=ts.get(f"cmd.invasions.cmd"), description=ts.get(f"cmd.invasions.desc")
     )
-    async def cmd_invasions(interact: discord.Interaction):
+    async def cmd_invasions(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "invasions")
 
     @discord.app_commands.checks.cooldown(
@@ -231,7 +244,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         name=ts.get(f"cmd.void-traders-item.cmd"),
         description=ts.get(f"cmd.void-traders-item.desc"),
     )
-    async def cmd_traders_item(interact: discord.Interaction):
+    async def cmd_traders_item(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "voidtrader-items")
 
     @discord.app_commands.checks.cooldown(
@@ -241,7 +256,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         name=ts.get(f"cmd.duviri-circuit.wf-cmd"),
         description=ts.get(f"cmd.duviri-circuit.wf-desc"),
     )
-    async def cmd_circuit_wf(interact: discord.Interaction):
+    async def cmd_circuit_wf(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "duviri-circuit")
 
     @discord.app_commands.checks.cooldown(
@@ -251,7 +268,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         name=ts.get(f"cmd.duviri-circuit.inc-cmd"),
         description=ts.get(f"cmd.duviri-circuit.inc-desc"),
     )
-    async def cmd_circuit_inc(interact: discord.Interaction):
+    async def cmd_circuit_inc(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "duviri-incarnon")
 
     @discord.app_commands.checks.cooldown(
@@ -261,7 +280,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         name=ts.get(f"cmd.events.cmd"),
         description=ts.get(f"cmd.events.desc"),
     )
-    async def cmd_ingame_events(interact: discord.Interaction):
+    async def cmd_ingame_events(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "events")
 
     # create receive complain
@@ -271,9 +292,7 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
     @tree.command(
         name=ts.get(f"cmd.complain.cmd"), description=ts.get(f"cmd.complain.desc")
     )
-    async def cmd_receive_complain(
-        interact: discord.Interaction,
-    ) -> None:
+    async def cmd_receive_complain(interact: discord.Interaction) -> None:
         await cmd_helper_maintenance(interact, "complain")
 
     @discord.app_commands.checks.cooldown(
@@ -303,7 +322,9 @@ async def register_maintenance_cmds(tree: discord.app_commands.CommandTree) -> N
         name=ts.get(f"cmd.descendia.cmd"),
         description=ts.get(f"cmd.descendia.desc"),
     )
-    async def cmd_descendia(interact: discord.Interaction):
+    async def cmd_descendia(
+        interact: discord.Interaction, developer_options: bool = True
+    ):
         await cmd_helper_maintenance(interact, "descendia")
 
 
@@ -317,7 +338,10 @@ async def register_mt_sub_cmds(tree: discord.app_commands.CommandTree) -> None:
         description=ts.get(f"cmd.market-search.desc"),
     )
     async def cmd_market_search(
-        interact: discord.Interaction, item_name: str, item_rank: int = None
+        interact: discord.Interaction,
+        item_name: str,
+        item_rank: int = None,
+        developer_options: bool = True,
     ):
         await cmd_helper_maintenance(interact, f"market-search:{item_name}:{item_rank}")
 
@@ -344,21 +368,22 @@ async def register_mt_sub_cmds(tree: discord.app_commands.CommandTree) -> None:
     )
     @discord.app_commands.describe(
         title=ts.get("cmd.party.title"),
-        # game_nickname="인게임 닉네임",
-        game_type=ts.get(f"cmd.party.miss-types"),
+        departure=ts.get("cmd.party.date-placeholder"),
+        game_name=ts.get(f"cmd.party.miss-types"),
         descriptions=ts.get("cmd.party.descript"),
         number_of_user=ts.get("cmd.party.nou"),
     )
     async def cmd_create_party(
         interact: discord.Interaction,
         title: str,
-        # game_nickname: str,
-        game_type: str,
+        game_name: str,
+        departure: str = None,
         descriptions: str = "(설명 없음)",
         number_of_user: int = 4,
     ) -> None:
         await cmd_helper_maintenance(
-            interact, f"party::{title}::{game_type}::{descriptions}:{number_of_user}"
+            interact,
+            f"party::{title}::{game_name}::{departure}::{descriptions}:{number_of_user}",
         )
 
     # create trade article
@@ -435,7 +460,10 @@ async def register_mt_ko_cmds(tree: discord.app_commands.CommandTree) -> None:
         description=ts.get(f"cmd.market-search.desc"),
     )
     async def cmd_market_search(
-        interact: discord.Interaction, 아이템_이름: str, 아이템_랭크: int = None
+        interact: discord.Interaction,
+        아이템_이름: str,
+        아이템_랭크: int = None,
+        개발자용_옵션: bool = True,
     ):
         await cmd_helper_maintenance(
             interact, f"market-search:{아이템_이름}:{아이템_랭크}"
@@ -464,7 +492,7 @@ async def register_mt_ko_cmds(tree: discord.app_commands.CommandTree) -> None:
     )
     @discord.app_commands.describe(
         파티_제목=ts.get("cmd.party.desc-title"),
-        # game_nickname="인게임 닉네임",
+        출발_일자=ts.get("cmd.party.date-placeholder"),
         같이_할_게임이름=ts.get(f"cmd.party.desc-miss-types"),
         파티_설명=ts.get("cmd.party.desc-descript"),
         모집_인원수=ts.get("cmd.party.desc-nou"),
@@ -472,14 +500,14 @@ async def register_mt_ko_cmds(tree: discord.app_commands.CommandTree) -> None:
     async def cmd_create_party(
         interact: discord.Interaction,
         파티_제목: str,
-        # game_nickname: str,
         같이_할_게임이름: str,
+        출발_일자: str = None,
         파티_설명: str = "(설명 없음)",
         모집_인원수: int = 4,
     ) -> None:
         await cmd_helper_maintenance(
             interact,
-            f"party::{파티_제목}::{같이_할_게임이름}::{파티_설명}:{모집_인원수}",
+            f"party::{파티_제목}::{같이_할_게임이름}::{출발_일자}::{파티_설명}:{모집_인원수}",
         )
 
     # create trade article

@@ -1,6 +1,7 @@
 import discord
 
 from config.config import LOG_TYPE
+from src.commands.admin import is_admin_user
 from src.utils.logging_utils import save_log
 from src.utils.discord_file import img_file
 from src.utils.data_manager import get_obj_async
@@ -12,12 +13,19 @@ async def cmd_helper(
     parser_func,
     isFollowUp: bool = False,
     parser_args=None,
-    isUserViewOnly: bool = True,
+    isPrivateMsg: bool = True,
     isMarketQuery: bool = False,
     marketQuery: tuple = (None, None),
 ) -> None:
+    if not isPrivateMsg:
+        is_admin = await is_admin_user(
+            interact=interact, cmd=f"{parser_func}//{parser_args}//MARKET:{marketQuery}"
+        )
+        if not is_admin:
+            isPrivateMsg = True
+
     if isFollowUp:  # delay response if needed
-        await interact.response.defer(ephemeral=isUserViewOnly)
+        await interact.response.defer(ephemeral=isPrivateMsg)
 
     # parse objects
     if parser_args:
@@ -33,23 +41,23 @@ async def cmd_helper(
     # check object type
     if isinstance(obj, discord.Embed):  # embed only
         if isFollowUp:
-            await resp_head.send(embed=obj, ephemeral=isUserViewOnly)
+            await resp_head.send(embed=obj, ephemeral=isPrivateMsg)
         else:
-            await resp_head.send_message(embed=obj, ephemeral=isUserViewOnly)
+            await resp_head.send_message(embed=obj, ephemeral=isPrivateMsg)
         log_obj = obj.description
     elif isinstance(obj, tuple):  # embed with file
         eb, file = obj
         file = img_file(file)
         if isFollowUp:
-            await resp_head.send(embed=eb, file=file, ephemeral=isUserViewOnly)
+            await resp_head.send(embed=eb, file=file, ephemeral=isPrivateMsg)
         else:
-            await resp_head.send_message(embed=eb, file=file, ephemeral=isUserViewOnly)
+            await resp_head.send_message(embed=eb, file=file, ephemeral=isPrivateMsg)
         log_obj = eb.description
     else:  # text only
         if isFollowUp:
-            await resp_head.send(obj, ephemeral=isUserViewOnly)
+            await resp_head.send(obj, ephemeral=isPrivateMsg)
         else:
-            await resp_head.send_message(obj, ephemeral=isUserViewOnly)
+            await resp_head.send_message(obj, ephemeral=isPrivateMsg)
         log_obj = obj
 
     await save_log(
