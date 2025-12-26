@@ -13,7 +13,7 @@ from src.utils.return_err import err_embed
 async def cmd_helper_txt(
     interact: discord.Interaction, file_name: str, isPublicMsg: bool = False
 ) -> None:
-    if isPublicMsg and not is_admin_user(interact):
+    if isPublicMsg and not await is_admin_user(interact):
         msg: str = ts.get("cmd.no-permission")
         embed = discord.Embed(
             title=ts.get("cmd.no-perm-title"), description=msg, color=0xFF0000

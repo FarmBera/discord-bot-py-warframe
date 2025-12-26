@@ -53,7 +53,6 @@ async def is_admin_user(
         )
         return False
     except Exception:
-        print_test_err()
         await save_log(
             lock=interact.client.log_lock,
             type="err",
