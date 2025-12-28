@@ -932,7 +932,7 @@ class DiscordBot(discord.Client):
         # fetch all message from db
         async with query_reader(self.db) as cursor:
             await cursor.execute(
-                "SELECT id, thread_id, message_id FROM party WHERE created_at < %s",
+                "SELECT id, thread_id, message_id FROM party WHERE updated_at < %s",
                 (expiration_time,),
             )
             expired_parties = await cursor.fetchall()
@@ -1037,7 +1037,7 @@ class DiscordBot(discord.Client):
         # fetch all message from db
         async with query_reader(self.db) as cursor:
             await cursor.execute(
-                "SELECT id, thread_id, message_id FROM trade WHERE created_at < %s",
+                "SELECT id, thread_id, message_id FROM trade WHERE updated_at < %s",
                 (expiration_time,),
             )
             expired_trades = await cursor.fetchall()
