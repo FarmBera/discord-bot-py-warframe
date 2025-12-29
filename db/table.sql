@@ -84,6 +84,8 @@ CREATE TABLE IF NOT EXISTS webhooks (
     channel_id BIGINT NOT NULL,
     guild_id BIGINT NOT NULL,
     webhook_url TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     -- notification flags (1: ON, 0: OFF)
     sub_alerts BOOLEAN DEFAULT 0, -- 얼럿 미션
     sub_news BOOLEAN DEFAULT 0, -- 워프레임 뉴스
@@ -91,14 +93,13 @@ CREATE TABLE IF NOT EXISTS webhooks (
     sub_archonhunt BOOLEAN DEFAULT 0, -- 집정관
     sub_voidtraders BOOLEAN DEFAULT 0, -- 바로 키 티어
     sub_steelpath BOOLEAN DEFAULT 0, -- 스틸에센스
-    sub_archimedea BOOLEAN DEFAULT 0, -- 심층/템포럴
+    sub_darchimedea BOOLEAN DEFAULT 0, -- 심층
+    sub_tarchimedea BOOLEAN DEFAULT 0, -- 템포럴
     sub_calendar BOOLEAN DEFAULT 0, -- 1999달력
     sub_dailydeals BOOLEAN DEFAULT 0, -- 일일 특가
     sub_invasions BOOLEAN DEFAULT 0, -- 침공
     sub_duviri_wf BOOLEAN DEFAULT 0, -- 두비리 순환로
     sub_duviri_inc BOOLEAN DEFAULT 0, -- 두비리 순환로
     sub_events BOOLEAN DEFAULT 0, -- 이벤트
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (channel_id)
 );
