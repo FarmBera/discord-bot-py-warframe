@@ -64,10 +64,10 @@ class PartyView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)  # make the button persistent
         self.cooldown_action = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_ACTION, commands.BucketType.member
+            1, COOLDOWN_BTN_ACTION, commands.BucketType.user
         )
         self.cooldown_manage = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_MANAGE, commands.BucketType.member
+            1, COOLDOWN_BTN_MANAGE, commands.BucketType.user
         )
         self.cooldown_call = commands.CooldownMapping.from_cooldown(
             1, COOLDOWN_BTN_CALL, commands.BucketType.user
@@ -184,6 +184,30 @@ class PartyView(discord.ui.View):
             cmd="btn.main.edit-content",
             interact=interact,
             msg=f"PartyView -> edit_content",
+        )
+
+    @discord.ui.button(  # 날짜 수정
+        label=ts.get(f"{pf}date-btn"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="party_edit_departure",
+    )
+    async def edit_departure(
+        self, interact: discord.Interaction, button: discord.ui.Button
+    ):
+        etype: str = EVENT_TYPE
+
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            etype += EVENT_COOLDOWN
+            return
+
+        await cmd_helper_maintenance(interact)
+
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.event,
+            cmd="btn.main.edit_departure",
+            interact=interact,
+            msg=f"PartyView -> edit_departure",
         )
 
     @discord.ui.button(

@@ -76,26 +76,25 @@ async def fetch_current_subscriptions(db, log_lock, channel_id: int) -> list:
     get the current list of notifications subscribed to interacted channel from the db.
     """
     active_labels = []
+    cols = list(DB_COLUMN_MAP.values())
+    # column name mapping
+    col_to_key = {v: k for k, v in DB_COLUMN_MAP.items()}
+
+    query = f"SELECT {', '.join(cols)} FROM webhooks WHERE channel_id = %s"
     try:
         async with transaction(db) as cursor:
-            cols = list(DB_COLUMN_MAP.values())
-            # column name mapping
-            col_to_key = {v: k for k, v in DB_COLUMN_MAP.items()}
+            await cursor.execute(query, (channel_id,))
+            row = await cursor.fetchone()
 
-            query = f"SELECT {', '.join(cols)} FROM webhooks WHERE channel_id = %s"
-            async with transaction(db) as cursor:
-                await cursor.execute(query, (channel_id,))
-                row = await cursor.fetchone()
+        if row:
+            for col_name in cols:
+                val = row[col_name]
 
-            if row:
-                for col_name in cols:
-                    val = row[col_name]
-
-                    if val == 1:
-                        key = col_to_key.get(col_name)
-                        # convert labels
-                        if key and key in NOTI_LABELS:
-                            active_labels.append(NOTI_LABELS[key])
+                if val == 1:
+                    key = col_to_key.get(col_name)
+                    # convert labels
+                    if key and key in NOTI_LABELS:
+                        active_labels.append(NOTI_LABELS[key])
     except Exception as e:
         await save_log(
             lock=log_lock,
@@ -157,7 +156,7 @@ class NotificationSelect(discord.ui.Select):
 
         if not webhook:
             try:
-                # retrieve the bot's profile picture & apply
+                # get bot avatar
                 avatar_bytes = None
                 if interact.client.user.avatar:
                     avatar_bytes = await interact.client.user.avatar.read()
@@ -310,7 +309,7 @@ class NotificationUnSelect(discord.ui.Select):
                     is_fully_deleted = True
         except Exception:
             await interact.edit_original_response(
-                content=ts.get(f"general-cmd"), embed=None, view=None
+                content=ts.get(f"cmd.err-db"), embed=None, view=None
             )
             await save_log(
                 lock=interact.client.log_lock,
@@ -360,13 +359,13 @@ class NotificationUnSelect(discord.ui.Select):
 
 class SettingView(discord.ui.View):
     def __init__(self):
-        super().__init__()
+        super().__init__(timeout=60)
         self.add_item(NotificationSelect())
 
 
 class UnSettingView(discord.ui.View):
     def __init__(self):
-        super().__init__()
+        super().__init__(timeout=60)
         self.add_item(NotificationUnSelect())
 
 

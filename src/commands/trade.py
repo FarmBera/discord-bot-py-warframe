@@ -50,18 +50,6 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
 
     async def on_submit(self, interact: discord.Interaction):
         try:
-            async with transaction(self.db_pool) as cursor:
-                await cursor.execute(
-                    "UPDATE trade SET game_nickname = %s WHERE message_id = %s",
-                    (self.input_nickname.value, interact.message.id),
-                )
-
-            # refresh Embed
-            new_embed = await build_trade_embed_from_db(
-                interact.message.id, self.db_pool
-            )
-            await interact.response.edit_message(embed=new_embed)
-
             await save_log(
                 lock=interact.client.log_lock,
                 type=LOG_TYPE.event,
@@ -70,6 +58,17 @@ class EditNicknameModal(discord.ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
                 msg=f"EditTradeModal -> Clicked Submit",
                 obj=f"{self.input_nickname.value}",
             )
+            async with transaction(self.db_pool) as cursor:
+                await cursor.execute(
+                    "UPDATE trade SET game_nickname = %s WHERE message_id = %s",
+                    (self.input_nickname.value, interact.message.id),
+                )
+            # refresh Embed
+            new_embed = await build_trade_embed_from_db(
+                interact.message.id, self.db_pool
+            )
+            await interact.response.edit_message(embed=new_embed)
+
         except Exception:
             if not interact.response.is_done():
                 await interact.response.send_message(
@@ -99,6 +98,14 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
         self.add_item(self.quantity_input)
 
     async def on_submit(self, interact: discord.Interaction):
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.event,
+            cmd="btn.edit.quantity",
+            interact=interact,
+            msg=f"EditQuantityModal -> Clicked Submit",
+            obj=new_quantity_str,
+        )
         try:
             new_quantity_str = self.quantity_input.value
 
@@ -125,15 +132,6 @@ class EditQuantityModal(discord.ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
                 interact.message.id, self.db_pool
             )
             await interact.response.edit_message(embed=new_embed)
-
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.event,
-                cmd="btn.edit.quantity",
-                interact=interact,
-                msg=f"EditQuantityModal -> Clicked Submit",
-                obj=new_quantity_str,
-            )
         except Exception:
             if not interact.response.is_done():
                 await interact.response.send_message(
@@ -163,6 +161,14 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
         self.add_item(self.price_input)
 
     async def on_submit(self, interact: discord.Interaction):
+        await save_log(
+            lock=interact.client.log_lock,
+            type=LOG_TYPE.event,
+            cmd="btn.edit.price",
+            interact=interact,
+            msg=f"EditPriceModal -> Clicked Submit",
+            obj=new_price_str,
+        )
         try:
             new_price_str = self.price_input.value
 
@@ -184,15 +190,6 @@ class EditPriceModal(discord.ui.Modal, title=ts.get(f"{pf}edit-price-title")):
                 interact.message.id, self.db_pool
             )
             await interact.response.edit_message(embed=new_embed)
-
-            await save_log(
-                lock=interact.client.log_lock,
-                type=LOG_TYPE.event,
-                cmd="btn.edit.price",
-                interact=interact,
-                msg=f"EditPriceModal -> Clicked Submit",
-                obj=new_price_str,
-            )
         except Exception:
             if not interact.response.is_done():
                 await interact.response.send_message(
@@ -298,7 +295,6 @@ class ConfirmDeleteView(discord.ui.View):
                 msg=f"ConfirmDeleteView -> clicked yes | but ERR",
                 obj=return_traceback(),
             )
-
         self.value = True
         self.stop()
 

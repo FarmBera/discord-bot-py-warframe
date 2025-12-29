@@ -30,12 +30,12 @@ async def is_admin_user(
     Returns:
         bool: is admin user (if admin user returns True else False)
     """
-    async with query_reader(interact.client.db) as cursor:
-        await cursor.execute(
-            "SELECT user_id FROM admins WHERE user_id = %s", (interact.user.id,)
-        )
-        result = await cursor.fetchone()
     try:
+        async with query_reader(interact.client.db) as cursor:
+            await cursor.execute(
+                "SELECT user_id FROM admins WHERE user_id = %s", (interact.user.id,)
+            )
+            result = await cursor.fetchone()
         if result and interact.user.id == result.get("user_id"):
             return True
 
@@ -57,7 +57,7 @@ async def is_admin_user(
             lock=interact.client.log_lock,
             type="err",
             interact=interact,
-            msg="undefined error (from is_admin_user)",
+            msg="admin verification error (from is_admin_user)",
             obj=return_traceback(),
         )
         return False

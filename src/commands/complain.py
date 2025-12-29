@@ -96,17 +96,9 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
             if isinstance(forum_channel, discord.ForumChannel):
                 await forum_channel.create_thread(name=title, content=desc)
 
-            try:
-                await self.button_interact.edit_original_response(
-                    content=ts.get(f"{pf}done"), embed=None, view=None
-                )
-            except Exception:
-                print(
-                    timeNowDT(),
-                    C.yellow,
-                    "[warn] Failed to edit origin msg (from Complain -> edit msg logic)",
-                )
-                # print_test_err("Failed to edit origin msg")
+            await self.button_interact.edit_original_response(
+                content=ts.get(f"{pf}done"), embed=None, view=None
+            )
 
             # await interact.followup.send(ts.get(f"{pf}done"), ephemeral=True)
 

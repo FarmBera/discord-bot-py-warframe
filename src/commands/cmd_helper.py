@@ -17,6 +17,7 @@ async def cmd_helper(
     isMarketQuery: bool = False,
     marketQuery: tuple = (None, None),
 ) -> None:
+    # check admin if user want to send public msg
     if not isPrivateMsg:
         is_admin = await is_admin_user(
             interact=interact, cmd=f"{parser_func}//{parser_args}//MARKET:{marketQuery}"
@@ -24,7 +25,7 @@ async def cmd_helper(
         if not is_admin:
             isPrivateMsg = True
 
-    if isFollowUp:  # delay response if needed
+    if isFollowUp:
         await interact.response.defer(ephemeral=isPrivateMsg)
 
     # parse objects
