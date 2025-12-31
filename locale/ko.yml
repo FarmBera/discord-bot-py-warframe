@@ -52,7 +52,7 @@ cmd:
     title: "❌ 재사용 대기시간"
     desc: 이 명령어를 다시 사용하려면 {time}초 더 기다려야 합니다.
     btn: 버튼을 다시 사용하려면 {time}초 더 기다려야 합니다.
-  err-db: "❌ 데이터베이스에 오류가 발생했습니다"
+  err-db: "❌ 데이터베이스에 오류가 발생했습니다. 개발자에게 문의해주세요."
   warning-count: |
     ```diff
     -관리자에게 {count}회 경고를 받은 사용자입니다.
@@ -233,7 +233,7 @@ cmd:
     fass: 파스
     vome: 봄
 
-  dailyDeals:
+  dailydeals:
     cmd: 일일특가
     desc: 다르보가 제시하는 오늘의 특가 물품을 확인할 수 있어요.
     title: 오늘의 특가
@@ -252,6 +252,10 @@ cmd:
   market-search:
     cmd: 마켓검색
     desc: "'Warframe Market' 에서 원하는 아이템을 검색하여 가장 저렴한 매물을 검색할 수 있어요."
+    arg-item-name: "아이템_이름"
+    desc-item-name: "검색할 아이템의 이름을 입력하세요."
+    arg-item-rank: "아이템_랭크"
+    desc-item-rank: "아이템의 랭크를 입력하세요."
 
     no-result: "## 검색 결과가 없습니다."
     server-err: |
@@ -292,14 +296,21 @@ cmd:
     # basic commands
     cmd: 파티생성
     desc: "새로운 파티 구인 글을 생성합니다. (종합 게임 대상)"
-
+    # args & desc
+    arg-title: 파티_제목
+    arg-date-placeholder: 출발하는_날짜
+    arg-miss-types: 같이_할_게임이름
+    arg-descript: 파티_설명
+    arg-nou: 모집_인원_수
     desc-title: 파티 모집 제목
     desc-miss-types: 게임 이름
     desc-departure: "예) 미정, 내일 오후 3시, 다음주 토요일 15시, 23일 17시 등"
     desc-descript: "[선택사항] 모집 글에 대한 세부설명"
     desc-nou: "[선택사항] 최대 파티원 수 (본인 포함)"
 
-    err: 알 수 없는 오류. 관리자에게 문의해주세요.
+    c-no-desc: (설명 없음)
+
+    err: 오류
     # PartyEditodal
     edit-title: 파티 정보 수정
     edit-title-input: 제목
@@ -320,7 +331,7 @@ cmd:
     # ConfirmDeleteView
     del-btny: Yes (진행)
     del-btnn: No (취소)
-    del-err: "❌ 오류: 스레드를 삭제할 권한이 없어요.\n관리자에게 문의해주세요."
+    del-err: "❌ 처리 중 오류가 발생했습니다.\n개발자에게 문의해주세요."
     del-cancel: 작업이 취소되었어요.
     del-deleted: "> 모집이 종료 되었어요."
     expired: "> 활동이 없어 모집이 자동으로 종료되었어요."
@@ -338,7 +349,7 @@ cmd:
     pv-not-found: |
       오류: 파티 정보를 찾을 수 없어요. (모집 글이 삭제되었을 수도 있습니다.)
 
-      만약 오류라고 판단된다면 관리자에게 문의해주세요.
+      만약 오류라고 판단된다면 개발자에게 문의해주세요.
     pv-join-btn: 참여하기
     pv-leave-btn: 탈퇴하기
     pv-host-exit-err: 호스트는 파티에서 탈퇴할 수 없어요.
@@ -356,7 +367,7 @@ cmd:
 
     # edit_size btn
     pv-mod-label: 인원 수정
-    pv-err-only-host: 파티 호스트만 인원을 수정할 수 있어요.
+    pv-err-only-host: 파티 호스트만 사용할 수 있는 기능이에요.
 
     # edit_content btn
     pv-mod-article: 글 수정
@@ -427,6 +438,13 @@ cmd:
     quantity: "수량"
     price: "개당 가격"
     auto-price-info: "가격을 입력하지 않으면 마켓 시세를 기반으로 자동 책정됩니다."
+    # cmd rename
+    arg-trade-type: 거래_종류
+    arg-item-name: 아이템_이름
+    arg-item-rank: 아이템_랭크
+    arg-nickname: 워프레임_닉네임
+    arg-price: 개당_가격
+    arg-qty: 수량
     # cmd describe
     desc-trade-type: "거래 글 유형 (판매 / 구매)"
     desc-item-name: 거래하고자 하는 아이템 이름
@@ -434,6 +452,8 @@ cmd:
     desc-nickname: 인게임 닉네임. 정확히 기입하여주세요.
     desc-price: "[선택사항] 물품 개당 가격 (미입력 시, 마켓 시세를 기반으로 자동 책정 됩니다.)"
     desc-qty: "[선택사항] 아이템 수량. (기본값: 1개)"
+
+    rank-label: 랭크
 
     # embed content
     creator: "생성자"
@@ -451,11 +471,12 @@ cmd:
     closed: "거래 글 닫기"
 
     # buttons
-    btn-trade: "거래 요청"
-    btn-edit-qty: "수량 변경"
-    btn-edit-price: "가격 수정"
-    btn-edit-nickname: "닉네임 변경"
-    btn-close: "거래 종료"
+    btn-trade: 거래 요청
+    btn-edit-qty: 수량 변경
+    btn-edit-price: 가격 수정
+    btn-edit-rank: 랭크 수정
+    btn-edit-nickname: 닉네임 변경
+    btn-close: 거래 종료
     del-btny: Yes (종료하기)
     del-btnn: No (취소)
     # ConfirmTradeView
@@ -486,17 +507,19 @@ cmd:
     edit-qty-label: "수량을 숫자로 입력해주세요."
     edit-price-title: "가격 수정"
     edit-price-label: "개당 가격을 숫자로 입력해주세요."
+    edit-rank-title: 아이템 랭크 수정
+    edit-rank-label: 변경할 랭크 (숫자)
     edit-nick-title: "수정 할 워프레임 닉네임\n(정확하게 입력해주세요)"
-    edit-nick-label: "입력한 닉네임은 귓속말 및 파티초대 명령어 복사 기능을 이용할 때 이용됩니다."
+    edit-nick-label: "입력한 닉네은 귓속말 및 파티초대 명령어 복사 기능을 이용할 때 이용됩니다."
 
     # errors
     err-type: "올바르지 않은 거래 종류입니다! --> {type}\n\n{list} 중 하나만 사용할 수 있어요"
 
-    err-general: "상호작용 오류. 관리자에게 문의해주세요."
+    err-general: "상호작용 오류. 개발자에게 문의해주세요."
     err-timeout: "시간이 초과되어 작업이 취소되었어요."
     err-only-host: "거래 글 게시자만 이 버튼을 사용할 수 있어요."
-    err-not-found: "오류. 거래 정보를 찾을 수 없어요.\n관리자에게 문의해주세요."
-    err-forbidden: "봇이 거래 게시글에 접근할 수 없어요. 관리자에게 문의해주세요."
+    err-not-found: "오류. 거래 정보를 찾을 수 없어요. 또는 이미 거래 글이 삭제되었습니다.\n오류라고 판단된다면 개발자에게 문의해주세요."
+    err-forbidden: "봇이 거래 게시글에 접근할 수 없어요.\n개발자에게 문의해주세요."
     err-self-trade: "자신이 올린 글에는 거래를 요청할 수 없어요."
     err-invalid-value: "숫자가 아닌 값은 입력할 수 없어요."
     err-size-low: "1보다 작은 값은 입력할 수 없어요."
@@ -507,6 +530,7 @@ cmd:
       숫자가 아닌 값을 입력하셨나요?
 
       오류가 지속된다면 개발자에게 문의해주세요.
+    err-no-rank-item: 이 아이템은 랭크가 없습니다.
 
   duviri-circuit:
     wf-cmd: 순환로-워프레임

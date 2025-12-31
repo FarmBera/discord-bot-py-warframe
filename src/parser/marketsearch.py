@@ -71,7 +71,7 @@ def categorize(result, rank: int) -> list:
                 continue
             if item["type"] != "sell":
                 continue
-            if not item["rank"] == rank:
+            if item["rank"] != rank:
                 continue
             # print(item["rank"], rank, item["platinum"])
             ingame_orders.append(item)
@@ -99,9 +99,7 @@ def create_market_url(name, slug=None):
     return msg
 
 
-async def w_market_search(
-    log_lock: asyncio.Lock, arg_obj: tuple[str, int]
-) -> discord.Embed:
+async def w_market_search(pool, arg_obj: tuple[str, int]) -> discord.Embed:
     name, rank = arg_obj
     flag: bool = False
     flag, item_slug, item_name, item_img_url = get_slug_data(name)
@@ -113,13 +111,13 @@ async def w_market_search(
         )
 
     # api request
-    result = await API_MarketSearch(log_lock, item_name=item_slug)
+    result = await API_MarketSearch(pool, item_name=item_slug)
 
     # check response code
     try:
         if result.status_code == 404:  # item not found
             await save_log(
-                lock=log_lock,
+                pool=pool,
                 type="api",
                 cmd="w_market_search()",
                 user=MSG_BOT,
@@ -132,7 +130,7 @@ async def w_market_search(
             )
         elif result.status_code == 500:  # internal server err
             await save_log(
-                lock=log_lock,
+                pool=pool,
                 type="api",
                 cmd="w_market_search()",
                 user=MSG_BOT,
@@ -145,7 +143,7 @@ async def w_market_search(
             )
         elif result.status_code != 200:  # another code err
             await save_log(
-                lock=log_lock,
+                pool=pool,
                 type="api",
                 cmd="w_market_search()",
                 user=MSG_BOT,
@@ -158,7 +156,7 @@ async def w_market_search(
             )
     except Exception as e:
         await save_log(
-            lock=log_lock,
+            pool=pool,
             type="api",
             cmd="w_market_search()",
             user=MSG_BOT,

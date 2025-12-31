@@ -32,7 +32,7 @@ async def cmd_helper(
     if parser_args:
         obj = parser_func(await get_obj_async(key), parser_args)
     elif isMarketQuery:
-        obj = await parser_func(interact.client.log_lock, marketQuery)
+        obj = await parser_func(interact.client.db, marketQuery)
     else:
         obj = parser_func(await get_obj_async(key))
 
@@ -62,7 +62,7 @@ async def cmd_helper(
         log_obj = obj
 
     await save_log(
-        lock=interact.client.log_lock,
+        pool=interact.client.db,
         type=LOG_TYPE.cmd,
         cmd=f"{LOG_TYPE.cmd}.{key}{f'-{parser_args}' if parser_args else ''}",
         interact=interact,

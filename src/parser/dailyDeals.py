@@ -5,7 +5,7 @@ from src.utils.return_err import err_embed
 from src.utils.data_manager import getLanguage
 
 
-pf = f"cmd.dailyDeals."
+pf = f"cmd.dailydeals."
 
 
 def w_dailyDeals(deals) -> discord.Embed:

@@ -3,31 +3,20 @@ import asyncio
 import sys
 import logging
 import aiomysql
-import traceback
 
-log_lock = asyncio.Lock()
+# log_lock = asyncio.Lock()
 
-from config.config import language as lang, Lang
 from config.TOKEN import TOKEN as BOT_TOKEN, DB_USER, DB_PW, DB_HOST, DB_PORT, DB_NAME
+from config.config import LOG_TYPE
 from src.constants.color import C
 from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
 from src.utils.return_err import return_traceback, print_test_err
-from src.commands.reg_cmd import (
-    register_main_cmds,
-    register_sub_cmds,
-    register_ko_cmds,
-)
-from src.commands.reg_cmd_mt import (
-    register_maintenance_cmds,
-    register_mt_sub_cmds,
-    register_mt_ko_cmds,
-)
+from src.utils.logging_utils import save_log
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
 
-tree = None
 db_pool = None
 
 # main thread
@@ -60,7 +49,7 @@ async def main_manager() -> None:
     """
     manage bot state, and switch bot status depends on console input
     """
-    global tree, db_pool
+    global db_pool
 
     bot_mode = CMD_MAIN  # init mode
     # bot_mode = input("Starting Bot Mode > ").lower()
@@ -79,13 +68,13 @@ async def main_manager() -> None:
             db=DB_NAME,
             autocommit=False,
             minsize=1,
-            maxsize=10,
+            maxsize=20,
             connect_timeout=5,
         )
         print(f"{C.green}Connected to MariaDB Platform via aiomysql{C.default}")
     except Exception:
         print(
-            f"{C.yellow}Error connecting to MariaDB Platform\n{C.red}\n{return_traceback()}"
+            f"{C.red}Error connecting to MariaDB Platform\n{C.red}\n{return_traceback()}"
         )
         sys.exit(1)
 
@@ -94,12 +83,9 @@ async def main_manager() -> None:
         intents.message_content = True
         if bot_mode == CMD_MAIN:
             print(f"{C.cyan}[info] Starting Main Bot...{C.default}")  # VAR
-            current_bot = DiscordBot(intents=intents, log_lock=log_lock)
-            tree = discord.app_commands.CommandTree(current_bot)
-            current_bot.tree = tree
-            current_bot.db = db_pool
+            current_bot = DiscordBot(intents=intents, db=db_pool)
 
-            @tree.error
+            @current_bot.tree.error
             async def on_app_command_error(
                 interact: discord.Interaction,
                 error: discord.app_commands.AppCommandError,
@@ -115,26 +101,15 @@ async def main_manager() -> None:
                     )
                     await interact.response.send_message(embed=embed, ephemeral=True)
                 else:  # other type of error
-                    print(f"Unhandled app command error: {error}")
-
-            await register_main_cmds(tree, db_pool)
-            if lang == Lang.KO:
-                await register_ko_cmds(tree, db_pool)
-            else:
-                await register_sub_cmds(tree, db_pool)
+                    msg = f"Unhandled app command error: {error}"
+                    await save_log(
+                        pool=db_pool, type=LOG_TYPE.err, msg=msg, obj=return_traceback()
+                    )
+                    print(msg)
 
         elif bot_mode == CMD_MAINTENANCE:
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
-            current_bot = MaintanceBot(intents=intents, log_lock=log_lock)
-            tree = discord.app_commands.CommandTree(current_bot)
-            current_bot.tree = tree
-            current_bot.db = db_pool
-
-            await register_maintenance_cmds(tree)
-            if lang == Lang.KO:
-                await register_mt_ko_cmds(tree)
-            else:
-                await register_mt_sub_cmds(tree)
+            current_bot = MaintanceBot(intents=intents, db=db_pool)
 
         else:
             break
@@ -204,7 +179,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print(f"\n{C.yellow}Force Quitted!")  # VAR
     except Exception as e:
-        print(C.red, traceback.format_exc(), sep="")
+        print(C.red, return_traceback(), sep="")
         ERR_COUNT += 1
         print(f"Continuously Error #{ERR_COUNT} >> {e}")
         # if ERR_COUNT > 20:

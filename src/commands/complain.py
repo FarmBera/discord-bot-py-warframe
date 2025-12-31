@@ -103,7 +103,7 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
             # await interact.followup.send(ts.get(f"{pf}done"), ephemeral=True)
 
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.event,
                 cmd="btn.complain.submit",
                 interact=interact,
@@ -115,7 +115,7 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
             await interact.followup.send(ts.get(f"{pf}err"), ephemeral=True)
             print(e)
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.e_event,
                 cmd="btn.complain.submit",
                 interact=interact,
@@ -175,7 +175,7 @@ async def cmd_create_complain_helper(interact: discord.Interaction) -> None:
     if not target_channel:
         await interact.followup.send(ts.get(f"{pf}err-channel"), ephemeral=True)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type="cmd",
             cmd=f"cmd.complain",
             interact=interact,
@@ -189,7 +189,7 @@ async def cmd_create_complain_helper(interact: discord.Interaction) -> None:
         ephemeral=True,
     )
     await save_log(
-        lock=interact.client.log_lock,
+        pool=interact.client.db,
         type="cmd",
         cmd=f"cmd.complain",
         interact=interact,

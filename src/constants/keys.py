@@ -1,7 +1,7 @@
 from config.config import language as lang
 
 # commands cooldown time (sec)
-CDN: float = 3.0
+CDN: float = 1.0
 COOLDOWN_DEFAULT: float = 10.0
 COOLDOWN_CREATE: float = 60.0
 COOLDOWN_BTN_ACTION: float = 15.0  # btn join/leave

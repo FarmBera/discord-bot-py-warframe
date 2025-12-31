@@ -252,6 +252,10 @@ cmd:
   market-search:
     cmd: market-search
     desc: Search specific item in 'Warframe Market' and shows its sell price
+    arg-item-name: "item_name"
+    desc-item-name: "검색할 아이템의 이름을 입력하세요."
+    arg-item-rank: "item_rank"
+    desc-item-rank: "아이템의 랭크를 입력하세요."
 
     no-result: "## No Search Result"
     server-err: |
@@ -292,11 +296,19 @@ cmd:
     # basic commands
     cmd: create-party
     desc: "Creates a new party listing."
-
+    # args & desc
+    arg-title: title
+    arg-date-placeholder: departure_date
+    arg-miss-types: game_to_play
+    arg-descript: party_description
+    arg-nou: number_of_user
     desc-title: Party Title
-    desc-miss-types: Game Name
-    desc-descript: "[Optional] Detailed description for the recruitment post"
+    desc-miss-types: Game Name to play together
+    desc-departure: "예) 미정, 내일 오후 3시, 다음주 토요일 15시, 23일 17시 등"
+    desc-descript: "[Optional] Detailed Description of the Recruitment Post"
     desc-nou: "[Optional] Max party size (including yourself)"
+
+    c-no-desc: (no description)
 
     err: Unknown Error. Please contact the admin."
     # PartyEditModal
@@ -311,6 +323,11 @@ cmd:
     size-err-low: "Please enter a number between {min} and {max}."
     size-err-high: "Party size cannot exceed {max} members."
     size-err-high-1: "The max size cannot be less than the current number of members ({size})."
+    # PartyDateEditModal
+    date-btn: "Change Dep."
+    date-title: Modify Departure Time & Date
+    date-input: Please enter the date and time you wish to change.
+    date-placeholder: "예) 미정, 내일 오후 3시, 다음주 토요일 15시, 23일 17시 등"
     # ConfirmDeleteView
     del-btny: Yes (Continue)
     del-btnn: No (Cancel)
@@ -386,6 +403,8 @@ cmd:
     pb-host: Host
     pb-player-count: Members
     pb-player-joined: Current Members
+    pb-departure: Departure
+    pb-departure-none: TBD
     pb-mission: Game
     pb-desc: "> Copy whisper command"
     pb-pid: Party ID
@@ -419,6 +438,13 @@ cmd:
     quantity: "Quantity"
     price: "[Optional] Price Per Unit (If not entered, it will be automatically set based on the market price.)"
     auto-price-info: "If you do not enter a price, it will be automatically set based on the market price."
+    # cmd rename
+    arg-trade-type: trade_type
+    arg-item-name: item_name
+    arg-item-rank: item_rank
+    arg-nickname: warframe_nickname
+    arg-price: price
+    arg-qty: quantity
     # cmd describe
     desc-trade-type: "Trade post type (Sell / Buy)"
     desc-item-name: "Name of the item to trade"
@@ -426,6 +452,8 @@ cmd:
     desc-nickname: "Your Warframe nickname. Please enter it correctly."
     desc-price: "[Optional] Price per item"
     desc-qty: "[Optional] Item Quantity. (Default: 1)"
+
+    rank-label: rank
 
     # embed content
     creator: "Creator"
@@ -446,6 +474,7 @@ cmd:
     btn-trade: "Make Offer"
     btn-edit-qty: "Edit Quantity"
     btn-edit-price: "Edit Price"
+    btn-edit-rank: Edit Rank
     btn-edit-nickname: "Edit Nickname"
     btn-close: "Close Trade"
     del-btny: Yes (Close trade)
@@ -478,6 +507,8 @@ cmd:
     edit-qty-label: "Please enter the quantity as a number."
     edit-price-title: "Edit Price"
     edit-price-label: "Please enter the price per unit as a number."
+    edit-rank-title: Edit Item Rank
+    edit-rank-label: Rank value to edit (Number)
     edit-nick-title: "Edit Nickname"
     edit-nick-label: "Please enter the correct nickname to change to."
 
@@ -499,6 +530,7 @@ cmd:
       Did you enter a non-numeric value?
 
       If the error persists, please contact the administrator.
+    err-no-rank-item: This item doesn't have a rank.
 
   duviri-circuit:
     wf-cmd: circuit-warfrmae
