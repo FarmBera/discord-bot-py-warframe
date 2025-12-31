@@ -71,7 +71,7 @@ def categorize(result, rank: int) -> list:
                 continue
             if item["type"] != "sell":
                 continue
-            if not item["rank"] == rank:
+            if item["rank"] != rank:
                 continue
             # print(item["rank"], rank, item["platinum"])
             ingame_orders.append(item)

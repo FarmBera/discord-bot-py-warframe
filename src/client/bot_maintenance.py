@@ -22,6 +22,7 @@ class MaintanceBot(discord.Client):
     async def setup_hook(self) -> None:
         self.add_view(PartyView())
         self.add_view(TradeView())
+        await self.load_extension(f"src.cogs.maintenance")
         print(
             f"{C.magenta}Persistent Views successfully registered for maintenance mode.{C.default}"
         )

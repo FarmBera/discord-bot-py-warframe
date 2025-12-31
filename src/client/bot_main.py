@@ -1,5 +1,6 @@
 import discord
 from discord.ext import tasks
+from discord.ext import commands
 import datetime as dt
 import os
 import requests
@@ -11,6 +12,7 @@ from config.TOKEN import WF_JSON_PATH
 from config.config import Lang, language as lang, LOG_TYPE
 from config.roles import ROLES
 from src.translator import ts
+from src.bot_translator import BotTranslator
 from src.utils.times import KST, alert_times, timeNowDT
 from src.constants.color import C
 from src.constants.keys import (
@@ -61,27 +63,34 @@ from src.parser.duviriRotation import (
     setDuvIncarnon,
 )
 
-from src.commands.party import PartyView, build_party_embed_from_db
-from src.commands.trade import TradeView, build_trade_embed_from_db
+from src.views.party_view import PartyView, build_party_embed_from_db
+from src.views.trade_view import TradeView, build_trade_embed_from_db
 from src.commands.noti_channel import DB_COLUMN_MAP, PROFILE_CONFIG
 
 
-class DiscordBot(discord.Client):
+class DiscordBot(commands.Bot):
     def __init__(self, *, intents: discord.Intents, log_lock: asyncio.Lock, **options):
-        super().__init__(intents=intents, **options)
-        self.tree = None
+        super().__init__(command_prefix="!", intents=intents, **options)
         self.db = None
         self.log_lock = log_lock
 
-    async def setup_hooks(self) -> None:
+    async def setup_hook(self) -> None:
         self.add_view(PartyView())
         self.add_view(TradeView())
         print(
             f"{C.blue}[{LOG_TYPE.info}] {C.green}Persistent Views successfully registered.{C.default}"
         )
+        # load translator
+        await self.tree.set_translator(BotTranslator())
+        # load cogs
+        cog_ext = ["register", "party", "trade"]
+        for ext in cog_ext:
+            try:
+                await self.load_extension(f"src.cogs.{ext}")
+            except Exception as e:
+                print(f"{C.red}Failed to load extension {ext}: {e}{C.default}")
 
     async def on_ready(self) -> None:
-        await self.setup_hooks()
         print(
             f"{C.blue}[{LOG_TYPE.info}] {C.yellow}{ts.get('start.sync')}...{C.default}",
             end="",
