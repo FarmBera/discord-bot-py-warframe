@@ -32,6 +32,13 @@ async def isPartyExist(interact: discord.Interaction, party):
         color=discord.Color.red(),
     )
     await interact.response.send_message(embed=embed, ephemeral=True)
+    await save_log(
+        pool=interact.client.db,
+        type="err",
+        cmd="btn",
+        msg="party not found from db",
+        interact=interact,
+    )
     return False
 
 
@@ -70,8 +77,7 @@ async def build_party_embed(
             else ts.get(f"{pf}pb-departure-none")
         )
 
-    description = f"""{warn_desc}
-### {data['title']} {status_text}
+    description = f"""{warn_desc}### {data['title']} {status_text}
 - **{ts.get(f'{pf}pb-departure')}:** {time_output}
 - **{ts.get(f'{pf}pb-host')}:** {data['host_mention']}
 - **{ts.get(f'{pf}pb-player-count')}:** {len(data['participants'])} / {data['max_users']}
@@ -283,13 +289,45 @@ class ConfirmJoinLeaveView(ui.View):
     def __init__(
         self, action, db_pool, party_id, user_id, user_mention, original_message
     ):
-        super().__init__(timeout=60)
+        super().__init__(timeout=20)
         self.action = action
         self.db_pool = db_pool
         self.party_id = party_id
         self.user_id = user_id
         self.user_mention = user_mention
         self.original_message = original_message
+
+    async def on_timeout(self):
+        cmd = "PartyView.btn.confirm.join/leave"
+        try:
+            await self.interact.edit_original_response(
+                content=ts.get(f"err-timeout"), view=None
+            )
+            await save_log(
+                pool=self.interact.client.db,
+                type=LOG_TYPE.event,
+                cmd=cmd,
+                interact=self.interact,
+                msg=f"PartyView.ConfirmJoinLeaveView -> timeout",
+            )
+        except discord.NotFound:
+            await save_log(
+                pool=self.interact.client.db,
+                type=LOG_TYPE.warn,
+                cmd=cmd,
+                interact=self.interact,
+                msg=f"PartyView.ConfirmJoinLeaveView -> timeout, but Not Found",
+                obj=return_traceback(),
+            )
+        except Exception:
+            await save_log(
+                pool=self.interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=cmd,
+                interact=self.interact,
+                msg=f"PartyView.ConfirmJoinLeaveView -> timeout, but ERR",
+                obj=return_traceback(),
+            )
 
     @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.success)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
@@ -312,12 +350,19 @@ class ConfirmJoinLeaveView(ui.View):
                 await interact.response.edit_message(
                     content=ts.get(f"{pf}pv-joined"), view=None
                 )
+                host_warn_count = await PartyService.get_host_warning_count(
+                    interact.client.db, interact.user.id
+                )
                 # TODO: random join message
                 rint = 1
                 await self.original_message.channel.send(
                     ts.get(f"{pf}pc-joined{rint}").format(
                         host=self.user_mention, user=interact.user.mention
                     )
+                    # user warn msg
+                    + ts.get(f"cmd.warning-count").format(count=host_warn_count)
+                    if host_warn_count >= 1
+                    else ""
                 )
             elif self.action == "leave":
                 await save_log(
@@ -378,10 +423,43 @@ class ConfirmJoinLeaveView(ui.View):
 
 
 class ConfirmDeleteView(ui.View):
-    def __init__(self, origin_msg_id, party_view):
-        super().__init__(timeout=60)
+    def __init__(self, interact: discord.Interaction, origin_msg_id, party_view):
+        super().__init__(timeout=20)
+        self.interact = interact
         self.msgid = origin_msg_id
         self.party_view = party_view
+        self.value = None
+
+    async def on_timeout(self):
+        cmd = "PartyView.btn.confirm.delete"
+        try:
+            await self.interact.edit_original_response(
+                content=ts.get(f"err-timeout"), view=None
+            )
+            await save_log(
+                pool=self.interact.client.db,
+                type=LOG_TYPE.event,
+                cmd=cmd,
+                interact=self.interact,
+                msg=f"PartyView.ConfirmDeleteView -> timeout",
+            )
+        except discord.NotFound:
+            await save_log(
+                pool=self.interact.client.db,
+                type=LOG_TYPE.event,
+                cmd=cmd,
+                interact=self.interact,
+                msg=f"PartyView.ConfirmDeleteView -> timeout, but Not Found",
+            )
+        except Exception:
+            await save_log(
+                pool=self.interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=cmd,
+                interact=self.interact,
+                msg=f"PartyView.ConfirmDeleteView -> timeout, but ERR",
+                obj=return_traceback(),
+            )
 
     @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.danger)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
@@ -495,7 +573,7 @@ class KickMemberSelect(ui.Select):
 
         await interact.response.send_message(
             ts.get(f"{pf}pv-kick-success").format(name=f"<@{target_id}>"),
-            ephemeral=True,
+            ephemeral=False,
         )
 
         await save_log(
@@ -554,10 +632,11 @@ class PartyView(ui.View):
         check_host=False,
         check_joined=False,
         check_not_joined=False,
+        cmd: str = "",
     ):
         user_id = interact.user.id
         is_host: bool = user_id == party_data["host_id"]
-        is_admin: bool = await is_admin_user(interact, notify=False)
+        is_admin: bool = await is_admin_user(interact, notify=False, cmd=cmd)
         is_participant = any(p["user_id"] == user_id for p in participants)
 
         if check_host and not is_host:
@@ -585,10 +664,11 @@ class PartyView(ui.View):
         custom_id="party_join",
     )
     async def join_party(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.join"
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
-            cmd="btn.main.join",
+            cmd=cmd,
             interact=interact,
             msg=f"PartyView -> join_party",
         )
@@ -600,7 +680,7 @@ class PartyView(ui.View):
             return
 
         if not await self.check_permissions(
-            interact, party, participants, check_not_joined=True
+            interact, party, participants, check_not_joined=True, cmd=cmd
         ):
             return
 
@@ -635,10 +715,11 @@ class PartyView(ui.View):
         custom_id="party_leave",
     )
     async def leave_party(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.leave"
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
-            cmd="btn.main.leave",
+            cmd=cmd,
             interact=interact,
             msg=f"PartyView -> leave_party",
         )
@@ -656,7 +737,7 @@ class PartyView(ui.View):
             return
 
         if not await self.check_permissions(
-            interact, party, participants, check_joined=True
+            interact, party, participants, check_joined=True, cmd=cmd
         ):
             return
 
@@ -678,11 +759,19 @@ class PartyView(ui.View):
         custom_id="party_edit_size",
     )
     async def edit_size(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.edit-size"
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd=cmd,
+            interact=interact,
+            msg=f"PartyView -> edit_size",
+        )
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
         if not await self.check_permissions(
-            interact, party, participants, check_host=True
+            interact, party, participants, check_host=True, cmd=cmd
         ):
             return
         await interact.response.send_modal(PartySizeModal(party["max_users"]))
@@ -693,6 +782,14 @@ class PartyView(ui.View):
         custom_id="party_edit_content",
     )
     async def edit_content(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.edit-content"
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd=cmd,
+            interact=interact,
+            msg=f"PartyView -> edit_content",
+        )
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -700,7 +797,7 @@ class PartyView(ui.View):
             return
 
         if not await self.check_permissions(
-            interact, party, participants, check_host=True
+            interact, party, participants, check_host=True, cmd=cmd
         ):
             return
         await interact.response.send_modal(
@@ -713,6 +810,14 @@ class PartyView(ui.View):
         custom_id="party_edit_departure",
     )
     async def edit_departure(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.edit-departure"
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd=cmd,
+            interact=interact,
+            msg=f"PartyView -> edit_departure",
+        )
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -720,7 +825,7 @@ class PartyView(ui.View):
             return
 
         if not await self.check_permissions(
-            interact, party, participants, check_host=True
+            interact, party, participants, check_host=True, cmd=cmd
         ):
             return
         await interact.response.send_modal(PartyDateEditModal())
@@ -731,6 +836,14 @@ class PartyView(ui.View):
         custom_id="party_toggle_close",
     )
     async def toggle_close(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.togle-close"
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd=cmd,
+            interact=interact,
+            msg=f"PartyView -> toggle_close",
+        )
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -738,7 +851,7 @@ class PartyView(ui.View):
             return
 
         if not await self.check_permissions(
-            interact, party, participants, check_host=True
+            interact, party, participants, check_host=True, cmd=cmd
         ):
             return
 
@@ -769,6 +882,15 @@ class PartyView(ui.View):
         custom_id="party_call_members",
     )
     async def call_members(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.member-call"
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd=cmd,
+            interact=interact,
+            msg=f"PartyView -> call_members",
+        )
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -776,7 +898,7 @@ class PartyView(ui.View):
             return
 
         if not await self.check_permissions(
-            interact, party, participants, check_host=True
+            interact, party, participants, check_host=True, cmd=cmd
         ):
             return
 
@@ -799,6 +921,14 @@ class PartyView(ui.View):
         custom_id="party_kick_member",
     )
     async def kick_member(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.member-kick"
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd=cmd,
+            interact=interact,
+            msg=f"PartyView -> kick_member",
+        )
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -806,7 +936,7 @@ class PartyView(ui.View):
             return
 
         if not await self.check_permissions(
-            interact, party, participants, check_host=True
+            interact, party, participants, check_host=True, cmd=cmd
         ):
             return
 
@@ -829,6 +959,15 @@ class PartyView(ui.View):
         custom_id="party_delete",
     )
     async def delete_party(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.delete-party"
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd=cmd,
+            interact=interact,
+            msg=f"PartyView -> delete_party",
+        )
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -836,12 +975,13 @@ class PartyView(ui.View):
             return
 
         if not await self.check_permissions(
-            interact, party, participants, check_host=True
+            interact, party, participants, check_host=True, cmd=cmd
         ):
             return
 
+        view = ConfirmDeleteView(interact, interact.message.id, self)
         await interact.response.send_message(
             ts.get(f"{pf}pv-del-confirm"),
-            view=ConfirmDeleteView(interact.message.id, self),
+            view=view,
             ephemeral=True,
         )

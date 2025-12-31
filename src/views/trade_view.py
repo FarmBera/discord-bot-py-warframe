@@ -33,7 +33,7 @@ def revTradeType(trade_type: str) -> str:
     )
 
 
-async def isTradeExists(interact: discord.Interaction, trade) -> bool:
+async def isTradeExists(interact: discord.Interaction, trade, cmd: str = "") -> bool:
     if trade:
         return True
 
@@ -42,6 +42,13 @@ async def isTradeExists(interact: discord.Interaction, trade) -> bool:
             description=ts.get(f"{pf}err-not-found"), color=discord.Color.red()
         ),
         ephemeral=True,
+    )
+    await save_log(
+        pool=interact.client.db,
+        type=LOG_TYPE.err,
+        cmd="btn",
+        msg="trade not found from db",
+        interact=interact,
     )
     return False
 
@@ -267,11 +274,46 @@ class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
 
 # ----------------- Views -----------------
 class ConfirmDeleteView(ui.View):
-    def __init__(self, origin_msg_id, trade_data, trade_view):
-        super().__init__(timeout=60)
+    def __init__(
+        self, interact: discord.Interaction, origin_msg_id, trade_data, trade_view
+    ):
+        super().__init__(timeout=20)
+        self.interact = interact
         self.msgid = origin_msg_id
         self.data = trade_data
         self.party_view = trade_view
+        self.value = None
+
+    async def on_timeout(self):
+        cmd = "btn.confirm.delete"
+        try:
+            await self.interact.edit_original_response(
+                content=ts.get(f"err-timeout"), view=None
+            )
+            await save_log(
+                pool=self.interact.client.db,
+                type=LOG_TYPE.event,
+                cmd=cmd,
+                interact=self.interact,
+                msg=f"TradeView.ConfirmDeleteView -> timeout",
+            )
+        except discord.NotFound:
+            await save_log(
+                pool=self.interact.client.db,
+                type=LOG_TYPE.event,
+                cmd=cmd,
+                interact=self.interact,
+                msg=f"TradeView.ConfirmDeleteView -> timeout, but Not Found",
+            )
+        except Exception:
+            await save_log(
+                pool=self.interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=cmd,
+                interact=self.interact,
+                msg=f"TradeView.ConfirmDeleteView -> timeout, but ERR",
+                obj=return_traceback(),
+            )
 
     @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.danger)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
@@ -346,7 +388,7 @@ class ConfirmDeleteView(ui.View):
 
 class ConfirmTradeView(ui.View):
     def __init__(self, db_pool, trade_id, original_message):
-        super().__init__(timeout=60)
+        super().__init__(timeout=20)
         self.db_pool = db_pool
         self.trade_id = trade_id
         self.original_message = original_message
@@ -376,9 +418,7 @@ class ConfirmTradeView(ui.View):
             req_text += ts.get(f"{pf}trade-request").format(
                 host_mention=f"<@{trade_info['host_id']}>",
                 user_mention=interact.user.mention,
-                user=parseNickname(
-                    interact.user.display_name
-                ),  # TODO: 닉네임 호출 기능
+                user=parseNickname(interact.user.display_name),
                 price=trade_info["price"],
                 type=revTradeType(trade_info["trade_type"]),
             )
@@ -440,12 +480,11 @@ class TradeView(ui.View):
             return True
         return False
 
-    # TODO: verify
-    async def check_permissions(self, interact, trade_data, check_host=False):
-        if check_host:
-            is_host = interact.user.id == trade_data["host_id"]
-            is_admin = await is_admin_user(interact, notify=False)
-            if not (is_host or is_admin):
+    async def check_permissions(self, interact, trade_data, cmd: str = ""):
+        is_host = interact.user.id == trade_data["host_id"]
+        is_admin = await is_admin_user(interact, notify=False, cmd=cmd)
+        if not is_host:
+            if not is_admin:
                 await interact.response.send_message(
                     ts.get(f"{pf}err-only-host"), ephemeral=True
                 )
@@ -486,13 +525,6 @@ class TradeView(ui.View):
             ts.get(f"{pf}confirm-trade"), view=view, ephemeral=True
         )
 
-        # TODO: test still working
-        timed_out = await view.wait()
-        if timed_out and view.value is None:
-            await interact.edit_original_response(
-                content=ts.get(f"{pf}err-timeout"), view=None
-            )
-
     # btn edit qty
     @ui.button(
         label=ts.get(f"{pf}btn-edit-qty"),
@@ -500,10 +532,11 @@ class TradeView(ui.View):
         custom_id="trade_btn_edit_qty",
     )
     async def edit_quantity(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "TradeView.btn.edit-quantity"
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
-            cmd="btn.main.edit-quantity",
+            cmd=cmd,
             interact=interact,
             msg=f"TradeView -> edit_quantity",
         )
@@ -516,7 +549,7 @@ class TradeView(ui.View):
         if not await isTradeExists(interact, trade_data):
             return
 
-        if not await self.check_permissions(interact, trade_data, check_host=True):
+        if not await self.check_permissions(interact, trade_data, cmd):
             return
 
         await interact.response.send_modal(
@@ -530,12 +563,13 @@ class TradeView(ui.View):
         custom_id="trade_btn_edit_price",
     )
     async def edit_price(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "TradeView.btn.edit-price"
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
-            cmd="btn.main.edit-price",
+            cmd=cmd,
             interact=interact,
-            msg=f"TradeView -> edit_price",
+            msg=f" -> edit_price",
         )
 
         if await self.is_cooldown(interact, self.cooldown_manage):
@@ -544,10 +578,10 @@ class TradeView(ui.View):
         trade_data = await TradeService.get_trade_by_message_id(
             interact.client.db, interact.message.id
         )
-        if not await isTradeExists(interact, trade_data):
+        if not await isTradeExists(interact, trade_data, cmd):
             return
 
-        if not await self.check_permissions(interact, trade_data, check_host=True):
+        if not await self.check_permissions(interact, trade_data, cmd):
             return
 
         await interact.response.send_modal(
@@ -561,12 +595,13 @@ class TradeView(ui.View):
         custom_id="trade_btn_edit_nick",
     )
     async def edit_nickname(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "TradeView.btn.edit-nickname"
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
-            cmd="btn.main.edit-price",
+            cmd=cmd,
             interact=interact,
-            msg=f"TradeView -> edit_price",
+            msg=f" -> edit_price",
         )
 
         if await self.is_cooldown(interact, self.cooldown_manage):
@@ -578,7 +613,10 @@ class TradeView(ui.View):
         if not await isTradeExists(interact, trade_data):
             return
 
-        if not await self.check_permissions(interact, trade_data, check_host=True):
+        if not await is_admin_user(interact, notify=False, cmd=cmd):
+            await interact.response.send_message(
+                ts.get(f"general.unable"), ephemeral=True
+            )
             return
 
         await interact.response.send_modal(
@@ -592,10 +630,11 @@ class TradeView(ui.View):
         custom_id="trade_btn_edit_close",
     )
     async def close_trade(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "TradeView.btn.trade.toggle_close_party"
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
-            cmd="btn.trade.toggle_close_party",
+            cmd=cmd,
             interact=interact,
             msg=f"TradeView -> close_trade",
             # obj=new_status,
@@ -612,10 +651,10 @@ class TradeView(ui.View):
 
         trade_data["host_mention"] = f"<@{trade_data['host_id']}>"
 
-        if not await self.check_permissions(interact, trade_data, check_host=True):
+        if not await self.check_permissions(interact, trade_data, cmd):
             return
 
-        view = ConfirmDeleteView(interact.message.id, trade_data, self)
+        view = ConfirmDeleteView(interact, interact.message.id, trade_data, self)
         await interact.response.send_message(
             ts.get(f"{pf}confirm-delete"), view=view, ephemeral=True
         )

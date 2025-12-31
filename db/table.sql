@@ -172,7 +172,6 @@ CREATE TABLE
     IF NOT EXISTS log_detail (
         log_id INT PRIMARY KEY,
         content MEDIUMTEXT,
-        traceback MEDIUMTEXT,
         FOREIGN KEY (log_id) REFERENCES `logs` (id) ON DELETE CASCADE
     ) DEFAULT CHARACTER
 SET

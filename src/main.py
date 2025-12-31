@@ -7,11 +7,13 @@ import aiomysql
 # log_lock = asyncio.Lock()
 
 from config.TOKEN import TOKEN as BOT_TOKEN, DB_USER, DB_PW, DB_HOST, DB_PORT, DB_NAME
+from config.config import LOG_TYPE
 from src.constants.color import C
 from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
 from src.utils.return_err import return_traceback, print_test_err
+from src.utils.logging_utils import save_log
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
 
@@ -72,7 +74,7 @@ async def main_manager() -> None:
         print(f"{C.green}Connected to MariaDB Platform via aiomysql{C.default}")
     except Exception:
         print(
-            f"{C.yellow}Error connecting to MariaDB Platform\n{C.red}\n{return_traceback()}"
+            f"{C.red}Error connecting to MariaDB Platform\n{C.red}\n{return_traceback()}"
         )
         sys.exit(1)
 
@@ -99,7 +101,11 @@ async def main_manager() -> None:
                     )
                     await interact.response.send_message(embed=embed, ephemeral=True)
                 else:  # other type of error
-                    print(f"Unhandled app command error: {error}")
+                    msg = f"Unhandled app command error: {error}"
+                    await save_log(
+                        pool=db_pool, type=LOG_TYPE.err, msg=msg, obj=return_traceback()
+                    )
+                    print(msg)
 
         elif bot_mode == CMD_MAINTENANCE:
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
