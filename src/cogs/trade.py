@@ -88,6 +88,11 @@ class TradeCog(commands.Cog):
         final_nickname = parseNickname(interact.user.display_name)
         # game_nickname if game_nickname else parseNickname(interact.user.display_name)
 
+        isRankItem = True if market_data[0].get("rank") is not None else False
+
+        if not isRankItem:
+            item_rank = -1
+
         # save to db
         try:
             trade_id = await TradeService.create_trade(
@@ -106,8 +111,6 @@ class TradeCog(commands.Cog):
 
         # create embed & thread
         try:
-            isRankItem = True if market_data[0].get("rank") is not None else False
-
             webhooks = await target_channel.webhooks()
             webhook = discord.utils.get(webhooks, name=LFG_WEBHOOK_NAME)
             if not webhook:

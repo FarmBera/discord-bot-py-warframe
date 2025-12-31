@@ -66,7 +66,8 @@ async def build_trade_embed(
         description += ts.get(f"cmd.warning-count").format(count=host_warn_count)
 
     description += f"### [{data['trade_type']}] {data['item_name']}"
-    if isRank:
+    # [수정] isRank가 True여도 데이터가 -1이면 표시하지 않음 (이중 체크)
+    if isRank and data.get("item_rank") != -1:
         description += f" ({ts.get(f'{pf}rank-simple').format(rank=data['item_rank'])})"
 
     color = 0x00FF00 if not isDelete else 0xFF0000
@@ -77,11 +78,8 @@ async def build_trade_embed(
 - **{ts.get(f'{pf}price-per')}:** `{data['price']:,} {ts.get(f'{pf}platinum')}` (총합 {data['price'] * data['quantity']:,} 플레)
 - **{ts.get(f'{pf}quantity')}:** `{data['quantity']:,}` 개
 """
-    rank_str = (
-        f" ({data['item_rank']} {ts.get(f'{pf}rank-label')})"
-        if data.get("item_rank") and int(data.get("item_rank")) not in [0, 1]
-        else ""
-    )
+    rank_val = int(data.get("item_rank", -1))
+    rank_str = f" ({rank_val} {ts.get(f'{pf}rank-label')})" if rank_val > -1 else ""
 
     if not isDelete:
         description += f"""
@@ -127,7 +125,8 @@ async def build_trade_embed_from_db(
         },
         db_pool,
         isDelete=isDelete,
-        isRank=(trade_data["item_rank"] is not None),
+        isRank=(trade_data["item_rank"] > -1),
+        # isRank=(trade_data["item_rank"] is not None),
     )
 
 
@@ -269,6 +268,58 @@ class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
                 interact=interact,
                 msg=f"EditPriceModal -> Submit, but ERR",
                 obj=f"{self.price_input.value}\n{return_traceback()}",
+            )
+
+
+class EditRankModal(ui.Modal, title=ts.get(f"{pf}edit-rank-title")):
+    def __init__(self, current_rank: int, db_pool):
+        super().__init__(timeout=None)
+        self.db_pool = db_pool
+        default_val = str(current_rank) if current_rank is not None else "0"
+
+        self.rank_input = ui.TextInput(
+            label=ts.get(f"{pf}edit-rank-label"),
+            default=default_val,
+            required=True,
+            max_length=2,
+            placeholder="0",
+        )
+        self.add_item(self.rank_input)
+
+    async def on_submit(self, interact: discord.Interaction):
+        if not self.rank_input.value.isdigit() or int(self.rank_input.value) < 0:
+            await interact.response.send_message(
+                ts.get(f"{pf}err-invalid-value"), ephemeral=True
+            )
+            return
+
+        try:
+            await TradeService.update_item_rank(
+                self.db_pool, interact.message.id, int(self.rank_input.value)
+            )
+            new_embed = await build_trade_embed_from_db(
+                interact.message.id, self.db_pool
+            )
+            await interact.response.edit_message(embed=new_embed)
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.event,
+                cmd="btn.edit.rank",
+                interact=interact,
+                msg=f"EditRankModal -> Submit",
+                obj=self.rank_input.value,
+            )
+        except Exception:
+            await interact.response.send_message(
+                ts.get(f"{pf}err-edit"), ephemeral=True
+            )
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.e_event,
+                cmd="btn.edit.rank",
+                interact=interact,
+                msg=f"EditRankModal -> Submit, but ERR",
+                obj=f"{self.rank_input.value}\n{return_traceback()}",
             )
 
 
@@ -586,6 +637,46 @@ class TradeView(ui.View):
 
         await interact.response.send_modal(
             EditPriceModal(trade_data["price"], interact.client.db)
+        )
+
+    # btn edit rank
+    @ui.button(
+        label=ts.get(f"{pf}btn-edit-rank"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="trade_btn_edit_rank",
+        # row=1,
+    )
+    async def edit_rank(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "TradeView.btn.edit-rank"
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd=cmd,
+            interact=interact,
+            msg=f" -> edit_rank",
+        )
+
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        trade_data = await TradeService.get_trade_by_message_id(
+            interact.client.db, interact.message.id
+        )
+        if not await isTradeExists(interact, trade_data, cmd):
+            return
+
+        if not await self.check_permissions(interact, trade_data, cmd):
+            return
+
+        # check rank
+        if trade_data.get("item_rank") <= -1:
+            await interact.response.send_message(
+                ts.get(f"{pf}err-no-rank-item"), ephemeral=True
+            )
+            return
+
+        await interact.response.send_modal(
+            EditRankModal(trade_data["item_rank"], interact.client.db)
         )
 
     # edit nickname

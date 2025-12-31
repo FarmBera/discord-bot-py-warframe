@@ -83,6 +83,14 @@ class TradeService:
             )
 
     @staticmethod
+    async def update_item_rank(pool, message_id, new_rank):
+        async with transaction(pool) as cursor:
+            await cursor.execute(
+                "UPDATE trade SET item_rank = %s WHERE message_id = %s",
+                (new_rank, message_id),
+            )
+
+    @staticmethod
     async def delete_trade(pool, thread_id):
         async with transaction(pool) as cursor:
             await cursor.execute("DELETE FROM trade WHERE thread_id = %s", (thread_id,))

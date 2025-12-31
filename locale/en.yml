@@ -474,6 +474,7 @@ cmd:
     btn-trade: "Make Offer"
     btn-edit-qty: "Edit Quantity"
     btn-edit-price: "Edit Price"
+    btn-edit-rank: Edit Rank
     btn-edit-nickname: "Edit Nickname"
     btn-close: "Close Trade"
     del-btny: Yes (Close trade)
@@ -506,6 +507,8 @@ cmd:
     edit-qty-label: "Please enter the quantity as a number."
     edit-price-title: "Edit Price"
     edit-price-label: "Please enter the price per unit as a number."
+    edit-rank-title: Edit Item Rank
+    edit-rank-label: Rank value to edit (Number)
     edit-nick-title: "Edit Nickname"
     edit-nick-label: "Please enter the correct nickname to change to."
 
@@ -527,6 +530,7 @@ cmd:
       Did you enter a non-numeric value?
 
       If the error persists, please contact the administrator.
+    err-no-rank-item: This item doesn't have a rank.
 
   duviri-circuit:
     wf-cmd: circuit-warfrmae

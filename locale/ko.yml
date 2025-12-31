@@ -471,11 +471,12 @@ cmd:
     closed: "거래 글 닫기"
 
     # buttons
-    btn-trade: "거래 요청"
-    btn-edit-qty: "수량 변경"
-    btn-edit-price: "가격 수정"
-    btn-edit-nickname: "닉네임 변경"
-    btn-close: "거래 종료"
+    btn-trade: 거래 요청
+    btn-edit-qty: 수량 변경
+    btn-edit-price: 가격 수정
+    btn-edit-rank: 랭크 수정
+    btn-edit-nickname: 닉네임 변경
+    btn-close: 거래 종료
     del-btny: Yes (종료하기)
     del-btnn: No (취소)
     # ConfirmTradeView
@@ -506,8 +507,10 @@ cmd:
     edit-qty-label: "수량을 숫자로 입력해주세요."
     edit-price-title: "가격 수정"
     edit-price-label: "개당 가격을 숫자로 입력해주세요."
+    edit-rank-title: 아이템 랭크 수정
+    edit-rank-label: 변경할 랭크 (숫자)
     edit-nick-title: "수정 할 워프레임 닉네임\n(정확하게 입력해주세요)"
-    edit-nick-label: "입력한 닉네임은 귓속말 및 파티초대 명령어 복사 기능을 이용할 때 이용됩니다."
+    edit-nick-label: "입력한 닉네은 귓속말 및 파티초대 명령어 복사 기능을 이용할 때 이용됩니다."
 
     # errors
     err-type: "올바르지 않은 거래 종류입니다! --> {type}\n\n{list} 중 하나만 사용할 수 있어요"
@@ -527,6 +530,7 @@ cmd:
       숫자가 아닌 값을 입력하셨나요?
 
       오류가 지속된다면 개발자에게 문의해주세요.
+    err-no-rank-item: 이 아이템은 랭크가 없습니다.
 
   duviri-circuit:
     wf-cmd: 순환로-워프레임
