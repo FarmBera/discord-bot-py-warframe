@@ -13,11 +13,9 @@ from src.commands.cmd_maintenance import PartyView, TradeView
 
 
 class MaintanceBot(discord.Client):
-    def __init__(self, *, intents: discord.Intents, log_lock: asyncio.Lock, **options):
+    def __init__(self, *, intents: discord.Intents, db, **options):
         super().__init__(intents=intents, **options)
-        self.tree = None
-        self.db = None
-        self.log_lock = log_lock
+        self.db = db
 
     async def setup_hook(self) -> None:
         self.add_view(PartyView())
@@ -47,7 +45,7 @@ class MaintanceBot(discord.Client):
         print(f"{C.magenta}[info] Bot is on Maintance Mode!{C.default}")
 
         await save_log(
-            lock=self.log_lock,
+            pool=self.db,
             cmd="bot.BOOTED",
             user=MSG_BOT,
             msg="[info] Bot booted up with maintance mode",

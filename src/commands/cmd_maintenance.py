@@ -40,7 +40,7 @@ async def cmd_helper_maintenance(interact: discord.Interaction, arg: str = "") -
         ephemeral=True,
     )
     await save_log(
-        lock=interact.client.log_lock,
+        pool=interact.client.db,
         type=f"{LOG_TYPE.cmd}.{LOG_TYPE.maintenance}",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         interact=interact,
@@ -109,7 +109,7 @@ class PartyView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.join",
             interact=interact,
@@ -133,7 +133,7 @@ class PartyView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.leave",
             interact=interact,
@@ -155,7 +155,7 @@ class PartyView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.edit-size",
             interact=interact,
@@ -179,7 +179,7 @@ class PartyView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.edit-content",
             interact=interact,
@@ -203,7 +203,7 @@ class PartyView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.main.edit_departure",
             interact=interact,
@@ -227,7 +227,7 @@ class PartyView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.toggle_close_party",
             interact=interact,
@@ -251,7 +251,7 @@ class PartyView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.call_members",
             interact=interact,
@@ -275,7 +275,7 @@ class PartyView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.kick_member",
             interact=interact,
@@ -299,7 +299,7 @@ class PartyView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.delete_party",
             interact=interact,
@@ -356,7 +356,7 @@ class TradeView(discord.ui.View):
         await cmd_helper_maintenance(interact)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd=f"btn.trade",
             interact=interact,
@@ -379,7 +379,7 @@ class TradeView(discord.ui.View):
 
         await cmd_helper_maintenance(interact)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.edit-quantity",
             interact=interact,
@@ -402,7 +402,7 @@ class TradeView(discord.ui.View):
 
         await cmd_helper_maintenance(interact)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.edit-price",
             interact=interact,
@@ -425,7 +425,7 @@ class TradeView(discord.ui.View):
 
         await cmd_helper_maintenance(interact)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=etype,
             cmd="btn.main.edit-price",
             interact=interact,
@@ -448,7 +448,7 @@ class TradeView(discord.ui.View):
 
         await cmd_helper_maintenance(interact)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.trade.toggle_close_party",
             interact=interact,

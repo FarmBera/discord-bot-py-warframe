@@ -13,11 +13,11 @@ params_market: dict = {"Language": lang, "Platform": "pc"}
 
 
 # usage for main api
-async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"):
+async def API_Request(pool, res_source: str = "Unknown Source"):
     """API request function for Warframe status
 
     Args:
-        log_lock (asyncio.Lock): Lock for log system. Requred!
+        pool (aiomysql cursor pool)
         res_source (str, optional): code position of the api request. Defaults to "Unknown Source".
 
     Returns:
@@ -36,7 +36,7 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
         obj = f"{elapsed_time}/{e}"
         print(timeNowDT(), C.red, msg, obj, elapsed_time, C.default)
         await save_log(
-            lock=log_lock,
+            pool=pool,
             type="err",
             cmd="send_request()",
             user=MSG_BOT,
@@ -53,7 +53,7 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
         msg = f"[warn] response code is not 200"
         obj = f"{res_code}/{elapsed_time}"
         await save_log(
-            lock=log_lock,
+            pool=pool,
             type="err",
             cmd="API_REQUEST()",
             user=MSG_BOT,
@@ -71,7 +71,7 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
         obj = f"{res_code}/{elapsed_time}/{response}"
         print(timeNowDT(), C.red, msg, res_code, elapsed_time, C.default)
         await save_log(
-            lock=log_lock,
+            pool=pool,
             type="api",
             cmd="API_REQUEST()",
             user=MSG_BOT,
@@ -90,7 +90,7 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
         obj = f"{elapsed_time}/{e}"
         print(timeNowDT(), C.red, msg, elapsed_time, C.default)
         await save_log(
-            lock=log_lock,
+            pool=pool,
             type="err",
             cmd="API_REQUEST()",
             user=MSG_BOT,
@@ -102,7 +102,7 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
     msg = f"[info] API request successful. {res_source}"
     # print(C.red, msg, C.default, sep="")
     await save_log(
-        lock=log_lock,
+        pool=pool,
         type="api",
         cmd="API_REQUEST()",
         user=MSG_BOT,
@@ -114,7 +114,7 @@ async def API_Request(log_lock: asyncio.Lock, res_source: str = "Unknown Source"
 
 
 # usage for market api
-async def API_MarketSearch(log_lock: asyncio.Lock, item_name: str):
+async def API_MarketSearch(pool, item_name: str):
     """API request function for warframe.market search
 
     Args:
@@ -139,7 +139,7 @@ async def API_MarketSearch(log_lock: asyncio.Lock, item_name: str):
         msg = f"[err] API request failed! (from API_MarketSearch)"
         print(timeNowDT(), C.yellow, msg, C.red, e, C.default)
         await save_log(
-            lock=log_lock,
+            pool=pool,
             type="api",
             cmd="API_MarketSearch()",
             user=MSG_BOT,

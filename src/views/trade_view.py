@@ -33,6 +33,19 @@ def revTradeType(trade_type: str) -> str:
     )
 
 
+async def isTradeExists(interact: discord.Interaction, trade) -> bool:
+    if trade:
+        return True
+
+    await interact.response.send_message(
+        embed=discord.Embed(
+            description=ts.get(f"{pf}err-not-found"), color=discord.Color.red()
+        ),
+        ephemeral=True,
+    )
+    return False
+
+
 async def build_trade_embed(
     data: dict, db_pool, isDelete: bool = False, isRank: bool = False
 ) -> discord.Embed:
@@ -131,7 +144,7 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
             )
             await interact.response.edit_message(embed=new_embed)
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.event,
                 cmd="btn.edit.nickname",
                 interact=interact,
@@ -142,7 +155,7 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
                 ts.get(f"{pf}err-edit"), ephemeral=True
             )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.e_event,
                 cmd="btn.edit.nickname",
                 interact=interact,
@@ -184,7 +197,7 @@ class EditQuantityModal(ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
             )
             await interact.response.edit_message(embed=new_embed)
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.event,
                 cmd="btn.edit.quantity",
                 interact=interact,
@@ -195,7 +208,7 @@ class EditQuantityModal(ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
                 ts.get(f"{pf}err-edit"), ephemeral=True
             )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.e_event,
                 cmd="btn.edit.quantity",
                 interact=interact,
@@ -231,7 +244,7 @@ class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
             )
             await interact.response.edit_message(embed=new_embed)
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.event,
                 cmd="btn.edit.price",
                 interact=interact,
@@ -243,7 +256,7 @@ class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
                 ts.get(f"{pf}err-edit"), ephemeral=True
             )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.e_event,
                 cmd="btn.edit.price",
                 interact=interact,
@@ -265,7 +278,7 @@ class ConfirmDeleteView(ui.View):
         await interact.response.defer()
         await interact.delete_original_response()
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.confirm.delete",
             interact=interact,
@@ -300,7 +313,7 @@ class ConfirmDeleteView(ui.View):
         except Exception:
             await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.e_event,
                 cmd="btn.confirm.delete",
                 interact=interact,
@@ -308,7 +321,7 @@ class ConfirmDeleteView(ui.View):
                 obj=return_traceback(),
             )
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.confirm.delete",
             interact=interact,
@@ -323,7 +336,7 @@ class ConfirmDeleteView(ui.View):
         self.value = False
         self.stop()
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.confirm.delete.cancel",
             interact=interact,
@@ -344,7 +357,7 @@ class ConfirmTradeView(ui.View):
         await interact.response.defer()
         await interact.delete_original_response()
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.confirm.trade",
             interact=interact,
@@ -375,7 +388,7 @@ class ConfirmTradeView(ui.View):
         except Exception:
             await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.event,
                 cmd="btn.confirm.trade",
                 interact=interact,
@@ -389,7 +402,7 @@ class ConfirmTradeView(ui.View):
         self.value = False
         self.stop()
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.confirm.trade.cancel",
             interact=interact,
@@ -447,7 +460,7 @@ class TradeView(ui.View):
     )
     async def trade_action(self, interact: discord.Interaction, button: ui.Button):
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd=f"btn.trade",
             interact=interact,
@@ -459,10 +472,7 @@ class TradeView(ui.View):
         trade_data = await TradeService.get_trade_by_message_id(
             interact.client.db, interact.message.id
         )
-        if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
+        if not await isTradeExists(interact, trade_data):
             return
 
         if interact.user.id == trade_data["host_id"]:
@@ -491,7 +501,7 @@ class TradeView(ui.View):
     )
     async def edit_quantity(self, interact: discord.Interaction, button: ui.Button):
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.main.edit-quantity",
             interact=interact,
@@ -503,10 +513,7 @@ class TradeView(ui.View):
         trade_data = await TradeService.get_trade_by_message_id(
             interact.client.db, interact.message.id
         )
-        if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
+        if not await isTradeExists(interact, trade_data):
             return
 
         if not await self.check_permissions(interact, trade_data, check_host=True):
@@ -524,7 +531,7 @@ class TradeView(ui.View):
     )
     async def edit_price(self, interact: discord.Interaction, button: ui.Button):
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.main.edit-price",
             interact=interact,
@@ -537,10 +544,7 @@ class TradeView(ui.View):
         trade_data = await TradeService.get_trade_by_message_id(
             interact.client.db, interact.message.id
         )
-        if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
+        if not await isTradeExists(interact, trade_data):
             return
 
         if not await self.check_permissions(interact, trade_data, check_host=True):
@@ -558,7 +562,7 @@ class TradeView(ui.View):
     )
     async def edit_nickname(self, interact: discord.Interaction, button: ui.Button):
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.main.edit-price",
             interact=interact,
@@ -571,10 +575,7 @@ class TradeView(ui.View):
         trade_data = await TradeService.get_trade_by_message_id(
             interact.client.db, interact.message.id
         )
-        if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
+        if not await isTradeExists(interact, trade_data):
             return
 
         if not await self.check_permissions(interact, trade_data, check_host=True):
@@ -592,7 +593,7 @@ class TradeView(ui.View):
     )
     async def close_trade(self, interact: discord.Interaction, button: ui.Button):
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.trade.toggle_close_party",
             interact=interact,
@@ -606,10 +607,7 @@ class TradeView(ui.View):
         trade_data = await TradeService.get_trade_by_message_id(
             interact.client.db, interact.message.id
         )
-        if not trade_data:
-            await interact.response.send_message(
-                ts.get(f"{pf}err-not-found"), ephemeral=True
-            )
+        if not await isTradeExists(interact, trade_data):
             return
 
         trade_data["host_mention"] = f"<@{trade_data['host_id']}>"

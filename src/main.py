@@ -4,7 +4,7 @@ import sys
 import logging
 import aiomysql
 
-log_lock = asyncio.Lock()
+# log_lock = asyncio.Lock()
 
 from config.TOKEN import TOKEN as BOT_TOKEN, DB_USER, DB_PW, DB_HOST, DB_PORT, DB_NAME
 from src.constants.color import C
@@ -66,7 +66,7 @@ async def main_manager() -> None:
             db=DB_NAME,
             autocommit=False,
             minsize=1,
-            maxsize=10,
+            maxsize=20,
             connect_timeout=5,
         )
         print(f"{C.green}Connected to MariaDB Platform via aiomysql{C.default}")
@@ -81,8 +81,7 @@ async def main_manager() -> None:
         intents.message_content = True
         if bot_mode == CMD_MAIN:
             print(f"{C.cyan}[info] Starting Main Bot...{C.default}")  # VAR
-            current_bot = DiscordBot(intents=intents, log_lock=log_lock)
-            current_bot.db = db_pool
+            current_bot = DiscordBot(intents=intents, db=db_pool)
 
             @current_bot.tree.error
             async def on_app_command_error(
@@ -104,8 +103,7 @@ async def main_manager() -> None:
 
         elif bot_mode == CMD_MAINTENANCE:
             print(f"{C.magenta}Starting Maintenance Bot...{C.default}", end=" ")  # VAR
-            current_bot = MaintanceBot(intents=intents, log_lock=log_lock)
-            current_bot.db = db_pool
+            current_bot = MaintanceBot(intents=intents, db=db_pool)
 
         else:
             break

@@ -31,7 +31,7 @@ async def is_banned_user(interact: discord.Interaction, isFollowUp: bool = False
         else:
             await interact.response.send_message(embed=BANNED_EMBED, ephemeral=True)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.warn,
             interact=interact,
             msg="[info] cmd used, but banned user",  # VAR
@@ -109,7 +109,7 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
         except Exception:
             await interact.followup.send(content=ts.get(f"cmd.err-db"), ephemeral=True)
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.err,
                 cmd=pf,
                 interact=interact,
@@ -129,7 +129,7 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
 
         await interact.followup.send(message_body, ephemeral=True)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.cmd,
             cmd=pf,
             interact=interact,
@@ -162,7 +162,7 @@ async def cmd_user_warn_helper(
                 ephemeral=True,
             )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.info,
                 cmd=pf,
                 interact=interact,
@@ -175,7 +175,7 @@ async def cmd_user_warn_helper(
         await interact.response.send_modal(modal)
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.cmd,
             cmd=pf,
             interact=interact,
@@ -188,7 +188,7 @@ async def cmd_user_warn_helper(
                 ephemeral=True,
             )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.err,
                 cmd=pf,
                 interact=interact,

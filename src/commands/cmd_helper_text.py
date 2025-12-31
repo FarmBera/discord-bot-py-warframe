@@ -28,7 +28,7 @@ async def cmd_helper_txt(
         await interact.response.send_message(embed=err_embed(), ephemeral=True)
         print(C.red, msg, C.default, sep="")
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.err,
             cmd="cmd_helper_txt",
             interact=interact,
@@ -44,7 +44,7 @@ async def cmd_helper_txt(
     )
 
     await save_log(
-        lock=interact.client.log_lock,
+        pool=interact.client.db,
         type=LOG_TYPE.cmd,
         cmd=f"{LOG_TYPE.cmd}.{ts.get(f'cmd.help.cmd')}",
         interact=interact,

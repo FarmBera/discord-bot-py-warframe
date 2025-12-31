@@ -45,7 +45,7 @@ async def is_admin_user(
             else:
                 await interact.response.send_message(embed=ADMIN_EMBED, ephemeral=True)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.warn,
             interact=interact,
             msg=f"[info] cmd '{cmd}' used, but no permission",
@@ -54,7 +54,7 @@ async def is_admin_user(
         return False
     except Exception:
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type="err",
             interact=interact,
             msg="admin verification error (from is_admin_user)",
@@ -75,7 +75,7 @@ async def is_valid_guild(
         else:
             await interact.response.send_message(embed=GUILD_EMBED, ephemeral=True)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.warn,
             interact=interact,
             msg="[info] cmd used, but unauthorized server",
@@ -84,7 +84,7 @@ async def is_valid_guild(
         return False
     except Exception:
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type="err",
             interact=interact,
             msg="[info] validation err (in is_valid_guild)",

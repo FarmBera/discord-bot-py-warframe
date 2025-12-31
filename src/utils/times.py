@@ -55,7 +55,7 @@ def convert_remain(unix_timestamp: int | float | str):
             ts_int = int(ts_str)
     except (ValueError, TypeError) as e:
         # print_test_err("Timestamp Format err")
-        return "**Wrong Format**"
+        return "**Time ERR**"
 
     return f"<t:{ts_int}:R>"
 

@@ -40,7 +40,7 @@ class PartyCog(commands.Cog):
     ):
         await interact.response.defer(ephemeral=True)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type="cmd",
             cmd=f"cmd.party",
             interact=interact,
@@ -73,7 +73,7 @@ class PartyCog(commands.Cog):
             )
             number_of_user = MAX_SIZE
 
-        # 1. DB에 파티 생성 (Service 호출)
+        # create party & insert into db
         try:
             party_id = await PartyService.create_party(
                 self.bot.db,
@@ -89,7 +89,7 @@ class PartyCog(commands.Cog):
         except Exception as e:
             await interact.followup.send(ts.get("cmd.err-db"), ephemeral=True)
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.err,
                 cmd=f"cmd.party",
                 interact=interact,
@@ -145,7 +145,7 @@ class PartyCog(commands.Cog):
                 ephemeral=True,
             )
             await save_log(
-                lock=self.bot.log_lock,
+                pool=self.bot.db,
                 type="cmd",
                 cmd="party",
                 interact=interact,
@@ -157,7 +157,7 @@ class PartyCog(commands.Cog):
                 f"{ts.get(f'{pf}err-unknown')}", ephemeral=True
             )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.err,
                 cmd=f"cmd.party",
                 interact=interact,

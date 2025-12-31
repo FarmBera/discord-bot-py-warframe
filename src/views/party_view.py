@@ -22,6 +22,19 @@ MIN_SIZE = 2
 MAX_SIZE = 20
 
 
+async def isPartyExist(interact: discord.Interaction, party):
+    if party:
+        return True
+
+    embed = discord.Embed(
+        title=ts.get(f"{pf}err"),
+        description=ts.get(f"{pf}pv-not-found"),
+        color=discord.Color.red(),
+    )
+    await interact.response.send_message(embed=embed, ephemeral=True)
+    return False
+
+
 # ----------------- Helper: Embed Builder -----------------
 async def build_party_embed(
     data: dict, db_pool, isDelete: bool = False
@@ -152,7 +165,7 @@ class PartyEditModal(ui.Modal, title=ts.get(f"{pf}edit-title")):
                     name=f"[{self.mission_input.value}] {self.title_input.value}"
                 )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.event,
                 cmd="btn.edit.article",
                 interact=interact,
@@ -164,7 +177,7 @@ class PartyEditModal(ui.Modal, title=ts.get(f"{pf}edit-title")):
                 ts.get(f"{pf}edit-err"), ephemeral=True
             )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.e_event,
                 cmd="btn.edit.article",
                 interact=interact,
@@ -183,7 +196,7 @@ class PartySizeModal(ui.Modal, title=ts.get(f"{pf}size-ui-title")):
 
     async def on_submit(self, interact: discord.Interaction):
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.edit.partysize",
             interact=interact,
@@ -235,7 +248,7 @@ class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
 
     async def on_submit(self, interact: discord.Interaction):
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.edit.date",
             interact=interact,
@@ -256,7 +269,7 @@ class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
                     ts.get(f"{pf}edit-err"), ephemeral=True
                 )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.e_event,
                 cmd="btn.edit-date",
                 interact=interact,
@@ -283,7 +296,7 @@ class ConfirmJoinLeaveView(ui.View):
         try:
             if self.action == "join":
                 await save_log(
-                    lock=interact.client.log_lock,
+                    pool=interact.client.db,
                     type=LOG_TYPE.event,
                     cmd="btn.confirm.join",
                     interact=interact,
@@ -308,7 +321,7 @@ class ConfirmJoinLeaveView(ui.View):
                 )
             elif self.action == "leave":
                 await save_log(
-                    lock=interact.client.log_lock,
+                    pool=interact.client.db,
                     type=LOG_TYPE.event,
                     cmd="btn.confirm.leave",
                     interact=interact,
@@ -337,7 +350,7 @@ class ConfirmJoinLeaveView(ui.View):
                     content=ts.get("general.error-cmd"), view=None
                 )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.event,
                 cmd="btn.confirm.err",
                 interact=interact,
@@ -356,7 +369,7 @@ class ConfirmJoinLeaveView(ui.View):
         self.stop()
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.confirm.delete.cancel",
             interact=interact,
@@ -375,7 +388,7 @@ class ConfirmDeleteView(ui.View):
         await interact.response.defer()
         await interact.delete_original_response()
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.confirm.delete",
             interact=interact,
@@ -425,7 +438,7 @@ class ConfirmDeleteView(ui.View):
         except Exception:
             await interact.followup.send(ts.get(f"{pf}del-err"), ephemeral=True)
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.event,
                 cmd="btn.confirm.delete",
                 interact=interact,
@@ -444,7 +457,7 @@ class ConfirmDeleteView(ui.View):
         self.stop()
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.confirm.delete.cancel",
             interact=interact,
@@ -486,7 +499,7 @@ class KickMemberSelect(ui.Select):
         )
 
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="select.kick.member",
             interact=interact,
@@ -573,7 +586,7 @@ class PartyView(ui.View):
     )
     async def join_party(self, interact: discord.Interaction, button: ui.Button):
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.main.join",
             interact=interact,
@@ -583,7 +596,7 @@ class PartyView(ui.View):
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
-        if not party:
+        if not await isPartyExist(interact, party):
             return
 
         if not await self.check_permissions(
@@ -623,7 +636,7 @@ class PartyView(ui.View):
     )
     async def leave_party(self, interact: discord.Interaction, button: ui.Button):
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="btn.main.leave",
             interact=interact,
@@ -633,7 +646,7 @@ class PartyView(ui.View):
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
-        if not party:
+        if not await isPartyExist(interact, party):
             return
 
         if interact.user.id == party["host_id"]:  # Host cannot leave
@@ -683,6 +696,9 @@ class PartyView(ui.View):
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
+        if not await isPartyExist(interact, party):
+            return
+
         if not await self.check_permissions(
             interact, party, participants, check_host=True
         ):
@@ -700,6 +716,9 @@ class PartyView(ui.View):
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
+        if not await isPartyExist(interact, party):
+            return
+
         if not await self.check_permissions(
             interact, party, participants, check_host=True
         ):
@@ -715,6 +734,9 @@ class PartyView(ui.View):
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
+        if not await isPartyExist(interact, party):
+            return
+
         if not await self.check_permissions(
             interact, party, participants, check_host=True
         ):
@@ -750,6 +772,9 @@ class PartyView(ui.View):
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
+        if not await isPartyExist(interact, party):
+            return
+
         if not await self.check_permissions(
             interact, party, participants, check_host=True
         ):
@@ -777,6 +802,9 @@ class PartyView(ui.View):
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
+        if not await isPartyExist(interact, party):
+            return
+
         if not await self.check_permissions(
             interact, party, participants, check_host=True
         ):
@@ -804,6 +832,9 @@ class PartyView(ui.View):
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
+        if not await isPartyExist(interact, party):
+            return
+
         if not await self.check_permissions(
             interact, party, participants, check_host=True
         ):

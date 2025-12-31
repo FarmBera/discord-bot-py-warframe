@@ -69,10 +69,9 @@ from src.commands.noti_channel import DB_COLUMN_MAP, PROFILE_CONFIG
 
 
 class DiscordBot(commands.Bot):
-    def __init__(self, *, intents: discord.Intents, log_lock: asyncio.Lock, **options):
+    def __init__(self, *, intents: discord.Intents, db, **options):
         super().__init__(command_prefix="!", intents=intents, **options)
-        self.db = None
-        self.log_lock = log_lock
+        self.db = db
 
     async def setup_hook(self) -> None:
         self.add_view(PartyView())
@@ -112,7 +111,7 @@ class DiscordBot(commands.Bot):
         )
         print(f"{C.green}{ts.get(f'start.final2')}{C.default}")
         await save_log(
-            lock=self.log_lock,
+            pool=self.db,
             cmd="bot.BOOTED",
             user=MSG_BOT,
             msg=f"[{LOG_TYPE.info}] Bot booted up.",
@@ -179,7 +178,7 @@ class DiscordBot(commands.Bot):
             # embed type
             if isinstance(value, discord.Embed):
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
@@ -193,7 +192,7 @@ class DiscordBot(commands.Bot):
             elif isinstance(value, tuple):
                 eb, f = value
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
@@ -206,7 +205,7 @@ class DiscordBot(commands.Bot):
 
             else:  # string type
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type="msg",
                     cmd="auto_sent_message",
                     user=MSG_BOT,
@@ -225,7 +224,7 @@ class DiscordBot(commands.Bot):
         if not db_column:
             msg = f"[{LOG_TYPE.err}] Unmapped notification key: {noti_key}"
             await save_log(
-                lock=self.log_lock,
+                pool=self.db,
                 type=LOG_TYPE.err,
                 cmd="broadcast_webhook",
                 user=MSG_BOT,
@@ -286,7 +285,7 @@ class DiscordBot(commands.Bot):
                 except Exception as e:
                     msg = f"[err] Failed to read image file: {e}"
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type="err",
                         cmd="broadcast_webhook",
                         user=MSG_BOT,
@@ -322,7 +321,7 @@ class DiscordBot(commands.Bot):
                     msg = f"[{LOG_TYPE.err}] profile picture http only: {conf_avatar}"
                     print(C.red, msg, C.default)
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type=LOG_TYPE.err,
                         cmd="broadcast_webhook",
                         user=MSG_BOT,
@@ -372,7 +371,7 @@ class DiscordBot(commands.Bot):
                             else:
                                 err_text = await response.text()
                                 await save_log(
-                                    lock=self.log_lock,
+                                    pool=self.db,
                                     type=LOG_TYPE.err,
                                     cmd="broadcast_webhook",
                                     user=MSG_BOT,
@@ -386,7 +385,7 @@ class DiscordBot(commands.Bot):
                             else:
                                 err_text = await response.text()
                                 await save_log(
-                                    lock=self.log_lock,
+                                    pool=self.db,
                                     type=LOG_TYPE.err,
                                     cmd="broadcast_webhook",
                                     user=MSG_BOT,
@@ -396,7 +395,7 @@ class DiscordBot(commands.Bot):
 
                 except Exception as e:
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type=LOG_TYPE.msg,
                         cmd="broadcast_webhook",
                         user=MSG_BOT,
@@ -407,7 +406,7 @@ class DiscordBot(commands.Bot):
         # logging
         log_msg = f"[info] {noti_key} sent. {success_count}/{total_subscribers}"
         await save_log(
-            lock=self.log_lock,
+            pool=self.db,
             type=LOG_TYPE.msg,
             cmd="broadcast_webhook",
             user=MSG_BOT,
@@ -420,7 +419,7 @@ class DiscordBot(commands.Bot):
     async def check_new_content(self) -> None:
         if lang == Lang.EN:
             latest_data: requests.Response = await API_Request(
-                self.log_lock, "check_new_content()"
+                self.db, "check_new_content()"
             )
             if not latest_data or latest_data.status_code != 200:
                 return
@@ -443,7 +442,7 @@ class DiscordBot(commands.Bot):
                 msg = f"[err] Error with loading original data (from check_new_content/DATA_HANDLERS for loop)"
                 print(timeNowDT(), C.red, key, msg, e, C.default)
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type="err",
                     cmd="check_new_content()",
                     user=MSG_BOT,
@@ -510,7 +509,7 @@ class DiscordBot(commands.Bot):
                     msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type="err",
                         cmd="check_new_content()",
                         user=MSG_BOT,
@@ -565,7 +564,7 @@ class DiscordBot(commands.Bot):
                     msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type="err",
                         cmd="check_new_content()",
                         user=MSG_BOT,
@@ -590,7 +589,7 @@ class DiscordBot(commands.Bot):
                     )
                     print(timeNowDT(), C.red, msg, C.default)
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type="err",
                         cmd="check_new_content()",
                         user=MSG_BOT,
@@ -614,7 +613,7 @@ class DiscordBot(commands.Bot):
                     )
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type="err",
                         cmd="check_new_content()",
                         user=MSG_BOT,
@@ -638,7 +637,7 @@ class DiscordBot(commands.Bot):
                     )
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type="err",
                         cmd="check_new_content()",
                         user=MSG_BOT,
@@ -701,7 +700,7 @@ class DiscordBot(commands.Bot):
                         )
                         print(timeNowDT(), C.red, msg, C.default)
                         await save_log(
-                            lock=self.log_lock,
+                            pool=self.db,
                             type="err",
                             cmd="check_new_content()",
                             user=MSG_BOT,
@@ -742,7 +741,7 @@ class DiscordBot(commands.Bot):
                     )
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type="err",
                         cmd="check_new_content()",
                         user=MSG_BOT,
@@ -769,7 +768,7 @@ class DiscordBot(commands.Bot):
                     )
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type="err",
                         cmd="check_new_content()",
                         user=MSG_BOT,
@@ -785,7 +784,7 @@ class DiscordBot(commands.Bot):
                     msg = f"[err] Data parsing error in {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, C.default)
                     await save_log(
-                        lock=self.log_lock,
+                        pool=self.db,
                         type="err",
                         cmd="check_new_content()",
                         user=MSG_BOT,
@@ -821,7 +820,7 @@ class DiscordBot(commands.Bot):
     @tasks.loop(time=dt.time(hour=8, minute=55, tzinfo=KST))
     async def weekly_task(self) -> None:
         await save_log(
-            lock=self.log_lock,
+            pool=self.db,
             cmd="weekly_task()",
             user=MSG_BOT,
             msg="Executing weekly_task()",
@@ -845,7 +844,7 @@ class DiscordBot(commands.Bot):
 
             msg = f"[info] Steel Path reward index updated {curr_idx} -> {new_idx}"
             await save_log(
-                lock=self.log_lock,
+                pool=self.db,
                 cmd="bot.WEEKLY_TASK.steelpath",
                 user=MSG_BOT,
                 msg=msg,
@@ -855,7 +854,7 @@ class DiscordBot(commands.Bot):
             msg = f"[err] Failed to update Steel Path reward index: {C.red}{e}"
             print(C.red, msg, C.default)
             await save_log(
-                lock=self.log_lock,
+                pool=self.db,
                 cmd="bot.WEEKLY_TASK.steelpath",
                 user=MSG_BOT,
                 msg=msg,
@@ -873,7 +872,7 @@ class DiscordBot(commands.Bot):
             await setDuviriRotate()
             msg = f"[info] Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
             await save_log(
-                lock=self.log_lock,
+                pool=self.db,
                 cmd="bot.WEEKLY_TASK.duviri-cache",
                 user=MSG_BOT,
                 msg=msg,
@@ -882,7 +881,7 @@ class DiscordBot(commands.Bot):
             msg = f"[err] Failed to update duviri-cache data"
             print(C.red, msg, C.default)
             await save_log(
-                lock=self.log_lock,
+                pool=self.db,
                 cmd="bot.WEEKLY_TASK.duviri-cache",
                 user=MSG_BOT,
                 msg=msg,
@@ -893,7 +892,7 @@ class DiscordBot(commands.Bot):
     @tasks.loop(time=dt.time(hour=9, minute=10, tzinfo=KST))
     async def week_start_noti(self) -> None:
         await save_log(
-            lock=self.log_lock,
+            pool=self.db,
             cmd="week_start_noti()",
             user=MSG_BOT,
             msg="Execute week_start_noti()",
@@ -923,7 +922,7 @@ class DiscordBot(commands.Bot):
     @tasks.loop(time=dt.time(hour=3, minute=0, tzinfo=KST))
     async def auto_party_expire(self) -> None:
         await save_log(
-            lock=self.log_lock,
+            pool=self.db,
             type=LOG_TYPE.info,
             cmd="auto_party_expire",
             user=MSG_BOT,
@@ -983,7 +982,7 @@ class DiscordBot(commands.Bot):
                     )
                 omsg = f"Expired party {party['id']} deleted."
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type=LOG_TYPE.info,
                     cmd="auto_party_expire",
                     user=MSG_BOT,
@@ -992,7 +991,7 @@ class DiscordBot(commands.Bot):
                 )
             except discord.NotFound:
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type=LOG_TYPE.warn,
                     cmd="auto_party_expire",
                     user=MSG_BOT,
@@ -1006,7 +1005,7 @@ class DiscordBot(commands.Bot):
                     )
             except Exception:
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type=LOG_TYPE.err,
                     cmd="auto_party_expire",
                     user=MSG_BOT,
@@ -1016,7 +1015,7 @@ class DiscordBot(commands.Bot):
             await asyncio.sleep(5)
 
         await save_log(
-            lock=self.log_lock,
+            pool=self.db,
             type=LOG_TYPE.info,
             cmd="auto_party_expire",
             user=MSG_BOT,
@@ -1028,7 +1027,7 @@ class DiscordBot(commands.Bot):
     @tasks.loop(time=dt.time(hour=4, minute=0, tzinfo=KST))
     async def auto_trade_expire(self) -> None:
         await save_log(
-            lock=self.log_lock,
+            pool=self.db,
             type=LOG_TYPE.info,
             cmd="auto_trade_expire",
             user=MSG_BOT,
@@ -1093,7 +1092,7 @@ class DiscordBot(commands.Bot):
                     )
                 omsg = f"Expired trade {trade['id']} deleted."
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type=LOG_TYPE.info,
                     cmd="auto_trade_expire",
                     user=MSG_BOT,
@@ -1102,7 +1101,7 @@ class DiscordBot(commands.Bot):
                 )
             except discord.NotFound:
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type=LOG_TYPE.warn,
                     cmd="auto_trade_expire",
                     user=MSG_BOT,
@@ -1116,7 +1115,7 @@ class DiscordBot(commands.Bot):
                     )
             except Exception as e:
                 await save_log(
-                    lock=self.log_lock,
+                    pool=self.db,
                     type=LOG_TYPE.err,
                     cmd="auto_trade_expire",
                     user=MSG_BOT,
@@ -1126,7 +1125,7 @@ class DiscordBot(commands.Bot):
             await asyncio.sleep(5)
 
         await save_log(
-            lock=self.log_lock,
+            pool=self.db,
             type=LOG_TYPE.info,
             cmd="auto_trade_expire",
             user=MSG_BOT,

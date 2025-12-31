@@ -89,11 +89,11 @@ class TradeService:
 
     @staticmethod
     async def estimate_price(
-        log_lock, trade_type, item_slug, item_rank, input_price
+        pool, trade_type, item_slug, item_rank, input_price
     ) -> tuple[int, list, str]:
         output_msg = ""
         # get market price
-        market_api_result = await API_MarketSearch(log_lock, item_slug)
+        market_api_result = await API_MarketSearch(pool, item_slug)
         market = categorize(market_api_result.json(), rank=item_rank)
 
         if market_api_result.status_code == 404:

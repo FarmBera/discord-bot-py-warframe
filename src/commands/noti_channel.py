@@ -71,7 +71,7 @@ pfs: str = "cmd.alert-set."  # prefix select
 pfu: str = "cmd.alert-delete."  # prefix unselect
 
 
-async def fetch_current_subscriptions(db, log_lock, channel_id: int) -> list:
+async def fetch_current_subscriptions(db, channel_id: int) -> list:
     """
     get the current list of notifications subscribed to interacted channel from the db.
     """
@@ -97,7 +97,7 @@ async def fetch_current_subscriptions(db, log_lock, channel_id: int) -> list:
                         active_labels.append(NOTI_LABELS[key])
     except Exception as e:
         await save_log(
-            lock=log_lock,
+            pool=db,
             type=LOG_TYPE.cmd,
             cmd="fetch_current_subscriptions",
             msg="[info] db select error",  # VAR
@@ -129,7 +129,7 @@ class NotificationSelect(discord.ui.Select):
             content=ts.get(f"general.error-cmd"), embed=None, view=None
         )
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.cmd,
             cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
             interact=interact,
@@ -201,7 +201,7 @@ class NotificationSelect(discord.ui.Select):
                 content=ts.get(f"cmd.err-db"), embed=None, view=None
             )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.cmd,
                 cmd=f"{LOG_TYPE.cmd}.set-noti",
                 interact=interact,
@@ -212,7 +212,7 @@ class NotificationSelect(discord.ui.Select):
 
         # display current subscription status
         current_subs = await fetch_current_subscriptions(
-            interact.client.db, interact.client.log_lock, interact.channel_id
+            interact.client.db, interact.channel_id
         )
         subs_str = ", ".join(current_subs) if current_subs else ts.get("cmd.alert.none")
 
@@ -223,7 +223,7 @@ class NotificationSelect(discord.ui.Select):
             view=None,
         )
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.cmd,
             cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
             interact=interact,
@@ -253,7 +253,7 @@ class NotificationUnSelect(discord.ui.Select):
             content=ts.get(f"general.error-cmd"), embed=None, view=None
         )
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.cmd,
             cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
             interact=interact,
@@ -312,7 +312,7 @@ class NotificationUnSelect(discord.ui.Select):
                 content=ts.get(f"cmd.err-db"), embed=None, view=None
             )
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type=LOG_TYPE.cmd,
                 cmd=f"{LOG_TYPE.cmd}.delete-noti",
                 interact=interact,
@@ -339,7 +339,7 @@ class NotificationUnSelect(discord.ui.Select):
         else:
             # display remain subscriptions
             current_subs = await fetch_current_subscriptions(
-                interact.client.db, interact.client.log_lock, interact.channel_id
+                interact.client.db, interact.channel_id
             )
             subs_str = (
                 ", ".join(current_subs) if current_subs else ts.get("cmd.alert.none")
@@ -348,7 +348,7 @@ class NotificationUnSelect(discord.ui.Select):
 
         await interact.edit_original_response(content=msg, embed=None, view=None)
         await save_log(
-            lock=interact.client.log_lock,
+            pool=interact.client.db,
             type=LOG_TYPE.cmd,
             cmd=f"{LOG_TYPE.cmd}.delete-noti",
             interact=interact,
@@ -373,7 +373,7 @@ async def noti_subscribe_helper(interact: discord.Interaction):
     await interact.response.defer(ephemeral=True)
 
     current_subs = await fetch_current_subscriptions(
-        interact.client.db, interact.client.log_lock, interact.channel_id
+        interact.client.db, interact.channel_id
     )
     subs_str = ", ".join(current_subs) if current_subs else ts.get(f"cmd.alert.none")
 
@@ -384,7 +384,7 @@ async def noti_subscribe_helper(interact: discord.Interaction):
         ephemeral=True,
     )
     await save_log(
-        lock=interact.client.log_lock,
+        pool=interact.client.db,
         type=LOG_TYPE.cmd,
         cmd=f"{LOG_TYPE.cmd}.set-noti",
         interact=interact,
@@ -396,7 +396,7 @@ async def noti_unsubscribe_helper(interact: discord.Interaction):
     await interact.response.defer(ephemeral=True)
 
     current_subs = await fetch_current_subscriptions(
-        interact.client.db, interact.client.log_lock, interact.channel_id
+        interact.client.db, interact.channel_id
     )
     subs_str = ", ".join(current_subs) if current_subs else ts.get(f"cmd.alert.none")
 
@@ -407,7 +407,7 @@ async def noti_unsubscribe_helper(interact: discord.Interaction):
         ephemeral=True,
     )
     await save_log(
-        lock=interact.client.log_lock,
+        pool=interact.client.db,
         type=LOG_TYPE.cmd,
         cmd=f"{LOG_TYPE.cmd}.delete-noti",
         interact=interact,

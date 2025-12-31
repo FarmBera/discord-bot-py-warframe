@@ -77,13 +77,11 @@ class TradeCog(commands.Cog):
         try:
             estimated_price, market_data, output_msg = (
                 await TradeService.estimate_price(
-                    self.bot.log_lock, trade_type.name, item_slug, item_rank, price
+                    self.bot.db, trade_type.name, item_slug, item_rank, price
                 )
             )
         except Exception as e:
-            await interact.followup.send(
-                f"{ts.get(f'{pf}err-api')}: {e}", ephemeral=True
-            )
+            await interact.followup.send(f"{ts.get(f'{pf}err-api')}", ephemeral=True)
             return
 
         # setup automatic nickname
@@ -154,7 +152,7 @@ class TradeCog(commands.Cog):
             )
 
             await save_log(
-                lock=interact.client.log_lock,
+                pool=interact.client.db,
                 type="cmd",
                 cmd=f"cmd.trade",
                 interact=interact,

@@ -14,7 +14,7 @@ async def cmd_unavailable(interact: discord.Interaction) -> None:
         ephemeral=True,
     )
     await save_log(
-        lock=interact.client.log_lock,
+        pool=interact.client.db,
         type=LOG_TYPE.unable,
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         interact=interact,
