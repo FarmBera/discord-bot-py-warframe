@@ -630,7 +630,7 @@ class DiscordBot(commands.Bot):
                     parsed_content = handler["parser"](obj_new)
                     notification = True
                     should_save_data = True
-                    setDuvIncarnon(obj_new[1])
+                    await setDuvIncarnon(obj_new[1])
                 except Exception as e:
                     msg = (
                         f"[err] parse error in handle_duviri_rotation-2 {handler['parser']}/{e}",

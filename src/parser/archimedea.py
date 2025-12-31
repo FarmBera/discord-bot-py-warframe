@@ -18,13 +18,13 @@ CT_HEX = "CT_HEX"
 async def setDeepArchimedea(object):
     global archimedea_deep
     archimedea_deep = object
-    set_obj_async(object, f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
+    await set_obj_async(object, f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
 
 
 async def setTemporalArchimedea(object):
     global archimedea_temporal
     archimedea_temporal = object
-    set_obj_async(object, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
+    await set_obj_async(object, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 
 
 def generateVariables(object) -> str:
