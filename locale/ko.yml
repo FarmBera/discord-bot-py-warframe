@@ -39,6 +39,11 @@ time:
   hour: 시간
   min: 분
 
+view:
+  support-help: "❔ 도움말"
+  support-privacy: "🔐 개인정보 처리방침"
+  support-tos: "📜 이용약관"
+  support-donate: "💰 개발자 후원하기"
 cmd:
   no-perm-title: "❌ 권한 없음"
   no-permission: |

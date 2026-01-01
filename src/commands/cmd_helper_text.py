@@ -8,6 +8,7 @@ from src.utils.permission import is_admin_user
 from src.utils.logging_utils import save_log
 from src.utils.file_io import open_file_async
 from src.utils.return_err import err_embed
+from src.views.help_view import SupportView
 
 
 async def cmd_helper_txt(
@@ -40,6 +41,7 @@ async def cmd_helper_txt(
     # send message
     await interact.response.send_message(
         embed=discord.Embed(description=txt, color=0xCEFF00),  # VAR: color
+        view=SupportView(),
         ephemeral=isPrivateMsg,
     )
 
