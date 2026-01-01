@@ -48,23 +48,22 @@ async def is_admin_user(
             pool=interact.client.db,
             type=LOG_TYPE.warn,
             interact=interact,
-            msg=f"[info] cmd '{cmd}' used, but no permission",
-            obj=return_traceback(),
+            msg=f"cmd '{cmd}' used, but no permission",
         )
         return False
-    except Exception:
+    except Exception as e:
         await save_log(
             pool=interact.client.db,
-            type="err",
+            type=LOG_TYPE.err,
             interact=interact,
-            msg="admin verification error (from is_admin_user)",
+            msg=f"admin verification error (from is_admin_user): {e}",
             obj=return_traceback(),
         )
         return False
 
 
 async def is_valid_guild(
-    interact: discord.Interaction, isFollowUp: bool = False
+    interact: discord.Interaction, isFollowUp: bool = False, cmd: str = ""
 ) -> bool:
     try:
         if interact.guild_id == CHANNELS["guild"]:
@@ -78,16 +77,15 @@ async def is_valid_guild(
             pool=interact.client.db,
             type=LOG_TYPE.warn,
             interact=interact,
-            msg="[info] cmd used, but unauthorized server",
-            obj=GUILD_EMBED.description,
+            msg=f"cmd '{cmd}' used, but unauthorized server",
         )
         return False
-    except Exception:
+    except Exception as e:
         await save_log(
             pool=interact.client.db,
-            type="err",
+            type=LOG_TYPE.err,
             interact=interact,
-            msg="[info] validation err (in is_valid_guild)",
+            msg=f"guild validation err (in is_valid_guild): {e}",
             obj=return_traceback(),
         )
         return False
