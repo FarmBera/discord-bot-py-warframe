@@ -13,7 +13,7 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
-from src.commands.admin import is_admin_user
+from src.utils.permission import is_admin_user
 from src.parser.marketsearch import get_slug_data, create_market_url
 from src.services.trade_service import TradeService
 

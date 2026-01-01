@@ -1,7 +1,7 @@
 import discord
 
 from config.config import LOG_TYPE
-from src.commands.admin import is_admin_user
+from src.utils.permission import is_admin_user
 from src.utils.logging_utils import save_log
 from src.utils.discord_file import img_file
 from src.utils.data_manager import get_obj_async

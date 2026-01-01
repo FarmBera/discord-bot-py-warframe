@@ -4,7 +4,7 @@ from config.config import LOG_TYPE
 from src.translator import ts
 from src.constants.color import C
 from src.constants.keys import FOOTER_FILE_LOC
-from src.commands.admin import is_admin_user
+from src.utils.permission import is_admin_user
 from src.utils.logging_utils import save_log
 from src.utils.file_io import open_file_async
 from src.utils.return_err import err_embed

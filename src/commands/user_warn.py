@@ -3,7 +3,7 @@ from discord import ui
 
 from src.translator import ts
 from config.config import LOG_TYPE
-from src.commands.admin import is_admin_user, is_valid_guild
+from src.utils.permission import is_admin_user, is_valid_guild
 from src.utils.logging_utils import save_log
 from src.utils.db_helper import query_reader, transaction
 from src.utils.return_err import return_traceback, print_test_err

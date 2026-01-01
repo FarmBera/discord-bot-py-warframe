@@ -39,10 +39,9 @@ from src.constants.keys import (
 from src.utils.logging_utils import save_log
 from src.commands.cmd_helper import cmd_helper
 from src.commands.cmd_helper_text import cmd_helper_txt
-from src.commands.complain import cmd_create_complain_helper
 from src.commands.unavailable import cmd_unavailable
 from src.commands.user_warn import cmd_user_warn_helper
-from src.commands.admin import is_admin_user
+from src.utils.permission import is_admin_user
 from src.commands.noti_channel import noti_subscribe_helper, noti_unsubscribe_helper
 
 from src.parser.alerts import w_alerts
