@@ -3,41 +3,13 @@ from discord import ui
 
 from src.translator import ts
 from config.config import LOG_TYPE
-from src.utils.permission import is_admin_user, is_valid_guild
 from src.utils.logging_utils import save_log
-from src.utils.db_helper import query_reader, transaction
-from src.utils.return_err import return_traceback, print_test_err
+from src.utils.db_helper import transaction
+from src.utils.return_err import return_traceback
 
 BAN_THRESHOLD: int = 3
 
 pf: str = "cmd.user-ban."
-
-BANNED_EMBED: discord.Embed = discord.Embed(
-    description=ts.get(f"general.banned"), color=0xFF0000
-)
-
-
-async def is_banned_user(interact: discord.Interaction, isFollowUp: bool = False):
-    async with query_reader(interact.client.db) as cursor:
-        check_ban_sql = (
-            "SELECT 1 FROM warnings WHERE user_id = %s AND banned = 1 LIMIT 1"
-        )
-        await cursor.execute(check_ban_sql, (interact.user.id,))
-        is_already_banned = await cursor.fetchone()
-
-    if is_already_banned:
-        if isFollowUp:
-            await interact.followup.send(embed=BANNED_EMBED, ephemeral=True)
-        else:
-            await interact.response.send_message(embed=BANNED_EMBED, ephemeral=True)
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.warn,
-            interact=interact,
-            msg="[info] cmd used, but banned user",  # VAR
-        )
-        return True
-    return False
 
 
 class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
@@ -136,62 +108,3 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
             msg="[info] warning user",  # VAR
             obj=f"{user_id}//{original_name}//{display_name}//{game_nickname}\nisBanned: {is_executed_ban}\n{warn_type}\n{warn_reason}",
         )
-
-
-async def cmd_user_warn_helper(
-    interact: discord.Interaction, user: discord.Member
-) -> None:
-    if not await is_valid_guild(interact):
-        return
-
-    if not await is_admin_user(interact, cmd=f"{LOG_TYPE.cmd}.user-ban", notify=True):
-        return
-
-    try:
-        async with query_reader(interact.client.db) as cursor:
-            # check is already banned user
-            check_ban_sql = (
-                "SELECT 1 FROM warnings WHERE user_id = %s AND banned = 1 LIMIT 1"
-            )
-            await cursor.execute(check_ban_sql, (user.id,))
-            is_already_banned = await cursor.fetchone()
-
-        if is_already_banned:
-            await interact.followup.send(
-                ts.get(f"{pf}already-ban").format(user=user.display_name),
-                ephemeral=True,
-            )
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.info,
-                cmd=pf,
-                interact=interact,
-                msg="[info] cmd used, but already banned",  # VAR
-                obj=f"{user.id}\n{user.name}\n{user.display_name}",
-            )
-            return
-
-        modal = WarnInputModal(pool=interact.client.db, target_member=user)
-        await interact.response.send_modal(modal)
-
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.cmd,
-            cmd=pf,
-            interact=interact,
-            msg="[info] cmd used",  # VAR
-        )
-    except Exception as e:
-        if not interact.response.is_done():
-            await interact.response.send_message(
-                ts.get(f"general.error-cmd"),
-                ephemeral=True,
-            )
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.err,
-                cmd=pf,
-                interact=interact,
-                msg=f"[info] cmd used, but ERR: {e}",  # VAR
-                obj=return_traceback(),
-            )

@@ -1,25 +1,23 @@
 import discord
+from discord import ui
+from discord.ext import commands
+import asyncio
+
+# editor modal
+import discord
 from discord.ext import commands
 import asyncio
 
 from config.config import LOG_TYPE
-from config.TOKEN import HOMEPAGE, SERVER_NAME
 from src.translator import ts
 from src.constants.color import C
 from src.constants.keys import COOLDOWN_DEFAULT
-from src.commands.admin import is_valid_guild
-from src.utils.return_err import return_traceback, print_test_err
+from src.utils.return_err import return_traceback
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
-from src.utils.times import timeNowDT
 from src.utils.db_helper import query_reader
 
 pf: str = "cmd.complain."
-
-complain_guide: discord.Embed = discord.Embed(
-    description=ts.get(f"{pf}info").format(SERVER_NAME=SERVER_NAME, HOMEPAGE=HOMEPAGE),
-    color=discord.Color.yellow(),
-)
 
 
 def parseNickname(nickname: str) -> str:
@@ -27,9 +25,9 @@ def parseNickname(nickname: str) -> str:
 
 
 # article editor modal
-class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
+class ComplainModal(discord.ui.Modal):
     def __init__(self, btn_interact: discord.Interaction):
-        super().__init__(timeout=None)
+        super().__init__(title=ts.get(f"{pf}m-title"), timeout=None)
         self.button_interact = btn_interact
 
         self.input_title = discord.ui.TextInput(
@@ -73,17 +71,18 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
 
 {self.input_desc}"""
 
-            # Send DM to User
+            # load dm users
             async with query_reader(interact.client.db) as cursor:
                 await cursor.execute(
                     "SELECT user_id, is_dm_target FROM admins WHERE is_dm_target=TRUE"
                 )
                 result = await cursor.fetchall()
 
+            # dm target not found
             if result is None or not result:
                 pass
-                # raise NameError("DM Target Not Found!")
 
+            # send dm to user
             for user in result:
                 target_user = await interact.client.fetch_user(user["user_id"])
                 await target_user.send(
@@ -91,7 +90,7 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
                 )
                 await asyncio.sleep(1)
 
-            # Post New Article in Forum Channel
+            # post new article in forum channel
             forum_channel = interact.client.get_channel(CHANNELS["complain"])
             if isinstance(forum_channel, discord.ForumChannel):
                 await forum_channel.create_thread(name=title, content=desc)
@@ -100,26 +99,23 @@ class Complain(discord.ui.Modal, title=ts.get(f"{pf}")):
                 content=ts.get(f"{pf}done"), embed=None, view=None
             )
 
-            # await interact.followup.send(ts.get(f"{pf}done"), ephemeral=True)
-
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.event,
-                cmd="btn.complain.submit",
+                cmd="Complain.btn.submit",
                 interact=interact,
                 msg="Complain successfully submitted",
                 obj=f"TITLE: {self.input_title}\nCATEGORY: {self.input_category}\nDESC: {self.input_desc}",
             )
-
         except Exception as e:
             await interact.followup.send(ts.get(f"{pf}err"), ephemeral=True)
             print(e)
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.e_event,
-                cmd="btn.complain.submit",
+                cmd="Complain.btn.submit",
                 interact=interact,
-                msg=f"Complain submitted, but error",
+                msg=f"Complain submitted, but ERR",
                 obj=f"TITLE: {self.input_title}\nCATEGORY: {self.input_category}\nDESC: {self.input_desc}\n{return_traceback()}",
             )
 
@@ -160,38 +156,11 @@ class ApplyButtonView(discord.ui.View):
         if await self.is_cooldown(interact, self.cd):
             return
 
-        await interact.response.send_modal(Complain(btn_interact=interact))
-
-
-async def cmd_create_complain_helper(interact: discord.Interaction) -> None:
-    await interact.response.defer(ephemeral=True)
-
-    if not await is_valid_guild(interact, isFollowUp=True):
-        return
-
-    target_channel = interact.client.get_channel(CHANNELS["complain"])
-
-    # channel not exists or not a Forum
-    if not target_channel:
-        await interact.followup.send(ts.get(f"{pf}err-channel"), ephemeral=True)
+        await interact.response.send_modal(ComplainModal(btn_interact=interact))
         await save_log(
             pool=interact.client.db,
-            type="cmd",
-            cmd=f"cmd.complain",
+            type=LOG_TYPE.event,
+            cmd="ApplyButtonView.btn",
             interact=interact,
-            msg="[warn] cmd used, but complain channel not found",
+            msg="Clicked ApplyButtonView button",
         )
-        return
-
-    await interact.followup.send(
-        embed=complain_guide,
-        view=ApplyButtonView(interact=interact),
-        ephemeral=True,
-    )
-    await save_log(
-        pool=interact.client.db,
-        type="cmd",
-        cmd=f"cmd.complain",
-        interact=interact,
-        msg="[info] cmd used",
-    )

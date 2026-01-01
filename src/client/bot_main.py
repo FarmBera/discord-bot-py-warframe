@@ -82,10 +82,11 @@ class DiscordBot(commands.Bot):
         # load translator
         await self.tree.set_translator(BotTranslator())
         # load cogs
-        cog_ext = ["register", "party", "trade"]
+        cog_ext = ["register", "party", "trade", "complain", "user_warn"]
         for ext in cog_ext:
             try:
                 await self.load_extension(f"src.cogs.{ext}")
+                print(ext)
             except Exception as e:
                 print(f"{C.red}Failed to load extension {ext}: {e}{C.default}")
 

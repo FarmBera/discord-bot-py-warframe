@@ -14,6 +14,9 @@ GUILD_EMBED: discord.Embed = discord.Embed(
 ADMIN_EMBED: discord.Embed = discord.Embed(
     description=ts.get(f"general.admin"), color=0xFF0000
 )
+BANNED_EMBED: discord.Embed = discord.Embed(
+    description=ts.get(f"general.banned"), color=0xFF0000
+)
 
 
 async def is_admin_user(
@@ -89,3 +92,26 @@ async def is_valid_guild(
             obj=return_traceback(),
         )
         return False
+
+
+async def is_banned_user(interact: discord.Interaction, isFollowUp: bool = False):
+    async with query_reader(interact.client.db) as cursor:
+        check_ban_sql = (
+            "SELECT 1 FROM warnings WHERE user_id = %s AND banned = 1 LIMIT 1"
+        )
+        await cursor.execute(check_ban_sql, (interact.user.id,))
+        is_already_banned = await cursor.fetchone()
+
+    if is_already_banned:
+        if isFollowUp:
+            await interact.followup.send(embed=BANNED_EMBED, ephemeral=True)
+        else:
+            await interact.response.send_message(embed=BANNED_EMBED, ephemeral=True)
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.warn,
+            interact=interact,
+            msg="cmd used, but banned user",  # VAR
+        )
+        return True
+    return False

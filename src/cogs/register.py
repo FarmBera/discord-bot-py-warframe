@@ -40,7 +40,6 @@ from src.utils.logging_utils import save_log
 from src.commands.cmd_helper import cmd_helper
 from src.commands.cmd_helper_text import cmd_helper_txt
 from src.commands.unavailable import cmd_unavailable
-from src.commands.user_warn import cmd_user_warn_helper
 from src.utils.permission import is_admin_user
 from src.commands.noti_channel import noti_subscribe_helper, noti_unsubscribe_helper
 
@@ -465,20 +464,6 @@ class GeneralCommands(commands.Cog):
             interact, key=EVENTS, parser_func=w_events, isPrivateMsg=developer_options
         )
 
-    # receive complain
-    @app_commands.command(name="complain", description="cmd.complain.desc")
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
-    )
-    async def cmd_receive_complain(self, interact: discord.Interaction) -> None:
-        if not await is_admin_user(
-            interact, cmd=f"{LOG_TYPE.cmd}.complain", notify=True
-        ):
-            return
-
-        # await cmd_unavailable(interact)
-        await cmd_create_complain_helper(interact=interact)
-
     # setup alert
     @app_commands.command(name="alert-set", description="cmd.alert-set.desc")
     @discord.app_commands.checks.cooldown(
@@ -507,23 +492,6 @@ class GeneralCommands(commands.Cog):
             parser_func=w_descendia,
             isPrivateMsg=developer_options,
         )
-
-    # warn or ban user
-    @app_commands.command(name="user-ban", description="cmd.user-ban.desc")
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
-    )
-    async def cmd_user_warn(
-        interact: discord.Interaction,
-        member: discord.Member,
-    ) -> None:
-        if member.id == interact.client.user.id:
-            await interact.response.send_message(
-                ts.get("cmd.user-ban.self-unable"), ephemeral=True
-            )
-            return
-
-        await cmd_user_warn_helper(interact=interact, user=member)
 
 
 async def setup(bot: commands.Bot):
