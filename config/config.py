@@ -9,6 +9,7 @@ language = Lang.
 
 class LOG_TYPE:
     debug: str = "debug"
+    api: str = "api"
     info: str = "info"
     warn: str = "warn"
     err: str = "err"
