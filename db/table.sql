@@ -86,6 +86,7 @@ CREATE TABLE
     IF NOT EXISTS admins (
         -- id INT NOT NULL AUTO_INCREMENT,
         user_id BIGINT NOT NULL UNIQUE,
+        `key` VARCHAR(50) UNIQUE,
         note VARCHAR(150),
         is_dm_target BOOLEAN NOT NULL DEFAULT FALSE,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
