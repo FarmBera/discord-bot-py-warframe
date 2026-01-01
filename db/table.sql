@@ -72,6 +72,7 @@ CREATE TABLE
         note VARCHAR(500), -- 사유 상세
         banned BOOLEAN DEFAULT FALSE, -- 이 경고로 인해 밴 처리가 되었는지 여부
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         -- index
         INDEX idx_user_id (user_id)
@@ -115,6 +116,7 @@ CREATE TABLE
         channel_id BIGINT NOT NULL,
         guild_id BIGINT NOT NULL,
         webhook_url TEXT NOT NULL,
+        note VARCHAR(200),
         -- notification flags (1: ON, 0: OFF)
         sub_alerts BOOLEAN DEFAULT 0, -- 얼럿 미션
         sub_news BOOLEAN DEFAULT 0, -- 워프레임 뉴스
