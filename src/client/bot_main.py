@@ -287,10 +287,10 @@ class DiscordBot(commands.Bot):
                             }
                         )
                 except Exception as e:
-                    msg = f"[err] Failed to read image file: {e}"
+                    msg = f"Failed to read image file: {e}"
                     await save_log(
                         pool=self.db,
-                        type="err",
+                        type=LOG_TYPE.err,
                         cmd="broadcast_webhook",
                         user=MSG_BOT,
                         msg=msg,
@@ -323,7 +323,7 @@ class DiscordBot(commands.Bot):
                     final_avatar_url = conf_avatar
 
                 else:
-                    msg = f"[{LOG_TYPE.err}] profile picture http only: {conf_avatar}"
+                    msg = f"profile picture http only: {conf_avatar}"
                     print(C.red, msg, C.default)
                     await save_log(
                         pool=self.db,
@@ -401,7 +401,7 @@ class DiscordBot(commands.Bot):
                 except Exception as e:
                     await save_log(
                         pool=self.db,
-                        type=LOG_TYPE.msg,
+                        type=LOG_TYPE.err,
                         cmd="broadcast_webhook",
                         user=MSG_BOT,
                         msg=f"ERROR on sending msg: {noti_key}",
@@ -409,7 +409,7 @@ class DiscordBot(commands.Bot):
                     )
 
         # logging
-        log_msg = f"[info] {noti_key} sent. {success_count}/{total_subscribers}"
+        log_msg = f"{noti_key} sent. {success_count}/{total_subscribers}"
         await save_log(
             pool=self.db,
             type=LOG_TYPE.msg,
@@ -444,11 +444,11 @@ class DiscordBot(commands.Bot):
                 obj_prev = await get_obj_async(key)
                 obj_new = latest_data[key]
             except Exception as e:
-                msg = f"[err] Error with loading original data (from check_new_content/DATA_HANDLERS for loop)"
+                msg = f"Error with loading original data (from check_new_content/DATA_HANDLERS for loop)"
                 print(timeNowDT(), C.red, key, msg, e, C.default)
                 await save_log(
                     pool=self.db,
-                    type="err",
+                    type=LOG_TYPE.err,
                     cmd="check_new_content()",
                     user=MSG_BOT,
                     msg=msg,
@@ -511,11 +511,11 @@ class DiscordBot(commands.Bot):
                     parsed_content = handler["parser"](missing_items)
                     notification = True
                 except Exception as e:
-                    msg = f"[err] Data parsing error in {handler['parser']}/{e}"
+                    msg = f"Data parsing error in {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
                         pool=self.db,
-                        type="err",
+                        type=LOG_TYPE.err,
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
@@ -566,11 +566,11 @@ class DiscordBot(commands.Bot):
                     notification = True
                     should_save_data = True
                 except Exception as e:
-                    msg = f"[err] Data parsing error in {handler['parser']}/{e}"
+                    msg = f"Data parsing error in {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
                         pool=self.db,
-                        type="err",
+                        type=LOG_TYPE.err,
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
@@ -589,17 +589,15 @@ class DiscordBot(commands.Bot):
                         parsed_content = handler["parser"](obj_new)
                         notification = True
                 except Exception as e:
-                    msg = (
-                        f"[err] parse error in handle_dailydeals {handler['parser']}/{e}",
-                    )
+                    msg = f"parse error in handle_dailydeals {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, C.default)
                     await save_log(
                         pool=self.db,
-                        type="err",
+                        type=LOG_TYPE.err,
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
-                        obj=e,
+                        obj=return_traceback(),
                     )
 
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
@@ -613,13 +611,11 @@ class DiscordBot(commands.Bot):
                     should_save_data = True
                     await setDuvWarframe(obj_new[0])
                 except Exception as e:
-                    msg = (
-                        f"[err] parse error in handle_duviri_rotation-1 {handler['parser']}/{e}",
-                    )
+                    msg = f"parse error in handle_duviri_rotation-1 {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
                         pool=self.db,
-                        type="err",
+                        type=LOG_TYPE.err,
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
@@ -637,13 +633,11 @@ class DiscordBot(commands.Bot):
                     should_save_data = True
                     await setDuvIncarnon(obj_new[1])
                 except Exception as e:
-                    msg = (
-                        f"[err] parse error in handle_duviri_rotation-2 {handler['parser']}/{e}",
-                    )
+                    msg = f"parse error in handle_duviri_rotation-2 {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
                         pool=self.db,
-                        type="err",
+                        type=LOG_TYPE.err,
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
@@ -700,13 +694,11 @@ class DiscordBot(commands.Bot):
                     # Parse content
                     parsed_content = handler["parser"](obj_new, text_arg, embed_color)
                     if not parsed_content:
-                        msg = (
-                            f"[err] parse error in handle_voidtraders {handler['parser']}",
-                        )
+                        msg = f"parse error in handle_voidtraders {handler['parser']}"
                         print(timeNowDT(), C.red, msg, C.default)
                         await save_log(
                             pool=self.db,
-                            type="err",
+                            type=LOG_TYPE.err,
                             cmd="check_new_content()",
                             user=MSG_BOT,
                             msg=msg,
@@ -742,12 +734,13 @@ class DiscordBot(commands.Bot):
                     await setDeepArchimedea(obj_new)
                 except Exception as e:
                     msg = (
-                        f"[err] parse error in handle_deep_archimedea {handler['parser']}/{e}",
+                        f"parse error in handle_deep_archimedea {handler['parser']}/{e}"
                     )
+
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
                         pool=self.db,
-                        type="err",
+                        type=LOG_TYPE.err,
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
@@ -768,13 +761,11 @@ class DiscordBot(commands.Bot):
                     should_save_data = True
                     await setTemporalArchimedea(obj_new)
                 except Exception as e:
-                    msg = (
-                        f"[err] parse error in handle_deep_archimedea {handler['parser']}/{e}",
-                    )
+                    msg = f"parse error in handle_temporal_archimedea {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
                         pool=self.db,
-                        type="err",
+                        type=LOG_TYPE.err,
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
@@ -786,11 +777,11 @@ class DiscordBot(commands.Bot):
                 try:
                     parsed_content = handler["parser"](obj_new)
                 except Exception as e:
-                    msg = f"[err] Data parsing error in {handler['parser']}/{e}"
+                    msg = f"Data parsing error in {handler['parser']}/{e}"
                     print(timeNowDT(), C.red, msg, C.default)
                     await save_log(
                         pool=self.db,
-                        type="err",
+                        type=LOG_TYPE.err,
                         cmd="check_new_content()",
                         user=MSG_BOT,
                         msg=msg,
@@ -847,16 +838,15 @@ class DiscordBot(commands.Bot):
             # save index
             await set_obj_async(steel_data, STEELPATH)
 
-            msg = f"[info] Steel Path reward index updated {curr_idx} -> {new_idx}"
+            msg = f"Steel Path reward index updated {curr_idx} -> {new_idx}"
             await save_log(
                 pool=self.db,
                 cmd="bot.WEEKLY_TASK.steelpath",
                 user=MSG_BOT,
                 msg=msg,
-                obj=timeNowDT(),
             )
         except Exception as e:
-            msg = f"[err] Failed to update Steel Path reward index: {C.red}{e}"
+            msg = f"Failed to update Steel Path reward index: {C.red}{e}"
             print(C.red, msg, C.default)
             await save_log(
                 pool=self.db,
@@ -875,7 +865,7 @@ class DiscordBot(commands.Bot):
             ).timestamp()
             await set_obj_async(duviri_data, DUVIRI_CACHE)
             await setDuviriRotate()
-            msg = f"[info] Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
+            msg = f"Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
             await save_log(
                 pool=self.db,
                 cmd="bot.WEEKLY_TASK.duviri-cache",
@@ -883,7 +873,7 @@ class DiscordBot(commands.Bot):
                 msg=msg,
             )
         except Exception:
-            msg = f"[err] Failed to update duviri-cache data"
+            msg = f"Failed to update duviri-cache data"
             print(C.red, msg, C.default)
             await save_log(
                 pool=self.db,
@@ -929,10 +919,9 @@ class DiscordBot(commands.Bot):
         await save_log(
             pool=self.db,
             type=LOG_TYPE.info,
-            cmd="auto_party_expire",
+            cmd="auto_party_expire()",
             user=MSG_BOT,
             msg=f"START Party AutoDelete",
-            obj=timeNowDT(),
         )
         async with query_reader(self.db) as cursor:
             await cursor.execute("SELECT value FROM vari WHERE name='party_exp_time'")
@@ -989,16 +978,15 @@ class DiscordBot(commands.Bot):
                 await save_log(
                     pool=self.db,
                     type=LOG_TYPE.info,
-                    cmd="auto_party_expire",
+                    cmd="auto_party_expire()",
                     user=MSG_BOT,
-                    msg=f"Party AutoDelete",
-                    obj=omsg,
+                    msg=omsg,
                 )
             except discord.NotFound:
                 await save_log(
                     pool=self.db,
                     type=LOG_TYPE.warn,
-                    cmd="auto_party_expire",
+                    cmd="auto_party_expire()",
                     user=MSG_BOT,
                     msg=f"Party AutoDelete, but msg not found",
                     obj=return_traceback(),
@@ -1012,7 +1000,7 @@ class DiscordBot(commands.Bot):
                 await save_log(
                     pool=self.db,
                     type=LOG_TYPE.err,
-                    cmd="auto_party_expire",
+                    cmd="auto_party_expire()",
                     user=MSG_BOT,
                     msg=f"Party AutoDelete, but error occurred!",
                     obj=return_traceback(),
@@ -1022,10 +1010,9 @@ class DiscordBot(commands.Bot):
         await save_log(
             pool=self.db,
             type=LOG_TYPE.info,
-            cmd="auto_party_expire",
+            cmd="auto_party_expire()",
             user=MSG_BOT,
             msg=f"END Party AutoDelete",
-            obj=timeNowDT(),
         )
 
     # trade auto expire
@@ -1034,10 +1021,9 @@ class DiscordBot(commands.Bot):
         await save_log(
             pool=self.db,
             type=LOG_TYPE.info,
-            cmd="auto_trade_expire",
+            cmd="auto_trade_expire()",
             user=MSG_BOT,
             msg=f"START Trade AutoDelete",
-            obj=timeNowDT(),
         )
         async with query_reader(self.db) as cursor:
             await cursor.execute("SELECT value FROM vari WHERE name='trade_exp_time'")
@@ -1099,18 +1085,17 @@ class DiscordBot(commands.Bot):
                 await save_log(
                     pool=self.db,
                     type=LOG_TYPE.info,
-                    cmd="auto_trade_expire",
+                    cmd="auto_trade_expire()",
                     user=MSG_BOT,
-                    msg=f"Trade AutoDelete",
-                    obj=omsg,
+                    msg=omsg,
                 )
             except discord.NotFound:
                 await save_log(
                     pool=self.db,
                     type=LOG_TYPE.warn,
-                    cmd="auto_trade_expire",
+                    cmd="auto_trade_expire()",
                     user=MSG_BOT,
-                    msg=f"Trade AutoDelete, but msg not found",
+                    msg=f"Trade AutoDelete, but msg not found: {trade['id']}",
                     obj=return_traceback(),
                 )
                 # msg deleted manually
@@ -1122,7 +1107,7 @@ class DiscordBot(commands.Bot):
                 await save_log(
                     pool=self.db,
                     type=LOG_TYPE.err,
-                    cmd="auto_trade_expire",
+                    cmd="auto_trade_expire()",
                     user=MSG_BOT,
                     msg=f"Trade AutoDelete, but error occurred! {e}",
                     obj=return_traceback(),
@@ -1132,8 +1117,7 @@ class DiscordBot(commands.Bot):
         await save_log(
             pool=self.db,
             type=LOG_TYPE.info,
-            cmd="auto_trade_expire",
+            cmd="auto_trade_expire()",
             user=MSG_BOT,
             msg=f"END Trade AutoDelete",
-            obj=timeNowDT(),
         )

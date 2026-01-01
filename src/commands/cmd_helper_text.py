@@ -25,7 +25,7 @@ async def cmd_helper_txt(
         txt2 = await open_file_async(FOOTER_FILE_LOC)
         txt = txt1 + txt2
     except Exception as e:  # send err msg
-        msg: str = "[err] open_file err in cmd_helper_txt"  # VAR
+        msg: str = "open_file err in cmd_helper_txt"  # VAR
         await interact.response.send_message(embed=err_embed(), ephemeral=True)
         print(C.red, msg, C.default, sep="")
         await save_log(
@@ -50,6 +50,6 @@ async def cmd_helper_txt(
         type=LOG_TYPE.cmd,
         cmd=f"{LOG_TYPE.cmd}.{ts.get(f'cmd.help.cmd')}",
         interact=interact,
-        msg="[info] cmd used",  # VAR
+        msg="cmd used",  # VAR
         obj=f"{isPrivateMsg}\n{txt}",
     )

@@ -102,7 +102,7 @@ async def fetch_current_subscriptions(db, channel_id: int) -> list:
             pool=db,
             type=LOG_TYPE.cmd,
             cmd="fetch_current_subscriptions",
-            msg="[info] db select error",  # VAR
+            msg="db select error",  # VAR
             obj=return_traceback(),
         )
         print(f"[Error] fetch_current_subscriptions: {e}")
@@ -135,7 +135,7 @@ class NotificationSelect(discord.ui.Select):
             type=LOG_TYPE.cmd,
             cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
             interact=interact,
-            msg=f"[info] error: {error}",
+            msg=f"error: {error}",
             obj=f"{self.values}\n{item}\n{return_traceback()}",
         )
 
@@ -207,7 +207,7 @@ class NotificationSelect(discord.ui.Select):
                 type=LOG_TYPE.cmd,
                 cmd=f"{LOG_TYPE.cmd}.set-noti",
                 interact=interact,
-                msg="[info] db error",  # VAR
+                msg="db error",  # VAR
                 obj=return_traceback(),
             )
             return
@@ -229,7 +229,7 @@ class NotificationSelect(discord.ui.Select):
             type=LOG_TYPE.cmd,
             cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
             interact=interact,
-            msg="[info] successfully inserted",
+            msg="successfully inserted",
             obj=f"{self.values}",
         )
 
@@ -259,7 +259,7 @@ class NotificationUnSelect(discord.ui.Select):
             type=LOG_TYPE.cmd,
             cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
             interact=interact,
-            msg="[info] unknown error",
+            msg="unknown error",
             obj=f"{self.values}\n{return_traceback()}",
         )
 
@@ -318,7 +318,7 @@ class NotificationUnSelect(discord.ui.Select):
                 type=LOG_TYPE.cmd,
                 cmd=f"{LOG_TYPE.cmd}.delete-noti",
                 interact=interact,
-                msg="[info] db error",
+                msg="db error",
                 obj=return_traceback(),
             )
             return
@@ -354,7 +354,7 @@ class NotificationUnSelect(discord.ui.Select):
             type=LOG_TYPE.cmd,
             cmd=f"{LOG_TYPE.cmd}.delete-noti",
             interact=interact,
-            msg="[info] successfully deleted",
+            msg="successfully deleted",
             obj=f"{self.values}",
         )
 
@@ -390,7 +390,7 @@ async def noti_subscribe_helper(interact: discord.Interaction):
         type=LOG_TYPE.cmd,
         cmd=f"{LOG_TYPE.cmd}.set-noti",
         interact=interact,
-        msg="[info] cmd used",
+        msg="cmd used",
     )
 
 
@@ -413,5 +413,5 @@ async def noti_unsubscribe_helper(interact: discord.Interaction):
         type=LOG_TYPE.cmd,
         cmd=f"{LOG_TYPE.cmd}.delete-noti",
         interact=interact,
-        msg="[info] cmd used",
+        msg="cmd used",
     )

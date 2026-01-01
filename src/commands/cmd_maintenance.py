@@ -44,8 +44,7 @@ async def cmd_helper_maintenance(interact: discord.Interaction, arg: str = "") -
         type=f"{LOG_TYPE.cmd}.{LOG_TYPE.maintenance}",
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         interact=interact,
-        msg="[info] cmd used in maintenance mode",  # VAR
-        obj=arg,
+        msg=f"cmd used in maintenance mode: {arg}",
     )
 
 

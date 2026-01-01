@@ -43,7 +43,7 @@ class PartyCog(commands.Cog):
             type="cmd",
             cmd=f"cmd.party",
             interact=interact,
-            msg="[info] cmd used",  # VAR
+            msg="cmd used",  # VAR
             obj=f"T:{title}\nTYPE:{game_name}\nDEPT:{departure}\nDESC:{descriptions}\n{number_of_user}",
         )
 
@@ -92,7 +92,7 @@ class PartyCog(commands.Cog):
                 type=LOG_TYPE.err,
                 cmd=f"cmd.party",
                 interact=interact,
-                msg="[info] cmd used",  # VAR
+                msg="cmd used",  # VAR
                 obj=f"T:{title}\nTYPE:{game_name}\nDEPT:{departure}\nDESC:{descriptions}\n{number_of_user}",
             )
             return
@@ -160,7 +160,7 @@ class PartyCog(commands.Cog):
                 type=LOG_TYPE.err,
                 cmd=f"cmd.party",
                 interact=interact,
-                msg="[info] cmd used, but ERR",  # VAR
+                msg="cmd used, but ERR",  # VAR
                 obj=f"Error setup discord thread:\nT:{title}\nTYPE:{game_name}\nDEPT:{departure}\nDESC:{descriptions}\n{number_of_user}\n{return_traceback()}",
             )
             print(f"partyCog > {e}")

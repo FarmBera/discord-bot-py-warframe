@@ -85,7 +85,7 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
                 type=LOG_TYPE.err,
                 cmd=pf,
                 interact=interact,
-                msg="[info] cmd used",  # VAR
+                msg="cmd used",  # VAR
                 obj=return_traceback(),
             )
             return
@@ -105,6 +105,6 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
             type=LOG_TYPE.cmd,
             cmd=pf,
             interact=interact,
-            msg="[info] warning user",  # VAR
+            msg="warning user",  # VAR
             obj=f"{user_id}//{original_name}//{display_name}//{game_nickname}\nisBanned: {is_executed_ban}\n{warn_type}\n{warn_reason}",
         )

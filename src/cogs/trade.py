@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from src.translator import ts
+from config.config import LOG_TYPE
 from src.constants.keys import LFG_WEBHOOK_NAME, COOLDOWN_DEFAULT
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
@@ -60,6 +61,13 @@ class TradeCog(commands.Cog):
             await interact.followup.send(
                 ts.get("cmd.party.not-found-ch"), ephemeral=True
             )
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=f"cmd.trade",
+                interact=interact,
+                msg="trade channel not found",
+            )
             return
 
         # search item & verify
@@ -69,6 +77,13 @@ class TradeCog(commands.Cog):
                 ts.get("cmd.market-search.no-result")
                 + f"\n- `{item_name}`에 대한 마켓 검색 결과가 없습니다.\n- 아이템 이름을 확인해주세요.",
                 ephemeral=True,
+            )
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.warn,
+                cmd=f"cmd.trade",
+                interact=interact,
+                msg=f"'{item_name}' not found in market",
             )
             return
 
@@ -81,6 +96,14 @@ class TradeCog(commands.Cog):
             )
         except Exception as e:
             await interact.followup.send(f"{ts.get(f'{pf}err-api')}", ephemeral=True)
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=f"cmd.trade",
+                interact=interact,
+                msg=f"Market API error: {e}",
+                obj=return_traceback(),
+            )
             return
 
         # setup automatic nickname
@@ -106,6 +129,14 @@ class TradeCog(commands.Cog):
             )
         except Exception as e:
             await interact.followup.send(ts.get("cmd.err-db"), ephemeral=True)
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=f"cmd.trade",
+                interact=interact,
+                msg=f"db insertion error: {e}",
+                obj=return_traceback(),
+            )
             return
 
         # create embed & thread
@@ -158,12 +189,20 @@ class TradeCog(commands.Cog):
                 type="cmd",
                 cmd=f"cmd.trade",
                 interact=interact,
-                msg="[info] cmd used",
-                obj=f"Type:{trade_type}, Item:{item_name}, Qty:{quantity}, Price:{price}",
+                msg="cmd used",
+                obj=f"Type:{trade_type}\nItem:{item_name}\nQty:{quantity}\nPrice:{price}",
             )
 
         except Exception as e:
             await interact.followup.send(f"Error setup thread", ephemeral=True)
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=f"cmd.trade",
+                interact=interact,
+                msg=f"Create thread err: {e}",
+                obj=return_traceback(),
+            )
 
     # auto complete item
     @cmd_create_trade.autocomplete("item_name")

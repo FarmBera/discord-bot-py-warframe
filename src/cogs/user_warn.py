@@ -31,6 +31,14 @@ class UserWarnCommands(commands.Cog):
             await interact.response.send_message(
                 ts.get("cmd.user-ban.self-unable"), ephemeral=True
             )
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.info,
+                cmd=pf,
+                interact=interact,
+                msg="cannot ban myself",  # VAR
+                obj=f"{user.id}\n{user.name}\n{user.global_name}\n{user.display_name}",
+            )
             return
 
         if not await is_valid_guild(interact):
@@ -60,20 +68,21 @@ class UserWarnCommands(commands.Cog):
                     type=LOG_TYPE.info,
                     cmd=pf,
                     interact=interact,
-                    msg="[info] cmd used, but already banned",  # VAR
-                    obj=f"{user.id}\n{user.name}\n{user.display_name}",
+                    msg="Already banned user",  # VAR
+                    obj=f"{user.id}\n{user.name}\n{user.global_name}\n{user.display_name}",
                 )
-                return
+                # return
 
             modal = WarnInputModal(pool=interact.client.db, target_member=user)
             await interact.response.send_modal(modal)
 
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.cmd,
+                type=LOG_TYPE.info,
                 cmd=pf,
                 interact=interact,
-                msg="[info] cmd used",  # VAR
+                msg="cmd used",  # VAR
+                obj=f"{user.id}\n{user.name}\n{user.global_name}\n{user.display_name}",
             )
         except Exception as e:
             if not interact.response.is_done():
@@ -86,7 +95,7 @@ class UserWarnCommands(commands.Cog):
                     type=LOG_TYPE.err,
                     cmd=pf,
                     interact=interact,
-                    msg=f"[info] cmd used, but ERR: {e}",  # VAR
+                    msg=f"cmd used, but ERR: {e}",  # VAR
                     obj=return_traceback(),
                 )
 

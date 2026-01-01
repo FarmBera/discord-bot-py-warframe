@@ -18,5 +18,5 @@ async def cmd_unavailable(interact: discord.Interaction) -> None:
         type=LOG_TYPE.unable,
         cmd=f"cmd.{ts.get(f'cmd.help.cmd')}",
         interact=interact,
-        msg="[info] cmd used",  # VAR
+        msg="cmd used",  # VAR
     )
