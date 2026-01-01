@@ -251,9 +251,11 @@ class DiscordBot(commands.Bot):
         text_content = ""
         files_to_upload = []
 
+        log_content: str = None
         # process embed
         if isinstance(content, discord.Embed):
             embed_data = content.to_dict()
+            log_content = content.description
 
         # process tuple (embed, file)
         elif isinstance(content, tuple):
@@ -261,6 +263,7 @@ class DiscordBot(commands.Bot):
             embed_data = eb.to_dict()
             real_file_path = None
 
+            log_content = f"IMG: {file_info}\n{content.description}"
             # img path is string
             if isinstance(file_info, str):
                 path = f"img/{file_info}.webp"
@@ -297,6 +300,7 @@ class DiscordBot(commands.Bot):
         # string only
         else:
             text_content = str(content)
+            log_content = text_content
 
         # setup profile img
         bot_name = self.user.name
@@ -411,7 +415,7 @@ class DiscordBot(commands.Bot):
             cmd="broadcast_webhook",
             user=MSG_BOT,
             msg=log_msg,
-            obj=f"{noti_key}//{success_count}/{total_subscribers}",
+            obj=f"{log_content}",
         )
 
     # auto api request & check new contents
