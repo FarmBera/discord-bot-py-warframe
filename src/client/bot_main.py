@@ -265,7 +265,7 @@ class DiscordBot(commands.Bot):
             embed_data = eb.to_dict()
             real_file_path = None
 
-            log_content = f"IMG: {file_info}\n{content.description}"
+            log_content = f"IMG: {file_info}\n{eb.description}"
             # img path is string
             if isinstance(file_info, str):
                 path = f"img/{file_info}.webp"
