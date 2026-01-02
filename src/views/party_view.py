@@ -301,7 +301,7 @@ class ConfirmJoinLeaveView(ui.View):
         cmd = "PartyView.btn.confirm.join/leave"
         try:
             await self.interact.edit_original_response(
-                content=ts.get(f"err-timeout"), view=None
+                content=ts.get(f"cmd.err-timeout"), view=None
             )
             await save_log(
                 pool=self.interact.client.db,
@@ -434,7 +434,7 @@ class ConfirmDeleteView(ui.View):
         cmd = "PartyView.btn.confirm.delete"
         try:
             await self.interact.edit_original_response(
-                content=ts.get(f"err-timeout"), view=None
+                content=ts.get(f"cmd.err-timeout"), view=None
             )
             await save_log(
                 pool=self.interact.client.db,
