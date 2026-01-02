@@ -2,7 +2,9 @@ import discord
 import asyncio
 import datetime as dt
 from typing import Optional
+import aiomysql
 
+from config.config import LOG_TYPE
 from src.utils.times import KST
 from src.utils.db_helper import transaction
 from src.utils.return_err import return_traceback
@@ -15,8 +17,8 @@ background_log_tasks = set()
 
 
 async def save_log(
-    pool,  # aiomysql.Pool
-    type: str = "info",
+    pool: aiomysql.Pool,  # aiomysql.Pool
+    type: str = LOG_TYPE.info,
     cmd: str = None,
     time: Optional[dt.datetime] = None,
     user: str = None,

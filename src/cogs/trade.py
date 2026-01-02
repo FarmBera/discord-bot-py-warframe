@@ -74,8 +74,7 @@ class TradeCog(commands.Cog):
         flag, item_slug, real_item_name, _ = get_slug_data(item_name)
         if not flag:
             await interact.followup.send(
-                ts.get("cmd.market-search.no-result")
-                + f"\n- `{item_name}`에 대한 마켓 검색 결과가 없습니다.\n- 아이템 이름을 확인해주세요.",
+                ts.get("cmd.market-search.no-result").format(name=item_name),
                 ephemeral=True,
             )
             await save_log(
@@ -110,9 +109,9 @@ class TradeCog(commands.Cog):
         final_nickname = parseNickname(interact.user.display_name)
         # game_nickname if game_nickname else parseNickname(interact.user.display_name)
 
-        isRankItem = True if market_data[0].get("rank") is not None else False
+        is_rank_item = True if market_data[0].get("rank") is not None else False
 
-        if not isRankItem:
+        if not is_rank_item:
             item_rank = -1
 
         # save to db
@@ -147,7 +146,7 @@ class TradeCog(commands.Cog):
                 webhook = await target_channel.create_webhook(name=LFG_WEBHOOK_NAME)
 
             thread_name = f"[{trade_type.name}] {real_item_name}"
-            if isRankItem:
+            if is_rank_item:
                 thread_name += f" ({ts.get(f'{pf}rank-simple').format(rank=item_rank)})"
 
             starter_msg = await webhook.send(
@@ -171,7 +170,7 @@ class TradeCog(commands.Cog):
                     "price": estimated_price,
                 },
                 self.bot.db,
-                isRank=isRankItem,
+                isRank=is_rank_item,
             )
             msg = await thread.send(embed=embed, view=TradeView())
 
@@ -205,6 +204,7 @@ class TradeCog(commands.Cog):
             )
 
     # auto complete item
+    # noinspection PyUnusedLocal
     @cmd_create_trade.autocomplete("item_name")
     async def trade_item_name_autocomplete(
         self, interact: discord.Interaction, current: str

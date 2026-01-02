@@ -44,6 +44,7 @@ view:
   support-privacy: "🔐 개인정보 처리방침"
   support-tos: "📜 이용약관"
   support-donate: "💰 개발자 후원하기"
+
 cmd:
   no-perm-title: "❌ 권한 없음"
   no-permission: |
@@ -58,7 +59,7 @@ cmd:
     desc: 이 명령어를 다시 사용하려면 {time}초 더 기다려야 합니다.
     btn: 버튼을 다시 사용하려면 {time}초 더 기다려야 합니다.
   err-db: "❌ 데이터베이스에 오류가 발생했습니다. 개발자에게 문의해주세요."
-  err-timeout: "시간이 초과되어 작업이 취소되었어요."
+  err-timeout: 시간이 초과되어 작업이 취소되었어요.
   warning-count: |
     ```diff
     -관리자에게 {count}회 경고를 받은 사용자입니다.
@@ -263,7 +264,10 @@ cmd:
     arg-item-rank: "아이템_랭크"
     desc-item-rank: "아이템의 랭크를 입력하세요."
 
-    no-result: "## 검색 결과가 없습니다."
+    no-result: |
+      ## 검색 결과가 없습니다.
+      - **{name}** 에 대한 마켓 검색 결과가 없습니다.
+      - 아이템 이름을 다시 확인해주세요.
     server-err: |
       ## '워프레임 마켓' 서버에 오류가 발생했습니다.
       - '워프레임 마켓' 서버가 점검 중일 수 있습니다.

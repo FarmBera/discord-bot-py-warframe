@@ -286,16 +286,14 @@ class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
 
 # ----------------- Views -----------------
 class ConfirmJoinLeaveView(ui.View):
-    def __init__(
-        self, action, db_pool, party_id, user_id, user_mention, original_message
-    ):
+    def __init__(self, action, party_id, interact: discord.Interaction):
         super().__init__(timeout=20)
         self.action = action
-        self.db_pool = db_pool
+        self.db_pool = interact.client.db
         self.party_id = party_id
-        self.user_id = user_id
-        self.user_mention = user_mention
-        self.original_message = original_message
+        self.user_id = interact.user.id
+        self.user_mention = interact.user.mention
+        self.original_message = interact.message
 
     async def on_timeout(self):
         cmd = "PartyView.btn.confirm.join/leave"
@@ -304,7 +302,7 @@ class ConfirmJoinLeaveView(ui.View):
                 content=ts.get(f"cmd.err-timeout"), view=None
             )
             await save_log(
-                pool=self.interact.client.db,
+                pool=self.db_pool,
                 type=LOG_TYPE.event,
                 cmd=cmd,
                 interact=self.interact,
@@ -321,7 +319,7 @@ class ConfirmJoinLeaveView(ui.View):
             )
         except Exception:
             await save_log(
-                pool=self.interact.client.db,
+                pool=self.db_pool,
                 type=LOG_TYPE.err,
                 cmd=cmd,
                 interact=self.interact,
@@ -332,6 +330,9 @@ class ConfirmJoinLeaveView(ui.View):
     @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.success)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
         try:
+            host_warn_count = await PartyService.get_host_warning_count(
+                interact.client.db, interact.user.id
+            )
             if self.action == "join":
                 await save_log(
                     pool=interact.client.db,
@@ -349,9 +350,6 @@ class ConfirmJoinLeaveView(ui.View):
                 )
                 await interact.response.edit_message(
                     content=ts.get(f"{pf}pv-joined"), view=None
-                )
-                host_warn_count = await PartyService.get_host_warning_count(
-                    interact.client.db, interact.user.id
                 )
                 # TODO: random join message
                 rint = 1
@@ -383,8 +381,11 @@ class ConfirmJoinLeaveView(ui.View):
                     ts.get(f"{pf}pc-lefted").format(
                         host=self.user_mention, user=interact.user.mention
                     )
+                    # user warn msg
+                    + ts.get(f"cmd.warning-count").format(count=host_warn_count)
+                    if host_warn_count >= 1
+                    else ""
                 )
-
             new_embed = await build_party_embed_from_db(
                 self.original_message.id, self.db_pool
             )
@@ -689,12 +690,7 @@ class PartyView(ui.View):
             return
 
         view = ConfirmJoinLeaveView(
-            action="join",
-            db_pool=interact.client.db,
-            party_id=party["id"],
-            user_id=interact.user.id,
-            user_mention=interact.user.mention,
-            original_message=interact.message,
+            action="join", party_id=party["id"], interact=interact
         )
         await interact.response.send_message(
             ts.get(f"{pf}pv-confirm-join"), view=view, ephemeral=True
@@ -742,12 +738,7 @@ class PartyView(ui.View):
             return
 
         view = ConfirmJoinLeaveView(
-            "leave",
-            interact.client.db,
-            party["id"],
-            interact.user.id,
-            interact.user.mention,
-            interact.message,
+            action="leave", party_id=party["id"], interact=interact
         )
         await interact.response.send_message(
             ts.get(f"{pf}pv-confirm-exit"), view=view, ephemeral=True

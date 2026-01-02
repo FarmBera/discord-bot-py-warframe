@@ -14,7 +14,6 @@ from src.constants.keys import (
     ANNOUNCE_FILE_LOC,
     PATCHNOTE_FILE_LOC,
     POLICY_FILE_LOC,
-    MARKET_HELP_FILE,
     # cmd obj
     ALERTS,
     NEWS,

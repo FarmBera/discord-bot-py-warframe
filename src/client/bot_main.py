@@ -117,7 +117,7 @@ class DiscordBot(commands.Bot):
             user=MSG_BOT,
             msg=f"[{LOG_TYPE.info}] Bot booted up.",
         )
-        # start coroutune
+        # start coroutine
         if not SETTINGS["noti"]["isEnabled"]:
             return
 
@@ -251,8 +251,9 @@ class DiscordBot(commands.Bot):
         embed_data = None
         text_content = ""
         files_to_upload = []
+        content_file_name = "i.webp"
 
-        log_content: str = None
+        log_content: str = ""
         # process embed
         if isinstance(content, discord.Embed):
             embed_data = content.to_dict()
@@ -270,7 +271,7 @@ class DiscordBot(commands.Bot):
                 path = f"img/{file_info}.webp"
                 if os.path.exists(path):
                     real_file_path = path
-                    content_file_name = "i.webp"
+                    # content_file_name = "i.webp"
                 # else:
                 #     real_file_path = file_info
                 #     content_file_name = os.path.basename(file_info)
@@ -423,9 +424,7 @@ class DiscordBot(commands.Bot):
     @tasks.loop(minutes=5.0)
     async def check_new_content(self) -> None:
         if lang == Lang.EN:
-            latest_data: requests.Response = await API_Request(
-                self.db, "check_new_content()"
-            )
+            latest_data = await API_Request(self.db, "check_new_content()")
             if not latest_data or latest_data.status_code != 200:
                 return
 
@@ -460,9 +459,6 @@ class DiscordBot(commands.Bot):
             notification: bool = False
             parsed_content = None
             should_save_data: bool = False
-            text_arg: str = ""
-            key_arg: str = ""
-            embed_color = None
 
             special_logic = handler.get("special_logic")
 

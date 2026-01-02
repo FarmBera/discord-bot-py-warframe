@@ -39,6 +39,12 @@ time:
   hour: h
   min: m
 
+view:
+  support-help: "❔ Help"
+  support-privacy: "🔐 Privacy Policy"
+  support-tos: "📜 Terms of Service"
+  support-donate: "💰 Donate Developer"
+
 cmd:
   no-perm-title: Permission Denied
   no-permission: |
@@ -53,6 +59,7 @@ cmd:
     desc: You must wait {time} more second(s) to use this command again.
     btn: You must wait {time} more seconds(s) to use this button again.
   err-db: “❌ A database error has occurred”
+  err-timeout: The operation was canceled due to timeout.
   warning-count: |
     ```diff
     -This user has received {count} warnings from the admin.
@@ -257,7 +264,10 @@ cmd:
     arg-item-rank: "item_rank"
     desc-item-rank: "아이템의 랭크를 입력하세요."
 
-    no-result: "## No Search Result"
+    no-result: |
+      ## No search results found.
+            - No market search results found for **{name}**.
+            - Please double-check the item name.
     server-err: |
       ## An error occurred on the 'Warframe Market' server.
       - The 'Warframe Market' server may be under maintenance.
@@ -516,7 +526,6 @@ cmd:
     err-type: "Invalid trade type! --> {type}\n\nYou can only use one of the following: {list}"
 
     err-general: "Interaction error. Please contact an administrator."
-    err-timeout: "The action was canceled due to a timeout."
     err-only-host: "Only the author of the trade post can use this button."
     err-not-found: "Could not find trade information."
     err-forbidden: "The bot cannot access the trade post. Please contact an administrator."

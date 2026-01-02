@@ -1,5 +1,4 @@
 import requests
-import asyncio
 import json
 
 from src.translator import language as lang
@@ -34,7 +33,7 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
         response = requests.get(base_url_warframe, timeout=60)
     except Exception as e:
         elapsed_time = timeNowDT() - start_time
-        msg = f"[err] API request failed!: {elapsed_time}"
+        msg = f"[err] API request failed!: {elapsed_time}/{e}"
         print(timeNowDT(), C.red, msg, C.default)
         await save_log(
             pool=pool,
