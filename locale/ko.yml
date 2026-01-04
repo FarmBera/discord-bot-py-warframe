@@ -39,6 +39,22 @@ time:
   hour: 시간
   min: 분
 
+noti-label:
+  Alerts: "얼럿 미션"
+  Events: "워프레임 뉴스"
+  Sorties: "출격"
+  LiteSorties: "집정관 사냥"
+  VoidTraders: "바로 키 티어"
+  ConquestsDeep: "심층 아르키메디아"
+  ConquestsTemporal: "템포럴 아르키메디아"
+  steelPath: "스틸에센스"
+  KnownCalendarSeasons: "1999달력"
+  DailyDeals: "일일 특가"
+  Invasions: "침공"
+  EndlessXpChoicesWarframe: "두비리 순환로 - 워프레임"
+  EndlessXpChoicesIncarnon: "두비리 순환로 - 인카논"
+  Goals: "이벤트"
+
 view:
   support-help: "❔ 도움말"
   support-privacy: "🔐 개인정보 처리방침"

@@ -39,6 +39,22 @@ time:
   hour: h
   min: m
 
+noti-label:
+  Alerts: Alert Missions
+  Events: Latest Warframe News
+  Sorties: Sortie
+  LiteSorties: Archon Hunt
+  VoidTraders: Baro'ki Teer
+  ConquestsDeep: Deep Archimedea
+  ConquestsTemporal: Temporal Archimedea
+  steelPath: Steel Essense
+  KnownCalendarSeasons: 1999 Calendar
+  DailyDeals: Darvo's Daily Deals
+  Invasions: Invasions
+  EndlessXpChoicesWarframe: Duviri Circuit - Warframe
+  EndlessXpChoicesIncarnon: Duviri Circuit - Incarnon
+  Goals: Event
+
 view:
   support-help: "❔ Help"
   support-privacy: "🔐 Privacy Policy"

@@ -1,11 +1,9 @@
 import discord
-import aiohttp
-import asyncio
 
 from config.config import LOG_TYPE
 from src.translator import ts
 from src.utils.logging_utils import save_log
-from src.utils.db_helper import transaction, query_reader
+from src.utils.db_helper import transaction
 from src.utils.return_err import return_traceback
 from src.constants.keys import (
     ALERTS,
@@ -15,7 +13,6 @@ from src.constants.keys import (
     VOIDTRADERS,
     STEELPATH,
     ARCHIMEDEA,
-    FISSURES,
     CALENDAR,
     DAILYDEALS,
     INVASIONS,
@@ -52,21 +49,30 @@ PROFILE_CONFIG = {
 }
 
 # UI selection
+PF_LABEL: str = "noti-label."
 NOTI_LABELS = {
-    ALERTS: "얼럿 미션",
-    NEWS: "워프레임 뉴스",
-    SORTIE: "출격",
-    ARCHONHUNT: "집정관 사냥",
-    VOIDTRADERS: "바로 키 티어",
-    f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": "심층 아르키메디아",
-    f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": "템포럴 아르키메디아",
-    STEELPATH: "스틸에센스",
-    CALENDAR: "1999달력",
-    DAILYDEALS: "일일 특가",
-    INVASIONS: "침공",
-    f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": "두비리 순환로 - 워프레임",
-    f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": "두비리 순환로 - 인카논",
-    EVENTS: "이벤트",
+    ALERTS: ts.get(f"{PF_LABEL}{ALERTS}"),
+    NEWS: ts.get(f"{PF_LABEL}{NEWS}"),
+    SORTIE: ts.get(f"{PF_LABEL}{SORTIE}"),
+    ARCHONHUNT: ts.get(f"{PF_LABEL}{ARCHONHUNT}"),
+    VOIDTRADERS: ts.get(f"{PF_LABEL}{VOIDTRADERS}"),
+    f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": ts.get(
+        f"{PF_LABEL}{ARCHIMEDEA}{ARCHIMEDEA_DEEP}"
+    ),
+    f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": ts.get(
+        f"{PF_LABEL}{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}"
+    ),
+    STEELPATH: ts.get(f"{PF_LABEL}{STEELPATH}"),
+    CALENDAR: ts.get(f"{PF_LABEL}{CALENDAR}"),
+    DAILYDEALS: ts.get(f"{PF_LABEL}{DAILYDEALS}"),
+    INVASIONS: ts.get(f"{PF_LABEL}{INVASIONS}"),
+    f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": ts.get(
+        f"{PF_LABEL}{DUVIRI_ROTATION}{DUVIRI_U_K_W}"
+    ),
+    f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": ts.get(
+        f"{PF_LABEL}{DUVIRI_ROTATION}{DUVIRI_U_K_I}"
+    ),
+    EVENTS: ts.get(f"{PF_LABEL}{EVENTS}"),
 }
 
 pfs: str = "cmd.alert-set."  # prefix select

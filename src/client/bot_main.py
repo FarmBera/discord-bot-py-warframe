@@ -3,7 +3,6 @@ from discord.ext import tasks
 from discord.ext import commands
 import datetime as dt
 import os
-import requests
 import json
 import asyncio
 import aiohttp
@@ -13,36 +12,33 @@ from config.config import Lang, language as lang, LOG_TYPE
 from config.roles import ROLES
 from src.translator import ts
 from src.bot_translator import BotTranslator
-from src.utils.times import KST, alert_times, timeNowDT
+from src.utils.times import KST, timeNowDT
 from src.constants.color import C
 from src.constants.keys import (
     # other var
     SPECIAL_ITEM_LIST,
     MSG_BOT,
     # cmd obj
-    SORTIE,
     STEELPATH,
     DUVIRI_ROTATION,
+    DUVIRI_U_K_W,
+    DUVIRI_U_K_I,
     DUVIRI_CACHE,
     LFG_WEBHOOK_NAME,
 )
 from src.utils.api_request import API_Request
 from src.utils.logging_utils import save_log
 from src.utils.file_io import json_load_async
-from src.utils.discord_file import img_file
 from src.utils.db_helper import query_reader, transaction
 from src.utils.return_err import return_traceback, print_test_err
 from src.utils.data_manager import (
     get_obj_async,
     set_obj_async,
     SETTINGS,
-    CHANNELS,
     getLanguage,
 )
 
 from src.handler.handler_config import DATA_HANDLERS
-
-from src.parser.sortie import w_sortie
 from src.parser.voidTraders import isBaroActive
 from src.parser.steelPath import w_steelPath
 from src.parser.archimedea import (
@@ -161,61 +157,6 @@ class DiscordBot(commands.Bot):
             f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.coroutine')}{C.default}"
         )
 
-    async def send_alert(
-        self, value, channel_list=None, setting=None, key=None
-    ) -> None:
-        if not setting:
-            setting = SETTINGS
-        if not setting["noti"]["isEnabled"]:
-            return
-
-        if not channel_list:
-            channel_list = CHANNELS["channel"]
-
-        # send message
-        for ch in channel_list:
-            channel = await self.fetch_channel(ch)
-
-            # embed type
-            if isinstance(value, discord.Embed):
-                await save_log(
-                    pool=self.db,
-                    type="msg",
-                    cmd="auto_sent_message",
-                    user=MSG_BOT,
-                    guild=channel.guild,
-                    channel=channel.name,
-                    obj=value.description,
-                )
-                await channel.send(embed=value)
-
-            # embed with file or thumbnail
-            elif isinstance(value, tuple):
-                eb, f = value
-                await save_log(
-                    pool=self.db,
-                    type="msg",
-                    cmd="auto_sent_message",
-                    user=MSG_BOT,
-                    guild=channel.guild,
-                    channel=channel.name,
-                    obj=eb.description,
-                )
-                f = img_file(f)
-                await channel.send(embed=eb, file=f)
-
-            else:  # string type
-                await save_log(
-                    pool=self.db,
-                    type="msg",
-                    cmd="auto_sent_message",
-                    user=MSG_BOT,
-                    guild=channel.guild,
-                    channel=channel.name,
-                    obj=value,
-                )
-                await channel.send(value)
-
     async def broadcast_webhook(self, noti_key: str, content) -> None:
         """
         search the webhook subscribed to that notification (noti_key) in the database and sends it.
@@ -223,7 +164,7 @@ class DiscordBot(commands.Bot):
         # check db column mapping
         db_column = DB_COLUMN_MAP.get(noti_key)
         if not db_column:
-            msg = f"[{LOG_TYPE.err}] Unmapped notification key: {noti_key}"
+            msg = f"[{LOG_TYPE.err}] Unmapped notification key: `{noti_key}` -> {db_column}"
             await save_log(
                 pool=self.db,
                 type=LOG_TYPE.err,
@@ -231,7 +172,7 @@ class DiscordBot(commands.Bot):
                 user=MSG_BOT,
                 msg=msg,
             )
-            print(C.yellow, msg, C.default)
+            print(C.yellow, msg, C.default, sep="")
             return
 
         # search subscribers in db
@@ -336,6 +277,7 @@ class DiscordBot(commands.Bot):
 
         # send alert & check result
         async with aiohttp.ClientSession() as session:
+            eta_start: dt.datetime = timeNowDT()
             for row in subscribers:
                 url = row["webhook_url"]
                 # custom_msg = row.get("custom_msg", "")
@@ -376,12 +318,13 @@ class DiscordBot(commands.Bot):
                                 success_count += 1
                             else:
                                 err_text = await response.text()
+                                eta_end: dt.timedelta = timeNowDT() - eta_start
                                 await save_log(
                                     pool=self.db,
                                     type=LOG_TYPE.err,
                                     cmd="broadcast_webhook",
                                     user=MSG_BOT,
-                                    msg=f"Failed to send {noti_key} Multipart ({response.status})",
+                                    msg=f"Failed to send {noti_key} Multipart (code: {response.status}, eta: {eta_end})",
                                     obj=err_text,
                                 )
                     else:  # general send (json)
@@ -390,27 +333,32 @@ class DiscordBot(commands.Bot):
                                 success_count += 1
                             else:
                                 err_text = await response.text()
+                                eta_end: dt.timedelta = timeNowDT() - eta_start
                                 await save_log(
                                     pool=self.db,
                                     type=LOG_TYPE.err,
                                     cmd="broadcast_webhook",
                                     user=MSG_BOT,
-                                    msg=f"Failed to send {noti_key} Multipart ({response.status})",
+                                    msg=f"Failed to send {noti_key} general (code: {response.status}, eta: {eta_end})",
                                     obj=err_text,
                                 )
 
                 except Exception as e:
+                    eta_sending: dt.timedelta = timeNowDT() - eta_start
                     await save_log(
                         pool=self.db,
                         type=LOG_TYPE.err,
                         cmd="broadcast_webhook",
                         user=MSG_BOT,
-                        msg=f"ERROR on sending msg: {noti_key}",
+                        msg=f"ERROR on sending msg: {noti_key} (eta: {eta_sending})\n{e}",
                         obj=return_traceback(),
                     )
 
         # logging
-        log_msg = f"{noti_key} sent. {success_count}/{total_subscribers}"
+        eta_sending: dt.timedelta = timeNowDT() - eta_start
+        log_msg = (
+            f"{noti_key} sent. {success_count}/{total_subscribers} (eta: {eta_sending})"
+        )
         await save_log(
             pool=self.db,
             type=LOG_TYPE.msg,
@@ -894,13 +842,17 @@ class DiscordBot(commands.Bot):
 
         # duviri notification
         await setDuviriRotate()
+        data_key: list = [
+            f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}",
+            f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}",
+        ]
         data_list: list = [
             w_duviri_warframe(await get_obj_async(DUVIRI_ROTATION)),
             w_duviri_incarnon(await get_obj_async(DUVIRI_ROTATION)),
         ]
-        for i in range(len(data_list)):
+        for i in range(0, len(data_list)):
             data_list[i].description = f"<@&{ROLES[i]}>\n" + data_list[i].description
-            await self.send_alert(data_list[i])
+            await self.broadcast_webhook(data_key[i], data_list[i])
 
         if lang == Lang.KO:
             return
