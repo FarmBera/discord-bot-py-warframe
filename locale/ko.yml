@@ -223,6 +223,10 @@ cmd:
     sorrow: 슬픔 (Sorrow)
     fear: 두려움 (Fear)
 
+  archimedea:
+    deviation: 편차
+    risks: 위험 요소
+
   deep-archimedea:
     cmd: 심층아르키메디아
     desc: "[베타버전] 이번주 심층 아르키메디아 미션 및 기타 정보를 확인할 수 있어요."

@@ -223,6 +223,10 @@ cmd:
     sorrow: Sorrow
     fear: Fear
 
+  archimedea:
+    deviation: Deviation
+    risks: Risks
+
   deep-archimedea:
     cmd: deeparchimedea
     desc: "[Beta] Get Deep Archimedea missions this weekend"
