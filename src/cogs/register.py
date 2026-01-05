@@ -246,7 +246,7 @@ class GeneralCommands(commands.Cog):
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
-    async def cmd_alerts(
+    async def cmd_deep_archimedea(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
         await cmd_helper(
@@ -264,7 +264,7 @@ class GeneralCommands(commands.Cog):
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
-    async def cmd_alerts(
+    async def cmd_temporal_archimedea(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
         await cmd_helper(

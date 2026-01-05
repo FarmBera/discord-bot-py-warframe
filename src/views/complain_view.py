@@ -1,16 +1,9 @@
 import discord
-from discord import ui
-from discord.ext import commands
-import asyncio
-
-# editor modal
-import discord
 from discord.ext import commands
 import asyncio
 
 from config.config import LOG_TYPE
 from src.translator import ts
-from src.constants.color import C
 from src.constants.keys import COOLDOWN_DEFAULT
 from src.utils.return_err import return_traceback
 from src.utils.data_manager import CHANNELS
@@ -29,7 +22,6 @@ class ComplainModal(discord.ui.Modal):
     def __init__(self, btn_interact: discord.Interaction):
         super().__init__(title=ts.get(f"{pf}m-title"), timeout=None)
         self.button_interact = btn_interact
-
         self.input_title = discord.ui.TextInput(
             label=ts.get(f"{pf}m-title-label"),
             placeholder=ts.get(f"{pf}m-title-ph"),
@@ -58,18 +50,16 @@ class ComplainModal(discord.ui.Modal):
     async def on_submit(self, interact: discord.Interaction):
         try:
             await interact.response.defer(ephemeral=True)
-
             await self.button_interact.edit_original_response(
-                content=ts.get(f"> 처리 중입니다. 잠시만 기다려주세요..."),
-                embed=None,
-                view=None,
+                content=ts.get(f"{pf}on-progress"), embed=None, view=None
             )
-
             title: str = f"[{self.input_category}] {self.input_title}"
-            desc: str = f"""{ts.get(f'{pf}created').format(user=interact.user.display_name)}
-(사용자 ID: {interact.user.name})
-
-{self.input_desc}"""
+            desc: str = ts.get(f"{pf}created").format(
+                user=interact.user.display_name,
+                category=self.input_category,
+                name=interact.user.name,
+                desc=self.input_desc,
+            )
 
             # load dm users
             async with query_reader(interact.client.db) as cursor:
@@ -112,7 +102,7 @@ class ComplainModal(discord.ui.Modal):
             print(e)
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.e_event,
+                type=LOG_TYPE.err,
                 cmd="Complain.btn.submit",
                 interact=interact,
                 msg=f"Complain submitted, but ERR",
@@ -124,13 +114,22 @@ class ApplyButtonView(discord.ui.View):
     def __init__(self, interact):
         self.interact: discord.Interaction = interact
         super().__init__(timeout=None)
-        self.cd = commands.CooldownMapping.from_cooldown(
+        self.cd: commands.CooldownMapping = commands.CooldownMapping.from_cooldown(
             1, COOLDOWN_DEFAULT, commands.BucketType.user
         )
 
+    @staticmethod
     async def is_cooldown(
-        self, interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
+        interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
     ) -> bool:
+        """
+        checks cooldown
+
+        :param self:
+        :param interact:
+        :param cooldown_mapping:
+        :return:
+        """
         bucket = cooldown_mapping.get_bucket(interact.message)
         retry = bucket.update_rate_limit()
         if retry:

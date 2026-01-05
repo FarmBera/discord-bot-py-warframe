@@ -2,6 +2,7 @@ import discord
 from discord import ui
 from discord.ext import commands
 import datetime as dt
+import random
 
 from src.translator import ts
 from src.utils.times import convert_remain, parseKoreanDatetime
@@ -413,7 +414,6 @@ class ConfirmJoinLeaveView(ui.View):
         )
         self.value = False
         self.stop()
-
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
@@ -474,8 +474,6 @@ class ConfirmDeleteView(ui.View):
             msg=f"ConfirmDeleteView -> clicked yes",
         )
         try:
-            await PartyService.delete_party(interact.client.db, interact.channel.id)
-
             new_embed = await build_party_embed_from_db(
                 self.msgid, interact.client.db, isDelete=True
             )
@@ -490,7 +488,6 @@ class ConfirmDeleteView(ui.View):
                 webhook_name = LFG_WEBHOOK_NAME
                 webhooks = await interact.channel.parent.webhooks()
                 webhook = discord.utils.get(webhooks, name=webhook_name)
-
                 if webhook:
                     starter_message = await interact.channel.parent.fetch_message(
                         interact.channel.id
@@ -511,6 +508,8 @@ class ConfirmDeleteView(ui.View):
             # lock thread
             if isinstance(interact.channel, discord.Thread):
                 await interact.channel.edit(locked=True)
+
+            await PartyService.delete_party(interact.client.db, interact.channel.id)
 
             await interact.followup.send(ts.get(f"{pf}del-deleted"), ephemeral=True)
 

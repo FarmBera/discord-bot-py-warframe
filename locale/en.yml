@@ -617,8 +617,14 @@ cmd:
     m-desc-label: Details
     m-desc-ph: Please provide a detailed description within 4,000 characters.
 
+    # processing
+    on-progress: "> Processing... Please wait a moment..."
     # new article
-    created: "**{user}** has submitted an inquiry."
+    created: |
+      **{user}** has submitted **{category}**.
+      (User ID: {name})
+
+      {desc}
     done: "✅ Submission completed.\nWe will review and respond promptly."
 
     # error
