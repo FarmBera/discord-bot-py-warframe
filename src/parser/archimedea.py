@@ -15,12 +15,12 @@ CT_LAB = "CT_LAB"
 CT_HEX = "CT_HEX"
 
 
-async def getDeepArchimedea():
+def getDeepArchimedea():
     global archimedea_deep
     return archimedea_deep
 
 
-async def getTemporalArchimedea():
+def getTemporalArchimedea():
     global archimedea_temporal
     return archimedea_temporal
 
