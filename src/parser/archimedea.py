@@ -15,30 +15,40 @@ CT_LAB = "CT_LAB"
 CT_HEX = "CT_HEX"
 
 
-async def setDeepArchimedea(object):
+async def getDeepArchimedea():
     global archimedea_deep
-    archimedea_deep = object
-    await set_obj_async(object, f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
+    return archimedea_deep
 
 
-async def setTemporalArchimedea(object):
+async def getTemporalArchimedea():
     global archimedea_temporal
-    archimedea_temporal = object
-    await set_obj_async(object, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
+    return archimedea_temporal
 
 
-def generateVariables(object) -> str:
+async def setDeepArchimedea(obj):
+    global archimedea_deep
+    archimedea_deep = obj
+    await set_obj_async(obj, f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
+
+
+async def setTemporalArchimedea(obj):
+    global archimedea_temporal
+    archimedea_temporal = obj
+    await set_obj_async(obj, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
+
+
+def generateVariables(obj) -> str:
     text = "## Global Variables"
-    for var in object["Variables"]:
+    for var in obj["Variables"]:
         text += f"\n- {var}"
 
     return text
 
 
-def generateMissions(object) -> str:
+def generateMissions(obj) -> str:
     text = ""
     idx = 1
-    for item in object["Missions"]:
+    for item in obj["Missions"]:
         text += f"{idx}. **{getMissionType(item['missionType'])}**: "
         # ({getFactions(item['faction'])})\n"
         for jtem in item["difficulties"]:

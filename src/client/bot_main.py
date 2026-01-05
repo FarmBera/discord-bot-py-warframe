@@ -42,8 +42,8 @@ from src.handler.handler_config import DATA_HANDLERS
 from src.parser.voidTraders import isBaroActive
 from src.parser.steelPath import w_steelPath
 from src.parser.archimedea import (
-    archimedea_deep,
-    archimedea_temporal,
+    getDeepArchimedea,
+    getTemporalArchimedea,
     setDeepArchimedea,
     setTemporalArchimedea,
     CT_LAB,
@@ -410,10 +410,11 @@ class DiscordBot(commands.Bot):
 
             special_logic = handler.get("special_logic")
 
+            # alerts, news
             if (
                 special_logic == "handle_missing_items"
                 or special_logic == "handle_new_news"
-            ):  # alerts, news
+            ):
                 if special_logic == "handle_new_news":  # news process
                     news_old: list = []
                     news_new: list = []
@@ -665,7 +666,7 @@ class DiscordBot(commands.Bot):
             elif special_logic == "handle_deep_archimedea":
                 obj_new = next(i for i in obj_new if i.get("Type") == CT_LAB)
                 is_new = (
-                    archimedea_deep["Activation"]["$date"]["$numberLong"]
+                    getDeepArchimedea()["Activation"]["$date"]["$numberLong"]
                     != obj_new["Activation"]["$date"]["$numberLong"]
                 )
                 if not is_new:
@@ -693,9 +694,9 @@ class DiscordBot(commands.Bot):
 
             elif special_logic == "handle_temporal_archimedea":
                 obj_new = next(i for i in obj_new if i.get("Type") == CT_HEX)
-                is_new = archimedea_temporal["Activation"]["$date"]["$numberLong"] != (
-                    obj_new["Activation"]["$date"]["$numberLong"]
-                )
+                is_new = getTemporalArchimedea()["Activation"]["$date"][
+                    "$numberLong"
+                ] != (obj_new["Activation"]["$date"]["$numberLong"])
                 if not is_new:
                     continue
 
