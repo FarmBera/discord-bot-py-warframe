@@ -1,10 +1,6 @@
-import traceback
 import datetime as dt
 from zoneinfo import ZoneInfo
 import re
-
-from src.utils.return_err import print_test_err
-
 
 JSON_DATE_PAT: str = "%Y-%m-%dT%H:%M:%S.%fZ"
 
@@ -43,8 +39,6 @@ def convert_remain(unix_timestamp: int | float | str):
         string that shows remain time with discord timestamp
         <t:1234567890:R>
     """
-    from src.translator import ts
-
     try:
         ts_str = str(int(unix_timestamp))
 
@@ -53,37 +47,37 @@ def convert_remain(unix_timestamp: int | float | str):
             ts_int = int(ts_str) // 1000
         else:
             ts_int = int(ts_str)
-    except (ValueError, TypeError) as e:
+    except (ValueError, TypeError):
         # print_test_err("Timestamp Format err")
         return "**Time ERR**"
 
     return f"<t:{ts_int}:R>"
 
-    # convert into datetime obj
-    now_dt = timeNowDT()
-    input_dt = dt.datetime.fromtimestamp(ts_int)
-
-    # calculate time diff
-    diff = now_dt - input_dt
-    if diff.total_seconds() > 0:
-        return "`Event End!`"
-    time_difference = abs(diff)
-
-    # extract day, hour, minute
-    days = time_difference.days
-    remaining_seconds = time_difference.seconds
-    hours = remaining_seconds // 3600
-    minutes = (remaining_seconds % 3600) // 60
-
-    output: list = []
-    if days > 0:
-        output.append(f"{days}{ts.get('time.day')}")
-    if hours > 0:
-        output.append(f"{hours}{ts.get('time.hour')}")
-    if minutes > 0:
-        output.append(f"{minutes}{ts.get('time.min')}")
-
-    return " ".join(output)
+    # # convert into datetime obj
+    # now_dt = timeNowDT()
+    # input_dt = dt.datetime.fromtimestamp(ts_int)
+    #
+    # # calculate time diff
+    # diff = now_dt - input_dt
+    # if diff.total_seconds() > 0:
+    #     return "`Event End!`"
+    # time_difference = abs(diff)
+    #
+    # # extract day, hour, minute
+    # days = time_difference.days
+    # remaining_seconds = time_difference.seconds
+    # hours = remaining_seconds // 3600
+    # minutes = (remaining_seconds % 3600) // 60
+    #
+    # output: list = []
+    # if days > 0:
+    #     output.append(f"{days}{ts.get('time.day')}")
+    # if hours > 0:
+    #     output.append(f"{hours}{ts.get('time.hour')}")
+    # if minutes > 0:
+    #     output.append(f"{minutes}{ts.get('time.min')}")
+    #
+    # return " ".join(output)
 
 
 def parseKoreanDatetime(text):

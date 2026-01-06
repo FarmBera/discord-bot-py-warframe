@@ -7,7 +7,6 @@ import aiomysql
 from config.config import LOG_TYPE
 from src.utils.times import KST
 from src.utils.db_helper import transaction
-from src.utils.return_err import return_traceback
 from src.constants.color import C
 
 TIMEOUT_SECONDS: float = 30.0

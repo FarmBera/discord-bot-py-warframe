@@ -2,8 +2,7 @@ import discord
 import datetime as dt
 
 from src.translator import ts, language as lang
-from src.utils.times import convert_remain, timeNow, KST
-from src.utils.data_manager import get_obj
+from src.utils.times import timeNow, KST
 from src.utils.file_io import json_load
 
 descendiaLanguage = json_load(f"data/{lang}/descendiaLanguages.json")
@@ -68,6 +67,6 @@ def w_descendia(descendia) -> tuple:
 
 
 # from src.constants.keys import DESCENDIA
-
+# from src.utils.data_manager import get_obj
 # TEST_OBJECT = get_obj(DESCENDIA)
 # print(w_descendia(TEST_OBJECT)[0].description)

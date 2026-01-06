@@ -1,4 +1,6 @@
 import discord
+
+# other
 from src.translator import ts
 from src.utils.times import convert_remain
 from src.utils.return_err import err_embed
@@ -7,17 +9,29 @@ from src.utils.emoji import get_emoji
 
 
 def color_decision(t):
+    """
+    return pre-defined color if exists alert mission else return red color
+
+    :param t: alerts mission object
+    :return: hex color code
+    """
     return 0x4DD2FF if t else 0xFFA826
 
 
-def w_alerts(alerts):
-    if alerts == []:  # empty list
-        return discord.Embed(
-            description=ts.get("cmd.alerts.desc-none"), color=color_decision(alerts)
-        )
+def w_alerts(alerts) -> tuple[discord.Embed, str]:
+    """
+    parse alert missions
 
-    if not alerts:
-        return err_embed("alert obj error")
+    :param alerts:
+    :return: parsed discord.Embed & img file name
+    """
+    if not alerts:  # empty list
+        return (
+            discord.Embed(
+                description=ts.get("cmd.alerts.desc-none"), color=color_decision(alerts)
+            ),
+            "",
+        )
 
     pf: str = "cmd.alerts."
     activated_count = len(alerts)

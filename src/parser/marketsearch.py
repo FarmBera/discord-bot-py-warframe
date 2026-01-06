@@ -1,5 +1,4 @@
 import discord
-import asyncio
 
 from config.config import Lang
 from config.TOKEN import base_url_market_image
@@ -48,6 +47,8 @@ def get_slug_data(name) -> tuple[bool, str, str, str]:
 
     # find slug data
     flag: bool = False
+    item_name: str = ""
+    item_img_url: str = ""
     for i in SLUGS:
         if item_slug == i["i18n"][lang]["name"]:
             item_slug = i["slug"]
@@ -101,7 +102,6 @@ def create_market_url(name, slug=None):
 
 async def w_market_search(pool, arg_obj: tuple[str, int]) -> discord.Embed:
     name, rank = arg_obj
-    flag: bool = False
     flag, item_slug, item_name, item_img_url = get_slug_data(name)
 
     if not flag:  # data not found
@@ -161,7 +161,7 @@ async def w_market_search(pool, arg_obj: tuple[str, int]) -> discord.Embed:
             cmd="w_market_search()",
             user=MSG_BOT,
             msg=f"response ERROR",
-            obj=e,
+            obj=str(e),
         )
         return discord.Embed(
             description=ts.get(f"{pf}err"),

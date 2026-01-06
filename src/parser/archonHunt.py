@@ -1,7 +1,7 @@
 import discord
 from src.translator import ts
 from src.utils.times import convert_remain
-from src.utils.return_err import err_text
+from src.utils.return_err import err_embed
 from src.utils.emoji import get_emoji
 from src.utils.data_manager import getMissionType, getSolNode
 
@@ -25,9 +25,15 @@ shard_color: dict = {
 pf: str = "cmd.archon-hunt."
 
 
-def w_archonHunt(archon) -> str:
+def w_archonHunt(archon) -> tuple[discord.Embed, str]:
+    """
+    parse archon hunt data
+
+    :param archon: archon hunt data
+    :return: parsed archon hunt data & img file name
+    """
     if not archon:
-        return err_text("archon hunt")
+        return err_embed("archon hunt"), ""
 
     archon = archon[0]
     shard: str = shard_list[archon["Boss"]]

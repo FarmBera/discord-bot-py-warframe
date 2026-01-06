@@ -3,7 +3,6 @@ import random
 
 from src.translator import ts
 from src.utils.times import timeNow, convert_remain
-from src.utils.discord_file import img_file
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
 from src.utils.formatter import extract_last_part, add_space
@@ -35,8 +34,8 @@ def isBaroActive(act, exp) -> bool:
         else:
             t_list[i] = int(ts_str)
 
-    act, exp = t_list
-    return True if act < curr and curr < exp else False
+    active, expiry = t_list
+    return True if active < curr < expiry else False
 
 
 def color_decision(arg):
@@ -52,7 +51,7 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
     global baro_active
 
     if not trader:
-        return err_embed("voidTraders")
+        return "", err_embed("voidTraders")
 
     idx = 1
     length: int = len(trader)
@@ -112,15 +111,13 @@ def w_voidTradersItem(trader) -> discord.Embed:
     output_msg: str = ""
 
     for td in trader:
-        listItem: list = []
+        list_item: list = []
 
-        if td.get("Manifest", []) == []:
-            listItem.append(
+        if not td.get("Manifest", []):
+            list_item.append(
                 f"{ts.get(f'{pfi}not-yet').format(time=convert_remain(td['Activation']['$date']['$numberLong']))}"
             )
-
         for jtem in td.get("Manifest", []):
-            itype: str = ""
             k: str = jtem["ItemType"].replace("/Lotus/StoreItems", "").lower()
 
             if "/mods/" in k:
@@ -149,12 +146,12 @@ def w_voidTradersItem(trader) -> discord.Embed:
                 iname = f"__{add_space(extract_last_part(iname))}__"
 
             out = f"{itype} / {iname} / {jtem['PrimePrice']} {get_emoji('ducat')} {int((jtem['RegularPrice'])):,} {get_emoji('credit')}"
-            listItem.append(out)
+            list_item.append(out)
 
-        listItem.sort()
+        list_item.sort()
 
         output_msg += f"# {ts.trs(td['Character'])} at {getSolNode(td['Node'])}\n\n"
-        for jtem in listItem:
+        for jtem in list_item:
             output_msg += f"- {jtem}\n"
         output_msg += "\n"
 

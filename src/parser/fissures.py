@@ -1,6 +1,3 @@
-import discord
-import datetime as dt
-
 from src.translator import ts
 from src.utils.times import convert_remain, timeNow
 from src.utils.data_manager import SETTINGS
@@ -67,7 +64,6 @@ def w_fissures(fissures, args) -> str:
     tier_exclude = prefix["tierExcept"]
     include_railjack_node: bool = prefix["IncludeRailjack"]
 
-    choice: str = ""
     if isinstance(args, tuple):
         choice, include_railjack_node = args
     else:

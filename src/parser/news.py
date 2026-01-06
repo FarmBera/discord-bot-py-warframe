@@ -1,5 +1,4 @@
 import discord
-import datetime as dt
 
 from config.config import Lang
 from src.translator import ts, language as lang
@@ -10,15 +9,15 @@ pf: str = "cmd.news."
 
 
 class News:
-    def __init__(self, id, date, title, url, img):
-        self.id = id
+    def __init__(self, nid, date, title, url, img):
+        self.id = nid
         self.date = date
         self.title = title
         self.url = url
         self.img = img
 
 
-def w_news(newses, LIMIT_OUTPUT_CNT: int = 50):
+def w_news(newses):
     if not newses:
         return err_embed("news")
 
@@ -37,9 +36,6 @@ def w_news(newses, LIMIT_OUTPUT_CNT: int = 50):
             t_date = int(item["Date"]["$date"]["$numberLong"])
         except:
             t_date = ""
-        t_title: str = ""
-        t_url: str = ""
-        t_img: str = ""
 
         t_url = item["Prop"].replace(" ", "")
         if not t_url:
@@ -54,14 +50,14 @@ def w_news(newses, LIMIT_OUTPUT_CNT: int = 50):
             if item.get("Community") and t_title["LanguageCode"] == Lang.EN:
                 t_title = getLanguage(t_title["Message"])
                 news_community.append(
-                    News(id=t_id, date=t_date, title=t_title, url=t_url, img=t_img)
+                    News(nid=t_id, date=t_date, title=t_title, url=t_url, img=t_img)
                 )
                 continue
 
             if t_title["LanguageCode"] == lang:
                 t_title = getLanguage(t_title["Message"])
                 news_news.append(
-                    News(id=t_id, date=t_date, title=t_title, url=t_url, img=t_img)
+                    News(nid=t_id, date=t_date, title=t_title, url=t_url, img=t_img)
                 )
 
     # reverse list

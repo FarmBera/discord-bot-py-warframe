@@ -1,7 +1,6 @@
 import discord
 
 from src.translator import ts
-from src.utils.return_err import err_embed
 from src.utils.data_manager import getLanguage, getMissionType, getSolNode
 from src.utils.emoji import get_emoji
 from src.utils.times import convert_remain
@@ -15,13 +14,10 @@ def color_decision(t):
 
 
 def w_events(events) -> discord.Embed:
-    if events == []:  # empty list
+    if not events:  # empty list
         return discord.Embed(
             description=ts.get(f"{pf}desc-none"), color=color_decision(events)
         )
-
-    elif not events:
-        return err_embed("events obj error")
 
     output_msg: str = f"{ts.get(f'{pf}title').format(count=len(events))}\n"
 

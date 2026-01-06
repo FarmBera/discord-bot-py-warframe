@@ -39,7 +39,7 @@ CHANNELS = yaml_open(CHANNEL_FILE_LOC)
 SETTINGS = json_load(SETTING_FILE_LOC)
 
 
-# convert object to human readable
+# convert object to human-readable
 
 solNodes = json_load(f"data/{lang}/solNodes.json")
 missionTypes = json_load(f"data/{lang}/missionTypes.json")
@@ -112,11 +112,9 @@ def getSortieModDesc(modifier: str) -> str:
 def getLanguage(data: str, query1: str = "value") -> str:
     """convert /Lotus path into item name etc
 
-    Args:
-        data (str): item name with game path like '/lotus/storeitems/types/items/miscitems/formaumbra'
-
-    Returns:
-        str: return real ingame item name like 'Umbra Forma'
+    :param data: item name with game path like '/lotus/storeitems/types/items/miscitems/formaumbra'
+    :param query1: special key in query
+    :return: parsed /lotus path
     """
     result = languages.get(data, {}).get(query1)
     return result if result else languages.get(data.lower(), {}).get(query1, data)

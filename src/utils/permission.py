@@ -3,7 +3,7 @@ import discord
 from src.translator import ts
 from config.config import LOG_TYPE
 from src.utils.db_helper import query_reader
-from src.utils.return_err import return_traceback, print_test_err
+from src.utils.return_err import return_traceback
 from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 
@@ -27,11 +27,14 @@ async def is_admin_user(
 ) -> bool:
     """check interaction user is admin
 
-    Args:
-        interact (discord.Interaction): interaction object
+        Args:
+            interact (discord.Interaction): interaction object
 
-    Returns:
-        bool: is admin user (if admin user returns True else False)
+    :param interact: interaction object to response back
+    :param cmd: used function
+    :param isFollowUp: is ephemeral msg
+    :param notify: is sending response
+    :return: bool: is admin user (if admin user returns True else False)
     """
     try:
         async with query_reader(interact.client.db) as cursor:

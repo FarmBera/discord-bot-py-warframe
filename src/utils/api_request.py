@@ -26,7 +26,6 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
         None: failed to request api
     """
     start_time = timeNowDT()
-    response = None
 
     # API Request
     try:
@@ -64,7 +63,6 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
     # check response (is not empty or err value)
     if response is None:
         elapsed_time = timeNowDT() - start_time
-
         msg = f"[err] response is Empty!: {res_code}/{elapsed_time}"
         print(timeNowDT(), C.red, msg, C.default)
         await save_log(
@@ -110,19 +108,11 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
 async def API_MarketSearch(pool, item_name: str):
     """API request function for warframe.market search
 
-    Args:
-        req_source (str): code position of the api request (for debugging)
-        query (str): fixed name
-        item_name (str): item name to search
-
-    Returns:
-        _type_: _description_
+    :param pool: db pool object
+    :param item_name: item name to search
+    :return:
     """
-    response: requests.Response = None
-
-    # API Request
     try:
-        # orders/item/{slug}
         response = requests.get(
             url=f"{base_url_market}orders/item/{item_name}",
             headers=params_market,

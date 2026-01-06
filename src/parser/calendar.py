@@ -1,10 +1,7 @@
-import datetime as dt
-
 from src.translator import ts
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_text
-from src.utils.data_manager import getLanguage, get_obj
-from src.constants.keys import CALENDAR
+from src.utils.data_manager import getLanguage
 
 cal_type: dict = {
     "CET_CHALLENGE": "To Do",
@@ -61,4 +58,5 @@ def w_calendar(cal, typ) -> str:
     return output_msg
 
 
+# from src.utils.data_manager import get_obj
 # print(w_calendar(get_obj(CALENDAR), ts.get(f"{pf}choice-all")))

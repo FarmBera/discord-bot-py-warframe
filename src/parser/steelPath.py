@@ -31,9 +31,9 @@ img_list = {
 pf: str = "cmd.steel-path-reward."
 
 
-def w_steelPath(steel) -> tuple:
+def w_steelPath(steel) -> tuple[discord.Embed, str]:
     if not steel:
-        return err_embed("steelPath")
+        return err_embed("steelPath"), ""
 
     curr_idx: int = steel["currentReward"]
     current: dict = steel["rotation"][curr_idx]

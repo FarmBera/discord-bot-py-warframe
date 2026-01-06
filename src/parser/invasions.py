@@ -65,7 +65,7 @@ def w_invasions(invasions) -> discord.Embed:
     # generate output msg
     output_msg: str = ""
     for planet, inv_list in mission_per_planets.items():
-        if inv_list == []:  # ignore empty planet
+        if not inv_list:  # ignore empty planet
             continue
 
         output_msg += f"# {planet}\n\n"  # planet title
@@ -75,9 +75,9 @@ def w_invasions(invasions) -> discord.Embed:
     return discord.Embed(description=output_msg)  # color=0x00FFFF,
 
 
-def w_invasions_se(invasions) -> discord.Embed:
+def w_invasions_se(invasions) -> tuple[discord.Embed, str]:
     if not invasions:
-        return err_embed("invasions")
+        return err_embed("invasions"), ""
 
     mission_per_planets = defaultdict(list)
 
@@ -108,7 +108,7 @@ def w_invasions_se(invasions) -> discord.Embed:
     # generate output msg
     output_msg: str = ""
     for planet, inv_list in mission_per_planets.items():
-        if inv_list == []:  # ignore empty planet
+        if not inv_list:  # ignore empty planet
             continue
 
         output_msg += f"# {planet}\n\n"  # planet title

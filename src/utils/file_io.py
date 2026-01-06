@@ -28,7 +28,7 @@ def open_file(file_path):
         return None
 
 
-def save_file(filepath: str, content: str) -> None:
+def save_file(filepath: str, content: str) -> bool | None:
     try:
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(content)
@@ -42,7 +42,7 @@ def save_file(filepath: str, content: str) -> None:
         return None
 
 
-def json_load(file_path) -> dict:
+def json_load(file_path) -> dict | None:
     """
     read json file at provided path and return
 
@@ -145,7 +145,7 @@ async def save_file_async(filepath: str, content: str) -> bool:
         return False
 
 
-async def json_load_async(file_path) -> dict:
+async def json_load_async(file_path) -> dict | None:
     """
     read json file at provided path and return
 
