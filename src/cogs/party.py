@@ -22,12 +22,12 @@ class PartyCog(commands.Cog):
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     @app_commands.describe(
-        title="cmd.party.title",
-        departure="cmd.party.date-placeholder",
-        game_name="cmd.party.miss-types",
-        descriptions="cmd.party.descript",
-        number_of_user="cmd.party.nou",
-    )
+        title="cmd.party.desc-title",
+        game_name="cmd.party.desc-game-name",
+        departure="cmd.party.desc-departure",
+        descriptions="cmd.party.desc-descriptions",
+        number_of_user="cmd.party.desc-number-of-user",
+   )
     async def cmd_create_party(
         self,
         interact: discord.Interaction,

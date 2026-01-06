@@ -308,10 +308,6 @@ cmd:
     qty: Qty
     rank: " ({rank} rank)"
 
-  market-help:
-    cmd: market-help
-    desc: Show guide to use command 'market-search'
-
   vallis:
     cmd: valliscycle
     desc: Get current orb vallis state
@@ -328,15 +324,15 @@ cmd:
     desc: "Creates a new party listing."
     # args & desc
     arg-title: title
-    arg-date-placeholder: departure_date
-    arg-miss-types: game_to_play
-    arg-descript: party_description
-    arg-nou: number_of_user
+    arg-game-name: departure_date
+    arg-departure: game_to_play
+    arg-descriptions: party_description
+    arg-number-of-user: number_of_user
     desc-title: Party Title
-    desc-miss-types: Game Name to play together
+    desc-game-name: Game Name to play together
     desc-departure: "예) 미정, 내일 오후 3시, 다음주 토요일 15시, 23일 17시 등"
-    desc-descript: "[Optional] Detailed Description of the Recruitment Post"
-    desc-nou: "[Optional] Max party size (including yourself)"
+    desc-descriptions: "[Optional] Detailed Description of the Recruitment Post"
+    desc-number-of-user: "[Optional] Max party size (including yourself)"
 
     c-no-desc: (no description)
 
@@ -474,14 +470,14 @@ cmd:
     arg-item-rank: item_rank
     arg-nickname: warframe_nickname
     arg-price: price
-    arg-qty: quantity
+    arg-quantity: quantity
     # cmd describe
     desc-trade-type: "Trade post type (Sell / Buy)"
     desc-item-name: "Name of the item to trade"
     desc-item-rank: "[Optional] The rank of the item you want to trade (if it exists)"
     desc-nickname: "Your Warframe nickname. Please enter it correctly."
     desc-price: "[Optional] Price per item"
-    desc-qty: "[Optional] Item Quantity. (Default: 1)"
+    desc-quantity: "[Optional] Item Quantity. (Default: 1)"
 
     rank-label: rank
 

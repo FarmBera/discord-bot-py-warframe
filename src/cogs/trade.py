@@ -36,7 +36,7 @@ class TradeCog(commands.Cog):
         item_rank="cmd.trade.desc-item-rank",
         # game_nickname="cmd.trade.desc-nickname",
         price="cmd.trade.desc-price",
-        quantity="cmd.trade.desc-qty",
+        quantity="cmd.trade.desc-quantity",
     )
     async def cmd_create_trade(
         self,

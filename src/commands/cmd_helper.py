@@ -46,13 +46,19 @@ async def cmd_helper(
         else:
             await resp_head.send_message(embed=obj, ephemeral=isPrivateMsg)
         log_obj = obj.description
-    elif isinstance(obj, tuple):  # embed with file
+    elif isinstance(obj, tuple):  # embed with file (Modified)
         eb, file = obj
-        file = img_file(file)
+        # default args
+        send_kwargs = {"embed": eb, "ephemeral": isPrivateMsg}
+
+        if file:
+            send_kwargs["file"] = img_file(file)
+
         if isFollowUp:
-            await resp_head.send(embed=eb, file=file, ephemeral=isPrivateMsg)
+            await resp_head.send(**send_kwargs)
         else:
-            await resp_head.send_message(embed=eb, file=file, ephemeral=isPrivateMsg)
+            await resp_head.send_message(**send_kwargs)
+
         log_obj = eb.description
     else:  # text only
         if isFollowUp:
