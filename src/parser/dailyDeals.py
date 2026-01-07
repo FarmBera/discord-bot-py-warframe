@@ -12,7 +12,7 @@ def w_dailyDeals(deals) -> discord.Embed:
     if not deals:
         return err_embed("dailyDeals")
 
-    output_msg: str = f"## {ts.get(f'{pf}title')}\n\n"
+    output_msg: str = f"## {ts.get(f'{pf}title')}\n"
 
     for item in deals:
         price_origin: int = item["OriginalPrice"]
@@ -23,10 +23,8 @@ def w_dailyDeals(deals) -> discord.Embed:
         item_name: str = getLanguage(item["StoreItem"].lower())
 
         output_msg += f"""# {item_name}
-
 - ~~{price_origin}~~ --> **{price_sale}**
 - **{amount}** {ts.get(f'{pf}remain')} ({remain})
-- {ts.get(f'{pf}exp').format(time=expiry)}
-"""
+- {ts.get(f'{pf}exp').format(time=expiry)}"""
 
     return discord.Embed(description=output_msg)
