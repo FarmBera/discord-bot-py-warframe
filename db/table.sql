@@ -50,7 +50,7 @@ CREATE TABLE
     price         INTEGER     NOT NULL,
     thread_id     BIGINT UNIQUE,
     message_id    BIGINT UNIQUE,
-    STATUS        VARCHAR(20)          DEFAULT 'open', -- open, closed
+    `status`      VARCHAR(20)          DEFAULT 'open', -- open, closed
     created_at    TIMESTAMP            DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP            DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
@@ -70,13 +70,14 @@ CREATE TABLE
 (
     id            INTEGER      NOT NULL AUTO_INCREMENT,
     user_id       BIGINT       NOT NULL,
-    display_name  VARCHAR(100) NOT NULL,  -- 경고 당시 닉네임 기록 (스냅샷용)
+    display_name  VARCHAR(100) NOT NULL,               -- 경고 당시 닉네임 기록 (스냅샷용)
     game_nickname VARCHAR(150) NOT NULL,
-    category      VARCHAR(20)  NOT NULL,  -- 예: '욕설', '도배' 등
-    note          VARCHAR(500),           -- 사유 상세
-    banned        BOOLEAN  DEFAULT FALSE, -- 이 경고로 인해 밴 처리가 되었는지 여부
-    created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    category      VARCHAR(20)  NOT NULL,               -- 예: '욕설', '도배' 등
+    note          VARCHAR(500),                        -- 사유 상세
+    critical      BOOLEAN      NOT NULL DEFAULT FALSE, -- 강력 경고
+    banned        BOOLEAN      NOT NULL DEFAULT FALSE, -- 이 경고로 인해 밴 처리가 되었는지 여부
+    created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     -- index
     INDEX idx_user_id (user_id)
@@ -135,7 +136,7 @@ CREATE TABLE
     sub_voidtraders BOOLEAN   DEFAULT 0, -- 바로 키 티어
     sub_steelpath   BOOLEAN   DEFAULT 0, -- 스틸에센스
     sub_darchimedea BOOLEAN   DEFAULT 0, -- 심층
-    sub_tarchimedea boolean   default 0, -- 템포럴
+    sub_tarchimedea BOOLEAN   DEFAULT 0, -- 템포럴
     sub_calendar    BOOLEAN   DEFAULT 0, -- 1999달력
     sub_dailydeals  BOOLEAN   DEFAULT 0, -- 일일 특가
     sub_invasions   BOOLEAN   DEFAULT 0, -- 침공
