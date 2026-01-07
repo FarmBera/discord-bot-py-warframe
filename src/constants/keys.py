@@ -28,7 +28,6 @@ ANNOUNCE_FILE_LOC: str = f"{filePfx}announcement{fileExt}"
 PATCHNOTE_FILE_LOC: str = f"{filePfx}patch-note{fileExt}"
 POLICY_FILE_LOC: str = f"{filePfx}privacy-policy{fileExt}"
 FOOTER_FILE_LOC: str = f"{filePfx}footer{fileExt}"
-MARKET_HELP_FILE: str = f"{filePfx}market-help{fileExt}"
 
 
 MSG_BOT: str = "bot.self"

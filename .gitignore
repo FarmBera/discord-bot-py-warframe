@@ -4,7 +4,7 @@
 .vscode
 archive
 /backup
-/db/db-private
+/db/*private*
 docs
 img/*.sh
 img-tmp
@@ -15,6 +15,7 @@ tmp
 
 # exclude pattern
 *test*
+*tmp*
 *cache*
 *.db
 *.db-shm
