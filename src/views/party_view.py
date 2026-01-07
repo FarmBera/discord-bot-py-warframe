@@ -17,7 +17,7 @@ from src.constants.keys import (
 )
 from src.utils.permission import is_admin_user
 from src.services.party_service import PartyService
-from src.services.warning_count import UserService
+from src.services.warn_service import WarnService
 
 pf = "cmd.party."
 MIN_SIZE = 2
@@ -56,7 +56,7 @@ async def build_party_embed(
     )
 
     # host warning check
-    host_warn_count = await UserService.get_host_warning_count(db_pool, data["host_id"])
+    host_warn_count = await WarnService.getCriticalCount(db_pool, data["host_id"])
 
     participants_str = ", ".join(data["participants"]) or ts.get(f"{pf}pb-no-player")
 
@@ -331,7 +331,7 @@ class ConfirmJoinLeaveView(ui.View):
     @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.success)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
         try:
-            host_warn_count = await UserService.get_host_warning_count(
+            host_warn_count = await WarnService.getCriticalCount(
                 interact.client.db, interact.user.id
             )
             if self.action == "join":

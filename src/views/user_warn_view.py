@@ -6,8 +6,8 @@ from config.config import LOG_TYPE
 from src.utils.logging_utils import save_log
 from src.utils.db_helper import transaction
 from src.utils.return_err import return_traceback
+from src.services.warn_service import WarnService, BAN_THRESHOLD
 
-BAN_THRESHOLD: int = 3
 
 pf: str = "cmd.user-ban."
 
@@ -51,33 +51,13 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
 
         user_id = self.target_member.id
         original_name = self.target_member.name
+        global_name = self.target_member.global_name
         display_name = self.target_member.display_name
 
-        is_executed_ban = False
-
         try:
-            async with transaction(self.pool) as cursor:
-                # cumulative warning count
-                count_sql = "SELECT COUNT(*) as cnt FROM warnings WHERE user_id = %s"
-                await cursor.execute(count_sql, (user_id,))
-                result = await cursor.fetchone()
-                current_warn_count = result["cnt"] if result else 0
-
-                # decision ban
-                if current_warn_count + 1 >= BAN_THRESHOLD:
-                    is_executed_ban = True
-
-                await cursor.execute(
-                    "INSERT INTO warnings (user_id, display_name, game_nickname, category, note, banned) VALUES (%s, %s, %s, %s, %s, %s)",
-                    (
-                        user_id,
-                        display_name,
-                        game_nickname,
-                        warn_type,
-                        warn_reason,
-                        is_executed_ban,
-                    ),
-                )
+            is_executed_ban = await WarnService.insertWarn(
+                self.pool, user_id, display_name, game_nickname, warn_type, warn_reason
+            )
         except Exception:
             await interact.followup.send(content=ts.get(f"cmd.err-db"), ephemeral=True)
             await save_log(
@@ -106,5 +86,5 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
             cmd=pf,
             interact=interact,
             msg="warning user",  # VAR
-            obj=f"{user_id}//{original_name}//{display_name}//{game_nickname}\nisBanned: {is_executed_ban}\n{warn_type}\n{warn_reason}",
+            obj=f"{user_id}//{original_name}//{global_name}//{display_name}//{game_nickname}\nisBanned: {is_executed_ban}\n{warn_type}\n{warn_reason}",
         )
