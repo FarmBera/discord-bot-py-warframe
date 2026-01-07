@@ -354,15 +354,16 @@ class ConfirmJoinLeaveView(ui.View):
                 )
                 # TODO: random join message
                 rint = 1
-                await self.original_message.channel.send(
-                    ts.get(f"{pf}pc-joined{rint}").format(
-                        host=self.user_mention, user=interact.user.mention
-                    )
-                    # user warn msg
-                    + ts.get(f"cmd.warning-count").format(count=host_warn_count)
+                msg_content = ts.get(f"{pf}pc-joined{rint}").format(
+                    host=self.user_mention, user=interact.user.mention
+                )
+                # user warn msg
+                msg_content += (
+                    ts.get(f"cmd.warning-count").format(count=host_warn_count)
                     if host_warn_count >= 1
                     else ""
                 )
+                await self.original_message.channel.send(msg_content)
             elif self.action == "leave":
                 await save_log(
                     pool=interact.client.db,
@@ -377,16 +378,17 @@ class ConfirmJoinLeaveView(ui.View):
                 await interact.response.edit_message(
                     content=ts.get(f"{pf}pv-exited"), view=None
                 )
-                # Send a public message to the thread channel
-                await self.original_message.channel.send(
-                    ts.get(f"{pf}pc-lefted").format(
-                        host=self.user_mention, user=interact.user.mention
-                    )
-                    # user warn msg
-                    + ts.get(f"cmd.warning-count").format(count=host_warn_count)
+                # send a public message to the thread channel
+                # user warn msg
+                msg_content = ts.get(f"{pf}pc-lefted").format(
+                    host=self.user_mention, user=interact.user.mention
+                )
+                msg_content += (
+                    ts.get(f"cmd.warning-count").format(count=host_warn_count)
                     if host_warn_count >= 1
                     else ""
                 )
+                await self.original_message.channel.send(msg_content)
             new_embed = await build_party_embed_from_db(
                 self.original_message.id, self.db_pool
             )
