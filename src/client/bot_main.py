@@ -194,7 +194,6 @@ class DiscordBot(commands.Bot):
         files_to_upload = []
         content_file_name = "i.webp"
 
-        log_content: str = ""
         # process embed
         if isinstance(content, discord.Embed):
             embed_data = content.to_dict()
@@ -378,7 +377,7 @@ class DiscordBot(commands.Bot):
 
             latest_data = latest_data.json()
         else:
-            latest_data = await json_load_async(WF_JSON_PATH)
+            latest_data: dict = await json_load_async(WF_JSON_PATH)
 
         # check for new content & send alert
         for key, handler in DATA_HANDLERS.items():
@@ -611,11 +610,11 @@ class DiscordBot(commands.Bot):
 
                 # 2. check exist baro activated
                 if not isBaroActive(
-                    prev_data["Activation"]["$date"]["$numberLong"],
-                    prev_data["Expiry"]["$date"]["$numberLong"],
+                    prev_data.get("Activation")["$date"]["$numberLong"],
+                    prev_data.get("Expiry")["$date"]["$numberLong"],
                 ) and isBaroActive(
-                    new_data["Activation"]["$date"]["$numberLong"],
-                    new_data["Expiry"]["$date"]["$numberLong"],
+                    new_data.get("Activation")["$date"]["$numberLong"],
+                    new_data.get("Expiry")["$date"]["$numberLong"],
                 ):
                     events.append(
                         {
@@ -872,6 +871,8 @@ class DiscordBot(commands.Bot):
             user=MSG_BOT,
             msg=f"START Party AutoDelete",
         )
+        eta: dt.datetime = timeNowDT()
+
         async with query_reader(self.db) as cursor:
             await cursor.execute("SELECT value FROM vari WHERE name='party_exp_time'")
             party_exp_time = await cursor.fetchone()
@@ -961,7 +962,7 @@ class DiscordBot(commands.Bot):
             type=LOG_TYPE.info,
             cmd="auto_party_expire()",
             user=MSG_BOT,
-            msg=f"END Party AutoDelete",
+            msg=f"END Party AutoDelete (eta: {timeNowDT()-eta})",
         )
 
     # trade auto expire
@@ -974,6 +975,8 @@ class DiscordBot(commands.Bot):
             user=MSG_BOT,
             msg=f"START Trade AutoDelete",
         )
+        eta: dt.datetime = timeNowDT()
+
         async with query_reader(self.db) as cursor:
             await cursor.execute("SELECT value FROM vari WHERE name='trade_exp_time'")
             trade_exp_time = await cursor.fetchone()
@@ -1068,5 +1071,5 @@ class DiscordBot(commands.Bot):
             type=LOG_TYPE.info,
             cmd="auto_trade_expire()",
             user=MSG_BOT,
-            msg=f"END Trade AutoDelete",
+            msg=f"END Trade AutoDelete (eta: {timeNowDT()-eta})",
         )
