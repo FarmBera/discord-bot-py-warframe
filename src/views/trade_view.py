@@ -16,6 +16,7 @@ from src.constants.keys import (
 from src.utils.permission import is_admin_user
 from src.parser.marketsearch import get_slug_data, create_market_url
 from src.services.trade_service import TradeService
+from src.services.warning_count import UserService
 
 pf = "cmd.trade."
 
@@ -59,14 +60,12 @@ async def build_trade_embed(
     flag, _, __, img_url = get_slug_data(data["item_name"])
     description: str = ""
 
-    host_warn_count = await TradeService.get_host_warning_count(
-        db_pool, data["host_id"]
-    )
+    host_warn_count = await UserService.get_host_warning_count(db_pool, data["host_id"])
     if host_warn_count >= 1:
         description += ts.get(f"cmd.warning-count").format(count=host_warn_count)
 
     description += f"### [{data['trade_type']}] {data['item_name']}"
-    # [수정] isRank가 True여도 데이터가 -1이면 표시하지 않음 (이중 체크)
+
     if isRank and data.get("item_rank") != -1:
         description += f" ({ts.get(f'{pf}rank-simple').format(rank=data['item_rank'])})"
 
@@ -457,7 +456,7 @@ class ConfirmTradeView(ui.View):
             msg=f"ConfirmTradeView -> YES",
         )
         try:
-            host_warn_count = await TradeService.get_host_warning_count(
+            host_warn_count = await UserService.get_host_warning_count(
                 interact.client.db, interact.user.id
             )
             trade_info = await TradeService.get_trade_by_id(self.db_pool, self.trade_id)

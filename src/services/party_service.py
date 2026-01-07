@@ -1,4 +1,3 @@
-import datetime as dt
 from src.utils.db_helper import transaction, query_reader
 from src.translator import ts
 from src.utils.times import parseKoreanDatetime
@@ -23,16 +22,6 @@ class PartyService:
             )
             participants = await cursor.fetchall()
             return party, participants
-
-    @staticmethod
-    async def get_host_warning_count(pool, host_id: int) -> int:
-        async with query_reader(pool) as cursor:
-            await cursor.execute(
-                "SELECT COUNT(user_id) as count from warnings where user_id=%s",
-                (host_id,),
-            )
-            res = await cursor.fetchone()
-            return res["count"]
 
     @staticmethod
     async def create_party(

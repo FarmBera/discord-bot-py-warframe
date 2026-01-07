@@ -17,6 +17,7 @@ from src.constants.keys import (
 )
 from src.utils.permission import is_admin_user
 from src.services.party_service import PartyService
+from src.services.warning_count import UserService
 
 pf = "cmd.party."
 MIN_SIZE = 2
@@ -55,9 +56,7 @@ async def build_party_embed(
     )
 
     # host warning check
-    host_warn_count = await PartyService.get_host_warning_count(
-        db_pool, data["host_id"]
-    )
+    host_warn_count = await UserService.get_host_warning_count(db_pool, data["host_id"])
 
     participants_str = ", ".join(data["participants"]) or ts.get(f"{pf}pb-no-player")
 
@@ -295,6 +294,7 @@ class ConfirmJoinLeaveView(ui.View):
         self.user_id = interact.user.id
         self.user_mention = interact.user.mention
         self.original_message = interact.message
+        self.interact = interact
 
     async def on_timeout(self):
         cmd = "PartyView.btn.confirm.join/leave"
@@ -331,7 +331,7 @@ class ConfirmJoinLeaveView(ui.View):
     @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.success)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
         try:
-            host_warn_count = await PartyService.get_host_warning_count(
+            host_warn_count = await UserService.get_host_warning_count(
                 interact.client.db, interact.user.id
             )
             if self.action == "join":
@@ -605,6 +605,7 @@ class PartyView(ui.View):
             1, COOLDOWN_BTN_CALL, commands.BucketType.user
         )
 
+    @staticmethod
     async def is_cooldown(
         self, interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
     ) -> bool:
@@ -624,8 +625,8 @@ class PartyView(ui.View):
             return True
         return False
 
+    @staticmethod
     async def check_permissions(
-        self,
         interact: discord.Interaction,
         party_data,
         participants,
