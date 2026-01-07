@@ -324,8 +324,8 @@ cmd:
     desc: "Creates a new party listing."
     # args & desc
     arg-title: title
-    arg-game-name: departure_date
-    arg-departure: game_to_play
+    arg-game-name: game_to_play
+    arg-departure: departure_date
     arg-descriptions: party_description
     arg-number-of-user: number_of_user
     desc-title: Party Title
