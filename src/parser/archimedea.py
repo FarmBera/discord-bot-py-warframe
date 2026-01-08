@@ -6,6 +6,7 @@ from src.utils.file_io import json_load
 from src.utils.data_manager import get_obj, set_obj_async, getMissionType, getFactions
 from src.utils.times import convert_remain
 from src.utils.return_err import err_embed
+from src.utils.logging_utils import save_log
 
 archimedea_deep = get_obj(f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
 archimedea_temporal = get_obj(f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
@@ -39,15 +40,17 @@ async def setTemporalArchimedea(obj):
 
 
 def generateVariables(obj) -> str:
-    text = "## Global Variables"
-    for var in obj["Variables"]:
-        conquest_data = conquest_var["var"].get(var)
-        if not conquest_data:
-            return ""
-        text += (
-            f"\n- **{conquest_data[var]['key']}**: {conquest_data[var]['valueSimple']}"
-        )
-    return text
+    try:
+        text = "## Global Variables"
+        for var in obj["Variables"]:
+            conquest_data = conquest_var["var"].get(var)
+            if not conquest_data:
+                return ""
+            text += f"\n- **{conquest_data[var]['key']}**: {conquest_data[var]['valueSimple']}"
+        return text
+    except KeyError as e:
+        print(f"KeyError in archimedea: {e}")
+        return ""
 
 
 def generateMissions(obj) -> str:
