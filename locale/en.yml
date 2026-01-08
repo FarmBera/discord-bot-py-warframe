@@ -56,9 +56,10 @@ noti-label:
   Goals: Event
 
 view:
-  support-help: "❔ Help"
-  support-privacy: "🔐 Privacy Policy"
-  support-tos: "📜 Terms of Service"
+  support-support: '문의/지원 서버 바로가기'
+  support-help: "Help (How to Use)"
+  support-privacy: "Privacy Policy"
+  support-tos: "Terms of Service"
   support-donate: "💰 Donate Developer"
 
 cmd:
@@ -655,7 +656,7 @@ cmd:
 
   user-ban:
     cmd: user-warning
-    desc: Give a warning to users who improperly used bots
+    desc: "[Admin Exclusive] Give a warning to users who improperly used bots"
     self-unable: |
       ## Beep beep??
       I cannot give warnings to myself, human. 🤖
