@@ -3,12 +3,9 @@ from discord.ext import commands
 from discord import app_commands
 
 from src.translator import ts
-from config.config import LOG_TYPE
 from src.constants.keys import (
     # cooldown var
     COOLDOWN_DEFAULT,
-    COOLDOWN_CREATE,
-    COOLDOWN_5_MIN,
     # docs file
     HELP_FILE_LOC,
     ANNOUNCE_FILE_LOC,
@@ -35,29 +32,21 @@ from src.constants.keys import (
     EVENTS,
     DESCENDIA,
 )
-from src.utils.logging_utils import save_log
-from src.commands.cmd_helper import cmd_helper
-from src.commands.cmd_helper_text import cmd_helper_txt
-from src.commands.unavailable import cmd_unavailable
-from src.utils.permission import is_admin_user
+from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
 from src.commands.noti_channel import noti_subscribe_helper, noti_unsubscribe_helper
 
 from src.parser.alerts import w_alerts
-from src.parser.news import w_news
-from src.parser.cetusCycle import w_cetusCycle
+from src.parser.news import w_news  # cetus
 from src.parser.sortie import w_sortie
 from src.parser.archonHunt import w_archonHunt
 from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
-from src.parser.steelPath import w_steelPath
-from src.parser.duviriCycle import w_duviriCycle
+from src.parser.steelPath import w_steelPath  # duviri
 from src.parser.fissures import w_fissures
 from src.parser.archimedea import w_deepArchimedea
 from src.parser.archimedea import w_temporalArchimedia
-from src.parser.calendar import w_calendar
-from src.parser.cambionCycle import w_cambionCycle
+from src.parser.calendar import w_calendar  # cambion
 from src.parser.dailyDeals import w_dailyDeals
-from src.parser.invasions import w_invasions
-from src.parser.vallisCycle import w_vallisCycle
+from src.parser.invasions import w_invasions  # vallis
 from src.parser.marketsearch import w_market_search, get_market_item_names
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
@@ -282,7 +271,7 @@ class GeneralCommands(commands.Cog):
     # async def cmd_duviri_cycle(self,interact: discord.Interaction):
     #     await cmd_helper(interact, key=DUVIRICYCLE, parser_func=w_duviriCycle)
 
-    # 1999 달력
+    # 1999 calendar
     @app_commands.command(name="calendar", description="cmd.calendar.desc")
     @app_commands.choices(
         types=[
@@ -300,9 +289,6 @@ class GeneralCommands(commands.Cog):
         types: app_commands.Choice[int],
         developer_options: bool = True,
     ):
-        # types.name을 그대로 넘기면 영어("Prize")가 넘어갑니다.
-        # 기존 로직이 한글 문자열을 기대한다면 여기서 매핑을 해주거나 parser를 수정해야 합니다.
-        # 예시: parser_args=types.name (영어) -> w_calendar 내부에서 영어 처리 필요
         await cmd_helper(
             interact,
             key=CALENDAR,

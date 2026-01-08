@@ -518,7 +518,7 @@ cmd:
     created-trade: "✅ `{ch}` 에 거래 글을 생성했습니다! {mention}"
     confirm-trade: "# 정말로 거래를 요청할까요?"
     trade-request: |
-      {host_mention}, {user_mention} 님이 **{price}** 플레에 {type}를 요청했어요!
+      {host_mention}, {user_mention} 님이 **{price}** 플레티넘에 {type}를 요청했어요!
       > 초대 명령어 복사 (드래그 또는 우측 복사버튼 이용)
       ```
       /invite {user}

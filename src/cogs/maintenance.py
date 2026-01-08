@@ -3,18 +3,40 @@ from discord.ext import commands
 from discord import app_commands
 
 from src.translator import ts
-from config.config import LOG_TYPE
 from src.constants.keys import (
     # cooldown var
     COOLDOWN_DEFAULT,
-    COOLDOWN_CREATE,
     COOLDOWN_5_MIN,
-    # docs
+    # docs file
     HELP_FILE_LOC,
     ANNOUNCE_FILE_LOC,
     POLICY_FILE_LOC,
+    # cmd obj
+    ALERTS,
+    NEWS,
+    # CETUSCYCLE,
+    SORTIE,
+    ARCHONHUNT,
+    VOIDTRADERS,
+    STEELPATH,
+    ARCHIMEDEA,
+    ARCHIMEDEA_DEEP,
+    ARCHIMEDEA_TEMPORAL,
+    # DUVIRICYCLE,
+    FISSURES,
+    CALENDAR,
+    # CAMBIONCYCLE,
+    DAILYDEALS,
+    INVASIONS,
+    MARKET_SEARCH,
+    # VALLISCYCLE,
+    DUVIRI_ROTATION,
+    DUVIRI_U_K_W,
+    DUVIRI_U_K_I,
+    EVENTS,
+    DESCENDIA,
 )
-from src.commands.cmd_helper_text import cmd_helper_txt
+from src.utils.cmd_helper import cmd_helper_txt
 from src.commands.cmd_maintenance import cmd_helper_maintenance
 from src.parser.marketsearch import get_market_item_names
 
@@ -31,7 +53,9 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_help(
         self, interact: discord.Interaction, developer_options: bool = False
     ):
-        await cmd_helper_txt(interact, file_name=HELP_FILE_LOC)
+        await cmd_helper_txt(
+            interact, file_name=HELP_FILE_LOC, isPrivateMsg=developer_options
+        )
 
     # announcement command
     @app_commands.command(name="announcement", description="cmd.announcement.desc")
@@ -41,7 +65,9 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_announcement(
         self, interact: discord.Interaction, developer_options: bool = False
     ):
-        await cmd_helper_txt(interact, file_name=ANNOUNCE_FILE_LOC)
+        await cmd_helper_txt(
+            interact, file_name=ANNOUNCE_FILE_LOC, isPrivateMsg=developer_options
+        )
 
     # patch-note command
     @app_commands.command(name="patch-note", description="cmd.patch-note.desc")
@@ -71,7 +97,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_news(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "news")
+        await cmd_helper_maintenance(interact, NEWS)
 
     # alerts command
     @app_commands.command(name="alerts", description="cmd.alerts.desc")
@@ -81,7 +107,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_alerts(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "alerts")
+        await cmd_helper_maintenance(interact, ALERTS)
 
     # cetus command (cetusCycle)
     # @app_commands.command(name="cetus", description="cmd.cetus.desc")
@@ -96,7 +122,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_sortie(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "sortie")
+        await cmd_helper_maintenance(interact, SORTIE)
 
     # archon hunt command
     @app_commands.command(name="archon-hunt", description="cmd.archon-hunt.desc")
@@ -106,7 +132,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_archon_hunt(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "archon-hunt")
+        await cmd_helper_maintenance(interact, ARCHONHUNT)
 
     # void traders command
     @app_commands.command(name="void-traders", description="cmd.void-traders.desc")
@@ -116,7 +142,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_voidTraders(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "voidTraders")
+        await cmd_helper_maintenance(interact, VOIDTRADERS)
 
     # steel path reward command
     @app_commands.command(
@@ -128,7 +154,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_steel_reward(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "steelPath-reward")
+        await cmd_helper_maintenance(interact, STEELPATH)
 
     # fissures command
     @app_commands.command(name="fissures", description="cmd.fissures.desc")
@@ -152,7 +178,7 @@ class MaintenanceCommands(commands.Cog):
         # is_include_railjack_node: bool = False,
         developer_options: bool = True,
     ):
-        await cmd_helper_maintenance(interact, "fissures")
+        await cmd_helper_maintenance(interact, FISSURES)
 
     # deep-archimedea command
     @app_commands.command(
@@ -164,7 +190,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_alerts(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "deep-archimedea")
+        await cmd_helper_maintenance(interact, f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
 
     # temporal-archimedea command
     @app_commands.command(
@@ -177,7 +203,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_alerts(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "temporal-archimedea")
+        await cmd_helper_maintenance(interact, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 
     # duviriCycle command
     # @tree.command(
@@ -205,7 +231,7 @@ class MaintenanceCommands(commands.Cog):
         types: app_commands.Choice[int],
         developer_options: bool = True,
     ):
-        await cmd_helper_maintenance(interact, "calendar")
+        await cmd_helper_maintenance(interact, f"{CALENDAR}-{types}")
 
     # cambion command (cambionCycle)
     # @tree.command(
@@ -222,7 +248,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_dailydeals(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "dailydeals")
+        await cmd_helper_maintenance(interact, DAILYDEALS)
 
     # invasions command
     @app_commands.command(name="invasions", description="cmd.invasions.desc")
@@ -232,7 +258,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_invasions(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "invasions")
+        await cmd_helper_maintenance(interact, INVASIONS)
 
     # voidTrader item command
     @app_commands.command(
@@ -244,7 +270,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_traders_item(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "voidTraders-item")
+        await cmd_helper_maintenance(interact, f"{VOIDTRADERS}-item")
 
     # search 'warframe.market' commnad
     @app_commands.command(name="market-search", description="cmd.market-search.desc")
@@ -262,7 +288,9 @@ class MaintenanceCommands(commands.Cog):
         item_rank: int = None,
         developer_options: bool = True,
     ):
-        await cmd_helper_maintenance(interact, "market-search")
+        await cmd_helper_maintenance(
+            interact, f"{MARKET_SEARCH}//{item_name}//{item_rank}"
+        )
 
     @cmd_market_search.autocomplete("item_name")
     async def market_search_autocomplete(
@@ -284,74 +312,6 @@ class MaintenanceCommands(commands.Cog):
     # async def cmd_vallis(interact: discord.Interaction):
     #     await cmd_helper_maintenance(interact, "vallisCycle")
 
-    # create party
-    @app_commands.command(name="party", description="cmd.party.desc")
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
-    )
-    @discord.app_commands.describe(
-        title="cmd.party.title",
-        departure="cmd.party.date-placeholder",
-        game_name="cmd.party.miss-types",
-        descriptions="cmd.party.descript",
-        number_of_user="cmd.party.nou",
-    )
-    async def cmd_create_party(
-        self,
-        interact: discord.Interaction,
-        title: str,
-        game_name: str,
-        departure: str = None,
-        descriptions: str = "(설명 없음)",
-        number_of_user: int = 4,
-    ) -> None:
-        await cmd_helper_maintenance(interact, "party")
-
-    # create trade article
-    @app_commands.command(name="trade", description="cmd.trade.desc")
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
-    )
-    @discord.app_commands.choices(
-        trade_type=[
-            discord.app_commands.Choice(name=ts.get("cmd.trade.type-sell"), value=1),
-            discord.app_commands.Choice(name=ts.get("cmd.trade.type-buy"), value=2),
-        ]
-    )
-    @discord.app_commands.describe(
-        trade_type="cmd.trade.desc-trade-type",
-        item_name="cmd.trade.desc-item-name",
-        item_rank="cmd.trade.desc-item-rank",
-        game_nickname="cmd.trade.desc-nickname",
-        price="cmd.trade.desc-price",
-        quantity="cmd.trade.desc-qty",
-    )
-    async def cmd_create_trade(
-        self,
-        interact: discord.Interaction,
-        trade_type: discord.app_commands.Choice[int],
-        item_name: str,
-        game_nickname: str = "",
-        item_rank: int = 0,
-        price: int = 0,
-        quantity: int = 1,
-    ) -> None:
-        await cmd_helper_maintenance(interact, "trade")
-
-    @cmd_create_trade.autocomplete("item_name")
-    async def trade_item_name_autocomplete(
-        self,
-        interact: discord.Interaction,
-        current: str,
-    ) -> list[discord.app_commands.Choice[str]]:
-        """Autocompletes the item name for the market search."""
-        choices = [
-            discord.app_commands.Choice(name=name, value=name)
-            for name in get_market_item_names()
-            if current.lower() in name.lower()
-        ]
-        return choices[:25]
-
     # duviri-circuit-warframe
     @app_commands.command(
         name="duviri-wf",
@@ -364,7 +324,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_circuit_wf(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "duviri-warframe")
+        await cmd_helper_maintenance(interact, f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}")
 
     # duviri-circuit-incarnon
     @app_commands.command(
@@ -378,7 +338,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_circuit_inc(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "duviri-incarnon")
+        await cmd_helper_maintenance(interact, f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}")
 
     # events (like thermina, fomorian)
     @app_commands.command(name="events", description="cmd.events.desc")
@@ -388,15 +348,7 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_ingame_events(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "events")
-
-    # receive complain
-    @app_commands.command(name="complain", description="cmd.complain.desc")
-    @discord.app_commands.checks.cooldown(
-        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
-    )
-    async def cmd_receive_complain(self, interact: discord.Interaction) -> None:
-        await cmd_helper_maintenance(interact, "complain")
+        await cmd_helper_maintenance(interact, EVENTS)
 
     # setup alert
     @app_commands.command(name="alert-set", description="cmd.alert-set.desc")
@@ -420,7 +372,85 @@ class MaintenanceCommands(commands.Cog):
     async def cmd_descendia(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
-        await cmd_helper_maintenance(interact, "descendia")
+        await cmd_helper_maintenance(interact, DESCENDIA)
+
+    @app_commands.command(name="complain", description=f"cmd.complain.desc")
+    @discord.app_commands.checks.cooldown(
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_receive_complain(self, interact: discord.Interaction) -> None:
+        await cmd_helper_maintenance(interact, "complain")
+
+    @app_commands.command(name="party", description="cmd.party.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @app_commands.describe(
+        title="cmd.party.desc-title",
+        game_name="cmd.party.desc-game-name",
+        departure="cmd.party.desc-departure",
+        descriptions="cmd.party.desc-descriptions",
+        number_of_user="cmd.party.desc-number-of-user",
+    )
+    async def cmd_create_party(
+        self,
+        interact: discord.Interaction,
+        title: str,
+        game_name: str,
+        departure: str = None,
+        descriptions: str = ts.get(f"cmd.party.c-no-desc"),
+        number_of_user: int = 4,
+    ):
+        await cmd_helper_maintenance(
+            interact,
+            f"party//{title}//{game_name}//{departure}//{descriptions}//{number_of_user} ",
+        )
+
+    @app_commands.command(name="trade", description="cmd.trade.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    @app_commands.choices(
+        trade_type=[
+            app_commands.Choice(name=ts.get("cmd.trade.type-sell"), value=1),
+            app_commands.Choice(name=ts.get("cmd.trade.type-buy"), value=2),
+        ]
+    )
+    @app_commands.describe(
+        trade_type="cmd.trade.desc-trade-type",
+        item_name="cmd.trade.desc-item-name",
+        item_rank="cmd.trade.desc-item-rank",
+        # game_nickname="cmd.trade.desc-nickname",
+        price="cmd.trade.desc-price",
+        quantity="cmd.trade.desc-quantity",
+    )
+    async def cmd_create_trade(
+        self,
+        interact: discord.Interaction,
+        trade_type: app_commands.Choice[int],
+        item_name: str,
+        # game_nickname: str = "",
+        item_rank: int = 0,
+        price: int = 0,
+        quantity: int = 1,
+    ):
+        await cmd_helper_maintenance(
+            interact,
+            f"trade//{trade_type}//{item_name}//{item_rank}//{price}//{quantity}",
+        )
+
+    # auto complete item
+    # noinspection PyUnusedLocal
+    @cmd_create_trade.autocomplete("item_name")
+    async def trade_item_name_autocomplete(
+        self, interact: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        choices = [
+            app_commands.Choice(name=name, value=name)
+            for name in get_market_item_names()
+            if current.lower() in name.lower()
+        ]
+        return choices[:25]
 
     # warn or ban user
     @app_commands.command(name="user-ban", description="cmd.user-ban.desc")
@@ -428,10 +458,14 @@ class MaintenanceCommands(commands.Cog):
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_user_warn(
+        self,
         interact: discord.Interaction,
-        member: discord.Member,
+        user: discord.Member,
     ) -> None:
-        await cmd_helper_maintenance(interact, "user-ban")
+        await cmd_helper_maintenance(
+            interact,
+            f"user-warn//{user.id}//{user.name}//{user.global_name}//{user.display_name}",
+        )
 
 
 async def setup(bot: commands.Bot):

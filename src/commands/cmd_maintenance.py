@@ -15,14 +15,13 @@ from src.utils.db_helper import query_reader
 
 
 async def cmd_helper_maintenance(interact: discord.Interaction, arg: str = "") -> None:
-    # delta time
     async with query_reader(interact.client.db) as cursor:
+        # delta time
         await cursor.execute("SELECT value FROM vari WHERE name='delta_time'")
         delta_time = await cursor.fetchone()
         delta_time = int(delta_time["value"])
 
-    # get started time
-    async with query_reader(interact.client.db) as cursor:
+        # get started time
         await cursor.execute("SELECT updated_at FROM vari WHERE name='start_time'")
         start_time = await cursor.fetchone()
         start_time = start_time["updated_at"]
