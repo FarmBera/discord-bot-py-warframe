@@ -12,7 +12,7 @@ from src.constants.color import C
 from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
-from src.utils.return_err import return_traceback, print_test_err
+from src.utils.return_err import return_traceback
 from src.utils.logging_utils import save_log
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
@@ -30,7 +30,7 @@ CMD_EXIT: str = "exit"
 EXIT_CMD: list = [CMD_EXIT, "ㄷ턋", "멱ㅓ"]
 
 
-async def console_input_listener() -> None:
+async def console_input_listener() -> str | None:
     """
     wait for console input and returns the specified keyword when it is entered.
     """
@@ -150,14 +150,6 @@ async def main_manager() -> None:
         print(f"{C.default}[info] Terminating current bot...")  # VAR
         await current_bot.close()
 
-        # terminate db connection
-        print(f"{C.yellow}Terminating DB connection...", end="")
-        if db_pool is not None:
-            db_pool.close()
-            await db_pool.wait_closed()
-            print(f"{C.green}Connection Pool closed cleanly.{C.default}")
-            db_pool = None
-
         for task in pending:  # cancel remaining task
             task.cancel()
 
@@ -171,6 +163,13 @@ async def main_manager() -> None:
                 await asyncio.sleep(0.98)
 
     print("[info] Exiting Program...")  # VAR
+    # terminate db connection
+    print(f"{C.yellow}Terminating DB connection...", end="")
+    if db_pool is not None:
+        db_pool.close()
+        await db_pool.wait_closed()
+        print(f"{C.green}Connection Pool closed cleanly.{C.default}")
+        db_pool = None
 
 
 if __name__ == "__main__":

@@ -39,7 +39,8 @@ async def is_admin_user(
     try:
         async with query_reader(interact.client.db) as cursor:
             await cursor.execute(
-                "SELECT user_id FROM admins WHERE user_id = %s", (interact.user.id,)
+                "SELECT user_id FROM admins WHERE user_id = %s LIMIT 1",
+                (interact.user.id,),
             )
             result = await cursor.fetchone()
         if result and interact.user.id == result.get("user_id"):
@@ -63,6 +64,57 @@ async def is_admin_user(
             type=LOG_TYPE.err,
             interact=interact,
             msg=f"admin verification error (from is_admin_user): {e}",
+            obj=return_traceback(),
+        )
+        return False
+
+
+async def is_super_user(
+    interact: discord.Interaction,
+    cmd="",
+    isFollowUp: bool = False,
+    notify: bool = False,
+) -> bool:
+    """check interaction user is super admin
+
+        Args:
+            interact (discord.Interaction): interaction object
+
+    :param interact: interaction object to response back
+    :param cmd: used function
+    :param isFollowUp: is ephemeral msg
+    :param notify: is sending response
+    :return: bool: is admin user (if admin user returns True else False)
+    """
+    try:
+        # INLINE_SQL
+        async with query_reader(interact.client.db) as cursor:
+            await cursor.execute(
+                "SELECT user_id FROM admins WHERE user_id = %s AND super_user = 1 LIMIT 1",
+                (interact.user.id,),
+            )
+            result = await cursor.fetchone()
+        if result and interact.user.id == result.get("user_id"):
+            return True
+
+        if notify:
+            if isFollowUp:
+                await interact.followup.send(embed=ADMIN_EMBED, ephemeral=True)
+            else:
+                await interact.response.send_message(embed=ADMIN_EMBED, ephemeral=True)
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.warn,
+            interact=interact,
+            msg=f"cmd '{cmd}' used, but no super permission",
+        )
+        return False
+    except Exception as e:
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.err,
+            interact=interact,
+            msg=f"admin verification error (from is_super_user): {e}",
             obj=return_traceback(),
         )
         return False
