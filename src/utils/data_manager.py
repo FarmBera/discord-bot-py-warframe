@@ -1,13 +1,12 @@
 from src.utils.file_io import (
     json_load,
     json_save,
-    yaml_open,
     json_load_async,
     json_save_async,
 )
 from src.constants.color import C
 from src.translator import language as lang
-from src.constants.keys import JSON, CHANNEL_FILE_LOC, SETTING_FILE_LOC
+from src.constants.keys import JSON, SETTING_FILE_LOC
 
 
 def get_obj(json_name: str):
@@ -35,7 +34,6 @@ async def cmd_obj_check(name):
     return obj
 
 
-CHANNELS = yaml_open(CHANNEL_FILE_LOC)
 SETTINGS = json_load(SETTING_FILE_LOC)
 
 

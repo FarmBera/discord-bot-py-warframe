@@ -7,8 +7,8 @@ from config.TOKEN import HOMEPAGE, SERVER_NAME
 from src.translator import ts
 from src.constants.keys import COOLDOWN_5_MIN
 from src.utils.permission import is_valid_guild
-from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
+from src.services.channel_service import ChannelService
 from src.views.complain_view import pf, ApplyButtonView
 
 
@@ -32,7 +32,21 @@ class ComplainCommands(commands.Cog):
         if not await is_valid_guild(interact, isFollowUp=True):
             return
 
-        target_channel = interact.client.get_channel(CHANNELS["complain"])
+        # get channel
+        channel_list = await ChannelService.getChannels(interact)
+        if not channel_list:
+            await interact.followup.send(ts.get("cmd.err-limit-server"), ephemeral=True)
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=f"cmd.complain",
+                interact=interact,
+                msg="cmd used, but unauthorized server",
+            )
+            return
+
+        # fetch channel
+        target_channel = interact.client.get_channel(channel_list.get("complain_ch"))
         if not target_channel:
             await interact.followup.send(ts.get(f"{pf}err-channel"), ephemeral=True)
             await save_log(

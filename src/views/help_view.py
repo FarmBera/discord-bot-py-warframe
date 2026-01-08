@@ -6,7 +6,7 @@ from config.TOKEN import HOMEPAGE, DONATION, SUPPORT_SERVER
 pf: str = "view.support-"
 
 
-class SupportView(View):
+class SupportMasterView(View):
     def __init__(self):
         super().__init__(timeout=None)
 
@@ -19,3 +19,15 @@ class SupportView(View):
             Button(label=ts.get(f"{pf}privacy"), url=f"{HOMEPAGE}/?id=privacy", row=2)
         )
         self.add_item(Button(label=ts.get(f"{pf}donate"), url=DONATION, row=3))
+
+
+class SupportView(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+        self.add_item(
+            Button(label=ts.get(f"{pf}support"), url=f"{SUPPORT_SERVER}", row=1)
+        )
+        self.add_item(
+            Button(label=ts.get(f"{pf}faq"), url=f"{HOMEPAGE}/?id=faq", row=1)
+        )

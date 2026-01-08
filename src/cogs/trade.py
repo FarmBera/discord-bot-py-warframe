@@ -5,12 +5,12 @@ from discord.ext import commands
 from src.translator import ts
 from config.config import LOG_TYPE
 from src.constants.keys import LFG_WEBHOOK_NAME, COOLDOWN_DEFAULT
-from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.return_err import return_traceback
 from src.utils.permission import is_valid_guild, is_banned_user
 from src.parser.marketsearch import get_slug_data, get_market_item_names
 from src.services.trade_service import TradeService
+from src.services.channel_service import ChannelService
 from src.views.trade_view import TradeView, build_trade_embed, parseNickname
 
 pf = "cmd.trade."
@@ -56,11 +56,23 @@ class TradeCog(commands.Cog):
 
         await interact.response.defer(ephemeral=True)
 
-        target_channel = self.bot.get_channel(CHANNELS["trade"])
-        if not target_channel:
-            await interact.followup.send(
-                ts.get("cmd.party.not-found-ch"), ephemeral=True
+        # get channel
+        channel_list = await ChannelService.getChannels(interact)
+        if not channel_list:
+            await interact.followup.send(ts.get("cmd.err-limit-server"), ephemeral=True)
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=f"cmd.trade",
+                interact=interact,
+                msg="cmd used, but unregistered server",
             )
+            return
+
+        # fetch channel
+        target_channel = self.bot.get_channel(channel_list.get("trade_ch"))
+        if not target_channel:
+            await interact.followup.send(ts.get("cmd.ch-not-found"), ephemeral=True)
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.err,

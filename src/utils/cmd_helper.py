@@ -10,7 +10,7 @@ from src.utils.permission import is_admin_user
 from src.utils.logging_utils import save_log
 from src.utils.file_io import open_file_async
 from src.utils.return_err import err_embed, return_traceback
-from src.views.help_view import SupportView
+from src.views.help_view import SupportMasterView
 
 
 async def cmd_helper(
@@ -113,7 +113,7 @@ async def cmd_helper_txt(
     # send message
     await interact.response.send_message(
         embed=discord.Embed(description=txt, color=0xCEFF00),  # VAR: color
-        view=SupportView(),
+        view=SupportMasterView(),
         ephemeral=isPrivateMsg,
     )
 

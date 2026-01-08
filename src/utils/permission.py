@@ -4,8 +4,8 @@ from src.translator import ts
 from config.config import LOG_TYPE
 from src.utils.db_helper import query_reader
 from src.utils.return_err import return_traceback
-from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
+from src.services.channel_service import ChannelService
 
 
 GUILD_EMBED: discord.Embed = discord.Embed(
@@ -124,8 +124,12 @@ async def is_valid_guild(
     interact: discord.Interaction, isFollowUp: bool = False, cmd: str = ""
 ) -> bool:
     try:
-        if interact.guild_id == CHANNELS["guild"]:
-            return True
+        # fetch & check guild
+        channel_list = await ChannelService.getChannels(interact)
+        if channel_list:
+            fetched_guild_id = channel_list.get("guild_id")
+            if fetched_guild_id and interact.guild_id == fetched_guild_id:
+                return True
 
         if isFollowUp:
             await interact.followup.send(embed=GUILD_EMBED, ephemeral=True)

@@ -5,11 +5,11 @@ from discord.ext import commands
 from config.config import LOG_TYPE
 from src.translator import ts
 from src.constants.keys import LFG_WEBHOOK_NAME, COOLDOWN_DEFAULT
-from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.return_err import return_traceback
 from src.utils.permission import is_valid_guild, is_banned_user
 from src.services.party_service import PartyService
+from src.services.channel_service import ChannelService
 from src.views.party_view import PartyView, build_party_embed, pf, MIN_SIZE, MAX_SIZE
 
 
@@ -27,7 +27,7 @@ class PartyCog(commands.Cog):
         departure="cmd.party.desc-departure",
         descriptions="cmd.party.desc-descriptions",
         number_of_user="cmd.party.desc-number-of-user",
-   )
+    )
     async def cmd_create_party(
         self,
         interact: discord.Interaction,
@@ -53,9 +53,23 @@ class PartyCog(commands.Cog):
         if await is_banned_user(interact, isFollowUp=True):
             return
 
-        target_channel = self.bot.get_channel(CHANNELS["party"])
+        # get channel
+        channel_list = await ChannelService.getChannels(interact)
+        if not channel_list:
+            await interact.followup.send(ts.get("cmd.err-limit-server"), ephemeral=True)
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=f"cmd.party",
+                interact=interact,
+                msg="cmd used, but unregistered server",
+            )
+            return
+
+        # fetch
+        target_channel = self.bot.get_channel(channel_list.get("party_ch"))
         if not target_channel:
-            await interact.followup.send(ts.get(f"{pf}not-found-ch"), ephemeral=True)
+            await interact.followup.send(ts.get(f"cmd.ch-not-found"), ephemeral=True)
             return
 
         if number_of_user < MIN_SIZE:
@@ -92,8 +106,8 @@ class PartyCog(commands.Cog):
                 type=LOG_TYPE.err,
                 cmd=f"cmd.party",
                 interact=interact,
-                msg="cmd used",  # VAR
-                obj=f"T:{title}\nTYPE:{game_name}\nDEPT:{departure}\nDESC:{descriptions}\n{number_of_user}",
+                msg="cmd used, but DB ERR",  # VAR
+                obj=f"{e}\nT:{title}\nTYPE:{game_name}\nDEPT:{departure}\nDESC:{descriptions}\nNOU:{number_of_user}\n{return_traceback()}",
             )
             return
 

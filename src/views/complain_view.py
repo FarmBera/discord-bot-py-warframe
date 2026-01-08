@@ -6,9 +6,9 @@ from config.config import LOG_TYPE
 from src.translator import ts
 from src.constants.keys import COOLDOWN_DEFAULT
 from src.utils.return_err import return_traceback
-from src.utils.data_manager import CHANNELS
 from src.utils.logging_utils import save_log
 from src.utils.db_helper import query_reader
+from src.services.channel_service import ChannelService
 
 pf: str = "cmd.complain."
 
@@ -80,15 +80,27 @@ class ComplainModal(discord.ui.Modal):
                 )
                 await asyncio.sleep(1)
 
+            # get & fetch channel
+            channel_list = await ChannelService.getChannels(interact)
+            forum_channel = interact.client.get_channel(channel_list.get("complain_ch"))
+            if not forum_channel:
+                await interact.followup.send(ts.get(f"{pf}err-channel"), ephemeral=True)
+                await save_log(
+                    pool=interact.client.db,
+                    type=LOG_TYPE.err,
+                    cmd=f"cmd.complain",
+                    interact=interact,
+                    msg="cmd used, but complain channel not found",
+                )
+                return
+
             # post new article in forum channel
-            forum_channel = interact.client.get_channel(CHANNELS["complain"])
             if isinstance(forum_channel, discord.ForumChannel):
                 await forum_channel.create_thread(name=title, content=desc)
 
             await self.button_interact.edit_original_response(
                 content=ts.get(f"{pf}done"), embed=None, view=None
             )
-
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.event,

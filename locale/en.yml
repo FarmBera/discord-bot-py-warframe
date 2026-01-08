@@ -56,7 +56,8 @@ noti-label:
   Goals: Event
 
 view:
-  support-support: '문의/지원 서버 바로가기'
+  support-support: 'Quick Links to Contact/Support Server'
+  support-faq: 'FAQ'
   support-help: "Help (How to Use)"
   support-privacy: "Privacy Policy"
   support-tos: "Terms of Service"
@@ -69,7 +70,18 @@ cmd:
     Only authorized administrators can send them.
 
     If you believe this is an error, please contact the bot developer.
-  err-limit-server: "This command is only available on the selected server."
+  err-limit-server: |
+    ## Unauthorized Server
+    ❌ This command is only available on the selected server.
+    If you have already completed registration, please double-check your channel settings.
+
+    > If you believe there is an error or wish to register, please contact the responsible party.
+  ch-not-found: |
+    ### ❌ Error
+    - The channel where the post should be created cannot be found.
+    - Please register the channel using the `/register` command.
+
+    If the issue persists, please contact at the support server.
   err-perm-webhook: "❌ The bot requires ‘webhook management’ permissions."
   err-cooldown:
     title: Cooldown
@@ -447,7 +459,6 @@ cmd:
     no-thread-permission: "❌ Error: I don't have permission to create threads in this channel. Please contact an admin."
     err-creation: "❌ Error: A problem occurred while creating the thread. Please contact an admin."
     err-unknown: "❌ Unknown Error"
-    not-found-ch: "❌ Error: Could not find the specified text channel. Please contact an admin."
     err-party-count: "Failed to retrieve the number of party members.\nPlease contact the administrator."
 
     created-party: "Created a party!"
@@ -630,7 +641,11 @@ cmd:
 
     # error
     err: "An error occurred during submission.\n\nIf the error persists, please contact an administrator."
-    err-channel: "Error: The suggestion channel could not be found.\nPlease contact an administrator."
+    err-channel: |
+      Error: The Feedback channel be found.
+      Please register the channel using the `/register` command.
+      
+      If the issue persists, please contact to the support server.
 
   alert:
     none: None
