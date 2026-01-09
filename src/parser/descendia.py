@@ -4,6 +4,7 @@ import datetime as dt
 from src.translator import ts, language as lang
 from src.utils.times import timeNow, KST
 from src.utils.file_io import json_load
+from src.utils.return_err import err_embed
 
 descendiaLanguage = json_load(f"data/{lang}/descendiaLanguages.json")
 
@@ -13,7 +14,7 @@ def getDescendiaChallenge(challenge: str) -> str:
 
 
 def getDescendiaMiss(mission: str) -> str:
-    return descendiaLanguage.get("missionType", {}).get(mission, {})
+    return descendiaLanguage.get("missionType", {}).get(mission, {}).get("name", "")
 
 
 pf: str = "cmd.descendia."
@@ -34,9 +35,9 @@ def check_date(start: str, end: str) -> bool:
     return False
 
 
-def w_descendia(descendia) -> tuple:
+def w_descendia(descendia) -> tuple[discord.Embed, str]:
     if not descendia:
-        return ts.get("general.error-cmd")
+        return err_embed("descendia"), ""
 
     this_week_content = None
     this_week_index: int = 0
@@ -52,10 +53,11 @@ def w_descendia(descendia) -> tuple:
 
         this_week_index += 1
 
-    output_msg += ts.get(f"{pf}title")
-
     if not this_week_content:
-        output_msg = "ERROR: Descendia Content Not Found"
+        return err_embed("ERROR: Descendia Content Not Found"), ""
+
+    # generate output msg
+    output_msg += ts.get(f"{pf}title")
 
     for challenge in descendia[this_week_index]["Challenges"]:
         output_msg += f"{challenge['Index']:2d}. {getDescendiaMiss(challenge['Type'])} - {getDescendiaChallenge(challenge['Challenge'])}\n"
@@ -68,5 +70,4 @@ def w_descendia(descendia) -> tuple:
 
 # from src.constants.keys import DESCENDIA
 # from src.utils.data_manager import get_obj
-# TEST_OBJECT = get_obj(DESCENDIA)
-# print(w_descendia(TEST_OBJECT)[0].description)
+# print(w_descendia(get_obj(DESCENDIA))[0].description)
