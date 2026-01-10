@@ -29,7 +29,6 @@ def singleInvasion(inv) -> str:
 
     # title / progress
     output_msg = f"""### {ts.get(f'{pf}title')} - *{i_node}*
-
 {ts.get(f'{pf}completion')}: **{i_status_perc}** ({ts.get(f'{pf}atk-from')} {i_fact})
 """
     # date
@@ -44,7 +43,7 @@ def singleInvasion(inv) -> str:
     if inv["AttackerReward"]:  # is VS Infestation
         output_msg += f"- {getFactions(inv['Faction'])} - **{getLanguage(inv['AttackerReward']['countedItems'][0]['ItemType'].lower())}**\n"
 
-    output_msg += f"- {getFactions(inv['DefenderFaction'])} - **{getLanguage(inv['DefenderReward']['countedItems'][0]['ItemType'].lower())}**\n\n"
+    output_msg += f"- {getFactions(inv['DefenderFaction'])} - **{getLanguage(inv['DefenderReward']['countedItems'][0]['ItemType'].lower())}**\n"
 
     return output_msg
 

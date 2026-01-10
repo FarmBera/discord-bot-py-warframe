@@ -16,15 +16,21 @@ def w_dailyDeals(deals) -> discord.Embed:
 
     for item in deals:
         price_origin: int = item["OriginalPrice"]
-        price_sale: int = price_origin - item["Discount"]
+        price_sale: int = item["SalePrice"]
+        discount: int = item["Discount"]
         amount: int = item["AmountTotal"] - item["AmountSold"]
         remain: str = f"{item['AmountSold']}/{item['AmountTotal']}"
         expiry: str = convert_remain(item["Expiry"]["$date"]["$numberLong"])
         item_name: str = getLanguage(item["StoreItem"].lower())
 
         output_msg += f"""# {item_name}
-- ~~{price_origin}~~ --> **{price_sale}**
+- ~~{price_origin}~~ --> **{price_sale}** ({discount}% {ts.get(f'{pf}offs')})
 - **{amount}** {ts.get(f'{pf}remain')} ({remain})
 - {ts.get(f'{pf}exp').format(time=expiry)}"""
 
     return discord.Embed(description=output_msg)
+
+
+# from src.utils.data_manager import get_obj
+# from src.constants.keys import DAILYDEALS
+# print(w_dailyDeals(get_obj(DAILYDEALS)).description)
