@@ -124,10 +124,7 @@ async def w_market_search(pool, arg_obj: tuple[str, int]) -> discord.Embed:
                 msg=f"{name},{item_slug} > 404 Not Found",
                 obj=result.res_code,
             )
-            return discord.Embed(
-                description=ts.get(f"{pf}no-result"),
-                color=0xE67E22,
-            )
+            return discord.Embed(description=ts.get(f"{pf}no-result"), color=0xE67E22)
         elif result.status_code == 500:  # internal server err
             await save_log(
                 pool=pool,
@@ -137,10 +134,7 @@ async def w_market_search(pool, arg_obj: tuple[str, int]) -> discord.Embed:
                 msg=f"{name},{item_slug} > 500 Internal Server Error",
                 obj=result.res_code,
             )
-            return discord.Embed(
-                description=ts.get(f"{pf}server-err"),
-                color=0xE67E22,
-            )
+            return discord.Embed(description=ts.get(f"{pf}server-err"), color=0xE67E22)
         elif result.status_code != 200:  # another code err
             await save_log(
                 pool=pool,
@@ -150,10 +144,7 @@ async def w_market_search(pool, arg_obj: tuple[str, int]) -> discord.Embed:
                 msg=f"{name},{item_slug} > {result.status_code}",
                 obj=result.res_code,
             )
-            return discord.Embed(
-                description=ts.get(f"{pf}err"),
-                color=0xE67E22,
-            )
+            return discord.Embed(description=ts.get(f"{pf}err"), color=0xE67E22)
     except Exception as e:
         await save_log(
             pool=pool,
@@ -163,13 +154,14 @@ async def w_market_search(pool, arg_obj: tuple[str, int]) -> discord.Embed:
             msg=f"response ERROR",
             obj=str(e),
         )
-        return discord.Embed(
-            description=ts.get(f"{pf}err"),
-            color=0xE67E22,
-        )
+        return discord.Embed(description=ts.get(f"{pf}err"), color=0xE67E22)
 
     # init categorize
     ingame_orders = categorize(result.json(), rank=rank)
+    if not ingame_orders:
+        return discord.Embed(
+            description=ts.get(f"{pf}no-item").format(name=item_name), color=0xE67E22
+        )
 
     output_msg = ""
 
@@ -191,9 +183,7 @@ async def w_market_search(pool, arg_obj: tuple[str, int]) -> discord.Embed:
 
         output_msg += f"- **{item['platinum']} {ts.get(f'{pf}platinum')}** : {item['quantity']} {ts.get(f'{pf}qty')} (`{item['user']['ingameName']}`)\n"
 
-    embed = discord.Embed(
-        description=output_msg,
-        color=0x3498DB,  # discord.Color.blue,
-    )
+    embed = discord.Embed(description=output_msg, color=0x3498DB)
+    # discord.Color.blue,
     embed.set_thumbnail(url=f"{base_url_market_image}{item_img_url}")
     return embed

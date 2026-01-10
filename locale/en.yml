@@ -300,8 +300,12 @@ cmd:
 
     no-result: |
       ## No search results found.
-            - No market search results found for **{name}**.
-            - Please double-check the item name.
+      - No market search results found for **{name}**.
+      - Please double-check the item name.
+    no-item: |
+      ## No items available for trade.
+      There are no items available for immediate trade for **{name}**.
+      (No items listed by players currently logged into the game)
     server-err: |
       ## An error occurred on the 'Warframe Market' server.
       - The 'Warframe Market' server may be under maintenance.

@@ -68,6 +68,7 @@ class DiscordBot(commands.Bot):
     def __init__(self, *, intents: discord.Intents, db, **options):
         super().__init__(command_prefix="!", intents=intents, **options)
         self.db = db
+        self.webhook_cache = {}
 
     async def setup_hook(self) -> None:
         self.add_view(PartyView())
