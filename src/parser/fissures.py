@@ -1,3 +1,5 @@
+import discord
+
 from src.translator import ts
 from src.utils.times import convert_remain, timeNow
 from src.utils.data_manager import SETTINGS
@@ -57,7 +59,7 @@ def is_expired_fiss(arg_time) -> bool:
 
 
 # todo-delay: 검색 기능 추가
-def w_fissures(fissures, args) -> str:
+def w_fissures(fissures, args) -> tuple[discord.Embed, str]:
     setting = SETTINGS
     prefix = setting["fissures"]
     fav_mission = prefix["favMission"]
@@ -121,8 +123,11 @@ def w_fissures(fissures, args) -> str:
 
         output_msg += f"""**{ts.trs(o_type)}** - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
 {ts.get(f'{pf}remain').format(time=exp_time)} / {o_node} - {o_enemy}\n\n"""
+        output_msg = txt_length_check(output_msg)
 
-    return txt_length_check(output_msg)
+    embed = discord.Embed(description=output_msg, color=0x11806A)
+    embed.set_thumbnail(url="attachment://i.webp")
+    return embed, "fissures"
 
 
 # from src.utils.data_manager import get_obj
