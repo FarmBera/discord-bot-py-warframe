@@ -1,30 +1,46 @@
 import discord
+import datetime as dt
+
 from src.translator import ts
-from src.utils.formatter import time_cal_with_curr
-from src.utils.discord_file import img_file
 from src.utils.return_err import err_embed
+from src.utils.times import check_timer_states
 
 
-def w_cambionCycle(cambion) -> tuple:
-    if not cambion:
-        return err_embed("cambion cycle")
+class CambionCycleData:
+    name = "Cambion Drift Fass/Vome"
+    start_date = dt.datetime(2021, 2, 5, 12, 27, 54, tzinfo=dt.timezone.utc)
+    looptime = 8998.874  # total 150m
+    delaytime = 3000  # Vome 50m
+    beforetext = "fass"
+    aftertext = "vome"
 
-    def color_decision(s):
-        return 0x97D4D9 if s == "vome" else 0xECB448
 
-    pf: str = "cmd.cambion."
+pf: str = "cmd.cambion."
 
-    status: str = cambion["state"]
+cambion_color = {"fass": 0xECB448, "vome": 0x97D4D9}
 
-    output_msg = f"""### {ts.get(f'{pf}title')}
 
-# < {ts.get(f'{pf}{status}')} >
+def w_cambionCycle(tmp) -> tuple[discord.Embed, str]:
+    # calculate cambion cycle
+    try:
+        cambion = check_timer_states(CambionCycleData)
+        if not cambion:
+            raise ValueError("ERROR FETCHING CAMIBON DATA")
+    except Exception:
+        return err_embed("cambion cycle"), ""
 
-- {ts.get(f'{pf}exp')} {time_cal_with_curr(cambion['expiry'])} ({cambion['timeLeft']})
-"""
+    status: str = cambion["current"]
 
-    f = img_file(status)
-    embed = discord.Embed(description=output_msg, color=color_decision(status))
+    # generate output msg
+    output_msg = ts.get(f"{pf}output").format(
+        current=ts.get(f"{pf}{status}"),
+        time=cambion["time_left"],
+        next=ts.get(f'{pf}{cambion["next"]}'),
+    )
+
+    embed = discord.Embed(description=output_msg, color=cambion_color[status])
     embed.set_thumbnail(url="attachment://i.webp")
+    return embed, status
 
-    return embed, f
+
+# print(w_cambionCycle()[0].description)

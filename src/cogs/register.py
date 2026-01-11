@@ -14,7 +14,7 @@ from src.constants.keys import (
     # cmd obj
     ALERTS,
     NEWS,
-    # CETUSCYCLE,
+    CETUSCYCLE,
     SORTIE,
     ARCHONHUNT,
     VOIDTRADERS,
@@ -23,11 +23,11 @@ from src.constants.keys import (
     # DUVIRICYCLE,
     FISSURES,
     CALENDAR,
-    # CAMBIONCYCLE,
+    CAMBIONCYCLE,
     DAILYDEALS,
     INVASIONS,
     MARKET_SEARCH,
-    # VALLISCYCLE,
+    VALLISCYCLE,
     DUVIRI_ROTATION,
     EVENTS,
     DESCENDIA,
@@ -36,7 +36,8 @@ from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
 from src.commands.noti_channel import noti_subscribe_helper, noti_unsubscribe_helper
 
 from src.parser.alerts import w_alerts
-from src.parser.news import w_news  # cetus
+from src.parser.news import w_news
+from src.parser.cetusCycle import w_cetusCycle
 from src.parser.sortie import w_sortie
 from src.parser.archonHunt import w_archonHunt
 from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
@@ -44,9 +45,11 @@ from src.parser.steelPath import w_steelPath  # duviri
 from src.parser.fissures import w_fissures
 from src.parser.archimedea import w_deepArchimedea
 from src.parser.archimedea import w_temporalArchimedia
-from src.parser.calendar import w_calendar  # cambion
+from src.parser.calendar import w_calendar
+from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
-from src.parser.invasions import w_invasions  # vallis
+from src.parser.invasions import w_invasions
+from src.parser.vallisCycle import w_vallisCycle
 from src.parser.marketsearch import w_market_search, get_market_item_names
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
@@ -133,9 +136,16 @@ class GeneralCommands(commands.Cog):
         )
 
     # cetus command (cetusCycle)
-    # @app_commands.command(name="cetus", description="cmd.cetus.desc")
-    # async def cmd_cetus(self,interact: discord.Interaction):
-    #     await cmd_helper(interact=interact, key=CETUSCYCLE, parser_func=w_cetusCycle)
+    @app_commands.command(name="cetus", description="cmd.cetus.desc")
+    async def cmd_cetus(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact=interact,
+            key=CETUSCYCLE,
+            parser_func=w_cetusCycle,
+            isPrivateMsg=developer_options,
+        )
 
     # sortie command
     @app_commands.command(name="sortie", description="cmd.sortie.desc")
@@ -298,11 +308,16 @@ class GeneralCommands(commands.Cog):
         )
 
     # cambion command (cambionCycle)
-    # @tree.command(
-    #     name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
-    # )
-    # async def cmd_cambion(self,interact: discord.Interaction):
-    #     await cmd_helper(interact, key=CAMBIONCYCLE, parser_func=w_cambionCycle)
+    @app_commands.command(name="cambion", description=f"cmd.cambion.desc")
+    async def cmd_cambion(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=CAMBIONCYCLE,
+            parser_func=w_cambionCycle,
+            isPrivateMsg=developer_options,
+        )
 
     # dailyDeals command
     @app_commands.command(name="dailydeals", description="cmd.dailydeals.desc")
@@ -390,12 +405,16 @@ class GeneralCommands(commands.Cog):
         return choices[:25]
 
     # vallisCycle command
-    # @tree.command(
-    #     name=ts.get(f"cmd.vallis.cmd"),
-    #     description=ts.get(f"cmd.vallis.desc"),
-    # )
-    # async def cmd_vallis(interact: discord.Interaction):
-    #     await cmd_helper(interact, key=VALLISCYCLE, parser_func=w_vallisCycle)
+    @app_commands.command(name="vallis", description="cmd.vallis.desc")
+    async def cmd_vallis(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=VALLISCYCLE,
+            parser_func=w_vallisCycle,
+            isPrivateMsg=developer_options,
+        )
 
     # duviri-circuit-warframe
     @app_commands.command(

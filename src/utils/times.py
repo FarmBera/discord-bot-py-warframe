@@ -223,3 +223,56 @@ def parseKoreanDatetime(text):
             return None
 
     return target_date
+
+
+def format_duration(seconds):
+    td = dt.timedelta(seconds=int(seconds))
+    d = td.days
+    h, remainder = divmod(td.seconds, 3600)
+    m, s = divmod(remainder, 60)
+
+    parts = []
+    if d > 0:
+        parts.append(f"{d}d")
+    if h > 0:
+        parts.append(f"{h}h")
+    if m > 0:
+        parts.append(f"{m}m")
+    parts.append(f"{s}s")
+
+    return " ".join(parts[:3])
+
+
+def check_timer_states(timer, target_time=None) -> dict:
+    if target_time is None:
+        target_time = dt.datetime.now(dt.timezone.utc)
+
+    start = timer.start_date
+    loop = timer.looptime
+    delay = timer.delaytime
+
+    elapsed = (target_time - start).total_seconds()  # elapsed time
+    current_pos = elapsed % loop  # current cycle
+    boundary = loop - delay  # check current state & calculate seconds remaining
+
+    if current_pos < boundary:
+        # normal state
+        state_text = timer.beforetext
+        seconds_left = boundary - current_pos
+    else:
+        # event state
+        state_text = timer.aftertext
+        seconds_left = loop - current_pos
+
+    # calculate expiry timestamp
+    expiry_date = target_time + dt.timedelta(seconds=seconds_left)
+    expiry_timestamp = int(expiry_date.timestamp())
+
+    return {
+        # "name": timer.name,
+        "current": state_text,
+        "next": timer.beforetext if timer.beforetext != state_text else timer.aftertext,
+        "time_left": convert_remain(expiry_timestamp),
+        # "time_left_str": format_duration(seconds_left),
+        # "expiry_date_obj": expiry_date,
+    }

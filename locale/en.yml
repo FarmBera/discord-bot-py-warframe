@@ -130,11 +130,12 @@ cmd:
     comu: Community News
 
   cetus:
-    cmd: cetuscycle
+    cmd: cetus-cycle
     desc: Get current Cetus Time & next state
-    title: Cetus State
-    current: Current State
-    endin: Ends in
+    output: |
+      ## Cetus(Earth) Cycle
+      # < **{curr_state}** >
+      {time} {new}
     night: Night
     day: Day
 
@@ -264,12 +265,12 @@ cmd:
     choice-prize: Big Prize
 
   cambion:
-    cmd: cambioncycle
+    cmd: cambion-cycle
     desc: Get current cambion state
-
-    title: Cambion Cycle
-    exp: Expires in
-
+    output: |
+      ## Cambion Drift Cycle
+      # < {current} >
+      {time} {next}
     fass: Fass
     vome: Vome
 
@@ -327,12 +328,12 @@ cmd:
     rank: " ({rank} rank)"
 
   vallis:
-    cmd: valliscycle
+    cmd: vallis-cycle
     desc: Get current orb vallis state
-
-    title: Orb Vallis Cycle
-    exp: Expires in
-
+    output: |
+      ## Orb Vallis Cycle
+      # < {current} >
+      {time} {next}
     warm: Warm
     cold: Cold
 

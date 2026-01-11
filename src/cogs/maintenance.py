@@ -14,7 +14,7 @@ from src.constants.keys import (
     # cmd obj
     ALERTS,
     NEWS,
-    # CETUSCYCLE,
+    CETUSCYCLE,
     SORTIE,
     ARCHONHUNT,
     VOIDTRADERS,
@@ -25,11 +25,11 @@ from src.constants.keys import (
     # DUVIRICYCLE,
     FISSURES,
     CALENDAR,
-    # CAMBIONCYCLE,
+    CAMBIONCYCLE,
     DAILYDEALS,
     INVASIONS,
     MARKET_SEARCH,
-    # VALLISCYCLE,
+    VALLISCYCLE,
     DUVIRI_ROTATION,
     DUVIRI_U_K_W,
     DUVIRI_U_K_I,
@@ -110,9 +110,11 @@ class MaintenanceCommands(commands.Cog):
         await cmd_helper_maintenance(interact, ALERTS)
 
     # cetus command (cetusCycle)
-    # @app_commands.command(name="cetus", description="cmd.cetus.desc")
-    # async def cmd_cetus(self,interact: discord.Interaction):
-    #     await cmd_helper_maintenance(interact,'cetusCycle')
+    @app_commands.command(name="cetus", description="cmd.cetus.desc")
+    async def cmd_cetus(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper_maintenance(interact, CETUSCYCLE)
 
     # sortie command
     @app_commands.command(name="sortie", description="cmd.sortie.desc")
@@ -234,11 +236,11 @@ class MaintenanceCommands(commands.Cog):
         await cmd_helper_maintenance(interact, f"{CALENDAR}-{types}")
 
     # cambion command (cambionCycle)
-    # @tree.command(
-    #     name=ts.get(f"cmd.cambion.cmd"), description=ts.get(f"cmd.cambion.desc")
-    # )
-    # async def cmd_cambion(self,interact: discord.Interaction):
-    #     await cmd_helper(interact, key=CAMBIONCYCLE, parser_func=w_cambionCycle)
+    @app_commands.command(name="cambion", description=f"cmd.cambion.desc")
+    async def cmd_cambion(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper_maintenance(interact, CAMBIONCYCLE)
 
     # dailyDeals command
     @app_commands.command(name="dailydeals", description="cmd.dailydeals.desc")
@@ -305,12 +307,11 @@ class MaintenanceCommands(commands.Cog):
         return choices[:25]
 
     # vallisCycle command
-    # @tree.command(
-    #     name=ts.get(f"cmd.vallis.cmd"),
-    #     description=ts.get(f"cmd.vallis.desc"),
-    # )
-    # async def cmd_vallis(interact: discord.Interaction):
-    #     await cmd_helper_maintenance(interact, "vallisCycle")
+    @app_commands.command(name="vallis", description="cmd.vallis.desc")
+    async def cmd_vallis(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper_maintenance(interact, VALLISCYCLE)
 
     # duviri-circuit-warframe
     @app_commands.command(
