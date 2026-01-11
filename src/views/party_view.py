@@ -10,7 +10,6 @@ from src.utils.return_err import return_traceback
 from src.utils.logging_utils import save_log
 from config.config import LOG_TYPE
 from src.constants.keys import (
-    LFG_WEBHOOK_NAME,
     COOLDOWN_BTN_ACTION,
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
@@ -786,7 +785,6 @@ class PartyView(ui.View):
                 party["title"],
                 party["game_name"],
                 party["description"],
-                current_size=party["max_users"],
             )
         )
 
