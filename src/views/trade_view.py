@@ -441,7 +441,7 @@ class ConfirmDeleteView(ui.View):
 
 class ConfirmTradeView(ui.View):
     def __init__(self, db_pool, trade_id, original_message):
-        super().__init__(timeout=20)
+        super().__init__(timeout=30)
         self.db_pool = db_pool
         self.trade_id = trade_id
         self.original_message = original_message
@@ -516,7 +516,8 @@ class TradeView(ui.View):
             1, COOLDOWN_BTN_CALL, commands.BucketType.user
         )
 
-    async def is_cooldown(self, interact, mapping):
+    @staticmethod
+    async def is_cooldown(interact, mapping):
         bucket = mapping.get_bucket(interact.message)
         retry = bucket.update_rate_limit()
         if retry:
@@ -533,7 +534,8 @@ class TradeView(ui.View):
             return True
         return False
 
-    async def check_permissions(self, interact, trade_data, cmd: str = ""):
+    @staticmethod
+    async def check_permissions(interact, trade_data, cmd: str = ""):
         is_host = interact.user.id == trade_data["host_id"]
         is_admin = await is_admin_user(interact, notify=False, cmd=cmd)
         if not is_host:
@@ -577,6 +579,15 @@ class TradeView(ui.View):
         await interact.response.send_message(
             ts.get(f"{pf}confirm-trade"), view=view, ephemeral=True
         )
+
+        timed_out = await view.wait()
+        if timed_out:
+            try:
+                await interact.edit_original_response(
+                    content=ts.get(f"{pf}pv-del-cancel"), view=None
+                )
+            except discord.errors.NotFound:
+                pass
 
     # btn edit qty
     @ui.button(

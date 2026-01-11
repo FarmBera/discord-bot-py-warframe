@@ -286,7 +286,7 @@ class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
 
 # ----------------- Views -----------------
 class ConfirmJoinLeaveView(ui.View):
-    def __init__(self, action, party_id, interact: discord.Interaction):
+    def __init__(self, action, party_id, interact: discord.Interaction, host_id):
         super().__init__(timeout=20)
         self.action = action
         self.db_pool = interact.client.db
@@ -295,6 +295,7 @@ class ConfirmJoinLeaveView(ui.View):
         self.user_mention = interact.user.mention
         self.original_message = interact.message
         self.interact = interact
+        self.host_id = host_id
 
     async def on_timeout(self):
         cmd = "PartyView.btn.confirm.join/leave"
@@ -355,7 +356,7 @@ class ConfirmJoinLeaveView(ui.View):
                 # TODO: random join message
                 rint = 1
                 msg_content = ts.get(f"{pf}pc-joined{rint}").format(
-                    host=self.user_mention, user=interact.user.mention
+                    host=f"<@{self.host_id}>", user=self.user_mention
                 )
                 # user warn msg
                 msg_content += (
@@ -596,8 +597,8 @@ class PartyView(ui.View):
 
     @staticmethod
     async def is_cooldown(
-        self, interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
-    ) -> bool:
+        interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
+    ):
         bucket = cooldown_mapping.get_bucket(interact.message)
         retry = bucket.update_rate_limit()
         if retry:
@@ -662,6 +663,8 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> join_party",
         )
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
 
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
@@ -679,7 +682,10 @@ class PartyView(ui.View):
             return
 
         view = ConfirmJoinLeaveView(
-            action="join", party_id=party["id"], interact=interact
+            action="join",
+            party_id=party["id"],
+            interact=interact,
+            host_id=party["host_id"],
         )
         await interact.response.send_message(
             ts.get(f"{pf}pv-confirm-join"), view=view, ephemeral=True
@@ -708,6 +714,8 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> leave_party",
         )
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
 
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
@@ -727,7 +735,10 @@ class PartyView(ui.View):
             return
 
         view = ConfirmJoinLeaveView(
-            action="leave", party_id=party["id"], interact=interact
+            action="leave",
+            party_id=party["id"],
+            interact=interact,
+            host_id=party["host_id"],
         )
         await interact.response.send_message(
             ts.get(f"{pf}pv-confirm-exit"), view=view, ephemeral=True
@@ -747,6 +758,9 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> edit_size",
         )
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -770,6 +784,9 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> edit_content",
         )
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -802,6 +819,9 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> edit_departure",
         )
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -828,6 +848,9 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> toggle_close",
         )
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -874,6 +897,8 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> call_members",
         )
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
 
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
@@ -913,6 +938,9 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> kick_member",
         )
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -951,6 +979,8 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> delete_party",
         )
+        if await self.is_cooldown(interact, self.cooldown_action):
+            return
 
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id

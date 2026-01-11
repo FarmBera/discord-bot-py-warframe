@@ -62,7 +62,7 @@ class GeneralCommands(commands.Cog):
 
     # help command
     @app_commands.command(name="help", description="cmd.help.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_help(
@@ -74,7 +74,7 @@ class GeneralCommands(commands.Cog):
 
     # announcement command
     @app_commands.command(name="announcement", description="cmd.announcement.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_announcement(
@@ -86,7 +86,7 @@ class GeneralCommands(commands.Cog):
 
     # patch-note command
     @app_commands.command(name="patch-note", description="cmd.patch-note.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_patch_note(
@@ -98,7 +98,7 @@ class GeneralCommands(commands.Cog):
 
     # privacy-policy command
     @app_commands.command(name="privacy-policy", description="cmd.privacy-policy.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_privacy_policy(
@@ -110,7 +110,7 @@ class GeneralCommands(commands.Cog):
 
     # news command
     @app_commands.command(name="news", description="cmd.news.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_news(
@@ -122,7 +122,7 @@ class GeneralCommands(commands.Cog):
 
     # alerts command
     @app_commands.command(name="alerts", description="cmd.alerts.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_alerts(
@@ -137,6 +137,9 @@ class GeneralCommands(commands.Cog):
 
     # cetus command (cetusCycle)
     @app_commands.command(name="cetus", description="cmd.cetus.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
     async def cmd_cetus(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
@@ -149,7 +152,7 @@ class GeneralCommands(commands.Cog):
 
     # sortie command
     @app_commands.command(name="sortie", description="cmd.sortie.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_sortie(
@@ -161,7 +164,7 @@ class GeneralCommands(commands.Cog):
 
     # archon hunt command
     @app_commands.command(name="archon-hunt", description="cmd.archon-hunt.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_archon_hunt(
@@ -176,7 +179,7 @@ class GeneralCommands(commands.Cog):
 
     # void traders command
     @app_commands.command(name="void-traders", description="cmd.void-traders.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_voidTraders(
@@ -194,7 +197,7 @@ class GeneralCommands(commands.Cog):
     @app_commands.command(
         name="steel-path-reward", description="cmd.steel-path-reward.desc"
     )
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_steel_reward(
@@ -209,7 +212,7 @@ class GeneralCommands(commands.Cog):
 
     # fissures command
     @app_commands.command(name="fissures", description="cmd.fissures.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     # @discord.app_commands.choices(
@@ -242,7 +245,7 @@ class GeneralCommands(commands.Cog):
     @app_commands.command(
         name="deep-archimedea", description="cmd.deep-archimedea.desc"
     )
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_deep_archimedea(
@@ -260,7 +263,7 @@ class GeneralCommands(commands.Cog):
         name="temporal-archimedea",
         description=ts.get(f"cmd.temporal-archimedea.desc"),
     )
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_temporal_archimedea(
@@ -309,6 +312,9 @@ class GeneralCommands(commands.Cog):
 
     # cambion command (cambionCycle)
     @app_commands.command(name="cambion", description=f"cmd.cambion.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
     async def cmd_cambion(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
@@ -321,7 +327,7 @@ class GeneralCommands(commands.Cog):
 
     # dailyDeals command
     @app_commands.command(name="dailydeals", description="cmd.dailydeals.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_dailydeals(
@@ -336,7 +342,7 @@ class GeneralCommands(commands.Cog):
 
     # invasions command
     @app_commands.command(name="invasions", description="cmd.invasions.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_invasions(
@@ -353,7 +359,7 @@ class GeneralCommands(commands.Cog):
     @app_commands.command(
         name="void-traders-item", description="cmd.void-traders-item.desc"
     )
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_traders_item(
@@ -368,7 +374,7 @@ class GeneralCommands(commands.Cog):
 
     # search 'warframe.market' commnad
     @app_commands.command(name="market-search", description="cmd.market-search.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     @app_commands.describe(
@@ -406,6 +412,9 @@ class GeneralCommands(commands.Cog):
 
     # vallisCycle command
     @app_commands.command(name="vallis", description="cmd.vallis.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
     async def cmd_vallis(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
@@ -422,7 +431,7 @@ class GeneralCommands(commands.Cog):
         description="cmd.duviri-circuit.wf-desc",
         extras={"key": "cmd.duviri-circuit.wf-cmd"},
     )
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_circuit_wf(
@@ -442,7 +451,7 @@ class GeneralCommands(commands.Cog):
         description="cmd.duviri-circuit.inc-desc",
         extras={"key": "cmd.duviri-circuit.inc-cmd"},
     )
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_circuit_inc(
@@ -458,7 +467,7 @@ class GeneralCommands(commands.Cog):
 
     # events (like thermina, fomorian)
     @app_commands.command(name="events", description="cmd.events.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_ingame_events(
@@ -470,21 +479,21 @@ class GeneralCommands(commands.Cog):
 
     # setup alert
     @app_commands.command(name="alert-set", description="cmd.alert-set.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def noti_subscribe(self, interact: discord.Interaction):
         await noti_subscribe_helper(interact)
 
     @app_commands.command(name="alert-delete", description="cmd.alert-delete.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def noti_unsubscribe(self, interact: discord.Interaction):
         await noti_unsubscribe_helper(interact)
 
     @app_commands.command(name="descendia", description="cmd.descendia.desc")
-    @discord.app_commands.checks.cooldown(
+    @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_descendia(
