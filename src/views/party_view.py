@@ -16,6 +16,7 @@ from src.constants.keys import (
     COOLDOWN_BTN_CALL,
 )
 from src.utils.permission import is_admin_user
+from src.utils.webhook import get_webhook
 from src.services.party_service import PartyService
 from src.services.warn_service import WarnService
 
@@ -406,7 +407,6 @@ class ConfirmJoinLeaveView(ui.View):
                 msg=f"ConfirmJoinLeaveView -> action join or levae but ERR",
                 obj=f"{e}\n{return_traceback()}",
             )
-        self.value = True
         self.stop()
 
     @ui.button(label=ts.get(f"{pf}del-btnn"), style=discord.ButtonStyle.secondary)
@@ -414,7 +414,6 @@ class ConfirmJoinLeaveView(ui.View):
         await interact.response.edit_message(
             content=ts.get(f"{pf}del-cancel"), view=None
         )
-        self.value = False
         self.stop()
         await save_log(
             pool=interact.client.db,
@@ -426,10 +425,12 @@ class ConfirmJoinLeaveView(ui.View):
 
 
 class ConfirmDeleteView(ui.View):
-    def __init__(self, interact: discord.Interaction, origin_msg_id, party_view):
+    def __init__(
+        self, interact: discord.Interaction, origin_message: discord.Message, party_view
+    ):
         super().__init__(timeout=20)
         self.interact = interact
-        self.msgid = origin_msg_id
+        self.origin_message = origin_message
         self.party_view = party_view
         self.value = None
 
@@ -477,34 +478,23 @@ class ConfirmDeleteView(ui.View):
         )
         try:
             new_embed = await build_party_embed_from_db(
-                self.msgid, interact.client.db, isDelete=True
+                self.origin_message.id, interact.client.db, isDelete=True
             )
-            for item in self.party_view.children:
-                item.disabled = True
+            # for item in self.party_view.children:
+            #     item.disabled = True
+            await self.origin_message.edit(embed=new_embed, view=None)
 
-            msg = await interact.channel.fetch_message(self.msgid)
-            await msg.edit(embed=new_embed, view=self.party_view)
-
-            # edit webhook msg
+            # edit starter msg
             try:
-                webhook_name = LFG_WEBHOOK_NAME
-                webhooks = await interact.channel.parent.webhooks()
-                webhook = discord.utils.get(webhooks, name=webhook_name)
+                webhook = await get_webhook(
+                    interact.channel.parent, interact.client.user.avatar
+                )
                 if webhook:
-                    starter_message = await interact.channel.parent.fetch_message(
-                        interact.channel.id
+                    await webhook.edit_message(
+                        message_id=interact.channel.id,
+                        content=ts.get(f"{pf}del-deleted"),
                     )
-                    if starter_message:
-                        await webhook.edit_message(
-                            message_id=interact.channel.id,
-                            content=ts.get(f"{pf}del-deleted"),
-                        )
-                else:  #  if webhook is not found
-                    starter_message = await interact.channel.parent.fetch_message(
-                        interact.channel.id
-                    )
-                    await starter_message.edit(content=ts.get(f"{pf}del-deleted"))
-            except discord.NotFound:
+            except:
                 pass  # starter msg not found (maybe deleted manually)
 
             # lock thread
@@ -512,8 +502,6 @@ class ConfirmDeleteView(ui.View):
                 await interact.channel.edit(locked=True)
 
             await PartyService.delete_party(interact.client.db, interact.channel.id)
-
-            await interact.followup.send(ts.get(f"{pf}del-deleted"), ephemeral=True)
 
         except Exception:
             await interact.followup.send(ts.get(f"{pf}del-err"), ephemeral=True)
@@ -546,8 +534,8 @@ class ConfirmDeleteView(ui.View):
 
 
 class KickMemberSelect(ui.Select):
-    def __init__(self, members, original_message_id):
-        self.original_message_id = original_message_id
+    def __init__(self, members, original_message: discord.Message):
+        self.original_message = original_message
         options = [
             discord.SelectOption(label=m["display_name"], value=str(m["user_id"]))
             for m in members
@@ -562,22 +550,22 @@ class KickMemberSelect(ui.Select):
     async def callback(self, interact: discord.Interaction):
         target_id = int(self.values[0])
         party, _ = await PartyService.get_party_by_message_id(
-            interact.client.db, self.original_message_id
+            interact.client.db, self.original_message.id
         )
-
         await PartyService.leave_participant(interact.client.db, party["id"], target_id)
 
         new_embed = await build_party_embed_from_db(
-            self.original_message_id, interact.client.db
+            self.original_message.id, interact.client.db
         )
-        msg = await interact.channel.fetch_message(self.original_message_id)
-        await msg.edit(embed=new_embed)
+        await self.original_message.edit(embed=new_embed)
 
-        await interact.response.send_message(
-            ts.get(f"{pf}pv-kick-success").format(name=f"<@{target_id}>"),
-            ephemeral=False,
+        await self.original_message.channel.send(
+            ts.get(f"{pf}pv-kick-success").format(name=f"<@{target_id}>")
         )
-
+        await interact.response.edit_message(
+            content=ts.get(f"{pf}pv-kick-success").format(name=f"<@{target_id}>"),
+            view=None,
+        )
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
@@ -588,9 +576,9 @@ class KickMemberSelect(ui.Select):
 
 
 class KickMemberView(ui.View):
-    def __init__(self, members, msg_id):
+    def __init__(self, members, original_message: discord.Message):
         super().__init__(timeout=60)
-        self.add_item(KickMemberSelect(members, msg_id))
+        self.add_item(KickMemberSelect(members, original_message))
 
 
 # ----------------- Main View -----------------
@@ -746,28 +734,28 @@ class PartyView(ui.View):
             ts.get(f"{pf}pv-confirm-exit"), view=view, ephemeral=True
         )
 
-    @ui.button(
-        label=ts.get(f"{pf}pv-mod-label"),
-        style=discord.ButtonStyle.secondary,
-        custom_id="party_edit_size",
-    )
-    async def edit_size(self, interact: discord.Interaction, button: ui.Button):
-        cmd = "PartyView.btn.edit-size"
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd=cmd,
-            interact=interact,
-            msg=f"PartyView -> edit_size",
-        )
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
-        )
-        if not await self.check_permissions(
-            interact, party, participants, check_host=True, cmd=cmd
-        ):
-            return
-        await interact.response.send_modal(PartySizeModal(party["max_users"]))
+    # @ui.button(
+    #     label=ts.get(f"{pf}pv-mod-label"),
+    #     style=discord.ButtonStyle.secondary,
+    #     custom_id="party_edit_size",
+    # )
+    # async def edit_size(self, interact: discord.Interaction, button: ui.Button):
+    #     cmd = "PartyView.btn.edit-size"
+    #     await save_log(
+    #         pool=interact.client.db,
+    #         type=LOG_TYPE.event,
+    #         cmd=cmd,
+    #         interact=interact,
+    #         msg=f"PartyView -> edit_size",
+    #     )
+    #     party, participants = await PartyService.get_party_by_message_id(
+    #         interact.client.db, interact.message.id
+    #     )
+    #     if not await self.check_permissions(
+    #         interact, party, participants, check_host=True, cmd=cmd
+    #     ):
+    #         return
+    #     await interact.response.send_modal(PartySizeModal(party["max_users"]))
 
     @ui.button(
         label=ts.get(f"{pf}pv-mod-article"),
@@ -794,7 +782,12 @@ class PartyView(ui.View):
         ):
             return
         await interact.response.send_modal(
-            PartyEditModal(party["title"], party["game_name"], party["description"])
+            PartyEditModal(
+                party["title"],
+                party["game_name"],
+                party["description"],
+                current_size=party["max_users"],
+            )
         )
 
     @ui.button(
@@ -942,7 +935,7 @@ class PartyView(ui.View):
 
         await interact.response.send_message(
             ts.get(f"{pf}pv-kick-modal-title"),
-            view=KickMemberView(members_to_kick, interact.message.id),
+            view=KickMemberView(members_to_kick, interact.message),
             ephemeral=True,
         )
 
@@ -972,7 +965,7 @@ class PartyView(ui.View):
         ):
             return
 
-        view = ConfirmDeleteView(interact, interact.message.id, self)
+        view = ConfirmDeleteView(interact, interact.message, self)
         await interact.response.send_message(
             ts.get(f"{pf}pv-del-confirm"),
             view=view,

@@ -8,6 +8,7 @@ from src.constants.keys import LFG_WEBHOOK_NAME, COOLDOWN_DEFAULT
 from src.utils.logging_utils import save_log
 from src.utils.return_err import return_traceback
 from src.utils.permission import is_valid_guild, is_banned_user
+from src.utils.webhook import get_webhook
 from src.services.party_service import PartyService
 from src.services.channel_service import ChannelService
 from src.views.party_view import PartyView, build_party_embed, pf, MIN_SIZE, MAX_SIZE
@@ -113,10 +114,7 @@ class PartyCog(commands.Cog):
 
         # create webhook & threads
         try:
-            webhooks = await target_channel.webhooks()
-            webhook = discord.utils.get(webhooks, name=LFG_WEBHOOK_NAME)
-            if not webhook:
-                webhook = await target_channel.create_webhook(name=LFG_WEBHOOK_NAME)
+            webhook = await get_webhook(target_channel, self.bot.user.avatar)
 
             thread_starter_msg = await webhook.send(
                 content=ts.get(f"{pf}created-party"),

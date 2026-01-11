@@ -17,6 +17,7 @@ from src.utils.permission import is_admin_user
 from src.parser.marketsearch import get_slug_data, create_market_url
 from src.services.trade_service import TradeService
 from src.services.warn_service import WarnService
+from src.utils.webhook import get_webhook
 
 pf = "cmd.trade."
 
@@ -325,11 +326,15 @@ class EditRankModal(ui.Modal, title=ts.get(f"{pf}edit-rank-title")):
 # ----------------- Views -----------------
 class ConfirmDeleteView(ui.View):
     def __init__(
-        self, interact: discord.Interaction, origin_msg_id, trade_data, trade_view
+        self,
+        interact: discord.Interaction,
+        origin_message: discord.Message,
+        trade_data,
+        trade_view,
     ):
         super().__init__(timeout=20)
         self.interact = interact
-        self.msgid = origin_msg_id
+        self.origin_message = origin_message
         self.data = trade_data
         self.party_view = trade_view
         self.value = None
@@ -382,17 +387,15 @@ class ConfirmDeleteView(ui.View):
             new_embed = await build_trade_embed(
                 self.data, interact.client.db, isDelete=True
             )
-            for item in self.party_view.children:
-                item.disabled = True
-
-            msg = await interact.channel.fetch_message(self.msgid)
-            await msg.edit(embed=new_embed, view=self.party_view)
+            # for item in self.party_view.children:
+            #     item.disabled = True
+            await self.origin_message.edit(embed=new_embed, view=None)
 
             # update webhook
             try:
-                webhook_name = LFG_WEBHOOK_NAME
-                webhooks = await interact.channel.parent.webhooks()
-                webhook = discord.utils.get(webhooks, name=webhook_name)
+                webhook = await get_webhook(
+                    interact.channel.parent, interact.client.user.avatar
+                )
                 if webhook:
                     await webhook.edit_message(
                         message_id=interact.channel.id, content=ts.get(f"{pf}deleted")
@@ -744,7 +747,7 @@ class TradeView(ui.View):
         if not await self.check_permissions(interact, trade_data, cmd):
             return
 
-        view = ConfirmDeleteView(interact, interact.message.id, trade_data, self)
+        view = ConfirmDeleteView(interact, interact.message, trade_data, self)
         await interact.response.send_message(
             ts.get(f"{pf}confirm-delete"), view=view, ephemeral=True
         )

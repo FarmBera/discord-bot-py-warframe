@@ -8,6 +8,7 @@ from src.constants.keys import LFG_WEBHOOK_NAME, COOLDOWN_DEFAULT
 from src.utils.logging_utils import save_log
 from src.utils.return_err import return_traceback
 from src.utils.permission import is_valid_guild, is_banned_user
+from src.utils.webhook import get_webhook
 from src.parser.marketsearch import get_slug_data, get_market_item_names
 from src.services.trade_service import TradeService
 from src.services.channel_service import ChannelService
@@ -121,7 +122,10 @@ class TradeCog(commands.Cog):
         final_nickname = parseNickname(interact.user.display_name)
         # game_nickname if game_nickname else parseNickname(interact.user.display_name)
 
-        is_rank_item = True if market_data[0].get("rank") is not None else False
+        if market_data:
+            is_rank_item = True if market_data[0].get("rank") is not None else False
+        else:
+            is_rank_item = False
 
         if not is_rank_item:
             item_rank = -1
@@ -152,10 +156,7 @@ class TradeCog(commands.Cog):
 
         # create embed & thread
         try:
-            webhooks = await target_channel.webhooks()
-            webhook = discord.utils.get(webhooks, name=LFG_WEBHOOK_NAME)
-            if not webhook:
-                webhook = await target_channel.create_webhook(name=LFG_WEBHOOK_NAME)
+            webhook = await get_webhook(target_channel, self.bot.user.avatar)
 
             thread_name = f"[{trade_type.name}] {real_item_name}"
             if is_rank_item:

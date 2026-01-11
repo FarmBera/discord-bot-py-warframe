@@ -83,7 +83,7 @@ keys: list = [
     DESCENDIA,
 ]
 
-LFG_WEBHOOK_NAME: str = "warframe-lfg-bot"
+LFG_WEBHOOK_NAME: str = "cat-prime-profile"
 
 SPECIAL_ITEM_LIST: list = [
     # en
