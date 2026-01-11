@@ -20,7 +20,7 @@ pf: str = "cmd.cambion."
 cambion_color = {"fass": 0xECB448, "vome": 0x97D4D9}
 
 
-def w_cambionCycle(tmp) -> tuple[discord.Embed, str]:
+def w_cambionCycle() -> tuple[discord.Embed, str]:
     # calculate cambion cycle
     try:
         cambion = check_timer_states(CambionCycleData)

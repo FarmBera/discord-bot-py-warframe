@@ -21,7 +21,7 @@ vallis_color = {"warm": 0xFF9012, "cold": 0x00BFFF}
 pf: str = "cmd.vallis."
 
 
-def w_vallisCycle(tmp) -> tuple[discord.Embed, str]:
+def w_vallisCycle() -> tuple[discord.Embed, str]:
     # calculate vallis cycle
     try:
         vallis = check_timer_states(VallisCycleData)

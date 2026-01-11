@@ -148,6 +148,7 @@ class GeneralCommands(commands.Cog):
             key=CETUSCYCLE,
             parser_func=w_cetusCycle,
             isPrivateMsg=developer_options,
+            skipGetObj=True,
         )
 
     # sortie command
@@ -323,6 +324,7 @@ class GeneralCommands(commands.Cog):
             key=CAMBIONCYCLE,
             parser_func=w_cambionCycle,
             isPrivateMsg=developer_options,
+            skipGetObj=True,
         )
 
     # dailyDeals command
@@ -423,6 +425,7 @@ class GeneralCommands(commands.Cog):
             key=VALLISCYCLE,
             parser_func=w_vallisCycle,
             isPrivateMsg=developer_options,
+            skipGetObj=True,
         )
 
     # duviri-circuit-warframe

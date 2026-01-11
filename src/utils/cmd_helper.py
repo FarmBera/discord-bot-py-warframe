@@ -22,6 +22,7 @@ async def cmd_helper(
     isPrivateMsg: bool = True,
     isMarketQuery: bool = False,
     marketQuery: tuple = (None, None),
+    skipGetObj: bool = False,
 ) -> None:
     # check admin if user want to send public msg
     if not isPrivateMsg:
@@ -35,7 +36,9 @@ async def cmd_helper(
         await interact.response.defer(ephemeral=isPrivateMsg)
 
     # parse objects
-    if parser_args:
+    if skipGetObj:
+        obj = parser_func()
+    elif parser_args:
         obj = parser_func(await get_obj_async(key), parser_args)
     elif isMarketQuery:
         obj = await parser_func(interact.client.db, marketQuery)

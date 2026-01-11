@@ -21,7 +21,7 @@ pf: str = "cmd.cetus."
 
 
 # cetus day/night state & cycle
-def w_cetusCycle(tmp) -> tuple[discord.Embed, str]:
+def w_cetusCycle() -> tuple[discord.Embed, str]:
     # calculate cetus cycle
     try:
         cetus = check_timer_states(CetusTimerData)
