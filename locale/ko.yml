@@ -240,6 +240,7 @@ cmd:
   archimedea:
     deviation: 편차
     risks: 위험 요소
+    var: "## 개인 특수 조건"
 
   deep-archimedea:
     cmd: 심층아르키메디아

@@ -3,10 +3,9 @@ import discord
 from src.translator import ts, language as lang
 from src.constants.keys import ARCHIMEDEA, ARCHIMEDEA_DEEP, ARCHIMEDEA_TEMPORAL
 from src.utils.file_io import json_load
-from src.utils.data_manager import get_obj, set_obj_async, getMissionType, getFactions
+from src.utils.data_manager import get_obj, set_obj_async, getMissionType  # getFactions
 from src.utils.times import convert_remain
 from src.utils.return_err import err_embed
-from src.utils.logging_utils import save_log
 
 archimedea_deep = get_obj(f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
 archimedea_temporal = get_obj(f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
@@ -39,14 +38,17 @@ async def setTemporalArchimedea(obj):
     await set_obj_async(obj, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 
 
+pf: str = "cmd.archimedea."
+
+
 def generateVariables(obj) -> str:
     try:
-        text = "## Global Variables"
+        text = ts.get(f"{pf}var")
         for var in obj["Variables"]:
-            conquest_data = conquest_var["var"].get(var)
-            if not conquest_data:
+            archi_data = conquest_var["var"]
+            if not archi_data:
                 return ""
-            text += f"\n- **{conquest_data[var]['key']}**: {conquest_data[var]['valueSimple']}"
+            text += f"\n- **{archi_data[var]['key']}**: {archi_data[var]['simple']}"
         return text
     except KeyError as e:
         print(f"KeyError in archimedea: {e}")
@@ -60,29 +62,36 @@ def generateMissions(obj) -> str:
         # mission only
         text += f"{idx}. **{getMissionType(item['missionType'])}**"
 
-        # text += f"### {idx}. **{getMissionType(item['missionType'])}**"
         # faction
         # ({getFactions(item['faction'])})\n"
 
+        # mission with deviation & risks
+        # text += f"## {idx}. **{getMissionType(item['missionType'])}**"
         # # deviation
-        # for jtem in item["difficulties"]:
-        #     if jtem.get("type") == "CD_HARD":
-        #         path: dict = conquest_var["deviation"][jtem["deviation"]]
-        #         text += f"\n- {ts.get('cmd.archimedea.deviation')}-"
-        #         text += f"{path['key']}: {path['value']}"
-        #         break
-
+        # try:
+        #     for jtem in item["difficulties"]:
+        #         if jtem.get("type") == "CD_HARD":
+        #             path: dict = conquest_var["deviation"][jtem["deviation"]]
+        #             text += f"\n- {ts.get(f'{pf}deviation')}: {path['key']} - {path['value']}"
+        #             break
+        # except Exception as e:
+        #     print(e)
+        #     pass
+        #
         # # risks
-        # risks: dict = {}
-        # for jtem in item["difficulties"]:
-        #     if jtem.get("type") == "CD_HARD":
-        #         risks = jtem.get("risks")
-        #         # text += ", ".join(jtem.get("risks"))
-        #         break
-        # for rsk in risks:
-        #     path: dict = conquest_var["risks"][rsk]
-        #     text += f"\n- {ts.get('cmd.archimedea.risks')}-"
-        #     text += f"{path['key']}: {path['value']}"
+        # try:
+        #     risks: dict = {}
+        #     for jtem in item["difficulties"]:
+        #         if jtem.get("type") == "CD_HARD":
+        #             risks = jtem.get("risks")
+        #             # text += ", ".join(jtem.get("risks"))
+        #             break
+        #     for rsk in risks:
+        #         path: dict = conquest_var["risks"][rsk]
+        #         text += f"\n- {ts.get(f'{pf}risks')}: {path['key']} - {path['value']}"
+        # except Exception as e:
+        #     print(e)
+        #     pass
 
         text += "\n"
         idx += 1
@@ -93,7 +102,7 @@ def generateMissions(obj) -> str:
 pfd: str = "cmd.deep-archimedea."
 
 
-def w_deepArchimedea(archimedea) -> discord.Embed:
+def w_deepArchimedea(archimedea) -> tuple[discord.Embed, str]:
     # find deep archimedea
     deep = None
     try:
@@ -105,7 +114,7 @@ def w_deepArchimedea(archimedea) -> discord.Embed:
         deep = archimedea
 
     if deep is None or not deep:
-        return err_embed("deep-archimedea")
+        return err_embed("deep-archimedea"), ""
 
     # generate output msg
     output_msg = ts.get(f"{pfd}content").format(
@@ -116,13 +125,15 @@ def w_deepArchimedea(archimedea) -> discord.Embed:
     # risks & global variables
     output_msg += generateVariables(deep)
 
-    return discord.Embed(description=output_msg, color=discord.Color.dark_gold())
+    embed = discord.Embed(description=output_msg, color=discord.Color.dark_gold())
+    embed.set_thumbnail(url="attachment://i.webp")
+    return embed, "deep"
 
 
 pft: str = "cmd.temporal-archimedea."
 
 
-def w_temporalArchimedia(archimedea) -> discord.Embed:
+def w_temporalArchimedia(archimedea) -> tuple[discord.Embed, str]:
     # find temporal archimedea
     temporal = None
     try:
@@ -134,7 +145,7 @@ def w_temporalArchimedia(archimedea) -> discord.Embed:
         temporal = archimedea
 
     if temporal is None or not temporal:
-        return ts.get("general.error-cmd")
+        return ts.get("general.error-cmd"), ""
 
     # generate output msg
     output_msg = ts.get(f"{pft}content").format(
@@ -145,10 +156,13 @@ def w_temporalArchimedia(archimedea) -> discord.Embed:
     # global variables
     output_msg += generateVariables(temporal)
 
-    return discord.Embed(description=output_msg, color=discord.Color.teal())
+    embed = discord.Embed(description=output_msg, color=discord.Color.teal())
+    embed.set_thumbnail(url="attachment://i.webp")
+    return embed, "temporal"
 
 
 # from src.constants.keys import ARCHIMEDEA
 # from src.utils.data_manager import get_obj
-# print(w_deepArchimedea(get_obj(ARCHIMEDEA)))
-# print(w_temporalArchimedia(get_obj(ARCHIMEDEA)))
+# print(w_deepArchimedea(get_obj(ARCHIMEDEA))[0].description)
+# print()
+# print(w_temporalArchimedia(get_obj(ARCHIMEDEA))[0].description)

@@ -240,6 +240,7 @@ cmd:
   archimedea:
     deviation: Deviation
     risks: Risks
+    var: "## Personal Modifiers"
 
   deep-archimedea:
     cmd: deeparchimedea
