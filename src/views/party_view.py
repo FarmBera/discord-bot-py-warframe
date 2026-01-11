@@ -687,7 +687,7 @@ class PartyView(ui.View):
         )
 
         timed_out = await view.wait()
-        if timed_out and view.value is None:
+        if timed_out:
             try:
                 await interact.edit_original_response(
                     content=ts.get(f"{pf}pv-del-cancel"), view=None
@@ -734,28 +734,28 @@ class PartyView(ui.View):
             ts.get(f"{pf}pv-confirm-exit"), view=view, ephemeral=True
         )
 
-    # @ui.button(
-    #     label=ts.get(f"{pf}pv-mod-label"),
-    #     style=discord.ButtonStyle.secondary,
-    #     custom_id="party_edit_size",
-    # )
-    # async def edit_size(self, interact: discord.Interaction, button: ui.Button):
-    #     cmd = "PartyView.btn.edit-size"
-    #     await save_log(
-    #         pool=interact.client.db,
-    #         type=LOG_TYPE.event,
-    #         cmd=cmd,
-    #         interact=interact,
-    #         msg=f"PartyView -> edit_size",
-    #     )
-    #     party, participants = await PartyService.get_party_by_message_id(
-    #         interact.client.db, interact.message.id
-    #     )
-    #     if not await self.check_permissions(
-    #         interact, party, participants, check_host=True, cmd=cmd
-    #     ):
-    #         return
-    #     await interact.response.send_modal(PartySizeModal(party["max_users"]))
+    @ui.button(
+        label=ts.get(f"{pf}pv-mod-label"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="party_edit_size",
+    )
+    async def edit_size(self, interact: discord.Interaction, button: ui.Button):
+        cmd = "PartyView.btn.edit-size"
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd=cmd,
+            interact=interact,
+            msg=f"PartyView -> edit_size",
+        )
+        party, participants = await PartyService.get_party_by_message_id(
+            interact.client.db, interact.message.id
+        )
+        if not await self.check_permissions(
+            interact, party, participants, check_host=True, cmd=cmd
+        ):
+            return
+        await interact.response.send_modal(PartySizeModal(party["max_users"]))
 
     @ui.button(
         label=ts.get(f"{pf}pv-mod-article"),
