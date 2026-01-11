@@ -438,7 +438,7 @@ class DiscordBot(commands.Bot):
                 prev_ids = {item["_id"]["$oid"] for item in obj_prev}
                 new_ids = {item["_id"]["$oid"] for item in obj_new}
 
-                if prev_ids != new_ids:
+                if obj_prev != obj_new:
                     should_save_data = True
 
                 # check newly added items
@@ -610,13 +610,14 @@ class DiscordBot(commands.Bot):
                     )
 
                 # 2. check exist baro activated
-                if not isBaroActive(
-                    prev_data.get("Activation")["$date"]["$numberLong"],
-                    prev_data.get("Expiry")["$date"]["$numberLong"],
-                ) and isBaroActive(
-                    new_data.get("Activation")["$date"]["$numberLong"],
-                    new_data.get("Expiry")["$date"]["$numberLong"],
-                ):
+                if not prev_data.get("Manifest") and new_data.get("Manifest"):
+                    # if not isBaroActive(
+                    #     prev_data.get("Activation")["$date"]["$numberLong"],
+                    #     prev_data.get("Expiry")["$date"]["$numberLong"],
+                    # ) and isBaroActive(
+                    #     new_data.get("Activation")["$date"]["$numberLong"],
+                    #     new_data.get("Expiry")["$date"]["$numberLong"],
+                    # ):
                     events.append(
                         {
                             "text_key": "cmd.void-traders.baro-appear",
@@ -660,7 +661,7 @@ class DiscordBot(commands.Bot):
                     #     parsed_content,
                     #     channel_list=target_ch,
                     #     setting=setting,
-                    #     key=key_arg if key_arg else key,
+                    #     key=key_arg if key_arg else key
                     # )
 
             elif special_logic == "handle_deep_archimedea":
@@ -750,7 +751,7 @@ class DiscordBot(commands.Bot):
                 #     parsed_content,
                 #     channel_list=target_ch,
                 #     setting=setting,
-                #     key=key_arg if key_arg else key,
+                #     key=key_arg if key_arg else key
                 # )
 
                 await self.broadcast_webhook(origin_key, parsed_content)
