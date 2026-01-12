@@ -1,4 +1,5 @@
 import discord
+import requests
 from discord.ext import tasks
 from discord.ext import commands
 import datetime as dt
@@ -9,9 +10,10 @@ import aiohttp
 
 from config.TOKEN import WF_JSON_PATH
 from config.config import Lang, language as lang, LOG_TYPE
-from config.roles import ROLES
+from config.roles import ROLES, CHANNELS
 from src.translator import ts
 from src.bot_translator import BotTranslator
+from src.utils.discord_file import img_file
 from src.utils.times import KST, timeNowDT
 from src.constants.color import C
 from src.constants.keys import (
@@ -21,8 +23,6 @@ from src.constants.keys import (
     # cmd obj
     STEELPATH,
     DUVIRI_ROTATION,
-    DUVIRI_U_K_W,
-    DUVIRI_U_K_I,
     DUVIRI_CACHE,
     LFG_WEBHOOK_NAME,
 )
@@ -39,7 +39,6 @@ from src.utils.data_manager import (
 )
 
 from src.handler.handler_config import DATA_HANDLERS
-from src.parser.voidTraders import isBaroActive
 from src.parser.steelPath import w_steelPath
 from src.parser.archimedea import (
     getDeepArchimedea,
@@ -133,11 +132,11 @@ class DiscordBot(commands.Bot):
                 "weekly_task",
             )
         # week start noti (for KO only)
-        if lang == Lang.KO and not self.week_start_noti.is_running():
+        if not self.week_start_noti.is_running():
             self.week_start_noti.start()
             print(
                 f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.crt-each')}",
-                "week_start_noti (for KO only)",
+                "week_start_noti (teshin & custom circuit)",
             )
         # automatic party delete
         if lang == Lang.KO and not self.auto_party_expire.is_running():
@@ -158,10 +157,67 @@ class DiscordBot(commands.Bot):
             f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.coroutine')}{C.default}"
         )
 
+    async def send_alert(
+        self, value: discord.Embed | tuple[discord.Embed, str] | str, channel_list: list
+    ) -> None:
+        # send message
+        for ch in channel_list:
+            try:
+                channel = await self.fetch_channel(ch)
+
+                if isinstance(value, discord.Embed):
+                    await save_log(
+                        pool=self.db,
+                        type="msg",
+                        cmd="auto_sent_message",
+                        user=MSG_BOT,
+                        guild=channel.guild.name,
+                        channel=channel.name,
+                        obj=value.description,
+                    )
+                    await channel.send(embed=value)
+                elif isinstance(value, tuple):  # embed with file
+                    eb, f = value
+                    await save_log(
+                        pool=self.db,
+                        type="msg",
+                        cmd="auto_sent_message",
+                        user=MSG_BOT,
+                        guild=channel.guild.name,
+                        channel=channel.name,
+                        obj=eb.description,
+                    )
+                    f = img_file(f)
+                    await channel.send(embed=eb, file=f)
+                else:  # string type
+                    await save_log(
+                        pool=self.db,
+                        type="msg",
+                        cmd="auto_sent_message",
+                        user=MSG_BOT,
+                        guild=channel.guild.name,
+                        channel=channel.name,
+                        obj=value,
+                    )
+                    await channel.send(value)
+            except Exception as e:
+                error_msg = f"[Error] error on sending in {ch}: {e}"
+                print(f"{C.red}{error_msg}{C.default}")
+                await save_log(
+                    pool=self.db,
+                    type=LOG_TYPE.err,
+                    cmd="send_alert",
+                    user=MSG_BOT,
+                    msg=error_msg,
+                    obj=return_traceback(),
+                )
+
     async def broadcast_webhook(self, noti_key: str, content) -> None:
         """
         search the webhook subscribed to that notification (noti_key) in the database and sends it.
         """
+        # debug
+        # await save_log(pool=self.db,type=LOG_TYPE.info,cmd="broadcast_webhook",user=MSG_BOT,msg="called broadcast_webhook")
         # check db column mapping
         db_column = DB_COLUMN_MAP.get(noti_key)
         if not db_column:
@@ -184,6 +240,8 @@ class DiscordBot(commands.Bot):
             subscribers = await cursor.fetchall()
 
         if not subscribers:
+            # debug
+            # await save_log(pool=self.db,type=LOG_TYPE.info,cmd="broadcast_webhook",user=MSG_BOT,msg="No Subscribers")
             return
 
         # initialize counters
@@ -372,7 +430,9 @@ class DiscordBot(commands.Bot):
     @tasks.loop(minutes=5.0)
     async def check_new_content(self) -> None:
         if lang == Lang.EN:
-            latest_data = await API_Request(self.db, "check_new_content()")
+            latest_data: requests.Response | None = await API_Request(
+                self.db, "check_new_content()"
+            )
             if not latest_data or latest_data.status_code != 200:
                 return
 
@@ -844,24 +904,32 @@ class DiscordBot(commands.Bot):
 
         # duviri notification
         await setDuviriRotate()
-        data_key: list = [
-            f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}",
-            f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}",
-        ]
-        data_list: list = [
-            w_duviri_warframe(await get_obj_async(DUVIRI_ROTATION)),
-            w_duviri_incarnon(await get_obj_async(DUVIRI_ROTATION)),
-        ]
-        for i in range(0, len(data_list)):
-            data_list[i].description = f"<@&{ROLES[i]}>\n" + data_list[i].description
-            await self.broadcast_webhook(data_key[i], data_list[i])
 
         if lang == Lang.KO:
-            return
+            data_list: list = [
+                w_duviri_warframe(await get_obj_async(DUVIRI_ROTATION)),
+                w_duviri_incarnon(await get_obj_async(DUVIRI_ROTATION)),
+            ]
+            for i in range(0, len(data_list)):
+                data_list[i].description = (
+                    f"<@&{ROLES[i]}>\n" + data_list[i].description
+                )
+                try:
+                    await self.send_alert(data_list[i], CHANNELS)
+                except Exception as e:
+                    error_msg = f"[week_start_noti Error] {e}"
+                    print(f"{C.red}{error_msg}{C.default}")
+                    await save_log(
+                        pool=self.db,
+                        type=LOG_TYPE.err,
+                        cmd="week_start_noti()",
+                        user=MSG_BOT,
+                        msg=error_msg,
+                        obj=return_traceback(),
+                    )
 
-        await self.broadcast_webhook(
-            STEELPATH, w_steelPath(await get_obj_async(STEELPATH))
-        )
+        steel_data = await get_obj_async(STEELPATH)
+        await self.broadcast_webhook(STEELPATH, w_steelPath(steel_data))
 
     # party auto expire
     @tasks.loop(time=dt.time(hour=3, minute=0, tzinfo=KST))
