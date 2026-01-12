@@ -13,7 +13,7 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
-from src.utils.permission import is_admin_user
+from src.utils.permission import is_admin_user, is_valid_guild
 from src.parser.marketsearch import get_slug_data, create_market_url
 from src.services.trade_service import TradeService
 from src.services.warn_service import WarnService
@@ -553,14 +553,18 @@ class TradeView(ui.View):
         custom_id="trade_btn_trade",
     )
     async def trade_action(self, interact: discord.Interaction, button: ui.Button):
+        cmd: str = "TradeView -> trade_action"
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd=f"btn.trade",
             interact=interact,
-            msg=f"TradeView -> trade_action",
+            msg=cmd,
         )
         if await self.is_cooldown(interact, self.cooldown_call):
+            return
+
+        if not await is_valid_guild(interact=interact, cmd=cmd):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(
@@ -607,6 +611,9 @@ class TradeView(ui.View):
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
 
+        if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+
         trade_data = await TradeService.get_trade_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -635,8 +642,10 @@ class TradeView(ui.View):
             interact=interact,
             msg=f" -> edit_price",
         )
-
         if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        if not await is_valid_guild(interact=interact, cmd=cmd):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(
@@ -668,8 +677,10 @@ class TradeView(ui.View):
             interact=interact,
             msg=f" -> edit_rank",
         )
-
         if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        if not await is_valid_guild(interact=interact, cmd=cmd):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(
@@ -707,8 +718,10 @@ class TradeView(ui.View):
             interact=interact,
             msg=f" -> edit_price",
         )
-
         if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        if not await is_valid_guild(interact=interact, cmd=cmd):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(
@@ -743,8 +756,10 @@ class TradeView(ui.View):
             msg=f"TradeView -> close_trade",
             # obj=new_status,
         )
-
         if await self.is_cooldown(interact, self.cooldown_manage):
+            return
+
+        if not await is_valid_guild(interact=interact, cmd=cmd):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(

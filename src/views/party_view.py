@@ -14,7 +14,7 @@ from src.constants.keys import (
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
-from src.utils.permission import is_admin_user
+from src.utils.permission import is_admin_user, is_valid_guild
 from src.utils.webhook import get_webhook
 from src.services.party_service import PartyService
 from src.services.warn_service import WarnService
@@ -666,6 +666,9 @@ class PartyView(ui.View):
         if await self.is_cooldown(interact, self.cooldown_action):
             return
 
+        if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -717,6 +720,9 @@ class PartyView(ui.View):
         if await self.is_cooldown(interact, self.cooldown_action):
             return
 
+        if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -760,6 +766,8 @@ class PartyView(ui.View):
         )
         if await self.is_cooldown(interact, self.cooldown_action):
             return
+        if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
 
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
@@ -785,6 +793,9 @@ class PartyView(ui.View):
             msg=f"PartyView -> edit_content",
         )
         if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
+        if not await is_valid_guild(interact=interact, cmd=cmd):
             return
 
         party, participants = await PartyService.get_party_by_message_id(
@@ -822,6 +833,9 @@ class PartyView(ui.View):
         if await self.is_cooldown(interact, self.cooldown_action):
             return
 
+        if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -849,6 +863,9 @@ class PartyView(ui.View):
             msg=f"PartyView -> toggle_close",
         )
         if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
+        if not await is_valid_guild(interact=interact, cmd=cmd):
             return
 
         party, participants = await PartyService.get_party_by_message_id(
@@ -900,6 +917,9 @@ class PartyView(ui.View):
         if await self.is_cooldown(interact, self.cooldown_action):
             return
 
+        if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -941,6 +961,9 @@ class PartyView(ui.View):
         if await self.is_cooldown(interact, self.cooldown_action):
             return
 
+        if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+
         party, participants = await PartyService.get_party_by_message_id(
             interact.client.db, interact.message.id
         )
@@ -980,6 +1003,9 @@ class PartyView(ui.View):
             msg=f"PartyView -> delete_party",
         )
         if await self.is_cooldown(interact, self.cooldown_action):
+            return
+
+        if not await is_valid_guild(interact=interact, cmd=cmd):
             return
 
         party, participants = await PartyService.get_party_by_message_id(
