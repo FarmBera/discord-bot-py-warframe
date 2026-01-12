@@ -705,6 +705,22 @@ cmd:
 
     title: "# 이번주 디센디아 미션/도전 목록\n"
 
+  register:
+    cmd: 등록
+    desc: 파티모집, 거래, 불만접수 게시글이 올라올 채널을 설정합니다.
+
+    placeholder: 현재 채널을 어떤 채널로 설정하시겠습니까?
+    party: 파티
+    trade: 거래
+    complain: 문의사항 접수
+
+    none: 미설정
+    current: |
+      ## 현재 설정
+      - 파티 채널: `{party}`
+      - 거래 채널: `{trade}`
+      - 문의 채널: `{complain}`
+
 trs:
   # keyword
   blueprint: 설계도

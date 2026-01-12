@@ -1,6 +1,6 @@
 import discord
 
-from src.utils.db_helper import query_reader
+from src.utils.db_helper import query_reader, transaction
 
 
 class ChannelService:
@@ -15,10 +15,32 @@ class ChannelService:
                 (guild_id,),
             )
             channels = await cursor.fetchone()
-            if not channels:
-                return None
 
-            if not channels.get("is_allowed"):
-                return None
+        if not channels:
+            return None
 
-            return channels
+        fetched_id = channels.get("guild_id")
+
+        if not fetched_id:
+            return None
+
+        if fetched_id != guild_id:
+            return None
+
+        if not channels.get("is_allowed"):
+            return None
+
+        return channels
+
+    @staticmethod
+    async def setChannels(
+        interact: discord.Interaction, channel: str, this_channel: int
+    ) -> None:
+        pool = interact.client.db
+        guild_id = interact.guild_id
+
+        async with transaction(pool) as cur:
+            await cur.execute(
+                f"UPDATE channels SET {channel}=%s WHERE guild_id=%s",
+                (this_channel, guild_id),
+            )

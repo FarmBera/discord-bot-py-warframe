@@ -123,13 +123,17 @@ async def is_super_user(
 async def is_valid_guild(
     interact: discord.Interaction, isFollowUp: bool = False, cmd: str = ""
 ) -> bool:
+    """
+    :param interact: discord Interactino object
+    :param isFollowUp: is defer()
+    :param cmd: used place
+    :return: TRUE if valid_guild else FALSE
+    """
     try:
         # fetch & check guild
         channel_list = await ChannelService.getChannels(interact)
         if channel_list:
-            fetched_guild_id = channel_list.get("guild_id")
-            if fetched_guild_id and interact.guild_id == fetched_guild_id:
-                return True
+            return True
 
         if isFollowUp:
             await interact.followup.send(embed=GUILD_EMBED, ephemeral=True)

@@ -704,3 +704,19 @@ cmd:
     desc: "[Beta] Display this week's Descendia mission list."
 
     title: "# Weekly Descendia Challenges\n"
+
+  register:
+    cmd: register
+    desc: Set the channel where party recruitment, trading, and complaint posts will be posted.
+
+    placeholder: Which channel would you like to set as the current channel?
+    party: Party
+    trade: Trade
+    complain: Inquiry Submission
+
+    none: None
+    current: |
+      ## Currrent Settings
+      - Party Channel: {party}
+      - Trade Channel: {trade}
+      - Complain Channel: {complain}

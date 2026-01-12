@@ -6,6 +6,7 @@ from src.translator import ts
 from src.constants.keys import (
     # cooldown var
     COOLDOWN_DEFAULT,
+    COOLDOWN_5_MIN,
     # docs file
     HELP_FILE_LOC,
     ANNOUNCE_FILE_LOC,
@@ -33,6 +34,7 @@ from src.constants.keys import (
     DESCENDIA,
 )
 from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
+from src.views.register_view import register_cmd_helper
 from src.commands.noti_channel import noti_subscribe_helper, noti_unsubscribe_helper
 
 from src.parser.alerts import w_alerts
@@ -508,6 +510,13 @@ class GeneralCommands(commands.Cog):
             parser_func=w_descendia,
             isPrivateMsg=developer_options,
         )
+
+    @app_commands.command(name="register", description="cmd.register.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def register_channel(self, interact: discord.Interaction):
+        await register_cmd_helper(interact)
 
 
 async def setup(bot: commands.Bot):
