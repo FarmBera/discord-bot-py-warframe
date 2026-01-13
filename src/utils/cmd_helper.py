@@ -56,10 +56,17 @@ async def cmd_helper(
             await resp_head.send_message(embed=obj, ephemeral=isPrivateMsg)
         log_obj = obj.description
     elif isinstance(obj, tuple):  # embed with file (Modified)
-        eb, file = obj
+        view, file = None, None
+
+        if isMarketQuery:
+            eb, view = obj
+        else:
+            eb, file = obj
+
         # default args
         send_kwargs = {"embed": eb, "ephemeral": isPrivateMsg}
-
+        if isMarketQuery and view:
+            send_kwargs["view"] = view
         if file:
             send_kwargs["file"] = img_file(file)
 
@@ -101,7 +108,7 @@ async def cmd_helper_txt(
         txt = txt1 + txt2
     except Exception as e:  # send err msg
         msg: str = "open_file err in cmd_helper_txt"  # VAR
-        await interact.response.send_message(embed=err_embed(), ephemeral=True)
+        await interact.response.send_message(embed=err_embed(file_name), ephemeral=True)
         print(C.red, msg, C.default, sep="")
         await save_log(
             pool=interact.client.db,

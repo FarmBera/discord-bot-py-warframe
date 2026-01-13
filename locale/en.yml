@@ -302,11 +302,11 @@ cmd:
 
     no-result: |
       ## No search results found.
-      - No market search results found for **{name}**.
+      - No market search results found for `{name}`.
       - Please double-check the item name.
     no-item: |
       ## No items available for trade.
-      There are no items available for immediate trade for **{name}**.
+      There are no items available for immediate trade for `{name}`.
       (No items listed by players currently logged into the game)
     server-err: |
       ## An error occurred on the 'Warframe Market' server.
@@ -316,14 +316,12 @@ cmd:
       ## Error: There is a problem with the 'Warframe Market' server.
       - Did not receive a valid response from the market server.
       - Please check if you can access the Warframe Market website normally.
-
-    data: Data
     api-fail: |
       Failed to request API. Please try again later.
 
       If the problem persists, please contact the administrator.
     result: Search Result
-    link-to-market: "(Click the blue link to go to the market.)"
+    shortcuts: Go to Warframe.market
     platinum: P
     qty: Qty
     rank: " ({rank} rank)"
