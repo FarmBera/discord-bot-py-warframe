@@ -63,7 +63,7 @@ async def is_admin_user(
             pool=interact.client.db,
             type=LOG_TYPE.err,
             interact=interact,
-            msg=f"admin verification error (from is_admin_user): {e}",
+            msg=f"admin verification error (from '{cmd}'>is_admin_user): {e}",
             obj=return_traceback(),
         )
         return False
@@ -114,7 +114,7 @@ async def is_super_user(
             pool=interact.client.db,
             type=LOG_TYPE.err,
             interact=interact,
-            msg=f"admin verification error (from is_super_user): {e}",
+            msg=f"admin verification error (from '{cmd}'>is_super_user): {e}",
             obj=return_traceback(),
         )
         return False

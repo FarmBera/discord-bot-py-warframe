@@ -321,7 +321,7 @@ cmd:
 
       문제가 지속된다면 관리자에게 문의해주세요.
     result: "## 검색 결과: {link}"
-    shortcuts: 워프레임 마켓 바로가기
+    shortcut: 워프레임 마켓 바로가기
     platinum: 플레
     qty: 개
     rank: " ({rank} 랭크)"
@@ -435,6 +435,11 @@ cmd:
     pv-kick-success: "파티장이 {name} 님을 파티에서 내보냈어요."
     pv-kick-no-members: 내보낼 파티원이 없어요.
     pv-err-only-host-kick: 파티 호스트만 이 기능을 사용할 수 있어요.
+    pv-err-notfound: |
+      ## 오류: 내보낼 파티원을 찾을 수 없습니다!
+      
+      이미 파티원이 탈퇴했을 수도 있습니다.
+      오류라고 판단된다면 지원 서버에 오류 접수 바랍니다.
 
     # delete_party btn
     pv-del-label: 모집 종료

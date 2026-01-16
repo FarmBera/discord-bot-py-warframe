@@ -1,6 +1,6 @@
 import discord
 
-from config.config import Lang
+from config.config import Lang, LOG_TYPE
 from config.TOKEN import base_url_market_image
 from src.translator import ts, language as lang
 from src.constants.keys import MSG_BOT
@@ -140,7 +140,7 @@ async def w_market_search(
         if result.status_code == 404:  # item not found
             await save_log(
                 pool=pool,
-                type="api",
+                type=LOG_TYPE.api,
                 cmd="w_market_search()",
                 user=MSG_BOT,
                 msg=f"{name},{item_slug} > 404 Not Found",
@@ -156,7 +156,7 @@ async def w_market_search(
         elif 500 <= result.status_code == 599:  # internal server err
             await save_log(
                 pool=pool,
-                type="api",
+                type=LOG_TYPE.api,
                 cmd="w_market_search()",
                 user=MSG_BOT,
                 msg=f"{name},{item_slug} > 500 Internal Server Error",
@@ -169,7 +169,7 @@ async def w_market_search(
         elif result.status_code != 200:  # another code err
             await save_log(
                 pool=pool,
-                type="api",
+                type=LOG_TYPE.api,
                 cmd="w_market_search()",
                 user=MSG_BOT,
                 msg=f"{name},{item_slug} > {result.status_code}",
@@ -179,7 +179,7 @@ async def w_market_search(
     except Exception as e:
         await save_log(
             pool=pool,
-            type="api",
+            type=LOG_TYPE.api,
             cmd="w_market_search()",
             user=MSG_BOT,
             msg=f"response ERROR",

@@ -89,7 +89,7 @@ class ChannelSelect(discord.ui.Select):
         )
         await save_log(
             pool=interact.client.db,
-            type=LOG_TYPE.cmd,
+            type=LOG_TYPE.err,
             cmd=f"{LOG_TYPE.cmd}.set-noti-insert",
             interact=interact,
             msg=f"error: {error}",

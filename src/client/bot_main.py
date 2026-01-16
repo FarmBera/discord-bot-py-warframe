@@ -168,7 +168,7 @@ class DiscordBot(commands.Bot):
                 if isinstance(value, discord.Embed):
                     await save_log(
                         pool=self.db,
-                        type="msg",
+                        type=LOG_TYPE.msg,
                         cmd="auto_sent_message",
                         user=MSG_BOT,
                         guild=channel.guild.name,
@@ -180,7 +180,7 @@ class DiscordBot(commands.Bot):
                     eb, f = value
                     await save_log(
                         pool=self.db,
-                        type="msg",
+                        type=LOG_TYPE.msg,
                         cmd="auto_sent_message",
                         user=MSG_BOT,
                         guild=channel.guild.name,
@@ -192,7 +192,7 @@ class DiscordBot(commands.Bot):
                 else:  # string type
                     await save_log(
                         pool=self.db,
-                        type="msg",
+                        type=LOG_TYPE.msg,
                         cmd="auto_sent_message",
                         user=MSG_BOT,
                         guild=channel.guild.name,
@@ -823,6 +823,7 @@ class DiscordBot(commands.Bot):
     async def weekly_task(self) -> None:
         await save_log(
             pool=self.db,
+            type=LOG_TYPE.info,
             cmd="weekly_task()",
             user=MSG_BOT,
             msg="Executing weekly_task()",
@@ -847,6 +848,7 @@ class DiscordBot(commands.Bot):
             msg = f"Steel Path reward index updated {curr_idx} -> {new_idx}"
             await save_log(
                 pool=self.db,
+                type=LOG_TYPE.info,
                 cmd="bot.WEEKLY_TASK.steelpath",
                 user=MSG_BOT,
                 msg=msg,
@@ -856,6 +858,7 @@ class DiscordBot(commands.Bot):
             print(C.red, msg, C.default)
             await save_log(
                 pool=self.db,
+                type=LOG_TYPE.err,
                 cmd="bot.WEEKLY_TASK.steelpath",
                 user=MSG_BOT,
                 msg=msg,
@@ -874,6 +877,7 @@ class DiscordBot(commands.Bot):
             msg = f"Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
             await save_log(
                 pool=self.db,
+                type=LOG_TYPE.info,
                 cmd="bot.WEEKLY_TASK.duviri-cache",
                 user=MSG_BOT,
                 msg=msg,
@@ -883,6 +887,7 @@ class DiscordBot(commands.Bot):
             print(C.red, msg, C.default)
             await save_log(
                 pool=self.db,
+                type=LOG_TYPE.err,
                 cmd="bot.WEEKLY_TASK.duviri-cache",
                 user=MSG_BOT,
                 msg=msg,
@@ -894,6 +899,7 @@ class DiscordBot(commands.Bot):
     async def week_start_noti(self) -> None:
         await save_log(
             pool=self.db,
+            type=LOG_TYPE.info,
             cmd="week_start_noti()",
             user=MSG_BOT,
             msg="Execute week_start_noti()",
@@ -959,6 +965,7 @@ class DiscordBot(commands.Bot):
             )
             expired_parties = await cursor.fetchall()
 
+        deleted_count: int = 0
         for party in expired_parties:
             try:
                 thread = self.get_channel(party["thread_id"])
@@ -994,6 +1001,7 @@ class DiscordBot(commands.Bot):
                     await cursor.execute(
                         "DELETE FROM party WHERE id = %s", (party["id"],)
                     )
+                deleted_count += 1
                 omsg = f"Expired party {party['id']} deleted."
                 await save_log(
                     pool=self.db,
@@ -1016,6 +1024,7 @@ class DiscordBot(commands.Bot):
                     await cursor.execute(
                         "DELETE FROM party WHERE id = %s", (party["id"],)
                     )
+                deleted_count += 1
             except Exception:
                 await save_log(
                     pool=self.db,
@@ -1032,7 +1041,7 @@ class DiscordBot(commands.Bot):
             type=LOG_TYPE.info,
             cmd="auto_party_expire()",
             user=MSG_BOT,
-            msg=f"END Party AutoDelete (eta: {timeNowDT()-eta})",
+            msg=f"END Party AutoDelete (deleted: {deleted_count}, eta: {timeNowDT()-eta})",
         )
 
     # trade auto expire
@@ -1045,6 +1054,7 @@ class DiscordBot(commands.Bot):
             user=MSG_BOT,
             msg=f"START Trade AutoDelete",
         )
+        deleted_count: int = 0
         eta: dt.datetime = timeNowDT()
 
         async with query_reader(self.db) as cursor:
@@ -1103,6 +1113,7 @@ class DiscordBot(commands.Bot):
                     await cursor.execute(
                         "DELETE FROM trade WHERE id = %s", (trade["id"],)
                     )
+                deleted_count += 1
                 omsg = f"Expired trade {trade['id']} deleted."
                 await save_log(
                     pool=self.db,

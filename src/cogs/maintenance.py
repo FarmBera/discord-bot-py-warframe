@@ -237,6 +237,9 @@ class MaintenanceCommands(commands.Cog):
 
     # cambion command (cambionCycle)
     @app_commands.command(name="cambion", description=f"cmd.cambion.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
     async def cmd_cambion(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
@@ -308,6 +311,9 @@ class MaintenanceCommands(commands.Cog):
 
     # vallisCycle command
     @app_commands.command(name="vallis", description="cmd.vallis.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
     async def cmd_vallis(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
@@ -467,6 +473,13 @@ class MaintenanceCommands(commands.Cog):
             interact,
             f"user-warn//{user.id}//{user.name}//{user.global_name}//{user.display_name}",
         )
+
+    @app_commands.command(name="register", description="cmd.register.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def register_channel(self, interact: discord.Interaction):
+        await cmd_helper_maintenance(interact, "register")
 
 
 async def setup(bot: commands.Bot):

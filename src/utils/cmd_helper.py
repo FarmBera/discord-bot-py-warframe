@@ -88,7 +88,7 @@ async def cmd_helper(
         type=LOG_TYPE.cmd,
         cmd=f"{LOG_TYPE.cmd}.{key}{f'-{parser_args}' if parser_args else ''}",
         interact=interact,
-        msg="cmd used",  # VAR
+        msg="cmd responsed",  # VAR
         obj=log_obj,
     )
 

@@ -202,7 +202,7 @@ class PartyView(discord.ui.View):
 
         await save_log(
             pool=interact.client.db,
-            type=LOG_TYPE.event,
+            type=etype,
             cmd="btn.main.edit_departure",
             interact=interact,
             msg=f"PartyView -> edit_departure",
@@ -447,7 +447,7 @@ class TradeView(discord.ui.View):
         await cmd_helper_maintenance(interact)
         await save_log(
             pool=interact.client.db,
-            type=LOG_TYPE.event,
+            type=etype,
             cmd="btn.trade.toggle_close_party",
             interact=interact,
             msg=f"TradeView -> close_trade",

@@ -162,7 +162,7 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
             )
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.e_event,
+                type=LOG_TYPE.err,
                 cmd="btn.edit.nickname",
                 interact=interact,
                 msg=f"EditNicknameModal -> Submit, but ERR",
@@ -215,7 +215,7 @@ class EditQuantityModal(ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
             )
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.e_event,
+                type=LOG_TYPE.err,
                 cmd="btn.edit.quantity",
                 interact=interact,
                 msg=f"EditQuantityModal -> Submit, but ERR",
@@ -263,7 +263,7 @@ class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
             )
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.e_event,
+                type=LOG_TYPE.err,
                 cmd="btn.edit.price",
                 interact=interact,
                 msg=f"EditPriceModal -> Submit, but ERR",
@@ -315,7 +315,7 @@ class EditRankModal(ui.Modal, title=ts.get(f"{pf}edit-rank-title")):
             )
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.e_event,
+                type=LOG_TYPE.err,
                 cmd="btn.edit.rank",
                 interact=interact,
                 msg=f"EditRankModal -> Submit, but ERR",
@@ -355,7 +355,7 @@ class ConfirmDeleteView(ui.View):
         except discord.NotFound:
             await save_log(
                 pool=self.interact.client.db,
-                type=LOG_TYPE.event,
+                type=LOG_TYPE.warn,
                 cmd=cmd,
                 interact=self.interact,
                 msg=f"TradeView.ConfirmDeleteView -> timeout, but Not Found",
@@ -409,7 +409,7 @@ class ConfirmDeleteView(ui.View):
             await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.e_event,
+                type=LOG_TYPE.err,
                 cmd="btn.confirm.delete",
                 interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes, but ERR",
@@ -482,7 +482,7 @@ class ConfirmTradeView(ui.View):
             await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.event,
+                type=LOG_TYPE.err,
                 cmd="btn.confirm.trade",
                 interact=interact,
                 msg=f"ConfirmTradeView -> ERR",

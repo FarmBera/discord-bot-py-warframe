@@ -198,7 +198,7 @@ class TradeCog(commands.Cog):
 
             await save_log(
                 pool=interact.client.db,
-                type="cmd",
+                type=LOG_TYPE.cmd,
                 cmd=f"cmd.trade",
                 interact=interact,
                 msg="cmd used",

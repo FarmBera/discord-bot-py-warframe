@@ -18,6 +18,7 @@ from src.utils.permission import is_admin_user, is_valid_guild
 from src.utils.webhook import get_webhook
 from src.services.party_service import PartyService
 from src.services.warn_service import WarnService
+from src.views.help_view import SupportView
 
 pf = "cmd.party."
 MIN_SIZE = 2
@@ -36,7 +37,7 @@ async def isPartyExist(interact: discord.Interaction, party):
     await interact.response.send_message(embed=embed, ephemeral=True)
     await save_log(
         pool=interact.client.db,
-        type="err",
+        type=LOG_TYPE.err,
         cmd="btn",
         msg="party not found from db",
         interact=interact,
@@ -184,7 +185,7 @@ class PartyEditModal(ui.Modal, title=ts.get(f"{pf}edit-title")):
             )
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.e_event,
+                type=LOG_TYPE.err,
                 cmd="btn.edit.article",
                 interact=interact,
                 msg=f"PartyEditModal -> Clicked Submit",
@@ -276,7 +277,7 @@ class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
                 )
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.e_event,
+                type=LOG_TYPE.err,
                 cmd="btn.edit-date",
                 interact=interact,
                 msg=f"PartyDateEditModal -> Clicked Submit, but ERR",
@@ -313,7 +314,7 @@ class ConfirmJoinLeaveView(ui.View):
         except discord.NotFound:
             await save_log(
                 pool=self.interact.client.db,
-                type=LOG_TYPE.warn,
+                type=LOG_TYPE.info,
                 cmd=cmd,
                 interact=self.interact,
                 msg=f"PartyView.ConfirmJoinLeaveView -> timeout, but Not Found",
@@ -401,10 +402,10 @@ class ConfirmJoinLeaveView(ui.View):
                 )
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.event,
+                type=LOG_TYPE.err,
                 cmd="btn.confirm.err",
                 interact=interact,
-                msg=f"ConfirmJoinLeaveView -> action join or levae but ERR",
+                msg=f"ConfirmJoinLeaveView -> action join or levae but ERR:",
                 obj=f"{e}\n{return_traceback()}",
             )
         self.stop()
@@ -450,7 +451,7 @@ class ConfirmDeleteView(ui.View):
         except discord.NotFound:
             await save_log(
                 pool=self.interact.client.db,
-                type=LOG_TYPE.event,
+                type=LOG_TYPE.warn,
                 cmd=cmd,
                 interact=self.interact,
                 msg=f"PartyView.ConfirmDeleteView -> timeout, but Not Found",
@@ -507,7 +508,7 @@ class ConfirmDeleteView(ui.View):
             await interact.followup.send(ts.get(f"{pf}del-err"), ephemeral=True)
             await save_log(
                 pool=interact.client.db,
-                type=LOG_TYPE.event,
+                type=LOG_TYPE.err,
                 cmd="btn.confirm.delete",
                 interact=interact,
                 msg=f"ConfirmDeleteView -> clicked yes | but ERR\n{return_traceback()}",
@@ -552,7 +553,15 @@ class KickMemberSelect(ui.Select):
         party, _ = await PartyService.get_party_by_message_id(
             interact.client.db, self.original_message.id
         )
-        await PartyService.leave_participant(interact.client.db, party["id"], target_id)
+        try:
+            await PartyService.leave_participant(
+                interact.client.db, party["id"], target_id
+            )
+        except Exception:
+            await interact.response.send_message(
+                ts.get(f"{pf}pv-err-notfound"), view=SupportView(), ephemeral=True
+            )
+            return
 
         new_embed = await build_party_embed_from_db(
             self.original_message.id, interact.client.db

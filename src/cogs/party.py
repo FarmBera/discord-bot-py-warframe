@@ -41,7 +41,7 @@ class PartyCog(commands.Cog):
         await interact.response.defer(ephemeral=True)
         await save_log(
             pool=interact.client.db,
-            type="cmd",
+            type=LOG_TYPE.cmd,
             cmd=f"cmd.party",
             interact=interact,
             msg="cmd used",  # VAR
@@ -157,7 +157,7 @@ class PartyCog(commands.Cog):
             )
             await save_log(
                 pool=self.bot.db,
-                type="cmd",
+                type=LOG_TYPE.cmd,
                 cmd="party",
                 interact=interact,
                 msg="Party Created",
