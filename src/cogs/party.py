@@ -11,6 +11,7 @@ from src.utils.permission import is_valid_guild, is_banned_user
 from src.utils.webhook import get_webhook
 from src.services.party_service import PartyService
 from src.services.channel_service import ChannelService
+from src.views.help_view import SupportView
 from src.views.party_view import PartyView, build_party_embed, pf, MIN_SIZE, MAX_SIZE
 
 
@@ -101,7 +102,9 @@ class PartyCog(commands.Cog):
                 descriptions,
             )
         except Exception as e:
-            await interact.followup.send(ts.get("cmd.err-db"), ephemeral=True)
+            await interact.followup.send(
+                ts.get("cmd.err-db"), view=SupportView(), ephemeral=True
+            )
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.err,
@@ -165,7 +168,7 @@ class PartyCog(commands.Cog):
 
         except Exception as e:
             await interact.followup.send(
-                f"{ts.get(f'{pf}err-unknown')}", ephemeral=True
+                f"{ts.get(f'{pf}err-unknown')}", view=SupportView(), ephemeral=True
             )
             await save_log(
                 pool=interact.client.db,

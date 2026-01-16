@@ -9,6 +9,7 @@ from src.utils.permission import is_admin_user, is_valid_guild
 from src.utils.logging_utils import save_log
 from src.utils.db_helper import query_reader
 from src.utils.return_err import return_traceback
+from src.views.help_view import SupportView
 from src.views.user_warn_view import pf, WarnInputModal
 
 
@@ -86,8 +87,7 @@ class UserWarnCommands(commands.Cog):
         except Exception as e:
             if not interact.response.is_done():
                 await interact.response.send_message(
-                    ts.get(f"general.error-cmd"),
-                    ephemeral=True,
+                    ts.get(f"general.error-cmd"), view=SupportView(), ephemeral=True
                 )
                 await save_log(
                     pool=interact.client.db,

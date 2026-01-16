@@ -181,7 +181,7 @@ class PartyEditModal(ui.Modal, title=ts.get(f"{pf}edit-title")):
             )
         except Exception:
             await interact.response.send_message(
-                ts.get(f"{pf}edit-err"), ephemeral=True
+                ts.get(f"{pf}edit-err"), view=SupportView(), ephemeral=True
             )
             await save_log(
                 pool=interact.client.db,
@@ -273,7 +273,7 @@ class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
         except Exception:
             if not interact.response.is_done():
                 await interact.response.send_message(
-                    ts.get(f"{pf}edit-err"), ephemeral=True
+                    ts.get(f"{pf}edit-err"), view=SupportView(), ephemeral=True
                 )
             await save_log(
                 pool=interact.client.db,
@@ -398,7 +398,7 @@ class ConfirmJoinLeaveView(ui.View):
         except Exception as e:
             if not interact.response.is_done():
                 await interact.response.edit_message(
-                    content=ts.get("general.error-cmd"), view=None
+                    content=ts.get("general.error-cmd"), view=SupportView()
                 )
             await save_log(
                 pool=interact.client.db,
@@ -505,7 +505,9 @@ class ConfirmDeleteView(ui.View):
             await PartyService.delete_party(interact.client.db, interact.channel.id)
 
         except Exception:
-            await interact.followup.send(ts.get(f"{pf}del-err"), ephemeral=True)
+            await interact.followup.send(
+                ts.get(f"{pf}del-err"), view=SupportView(), ephemeral=True
+            )
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.err,

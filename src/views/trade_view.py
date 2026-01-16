@@ -18,6 +18,7 @@ from src.parser.marketsearch import get_slug_data, create_market_url
 from src.services.trade_service import TradeService
 from src.services.warn_service import WarnService
 from src.utils.webhook import get_webhook
+from src.views.help_view import SupportView
 
 pf = "cmd.trade."
 
@@ -158,7 +159,7 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
             )
         except Exception:
             await interact.response.send_message(
-                ts.get(f"{pf}err-edit"), ephemeral=True
+                ts.get(f"{pf}err-edit"), vew=SupportView(), ephemeral=True
             )
             await save_log(
                 pool=interact.client.db,
@@ -211,7 +212,7 @@ class EditQuantityModal(ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
             )
         except Exception:
             await interact.response.send_message(
-                ts.get(f"{pf}err-edit"), ephemeral=True
+                ts.get(f"{pf}err-edit"), view=SupportView(), ephemeral=True
             )
             await save_log(
                 pool=interact.client.db,
@@ -259,7 +260,7 @@ class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
             )
         except Exception:
             await interact.response.send_message(
-                ts.get(f"{pf}err-edit"), ephemeral=True
+                ts.get(f"{pf}err-edit"), view=SupportView(), ephemeral=True
             )
             await save_log(
                 pool=interact.client.db,
@@ -311,7 +312,7 @@ class EditRankModal(ui.Modal, title=ts.get(f"{pf}edit-rank-title")):
             )
         except Exception:
             await interact.response.send_message(
-                ts.get(f"{pf}err-edit"), ephemeral=True
+                ts.get(f"{pf}err-edit"), view=SupportView(), ephemeral=True
             )
             await save_log(
                 pool=interact.client.db,
@@ -406,7 +407,9 @@ class ConfirmDeleteView(ui.View):
             if isinstance(interact.channel, discord.Thread):
                 await interact.channel.edit(locked=True)
         except Exception:
-            await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
+            await interact.followup.send(
+                ts.get(f"{pf}err-general"), view=SupportView(), ephemeral=True
+            )
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.err,
@@ -479,7 +482,9 @@ class ConfirmTradeView(ui.View):
             self.value = True
             self.stop()
         except Exception:
-            await interact.followup.send(ts.get(f"{pf}err-general"), ephemeral=True)
+            await interact.followup.send(
+                ts.get(f"{pf}err-general"), view=SupportView(), ephemeral=True
+            )
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.err,

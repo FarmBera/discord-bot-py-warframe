@@ -12,6 +12,7 @@ from src.utils.webhook import get_webhook
 from src.parser.marketsearch import get_slug_data, get_market_item_names
 from src.services.trade_service import TradeService
 from src.services.channel_service import ChannelService
+from src.views.help_view import SupportView
 from src.views.trade_view import TradeView, build_trade_embed, parseNickname
 
 pf = "cmd.trade."
@@ -107,7 +108,9 @@ class TradeCog(commands.Cog):
                 )
             )
         except Exception as e:
-            await interact.followup.send(f"{ts.get(f'{pf}err-api')}", ephemeral=True)
+            await interact.followup.send(
+                f"{ts.get(f'{pf}err-api')}", view=SupportView(), ephemeral=True
+            )
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.err,
@@ -143,7 +146,9 @@ class TradeCog(commands.Cog):
                 estimated_price,
             )
         except Exception as e:
-            await interact.followup.send(ts.get("cmd.err-db"), ephemeral=True)
+            await interact.followup.send(
+                ts.get("cmd.err-db"), view=SupportView(), ephemeral=True
+            )
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.err,
@@ -206,7 +211,9 @@ class TradeCog(commands.Cog):
             )
 
         except Exception as e:
-            await interact.followup.send(f"Error setup thread", ephemeral=True)
+            await interact.followup.send(
+                f"Error setup thread", view=SupportView(), ephemeral=True
+            )
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.err,

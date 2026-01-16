@@ -28,7 +28,6 @@ def w_vallisCycle() -> tuple[discord.Embed, str]:
         if not vallis:
             raise ValueError("ERROR FETCHING CAMIBON DATA")
     except Exception:
-        print(return_traceback())
         return err_embed("vallis cycle"), ""
 
     status: str = vallis["current"]

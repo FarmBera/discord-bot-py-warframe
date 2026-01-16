@@ -26,8 +26,8 @@ class SupportView(View):
         super().__init__(timeout=None)
 
         self.add_item(
-            Button(label=ts.get(f"{pf}support"), url=f"{SUPPORT_SERVER}", row=1)
+            Button(label=ts.get(f"{pf}faq"), url=f"{HOMEPAGE}/?id=faq", row=1)
         )
         self.add_item(
-            Button(label=ts.get(f"{pf}faq"), url=f"{HOMEPAGE}/?id=faq", row=1)
+            Button(label=ts.get(f"{pf}support"), url=f"{SUPPORT_SERVER}", row=1)
         )

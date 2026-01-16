@@ -10,7 +10,7 @@ from src.utils.permission import is_admin_user
 from src.utils.logging_utils import save_log
 from src.utils.file_io import open_file_async
 from src.utils.return_err import err_embed, return_traceback
-from src.views.help_view import SupportMasterView
+from src.views.help_view import SupportMasterView, SupportView
 
 
 async def cmd_helper(
@@ -108,7 +108,9 @@ async def cmd_helper_txt(
         txt = txt1 + txt2
     except Exception as e:  # send err msg
         msg: str = "open_file err in cmd_helper_txt"  # VAR
-        await interact.response.send_message(embed=err_embed(file_name), ephemeral=True)
+        await interact.response.send_message(
+            embed=err_embed(file_name), view=SupportView(), ephemeral=True
+        )
         print(C.red, msg, C.default, sep="")
         await save_log(
             pool=interact.client.db,

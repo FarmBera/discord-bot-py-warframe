@@ -9,6 +9,7 @@ from src.utils.return_err import return_traceback
 from src.utils.logging_utils import save_log
 from src.utils.db_helper import query_reader
 from src.services.channel_service import ChannelService
+from src.views.help_view import SupportView
 
 pf: str = "cmd.complain."
 
@@ -110,7 +111,9 @@ class ComplainModal(discord.ui.Modal):
                 obj=f"TITLE: {self.input_title}\nCATEGORY: {self.input_category}\nDESC: {self.input_desc}",
             )
         except Exception as e:
-            await interact.followup.send(ts.get(f"{pf}err"), ephemeral=True)
+            await interact.followup.send(
+                ts.get(f"{pf}err"), view=SupportView(), ephemeral=True
+            )
             print(e)
             await save_log(
                 pool=interact.client.db,

@@ -742,7 +742,6 @@ class DiscordBot(commands.Bot):
                     msg = (
                         f"parse error in handle_deep_archimedea {handler['parser']}/{e}"
                     )
-
                     print(timeNowDT(), C.red, msg, e, C.default)
                     await save_log(
                         pool=self.db,

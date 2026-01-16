@@ -25,6 +25,7 @@ from src.constants.keys import (
     ARCHIMEDEA_DEEP,
     ARCHIMEDEA_TEMPORAL,
 )
+from src.views.help_view import SupportView
 
 DB_COLUMN_MAP = {
     ALERTS: "sub_alerts",
@@ -206,7 +207,7 @@ class NotificationSelect(discord.ui.Select):
                 await cursor.execute(final_sql, insert_values + update_values)
         except Exception:
             await interact.edit_original_response(
-                content=ts.get(f"cmd.err-db"), embed=None, view=None
+                content=ts.get(f"cmd.err-db"), embed=None, view=SupportView()
             )
             await save_log(
                 pool=interact.client.db,
@@ -317,7 +318,7 @@ class NotificationUnSelect(discord.ui.Select):
                     is_fully_deleted = True
         except Exception:
             await interact.edit_original_response(
-                content=ts.get(f"cmd.err-db"), embed=None, view=None
+                content=ts.get(f"cmd.err-db"), embed=None, view=SupportView()
             )
             await save_log(
                 pool=interact.client.db,

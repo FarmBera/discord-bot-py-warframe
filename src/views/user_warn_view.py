@@ -7,7 +7,7 @@ from src.utils.logging_utils import save_log
 from src.utils.db_helper import transaction
 from src.utils.return_err import return_traceback
 from src.services.warn_service import WarnService, BAN_THRESHOLD
-
+from src.views.help_view import SupportView
 
 pf: str = "cmd.user-ban."
 
@@ -59,7 +59,9 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
                 self.pool, user_id, display_name, game_nickname, warn_type, warn_reason
             )
         except Exception:
-            await interact.followup.send(content=ts.get(f"cmd.err-db"), ephemeral=True)
+            await interact.followup.send(
+                content=ts.get(f"cmd.err-db"), view=SupportView(), ephemeral=True
+            )
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.err,
