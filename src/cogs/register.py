@@ -50,7 +50,7 @@ from src.parser.archimedea import w_temporalArchimedia
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
 from src.parser.dailyDeals import w_dailyDeals
-from src.parser.invasions import w_invasions
+from src.parser.invasions import w_invasions_se
 from src.parser.vallisCycle import w_vallisCycle
 from src.parser.marketsearch import w_market_search, get_market_item_names
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
@@ -355,7 +355,7 @@ class GeneralCommands(commands.Cog):
         await cmd_helper(
             interact,
             key=INVASIONS,
-            parser_func=w_invasions,
+            parser_func=w_invasions_se,
             isPrivateMsg=developer_options,
         )
 

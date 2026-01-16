@@ -4,6 +4,7 @@ import re
 
 from src.translator import ts
 from src.constants.keys import SPECIAL_ITEM_LIST
+from src.utils.emoji import get_emoji
 from src.utils.times import convert_remain
 from src.utils.return_err import err_embed
 from src.utils.data_manager import getFactions, getLanguage, getSolNode
@@ -39,11 +40,22 @@ def singleInvasion(inv) -> str:
         output_msg += f"{ts.get(f'{pf}eta').format(time=time)}"
     output_msg += "\n"
 
+    item_atk: str = getLanguage(
+        inv["AttackerReward"]["countedItems"][0]["ItemType"].lower()
+    )
+    item_def: str = getLanguage(
+        inv["DefenderReward"]["countedItems"][0]["ItemType"].lower()
+    )
+
+    print(item_atk, item_def)
+
     # item
     if inv["AttackerReward"]:  # is VS Infestation
-        output_msg += f"- {getFactions(inv['Faction'])} - **{getLanguage(inv['AttackerReward']['countedItems'][0]['ItemType'].lower())}**\n"
+        output_msg += (
+            f"- {getFactions(inv['Faction'])} - **{get_emoji(item_atk)} {item_atk}**\n"
+        )
 
-    output_msg += f"- {getFactions(inv['DefenderFaction'])} - **{getLanguage(inv['DefenderReward']['countedItems'][0]['ItemType'].lower())}**\n"
+    output_msg += f"- {getFactions(inv['DefenderFaction'])} - **{get_emoji(item_def)} {item_def}**\n"
 
     return output_msg
 
@@ -113,6 +125,9 @@ def w_invasions_se(invasions) -> tuple[discord.Embed, str]:
         output_msg += f"# {planet}\n\n"  # planet title
         for inv in inv_list:  # desc
             output_msg += singleInvasion(inv)
+
+    if not output_msg:
+        output_msg = ts.get(f"{pf}no-speical")
 
     # return discord.Embed(description=output_msg)  # color=0x00FFFF,
     # color=embed_color if embed_color else color_decision(trader),

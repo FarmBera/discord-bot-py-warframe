@@ -291,6 +291,9 @@ cmd:
     completion: 진행 상황
     atk-from: "공격자:"
     eta: "**{time}**에 시작했어요."
+    no-special: |
+      ## 특별 침공 미션이 없어요.
+      나중에 다시 확인해주세요.
 
   market-search:
     cmd: 마켓검색
