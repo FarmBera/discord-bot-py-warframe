@@ -291,6 +291,9 @@ cmd:
     completion: Progress
     atk-from: "ATK:"
     eta: Started {time}
+    no-special: |
+      ## There're NO Special Invasion Mission
+      Please check again later.
 
   market-search:
     cmd: market-search
@@ -435,6 +438,10 @@ cmd:
     pv-kick-success: "has been kicked from the party."
     pv-kick-no-members: There are no members to kick.
     pv-err-only-host-kick: Only the party host can use this feature.
+    pv-err-notfound: |
+      ## ERROR: Unable to find party members to kick!
+      The party member might have already left.
+      If you believe this is an error, please report it to the support server.
 
     # delete_party btn
     pv-del-label: Delete Post
@@ -459,7 +466,7 @@ cmd:
     # cmd_create_thread_helper
     pt-low: "Party size must be at least {num}.\nAutomatically setting to 4."
     pt-high: "Party size cannot exceed {num}.\nAutomatically setting to {num}."
-    pt-create: "Party listing (thread) has been created!"
+    pt-create: "Party (thread) has been created!"
 
     no-thread-permission: "❌ Error: I don't have permission to create threads in this channel. Please contact an admin."
     err-creation: "❌ Error: A problem occurred while creating the thread. Please contact an admin."

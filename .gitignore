@@ -2,40 +2,28 @@
 .idea
 .obsidian
 .vscode
-archive
+/archive
 /backup
 /db/*private*
-docs
-img/*.sh
-img-tmp
-data
-log
+/docs
+/img/*.sh
+/img-tmp
+/data
+/log
 /script
-tmp
+/tmp
 
 # exclude pattern
 *test*
 *tmp*
 *cache*
-*.db
-*.db-shm
-*.db-wal
 
 # personal file
-config/admin.yml
-config/channel.yml
-config/TOKEN.py
-config/roles.py
-script/sync.sh
-src/utils/emoji.py
+/config/TOKEN.py
+/config/roles.py
+/src/utils/emoji.py
 
-.markdownlint.json
-
-# python virtual env
-bin/
-lib/
-lib64
-pyvenv.cfg
+/.markdownlint.json
 
 ##########
 # macos
@@ -43,3 +31,9 @@ pyvenv.cfg
 
 # python
 __pycache__
+
+# venv
+bin/
+lib/
+lib64
+pyvenv.cfg

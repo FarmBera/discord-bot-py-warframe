@@ -125,12 +125,18 @@ def w_invasions_se(invasions) -> tuple[discord.Embed, str]:
             output_msg += singleInvasion(inv)
 
     if not output_msg:
-        output_msg = ts.get(f"{pf}no-speical")
+        output_msg = ts.get(f"{pf}no-special")
+        color = discord.Color.orange()
+    else:
+        color = discord.Color.darker_grey()
 
-    # return discord.Embed(description=output_msg)  # color=0x00FFFF,
-    # color=embed_color if embed_color else color_decision(trader),
     f = "invasion"
-    embed = discord.Embed(description=output_msg)
+    embed = discord.Embed(description=output_msg, color=color)
     embed.set_thumbnail(url="attachment://i.webp")
 
     return embed, f
+
+
+# from src.utils.data_manager import get_obj
+# from src.constants.keys import INVASIONS
+# print(w_invasions_se(get_obj(INVASIONS))[0].description)

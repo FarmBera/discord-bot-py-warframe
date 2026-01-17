@@ -529,6 +529,10 @@ class DiscordBot(commands.Bot):
 
             elif special_logic == "handle_missing_invasions":  # invasions
                 prev_ids_set = {item["_id"]["$oid"] for item in obj_prev}
+                new_ids_set = {item["_id"]["$oid"] for item in obj_new}
+
+                if prev_ids_set != new_ids_set:
+                    should_save_data = True
 
                 # extract missing ids (new invasion's id)
                 missed_ids = [
