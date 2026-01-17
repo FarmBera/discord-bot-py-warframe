@@ -47,8 +47,6 @@ def singleInvasion(inv) -> str:
         inv["DefenderReward"]["countedItems"][0]["ItemType"].lower()
     )
 
-    print(item_atk, item_def)
-
     # item
     if inv["AttackerReward"]:  # is VS Infestation
         output_msg += (
