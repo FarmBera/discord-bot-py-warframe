@@ -7,12 +7,12 @@ CREATE TABLE IF NOT EXISTS party
     host_id       BIGINT UNSIGNED,
     title         TEXT,
     game_name     TEXT,
-    departure     TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    departure     DATETIME    DEFAULT CURRENT_TIMESTAMP,
     max_users     INTEGER,
     `description` TEXT,
     `status`      VARCHAR(20) DEFAULT '모집 중',
-    created_at    TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at    DATETIME    DEFAULT CURRENT_TIMESTAMP,
+    updated_at    DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 ) DEFAULT CHARACTER SET = 'utf8mb4'
 ;
@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS participants
     user_id      BIGINT UNSIGNED,
     user_mention TEXT,
     display_name TEXT,
-    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (party_id, user_id),
     FOREIGN KEY (party_id) REFERENCES party (id) ON DELETE CASCADE
 ) DEFAULT CHARACTER SET = 'utf8mb4'
@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS trade
     thread_id     BIGINT UNSIGNED UNIQUE,
     message_id    BIGINT UNSIGNED UNIQUE,
     `status`      VARCHAR(20)              DEFAULT 'open', -- open, closed
-    created_at    TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP                DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at    DATETIME                 DEFAULT CURRENT_TIMESTAMP,
+    updated_at    DATETIME                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     INDEX idx_thread_id (thread_id),
     INDEX idx_msg_id (message_id),
@@ -113,8 +113,8 @@ CREATE TABLE IF NOT EXISTS webhooks
     guild_id        BIGINT UNSIGNED NOT NULL,
     webhook_url     TEXT            NOT NULL,
     note            VARCHAR(200),
-    created_at      TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP                DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at      DATETIME                 DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     -- notification flags (1: ON, 0: OFF)
     sub_alerts      BOOLEAN         NOT NULL DEFAULT 0, -- alert mission
     sub_news        BOOLEAN         NOT NULL DEFAULT 0, -- warfrane mews
