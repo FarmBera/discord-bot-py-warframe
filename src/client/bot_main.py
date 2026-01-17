@@ -1151,5 +1151,5 @@ class DiscordBot(commands.Bot):
             type=LOG_TYPE.info,
             cmd="auto_trade_expire()",
             user=MSG_BOT,
-            msg=f"END Trade AutoDelete (eta: {timeNowDT()-eta})",
+            msg=f"END Trade AutoDelete (deleted: {deleted_count}, eta: {timeNowDT()-eta})",
         )
