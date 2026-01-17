@@ -60,13 +60,14 @@ def generateMissions(obj) -> str:
     idx = 1
     for item in obj["Missions"]:
         # mission only
-        text += f"{idx}. **{getMissionType(item['missionType'])}**"
+        # text += f"{idx}. **{getMissionType(item['missionType'])}**"
 
         # faction
         # ({getFactions(item['faction'])})\n"
 
-        # mission with deviation & risks
-        # text += f"## {idx}. **{getMissionType(item['missionType'])}**"
+        # mission with h2 header
+        text += f"## {idx}. **{getMissionType(item['missionType'])}**"
+
         # # deviation
         # try:
         #     for jtem in item["difficulties"]:
@@ -78,6 +79,7 @@ def generateMissions(obj) -> str:
         #     print(e)
         #     pass
         #
+
         # # risks
         # try:
         #     risks: dict = {}
@@ -117,7 +119,7 @@ def w_deepArchimedea(archimedea) -> tuple[discord.Embed, str]:
         return err_embed("deep-archimedea"), ""
 
     # generate output msg
-    output_msg = ts.get(f"{pfd}content").format(
+    output_msg: str = ts.get(f"{pfd}content").format(
         time=convert_remain(deep["Expiry"]["$date"]["$numberLong"])
     )
     # missions

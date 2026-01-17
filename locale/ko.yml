@@ -247,14 +247,14 @@ cmd:
     desc: "[베타버전] 이번주 심층 아르키메디아 미션 및 기타 정보를 확인할 수 있어요."
     content: |
       # 심층 아르키메디아
-      {time} 만료
+      > {time} 만료
 
   temporal-archimedea:
     cmd: 템포럴아르키메디아
     desc: "[베타버전] 이번주 템포럴 아르키메디아 미션 및 기타 정보를 확인할 수 있어요."
     content: |
       # 템포럴 아르키메디아
-      {time} 만료
+      > {time} 만료
 
   calendar:
     cmd: 헥스캘린더

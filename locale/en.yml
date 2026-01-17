@@ -247,14 +247,14 @@ cmd:
     desc: "[Beta] Get Deep Archimedea missions this weekend"
     content: |
       # Deep Archimedea
-      - Expire: {time}
+      > Expiry: {time}
 
   temporal-archimedea:
     cmd: temporalarchimedea
     desc: "[Beta] Get Temporal Archimedea missions this weekend"
     content: |
       # Temporal Archimedea
-      - Expire: {time}
+      > Expiry: {time}
 
   calendar:
     cmd: hexcalendar

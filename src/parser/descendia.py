@@ -60,7 +60,7 @@ def w_descendia(descendia) -> tuple[discord.Embed, str]:
     output_msg += ts.get(f"{pf}title")
 
     for challenge in descendia[this_week_index]["Challenges"]:
-        output_msg += f"{challenge['Index']:2d}. {getDescendiaMiss(challenge['Type'])} - {getDescendiaChallenge(challenge['Challenge'])}\n"
+        output_msg += f"{challenge['Index']:2d}. {getDescendiaMiss(challenge['Type'])}: {getDescendiaChallenge(challenge['Challenge'])}\n"
 
     f = "descendia"
     embed = discord.Embed(description=output_msg, color=0x883F0A)
