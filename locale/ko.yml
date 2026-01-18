@@ -220,9 +220,10 @@ cmd:
     choice-all: 모든 성유물 균열
     choice-fast: 빠른클 가능한 균열
     cnt: 개
-
     steel: "**[강길]**"
-    remain: "**{time}** 만료"
+    output: |
+      **{type}** - {emoji} {tier} {railjack} {steel}
+      **{time}** 만료 / {node} - {enemy}
 
   duviri-cycle:
     cmd: 두비리주기

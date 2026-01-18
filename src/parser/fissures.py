@@ -106,24 +106,34 @@ def w_fissures(fissures, args) -> tuple[discord.Embed, str]:
     integrated_fiss: list = normal + steel_path
 
     # create output msg
-    output_msg += f"# {choice}: {len(integrated_fiss)}{ts.get(f'{pf}cnt')}\n\n"
+    output_msg += f"# {choice}: {len(integrated_fiss)}{ts.get(f'{pf}cnt')}\n"
 
     for item in integrated_fiss:
         """
         Extermination - Neo Fissure **[Steel Path]**
         53m left / Neso (Neptune) - Corpus
         """
+        o_node = getSolNode(item["Node"])
+        o_railjack = ts.get(f"{pf}railjack") if o_node in railjack else ""
         o_tier = getFissure(item["Modifier"])
         o_type = getMissionType(item["MissionType"])
-        o_node = getSolNode(item["Node"])
         o_enemy = getNodeEnemy(item["Node"])
         o_emoji = get_emoji(o_tier)
         o_isSteel = ts.get(f"{pf}steel") if item.get("Hard") else ""
         exp_time = convert_remain(int(item["Expiry"]["$date"]["$numberLong"]))
 
-        output_msg += f"""**{ts.trs(o_type)}** - {o_emoji} {ts.trs(o_tier)} {ts.get(f'{pf}fiss')} {o_isSteel}
-{ts.get(f'{pf}remain').format(time=exp_time)} / {o_node} - {o_enemy}\n\n"""
-        output_msg = txt_length_check(output_msg)
+        output_msg += ts.get(f"{pf}output").format(
+            railjack=o_railjack,
+            type=o_type,
+            emoji=o_emoji,
+            tier=o_tier,
+            steel=o_isSteel,
+            time=exp_time,
+            node=o_node,
+            enemy=o_enemy,
+        )
+        output_msg += "\n"
+    output_msg = txt_length_check(output_msg)
 
     embed = discord.Embed(description=output_msg, color=0x11806A)
     embed.set_thumbnail(url="attachment://i.webp")
@@ -132,4 +142,4 @@ def w_fissures(fissures, args) -> tuple[discord.Embed, str]:
 
 # from src.utils.data_manager import get_obj
 # from src.constants.keys import FISSURES
-# print(w_fissures(get_obj(FISSURES), ts.get(f"{pf}choice-fast")))
+# print(w_fissures(get_obj(FISSURES), ts.get(f"{pf}choice-fast"))[0].description)

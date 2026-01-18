@@ -28,7 +28,7 @@
         }
     },
     "fissures": {
-        "IncludeRailjack": false,
+        "IncludeRailjack": true,
         "favMission": [
             "Extermination",
             "Rescue",

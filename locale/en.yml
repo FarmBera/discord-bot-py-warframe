@@ -220,9 +220,10 @@ cmd:
     choice-all: All Fissures
     choice-fast: Fast Available Fissures
     cnt: ""
-
     steel: "**[Steel Path]**"
-    remain: Expires {time}
+    output: |
+      **{type}** - {emoji} {tier} {railjack} {steel}
+      Expiry: **{time}** / {node} - {enemy}
 
   duviri-cycle:
     cmd: duviricycle
