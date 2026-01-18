@@ -57,6 +57,7 @@ from src.parser.marketsearch import w_market_search, get_market_item_names
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
 from src.parser.descendia import w_descendia
+from src.parser.steelIncursion import w_steelIncursions
 
 
 class GeneralCommands(commands.Cog):
@@ -526,6 +527,24 @@ class GeneralCommands(commands.Cog):
     )
     async def register_channel(self, interact: discord.Interaction):
         await register_cmd_helper(interact)
+
+    @app_commands.command(
+        name="steel-incursion", description="cmd.steel-incursion.desc"
+    )
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_steelpath_incursions(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=f"{STEELPATH}-incursion",
+            parser_func=w_steelIncursions,
+            isFollowUp=True,
+            isPrivateMsg=developer_options,
+            skipGetObj=True,
+        )
 
 
 async def setup(bot: commands.Bot):

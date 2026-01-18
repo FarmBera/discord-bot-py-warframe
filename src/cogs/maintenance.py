@@ -484,6 +484,17 @@ class MaintenanceCommands(commands.Cog):
     async def register_channel(self, interact: discord.Interaction):
         await cmd_helper_maintenance(interact, "register")
 
+    @app_commands.command(
+        name="steel-incursion", description="cmd.steel-incursion.desc"
+    )
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_steelpath_incursions(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper_maintenance(interact, f"{STEELPATH}-incursion")
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(MaintenanceCommands(bot))

@@ -726,3 +726,8 @@ cmd:
       - Party Channel: {party}
       - Trade Channel: {trade}
       - Complain Channel: {complain}
+
+  steel-incursion:
+    cmd: steelpath-incursion
+    desc: Check the Steel Path alert missions.
+    output: "# Today's SteelPath Alerts"
