@@ -24,6 +24,7 @@ from src.constants.keys import (
     ARCHIMEDEA_TEMPORAL,
     # DUVIRICYCLE,
     FISSURES,
+    DUVIRICYCLE,
     CALENDAR,
     CAMBIONCYCLE,
     DAILYDEALS,
@@ -189,7 +190,7 @@ class MaintenanceCommands(commands.Cog):
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
-    async def cmd_alerts(
+    async def cmd_deep_archimedea(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
         await cmd_helper_maintenance(interact, f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
@@ -202,18 +203,20 @@ class MaintenanceCommands(commands.Cog):
     @discord.app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
-    async def cmd_alerts(
+    async def cmd_temporal_archimedea(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
         await cmd_helper_maintenance(interact, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 
     # duviriCycle command
-    # @tree.command(
-    #     name=ts.get(f"cmd.duviri-cycle.cmd"),
-    #     description=ts.get(f"cmd.duviri-cycle.desc"),
-    # )
-    # async def cmd_duviri_cycle(self,interact: discord.Interaction):
-    #     await cmd_helper(interact, key=DUVIRICYCLE, parser_func=w_duviriCycle)
+    @app_commands.command(name="duviri-cycle", description="cmd.duviri-cycle.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_duviri_cycle(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper_maintenance(interact, DUVIRICYCLE)
 
     # 1999 달력
     @app_commands.command(name="calendar", description="cmd.calendar.desc")

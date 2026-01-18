@@ -21,7 +21,7 @@ from src.constants.keys import (
     VOIDTRADERS,
     STEELPATH,
     ARCHIMEDEA,
-    # DUVIRICYCLE,
+    DUVIRICYCLE,
     FISSURES,
     CALENDAR,
     CAMBIONCYCLE,
@@ -44,6 +44,7 @@ from src.parser.sortie import w_sortie
 from src.parser.archonHunt import w_archonHunt
 from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
 from src.parser.steelPath import w_steelPath  # duviri
+from src.parser.duviriCycle import w_duviriCycle
 from src.parser.fissures import w_fissures
 from src.parser.archimedea import w_deepArchimedea
 from src.parser.archimedea import w_temporalArchimedia
@@ -280,12 +281,20 @@ class GeneralCommands(commands.Cog):
         )
 
     # duviriCycle command
-    # @tree.command(
-    #     name=ts.get(f"cmd.duviri-cycle.cmd"),
-    #     description=ts.get(f"cmd.duviri-cycle.desc"),
-    # )
-    # async def cmd_duviri_cycle(self,interact: discord.Interaction):
-    #     await cmd_helper(interact, key=DUVIRICYCLE, parser_func=w_duviriCycle)
+    @app_commands.command(name="duviri-cycle", description="cmd.duviri-cycle.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_duviri_cycle(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=DUVIRICYCLE,
+            parser_func=w_duviriCycle,
+            isPrivateMsg=developer_options,
+            skipGetObj=True,
+        )
 
     # 1999 calendar
     @app_commands.command(name="calendar", description="cmd.calendar.desc")

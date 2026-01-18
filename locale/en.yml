@@ -228,9 +228,9 @@ cmd:
   duviri-cycle:
     cmd: duviricycle
     desc: Get current Duviri State
-    title: Duviri Cycle
-    state: State
-    expire: Expires in
+    output: |
+      ## Duviri WorldState
+      # < {state} >
 
     joy: Joy
     anger: Anger

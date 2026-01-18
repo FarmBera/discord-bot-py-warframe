@@ -227,16 +227,16 @@ cmd:
 
   duviri-cycle:
     cmd: 두비리주기
-    desc: 현재 두비리 상태를 가져옵니다.
-    title: 두비리 주기
-    state: 상태
-    expire: 만료까지
+    desc: 현재 두비리 감정 상태를 가져옵니다.
+    output: |
+      ## 두비리 감정 주기
+      # < {state} >
 
-    joy: 기쁨의 나선 (Joy)
-    anger: 화남 (Anger)
-    envy: 질투의 나선 (Envy)
-    sorrow: 슬픔 (Sorrow)
-    fear: 두려움 (Fear)
+    joy: 기쁨
+    anger: 분노
+    envy: 질투
+    sorrow: 슬픔
+    fear: 공포
 
   archimedea:
     deviation: 편차
