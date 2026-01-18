@@ -6,7 +6,7 @@ from src.utils.times import timeNow
 from src.utils.data_manager import solNodes
 
 
-STEEL_INCURSIONS = json_load("api_cache/steel-incursions.json")
+STEEL_INCURSIONS = json_load("data/steel-incursions.json")
 
 pf: str = "cmd.steel-incursion."
 
