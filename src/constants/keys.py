@@ -54,6 +54,7 @@ EVENTS: str = "Goals"
 # CODA: str = ""  # coda weapon
 EVENT_BOOSTER: str = ""
 DESCENDIA: str = "Descents"
+ARBITRATION: str = "arbitration"
 
 DUVIRI_U_K_W: str = "Warframe"
 DUVIRI_U_K_I: str = "Incarnon"

@@ -731,3 +731,13 @@ cmd:
     cmd: steelpath-incursion
     desc: Check the Steel Path alert missions.
     output: "# Today's SteelPath Alerts"
+
+  arbitration:
+    cmd: arbitration
+    desc: Check current Arbitration mission type
+    output: |
+      # Current Arbitration Mission
+      **{miss}** - {node} ({faction})
+      Expiry: {time}
+      ## Next Missions
+    outnext: "\n- {time} **{miss}**"

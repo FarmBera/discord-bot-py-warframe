@@ -32,6 +32,7 @@ from src.constants.keys import (
     DUVIRI_ROTATION,
     EVENTS,
     DESCENDIA,
+    ARBITRATION,
 )
 from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
 from src.views.register_view import register_cmd_helper
@@ -58,6 +59,7 @@ from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
 from src.parser.descendia import w_descendia
 from src.parser.steelIncursion import w_steelIncursions
+from src.parser.arbitration import w_arbitration
 
 
 class GeneralCommands(commands.Cog):
@@ -541,6 +543,22 @@ class GeneralCommands(commands.Cog):
             interact,
             key=f"{STEELPATH}-incursion",
             parser_func=w_steelIncursions,
+            isFollowUp=True,
+            isPrivateMsg=developer_options,
+            skipGetObj=True,
+        )
+
+    @app_commands.command(name="arbitration", description="cmd.arbitration.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_arbitration(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=ARBITRATION,
+            parser_func=w_arbitration,
             isFollowUp=True,
             isPrivateMsg=developer_options,
             skipGetObj=True,

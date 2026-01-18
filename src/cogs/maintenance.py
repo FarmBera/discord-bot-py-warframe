@@ -36,6 +36,7 @@ from src.constants.keys import (
     DUVIRI_U_K_I,
     EVENTS,
     DESCENDIA,
+    ARBITRATION,
 )
 from src.utils.cmd_helper import cmd_helper_txt
 from src.commands.cmd_maintenance import cmd_helper_maintenance
@@ -494,6 +495,15 @@ class MaintenanceCommands(commands.Cog):
         self, interact: discord.Interaction, developer_options: bool = True
     ):
         await cmd_helper_maintenance(interact, f"{STEELPATH}-incursion")
+
+    @app_commands.command(name="arbitration", description="cmd.arbitration.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_arbitration(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper_maintenance(interact, ARBITRATION)
 
 
 async def setup(bot: commands.Bot):
