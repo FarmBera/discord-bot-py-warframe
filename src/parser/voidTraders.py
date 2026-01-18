@@ -93,14 +93,13 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
         # appear location
         output_msg += f"**{getSolNode(td['Node'])}**\n"
 
-    f = getBaroImg(trader[0]["Character"])
     embed = discord.Embed(
         description=output_msg,
         color=embed_color if embed_color else color_decision(trader),
     )
     embed.set_thumbnail(url="attachment://i.webp")
 
-    return embed, f
+    return embed, getBaroImg(trader[0]["Character"])
 
 
 # todo-delay: 한글화

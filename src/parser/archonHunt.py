@@ -61,7 +61,6 @@ def w_archonHunt(archon) -> tuple[discord.Embed, str]:
             output_msg += f"{idx}. {getMissionType(value['missionType'])} - {getSolNode(value['node'])}\n"
         idx += 1
 
-    f = "archon"
     embed = discord.Embed(description=output_msg, color=shard_color[shard])
     embed.set_thumbnail(url="attachment://i.webp")
-    return embed, f
+    return embed, "archon"

@@ -62,10 +62,9 @@ def w_descendia(descendia) -> tuple[discord.Embed, str]:
     for challenge in descendia[this_week_index]["Challenges"]:
         output_msg += f"{challenge['Index']:2d}. {getDescendiaMiss(challenge['Type'])}: {getDescendiaChallenge(challenge['Challenge'])}\n"
 
-    f = "descendia"
     embed = discord.Embed(description=output_msg, color=0x883F0A)
     embed.set_thumbnail(url="attachment://i.webp")
-    return embed, f
+    return embed, "descendia"
 
 
 # from src.constants.keys import DESCENDIA

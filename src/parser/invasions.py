@@ -130,11 +130,10 @@ def w_invasions_se(invasions) -> tuple[discord.Embed, str]:
     else:
         color = discord.Color.darker_grey()
 
-    f = "invasion"
     embed = discord.Embed(description=output_msg, color=color)
     embed.set_thumbnail(url="attachment://i.webp")
 
-    return embed, f
+    return embed, "invasion"
 
 
 # from src.utils.data_manager import get_obj

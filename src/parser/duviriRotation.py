@@ -52,9 +52,8 @@ def create_embed(output_msg: str, color=None):
         else discord.Embed(description=output_msg)
     )
     if lang != Lang.KO:
-        f = "zariman"
         embed.set_thumbnail(url="attachment://i.webp")
-        return embed, f
+        return embed, "zariman"
     return embed
 
 

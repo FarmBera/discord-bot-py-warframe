@@ -32,10 +32,9 @@ def w_sortie(sortie):
         output_msg += f"/ {node} - *{mod_type}*\n"
         idx += 1
 
-    f = "sortie"
     embed = discord.Embed(
         description=output_msg,
         # color=embed_color if embed_color else color_decision(trader),
     )
     embed.set_thumbnail(url="attachment://i.webp")
-    return embed, f
+    return embed, "sortie"

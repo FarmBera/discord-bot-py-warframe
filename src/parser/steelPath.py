@@ -60,8 +60,7 @@ def w_steelPath(steel) -> tuple[discord.Embed, str]:
         else:
             idx += 1
 
-    f = img_list[cname]
     embed = discord.Embed(description=output_msg, colour=color_list[cname])
     embed.set_thumbnail(url="attachment://i.webp")
 
-    return embed, f
+    return embed, img_list[cname]

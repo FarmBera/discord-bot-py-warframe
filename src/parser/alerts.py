@@ -84,10 +84,9 @@ def w_alerts(alerts) -> tuple[discord.Embed, str]:
         output_msg += "\n"
         idx += 1
 
-    f = "alert"
     embed = discord.Embed(description=output_msg, color=color_decision(alerts))
     embed.set_thumbnail(url="attachment://i.webp")
-    return embed, f
+    return embed, "alert"
 
 
 # from src.utils.data_manager import get_obj
