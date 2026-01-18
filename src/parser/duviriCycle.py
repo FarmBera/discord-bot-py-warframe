@@ -113,7 +113,7 @@ def w_duviriCycle() -> tuple[discord.Embed, str]:
     # next moods
     for item in nextd:
         output_msg += (
-            f"{convert_remain(item['timestamp'])} {ts.get(f'{pf}{item['mood']}')}\n"
+            f"{convert_remain(item['timestamp'])} **{ts.get(f'{pf}{item['mood']}')}**\n"
         )
 
     embed = discord.Embed(description=output_msg.strip(), color=MOOD_COLOR[mood])
