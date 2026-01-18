@@ -126,7 +126,7 @@ class RegisterView(discord.ui.View):
 async def register_cmd_helper(interact: discord.Interaction):
     await interact.response.defer(ephemeral=True)
 
-    if not await is_valid_guild(interact=interact, cmd="cmd.register"):
+    if not await is_valid_guild(interact=interact, cmd="cmd.register", isFollowUp=True):
         return
 
     ch: dict = await fetch_channel(interact)

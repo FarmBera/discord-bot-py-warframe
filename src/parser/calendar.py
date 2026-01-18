@@ -59,4 +59,5 @@ def w_calendar(cal, typ) -> str:
 
 
 # from src.utils.data_manager import get_obj
-# print(w_calendar(get_obj(CALENDAR), ts.get(f"{pf}choice-all")))
+# from src.constants.keys import CALENDAR
+# print(w_calendar(get_obj(CALENDAR), ts.get(f"{pf}choice-prize")))
