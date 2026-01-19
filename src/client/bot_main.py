@@ -164,7 +164,7 @@ class DiscordBot(commands.Bot):
         for ch in channel_list:
             try:
                 channel = await self.fetch_channel(ch)
-
+                msg: str = f"msg sent"
                 if isinstance(value, discord.Embed):
                     await save_log(
                         pool=self.db,
@@ -173,6 +173,7 @@ class DiscordBot(commands.Bot):
                         user=MSG_BOT,
                         guild=channel.guild.name,
                         channel=channel.name,
+                        msg=msg,
                         obj=value.description,
                     )
                     await channel.send(embed=value)
@@ -185,6 +186,7 @@ class DiscordBot(commands.Bot):
                         user=MSG_BOT,
                         guild=channel.guild.name,
                         channel=channel.name,
+                        msg=msg,
                         obj=eb.description,
                     )
                     f = img_file(f)
@@ -197,6 +199,7 @@ class DiscordBot(commands.Bot):
                         user=MSG_BOT,
                         guild=channel.guild.name,
                         channel=channel.name,
+                        msg=msg,
                         obj=value,
                     )
                     await channel.send(value)

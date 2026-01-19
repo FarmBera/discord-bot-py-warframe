@@ -48,7 +48,12 @@ def generateVariables(obj) -> str:
             archi_data = conquest_var["var"]
             if not archi_data:
                 return ""
-            text += f"\n- **{archi_data[var]['key']}**: {archi_data[var]['simple']}"
+
+            desc = archi_data[var].get("simple")
+            if not desc:
+                desc = archi_data[var]["value"]
+
+            text += f"\n- **{archi_data[var]['key']}**: {desc}"
         return text
     except KeyError as e:
         print(f"KeyError in archimedea: {e}")
@@ -73,12 +78,16 @@ def generateMissions(obj) -> str:
         #     for jtem in item["difficulties"]:
         #         if jtem.get("type") == "CD_HARD":
         #             path: dict = conquest_var["deviation"][jtem["deviation"]]
-        #             text += f"\n- {ts.get(f'{pf}deviation')}: {path['key']} - {path['value']}"
+        #             desc: str = path.get("simple")
+        #
+        #             if not desc:
+        #                 desc = path["value"]
+        #
+        #             text += f"\n- {ts.get(f'{pf}deviation')}: {path['key']} - {desc}"
         #             break
         # except Exception as e:
         #     print(e)
         #     pass
-        #
 
         # # risks
         # try:
@@ -90,7 +99,10 @@ def generateMissions(obj) -> str:
         #             break
         #     for rsk in risks:
         #         path: dict = conquest_var["risks"][rsk]
-        #         text += f"\n- {ts.get(f'{pf}risks')}: {path['key']} - {path['value']}"
+        #         desc: str = path.get("simple")
+        #         if not desc:
+        #             desc = path["value"]
+        #         text += f"\n- {ts.get(f'{pf}risks')}: {path['key']} - {desc}"
         # except Exception as e:
         #     print(e)
         #     pass
