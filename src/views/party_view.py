@@ -398,7 +398,8 @@ class ConfirmJoinLeaveView(ui.View):
         except Exception as e:
             if not interact.response.is_done():
                 await interact.response.edit_message(
-                    content=ts.get("general.error-cmd"), view=SupportView()
+                    content=ts.get("general.error-cmd") + ts.get(f"{pf}already"),
+                    view=SupportView(),
                 )
             await save_log(
                 pool=interact.client.db,

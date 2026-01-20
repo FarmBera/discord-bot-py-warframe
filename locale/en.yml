@@ -17,7 +17,9 @@ maintenance:
     Please note that maintenance may end early or be delayed.
 
 general:
-  error-cmd: Internal Error. Please contact the administrator.
+  error-cmd: |
+    ❌ An error occurred during processing.
+    If you believe this is an error, please contact the developer
   unable: |
     ## This feature is not yet available...
     This command is currently under development.
@@ -359,6 +361,10 @@ cmd:
     c-no-desc: (no description)
 
     err: Unknown Error. Please contact the admin."
+    already: |
+      ## This may be the cause:
+      - Someone else has already joined the party
+      - You have already left the party
     # PartyEditModal
     edit-title: Edit Party Info
     edit-title-input: Title
