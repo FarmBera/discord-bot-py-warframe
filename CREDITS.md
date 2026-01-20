@@ -1,13 +1,11 @@
-# License
-
-## Image Credits
+# Image
 
 - Every 'Warframe' related image were created by Digital Extremes
 - Image imported from [wiki.warframe.com](https://wiki.warframe.com/)
-- Licensed under [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/)
+- Licensed [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/)
 
-## Name Data
+# Referenced
 
-- The JSON files that convert path data (like `/Lotus/...`) in `data/en` and `data/ko` referenced from the WFCD's warframe-worldstate-data repository.
-- [WFCD Github (Warframe Community Developers)](https://github.com/WFCD)
-- [warframe-worldstate-data Github](https://github.com/WFCD/warframe-worldstate-data.git)
+- WorldState Data (Plains of Eidolon, Cambion Drift, Orb Vallis): [Warframe Wiki](https://wiki.warframe.com/w/World_State)
+- Duviri Cycle: [duviri-mood-clock (mifuyne)](https://github.com/mifuyne/duviri-mood-clock)
+- SteelPath Incursion & Arbitration Data: [browse.wf](https://browse.wf/about)
