@@ -176,13 +176,18 @@ class NotificationSelect(discord.ui.Select):
             except Exception:
                 webhook = await interact.channel.create_webhook(name=bot_name)
 
-        sql_base = "INSERT INTO webhooks (channel_id, guild_id, webhook_url, {cols}) VALUES (%s, %s, %s, {vals}) ON DUPLICATE KEY UPDATE webhook_url=%s, {updates}"
+        sql_base = "INSERT INTO webhooks (channel_id, guild_id, webhook_url, note, {cols}) VALUES (%s, %s, %s, %s, {vals}) ON DUPLICATE KEY UPDATE webhook_url=%s, {updates}"
 
         col_names = []
         val_placeholders = []
         update_clauses = []
 
-        insert_values = [interact.channel_id, interact.guild_id, webhook.url]
+        insert_values = [
+            interact.channel_id,
+            interact.guild_id,
+            webhook.url,
+            f"{interact.guild.name}/{interact.channel.name}",
+        ]
         update_values = [webhook.url]
 
         for key, col_name in DB_COLUMN_MAP.items():
