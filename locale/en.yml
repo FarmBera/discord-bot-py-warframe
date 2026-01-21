@@ -326,8 +326,8 @@ cmd:
       Failed to request API. Please try again later.
 
       If the problem persists, please contact the administrator.
-    result: Search Result
-    shortcuts: Go to Warframe.market
+    result: "## Search Result: {link}"
+    shortcut: "Go to 'Warframe.market'"
     platinum: P
     qty: Qty
     rank: " ({rank} rank)"
