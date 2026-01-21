@@ -94,7 +94,8 @@ def create_market_url(name, slug=None, is_markdown=True):
     if is_markdown:
         msg += f"[{name}]("
 
-    msg += f"https://warframe.market" + f"/{lang}" if lang != Lang.EN else ""
+    msg += f"https://warframe.market"
+    msg += f"/{lang}" if lang != Lang.EN else ""
 
     if not slug:
         slug = get_slug_data(name)[1]
