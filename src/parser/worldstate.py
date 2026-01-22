@@ -49,4 +49,4 @@ def w_worldstate() -> tuple[discord.Embed, str]:
     return embed, "worldstate"
 
 
-print(w_worldstate()[0].fields)
+# print(w_worldstate()[0].fields)
