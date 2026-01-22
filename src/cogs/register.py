@@ -33,6 +33,7 @@ from src.constants.keys import (
     EVENTS,
     DESCENDIA,
     ARBITRATION,
+    WORLDSTATE,
 )
 from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
 from src.views.register_view import register_cmd_helper
@@ -60,6 +61,7 @@ from src.parser.events import w_events
 from src.parser.descendia import w_descendia
 from src.parser.steelIncursion import w_steelIncursions
 from src.parser.arbitration import w_arbitration
+from src.parser.worldstate import w_worldstate
 
 
 class GeneralCommands(commands.Cog):
@@ -554,6 +556,21 @@ class GeneralCommands(commands.Cog):
             key=ARBITRATION,
             parser_func=w_arbitration,
             isFollowUp=True,
+            isPrivateMsg=developer_options,
+            skipGetObj=True,
+        )
+
+    @app_commands.command(name="worldstate", description="cmd.worldstate.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_worldstate(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=WORLDSTATE,
+            parser_func=w_worldstate,
             isPrivateMsg=developer_options,
             skipGetObj=True,
         )

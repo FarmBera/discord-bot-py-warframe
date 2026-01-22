@@ -753,6 +753,15 @@ cmd:
       ## 다음 미션
     outnext: "\n- {time} **{miss}**"
 
+  worldstate:
+    cmd: 월드주기
+    desc: 모든 월드 주기를 한번에 확인합니다. (시터스, 두비리, 캠비온, 오브협곡)
+    title: '# 월드별 주기'
+    world_names: [ '시터스', '두비리', '캠비온 퇴적지', '오브 협곡' ]
+    world: 월드
+    state: 상태
+    expiry: 남은 시간
+
 trs:
   # keyword
   blueprint: 설계도

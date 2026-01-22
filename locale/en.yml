@@ -752,3 +752,12 @@ cmd:
       Expiry: {time}
       ## Next Missions
     outnext: "\n- {time} **{miss}**"
+
+  worldstate:
+    cmd: worldcycle
+    desc: View all world cycles at once. (cetus, duviri, cambion, orb-vallis)
+    title: '# World Cycles'
+    world_names: [ 'Cetus', 'Duviri', 'Cambion', 'Vallis' ]
+    world: World
+    state: State
+    expiry: Rotates
