@@ -281,10 +281,12 @@ cmd:
   dailydeals:
     cmd: 일일특가
     desc: 다르보가 제시하는 오늘의 특가 물품을 확인합니다.
-    title: 오늘의 특가
-    offs: "할인"
-    remain: 개 남았습니다
-    exp: "**{time}** 할인 종료"
+    title: "## 다르보의 특가 상점\n"
+    output: | # each discount items
+      # {name}
+      - ~~{origin}~~ --> **{sale}** ({discount}% 할인)
+      - **{qty}** 개 남았습니다 ({remain})
+      - **{time}** 할인 종료
 
   invasions:
     cmd: 침공

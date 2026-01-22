@@ -281,10 +281,12 @@ cmd:
   dailydeals:
     cmd: dailydeals
     desc: Get today's hot deal item!
-    title: Daily Deal
-    offs: "Off"
-    remain: Qty remain!
-    exp: "Expiry: **{time}**"
+    title: "## Darvo's Daily Deal\n"
+    output: | # each discount items
+      # {name}
+      - ~~{origin}~~ --> **{sale}** ({discount}% Off)
+      - **{qty}** Qty remain! ({remain})
+      - Expiry: **{time}**
 
   invasions:
     cmd: invasions
