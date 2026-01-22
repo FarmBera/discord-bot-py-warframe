@@ -56,6 +56,10 @@ noti-label:
   EndlessXpChoicesWarframe: Duviri Circuit - Warframe
   EndlessXpChoicesIncarnon: Duviri Circuit - Incarnon
   Goals: Event
+  cetusCycle: Earth - Cetus Cycle
+  duviriCycle: Duviri Mood Cycle
+  cambionCycle: Deimos - Cambion Drift Cycle
+  vallisCycle: Venus - Orb Vallis Cycle
 
 view:
   support-support: 'Quick Links to Contact/Support Server'

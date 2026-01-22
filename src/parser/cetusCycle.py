@@ -17,7 +17,22 @@ class CetusTimerData:
 
 cetus_color = {"day": 0xFFBB00, "night": 0x2B79FF}
 
+previous_state_cetus: str = check_timer_states(CetusTimerData)["current"]
+
 pf: str = "cmd.cetus."
+
+
+def checkNewCetusState() -> bool:
+    """check cetus state changed
+
+    :return: True if changed (different) else False (same state)
+    """
+    global previous_state_cetus
+    current = check_timer_states(CetusTimerData)["current"]
+    if previous_state_cetus != current:
+        previous_state_cetus = current
+        return True
+    return False
 
 
 # cetus day/night state & cycle
@@ -38,9 +53,10 @@ def w_cetusCycle() -> tuple[discord.Embed, str]:
         time=cetus.get("time_left"),
         new=ts.get(f'{pf}{cetus.get("next")}'),
     )
-    embed = discord.Embed(description=output_msg, color=cetus_color[curr_state])
+    embed = discord.Embed(description=output_msg.strip(), color=cetus_color[curr_state])
     embed.set_thumbnail(url="attachment://i.webp")
     return embed, f"cetus-{curr_state}"
 
 
 # print(w_cetusCycle()[0].description)
+# print(checkNewCetusState())

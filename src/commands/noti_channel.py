@@ -24,6 +24,10 @@ from src.constants.keys import (
     #
     ARCHIMEDEA_DEEP,
     ARCHIMEDEA_TEMPORAL,
+    CETUSCYCLE,
+    DUVIRICYCLE,
+    CAMBIONCYCLE,
+    VALLISCYCLE,
 )
 from src.views.help_view import SupportView
 
@@ -42,6 +46,10 @@ DB_COLUMN_MAP = {
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": "sub_duviri_wf",
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": "sub_duviri_inc",
     EVENTS: "sub_events",
+    CETUSCYCLE: "sub_cetus",
+    DUVIRICYCLE: "sub_duviri",
+    CAMBIONCYCLE: "sub_cambion",
+    VALLISCYCLE: "sub_vallis",
 }
 
 # set profile with alert type
@@ -74,6 +82,10 @@ NOTI_LABELS = {
         f"{PF_LABEL}{DUVIRI_ROTATION}{DUVIRI_U_K_I}"
     ),
     EVENTS: ts.get(f"{PF_LABEL}{EVENTS}"),
+    CETUSCYCLE: ts.get(f"{PF_LABEL}{CETUSCYCLE}"),
+    DUVIRICYCLE: ts.get(f"{PF_LABEL}{DUVIRICYCLE}"),
+    CAMBIONCYCLE: ts.get(f"{PF_LABEL}{CAMBIONCYCLE}"),
+    VALLISCYCLE: ts.get(f"{PF_LABEL}{VALLISCYCLE}"),
 }
 
 pfs: str = "cmd.alert-set."  # prefix select

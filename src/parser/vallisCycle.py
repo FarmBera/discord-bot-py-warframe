@@ -17,8 +17,18 @@ class VallisCycleData:
 
 vallis_color = {"warm": 0xFF9012, "cold": 0x00BFFF}
 
+previous_state_vallis = check_timer_states(VallisCycleData)["current"]
 
 pf: str = "cmd.vallis."
+
+
+def checkNewVallisState():
+    global previous_state_vallis
+    current = check_timer_states(VallisCycleData)["current"]
+    if previous_state_vallis != current:
+        previous_state_vallis = current
+        return True
+    return False
 
 
 def w_vallisCycle() -> tuple[discord.Embed, str]:
@@ -39,9 +49,10 @@ def w_vallisCycle() -> tuple[discord.Embed, str]:
         next=ts.get(f'{pf}{vallis["next"]}'),
     )
 
-    embed = discord.Embed(description=output_msg, color=vallis_color[status])
+    embed = discord.Embed(description=output_msg.strip(), color=vallis_color[status])
     embed.set_thumbnail(url="attachment://i.webp")
     return embed, status
 
 
 # print(w_vallisCycle()[0].description)
+# print(checkNewVallisState())

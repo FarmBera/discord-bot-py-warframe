@@ -101,6 +101,18 @@ def get_next_mood() -> list[dict]:
     return mood_list
 
 
+previous_state_duviri = get_current_mood()["mood"]
+
+
+def checkNewDuviriState():
+    global previous_state_duviri
+    current = get_current_mood()["mood"]
+    if previous_state_duviri != current:
+        previous_state_duviri = current
+        return True
+    return False
+
+
 def w_duviriCycle() -> tuple[discord.Embed, str]:
     duviri: dict = get_current_mood()
     nextd: list = get_next_mood()
@@ -126,3 +138,5 @@ def w_duviriCycle() -> tuple[discord.Embed, str]:
 # print("\n--- Next Moods ---")
 # print(get_next_mood())
 # print(w_duviriCycle()[0].description)
+
+# print(checkNewDuviriState())
