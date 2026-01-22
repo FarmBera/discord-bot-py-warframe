@@ -301,27 +301,21 @@ class GeneralCommands(commands.Cog):
 
     # 1999 calendar
     @app_commands.command(name="calendar", description="cmd.calendar.desc")
-    @app_commands.choices(
-        types=[
-            app_commands.Choice(name="Prize", value=1),
-            app_commands.Choice(name="To-Do", value=2),
-            app_commands.Choice(name="Over", value=3),
-        ]
-    )
+    # @app_commands.choices(types=[app_commands.Choice(name="Prize", value=1),app_commands.Choice(name="To-Do", value=2),app_commands.Choice(name="Over", value=3),])
     @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
     async def cmd_calendar(
         self,
         interact: discord.Interaction,
-        types: app_commands.Choice[int],
+        # types: app_commands.Choice[int],
         developer_options: bool = True,
     ):
         await cmd_helper(
             interact,
             key=CALENDAR,
             parser_func=w_calendar,
-            parser_args=ts.get(f"cmd.calendar.choice-{types.name.lower()}"),
+            # parser_args=ts.get(f"cmd.calendar.choice-{types.name.lower()}"),
             isPrivateMsg=developer_options,
         )
 

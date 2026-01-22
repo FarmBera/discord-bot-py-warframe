@@ -264,10 +264,8 @@ cmd:
     cmd: hexcalendar
     desc: Get Hex calendar mission/rewards this week
     title: Hex Calendar
-    choice-all: All
-    choice-to-do: To Do
-    choice-over: Override
-    choice-prize: Big Prize
+    prize: "## Big Prize\n"
+    todo: "## To Do\n"
 
   cambion:
     cmd: cambion-cycle

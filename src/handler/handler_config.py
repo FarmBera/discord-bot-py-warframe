@@ -87,7 +87,7 @@ DATA_HANDLERS = {
         "special_logic": "handle_temporal_archimedea",
     },
     CALENDAR: {
-        "parser": lambda data: w_calendar(data, ts.get("cmd.calendar.choice-prize")),
+        "parser": lambda data: w_calendar(data),
         "update_check": lambda prev, new: prev[0]["Activation"]["$date"]["$numberLong"]
         != new[0]["Activation"]["$date"]["$numberLong"],
         "channel_key": "hex-cal",
