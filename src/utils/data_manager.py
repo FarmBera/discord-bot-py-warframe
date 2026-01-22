@@ -7,6 +7,7 @@ from src.utils.file_io import (
 from src.constants.color import C
 from src.translator import language as lang
 from src.constants.keys import JSON, SETTING_FILE_LOC
+from src.utils.formatter import add_space
 
 
 def get_obj(json_name: str):
@@ -50,11 +51,8 @@ fissureModifiers = json_load(f"data/{lang}/fissureModifiers.json")
 def getSolNode(node: str) -> str:
     """return node name & planet
 
-    Args:
-        node (str): solNodes like 'SolNode22'
-
-    Returns:
-        str: return solNode's name and planet like 'Tessera (Venus)'
+    :param node: solNodes like 'SolNode22'
+    :return: solNode's name and planet like 'Tessera (Venus)'
     """
     return solNodes.get(node, {}).get("value", node)
 
@@ -62,11 +60,8 @@ def getSolNode(node: str) -> str:
 def getNodeEnemy(node: str) -> str:
     """return node's enemy factions
 
-    Args:
-        node (str): solNodes like 'SolNode22'
-
-    Returns:
-        str: return solNode's enemy faction like 'Corpus'
+    :param node: solNodes like 'SolNode22'
+    :return: solNode's enemy faction like 'Corpus'
     """
     return solNodes.get(node, {}).get("enemy", f"unknown: {node}")
 
@@ -74,11 +69,8 @@ def getNodeEnemy(node: str) -> str:
 def getMissionType(miss: str) -> str:
     """return mission type
 
-    Args:
-        miss (str): mission code like 'MT_CAPTURE'
-
-    Returns:
-        str: Capture
+    :param miss: mission code like 'MT_CAPTURE'
+    :return: ingame mission name like 'Capture'
     """
     return missionTypes.get(miss, {}).get("value", miss)
 
@@ -86,11 +78,8 @@ def getMissionType(miss: str) -> str:
 def getSortieMod(modifier: str) -> str:
     """return sortie modifier title
 
-    Args:
-        modifier (str): modifier code like 'SORTIE_MODIFIER_LOW_ENERGY'
-
-    Returns:
-        str: return simple sortie modifier description like 'Energy Reduction'
+    :param modifier: modifier code like 'SORTIE_MODIFIER_LOW_ENERGY'
+    :return: simple sortie modifier description like 'Energy Reduction'
     """
     return sortieData.get("modifierTypes", {}).get(modifier, modifier)
 
@@ -98,11 +87,8 @@ def getSortieMod(modifier: str) -> str:
 def getSortieModDesc(modifier: str) -> str:
     """return sortie modifier descriptions
 
-    Args:
-        modifier (str): modifier code like 'SORTIE_MODIFIER_LOW_ENERGY'
-
-    Returns:
-        str: return detailed sortie modifier description like 'Maximum Warframe Energy capacity is quartered. Energy Siphon is less effective.'
+    :param modifier: modifier code like 'SORTIE_MODIFIER_LOW_ENERGY'
+    :return: full sortie modifier description like 'Maximum Warframe Energy capacity is quartered.'
     """
     return sortieData.get("modifierDescriptions", {}).get(modifier, modifier)
 
@@ -112,31 +98,37 @@ def getLanguage(data: str, query1: str = "value") -> str:
 
     :param data: item name with game path like '/lotus/storeitems/types/items/miscitems/formaumbra'
     :param query1: special key in query
-    :return: parsed /lotus path
+    :return: parsed name like 'Umbra Forma'
     """
-    result = languages.get(data, {}).get(query1)
-    return result if result else languages.get(data.lower(), {}).get(query1, data)
+    if not data:
+        return ""
+
+    mapping = languages.get(data) or languages.get(data.lower())
+    if mapping:
+        result = mapping.get(query1)
+        if result:
+            return result
+
+    splitted = data.split("/")
+    if len(splitted) > 1 and splitted[1].lower() == "lotus":
+        return add_space(splitted[-1])
+
+    return data
 
 
 def getFactions(factions: str) -> str:
     """return enemy factions data
 
-    Args:
-        factions (str): enemy faction code like 'FC_SENTIENT'
-
-    Returns:
-        str: return ingame name like 'Sentient'
+    :param factions: enemy faction code like 'FC_SENTIENT'
+    :return: ingame name like 'Sentient'
     """
     return factionsData.get(factions, {}).get("value", factions)
 
 
 def getFissure(fiss: str) -> str:
-    """return fissure name
+    """returns fissure name
 
-    Args:
-        fiss (str): fissure code like 'VoidT2'
-
-    Returns:
-        str: return fissure name like 'Meso'
+    :param fiss: fissure code like 'VoidT2'
+    :return: fissure name like 'Meso'
     """
     return fissureModifiers.get(fiss, {}).get("value", fiss)
