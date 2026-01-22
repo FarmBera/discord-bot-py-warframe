@@ -9,7 +9,7 @@ from src.utils.data_manager import getLanguage
 
 NAME_DICTIONARY: dict = json_load("data/en/languages.json")
 
-IMAGE_ORIGIN: list = os.listdir("img/items")
+IMAGE_ORIGIN: list = os.listdir("img/items-webp")
 IMAGE_ORIGIN.sort()
 
 IMAGE_CACHE: dict = {}
