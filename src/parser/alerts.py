@@ -1,20 +1,12 @@
 import discord
 
-# other
 from src.translator import ts
-from src.utils.times import convert_remain
-from src.utils.return_err import err_embed
 from src.utils.data_manager import getLanguage, getMissionType, getSolNode
 from src.utils.emoji import get_emoji
+from src.utils.times import convert_remain
 
 
 def color_decision(t):
-    """
-    return pre-defined color if exists alert mission else return red color
-
-    :param t: alerts mission object
-    :return: hex color code
-    """
     return 0x4DD2FF if t else 0xFFA826
 
 
@@ -22,7 +14,7 @@ def w_alerts(alerts) -> tuple[discord.Embed, str]:
     """
     parse alert missions
 
-    :param alerts:
+    :param alerts: 'Alerts' object received from warframe api
     :return: parsed discord.Embed & img file name
     """
     if not alerts:  # empty list
@@ -35,7 +27,7 @@ def w_alerts(alerts) -> tuple[discord.Embed, str]:
 
     pf: str = "cmd.alerts."
     activated_count = len(alerts)
-    output_msg = f"# {ts.get('cmd.alerts.title').format(count=activated_count)}\n\n"
+    output_msg = f"# {ts.get('cmd.alerts.title').format(count=activated_count)}\n"
 
     idx = 1
     for i in alerts:
@@ -46,12 +38,14 @@ def w_alerts(alerts) -> tuple[discord.Embed, str]:
         expiry = convert_remain(int(i["Expiry"]["$date"]["$numberLong"]))
         mission_location = getSolNode(ms["location"])
         mission_type = getMissionType(ms["missionType"])
-        # [f"{int(ms['missionReward']['credits']):,} {ts.get('cmd.alerts.credit')}"]
         reward = " + ".join(
             # credit
             [f"{int(ms['missionReward']['credits']):,} {get_emoji('credit')}"]
             # single item
-            + [getLanguage(item) for item in ms["missionReward"].get("items", [])]
+            + [
+                f"{getLanguage(item)} {get_emoji(item)}"
+                for item in ms["missionReward"].get("items", [])
+            ]
             # multiple item
             + [
                 f"{getLanguage(item['ItemType'])} {get_emoji(getLanguage(item['ItemType']))} x{item['ItemCount']}"
@@ -68,28 +62,24 @@ def w_alerts(alerts) -> tuple[discord.Embed, str]:
         except:
             max_wave = ""
 
-        # title
-        output_msg += f"### {idx}. {reward}\n"
-        # location
-        output_msg += f"- **{mission_type}** - {mission_location}\n"
-        # expiry
-        output_msg += f"- {ts.get(f'{pf}exp').format(time=expiry)}\n- "
-        # level
-        output_msg += ts.get(f"{pf}lvl").format(lvl=enemy_lvl) if enemy_lvl else ""
-        # separator
-        output_msg += " / " if enemy_lvl and max_wave else ""
-        # max wave
-        output_msg += ts.get(f"{pf}waves").format(wave=max_wave) if max_wave else ""
-
-        output_msg += "\n"
+        # base output
+        output_msg += ts.get(f"{pf}output").format(
+            idx=idx,
+            reward=reward,
+            type=mission_type,
+            location=mission_location,
+            args=(ts.get(f"{pf}lvl").format(lvl=enemy_lvl) if enemy_lvl else "")
+            + (", " if enemy_lvl and max_wave else "")
+            + (ts.get(f"{pf}waves").format(wave=max_wave) if max_wave else ""),
+            expiry=expiry,
+        )
         idx += 1
 
-    embed = discord.Embed(description=output_msg, color=color_decision(alerts))
+    embed = discord.Embed(description=output_msg.strip(), color=color_decision(alerts))
     embed.set_thumbnail(url="attachment://i.webp")
     return embed, "alert"
 
 
 # from src.utils.data_manager import get_obj
 # from src.constants.keys import ALERTS
-
 # print(w_alerts(get_obj(ALERTS))[0].description)

@@ -117,11 +117,12 @@ cmd:
     desc: 현재 활성화된 얼럿 미션을 확인할 수 있어요.
     desc-none: "## 현재 활성화된 얼럿 미션이 없습니다!"
     title: "활성화된 얼럿: {count}"
-    credit: 크레딧
-
-    lvl: "레벨: `{lvl}`"
+    output: |
+      ### {idx}. {reward}
+      - **{type}** - {location} ({args})
+      - {expiry} 만료
+    lvl: "`{lvl}`"
     waves: "웨이브 수: `{wave}`"
-    exp: "**{time}** 만료"
 
   news:
     cmd: 뉴스

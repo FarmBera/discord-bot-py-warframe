@@ -117,11 +117,12 @@ cmd:
     desc: Get currently activated alert mission
     desc-none: "### There're no activated alerts missions!"
     title: "Activated Alert: {count}"
-    credit: Credit
-
-    lvl: "lvl: `{lvl}`"
+    output: |
+      ### {idx}. {reward}
+      - **{type}** - {location} ({args})
+      - Expiry: {expiry}
+    lvl: "`{lvl}`"
     waves: "Max Wave: `{wave}`"
-    exp: "Expires {time}"
 
   news:
     cmd: news
