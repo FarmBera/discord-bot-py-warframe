@@ -1,10 +1,6 @@
 import discord
 
 from config.config import LOG_TYPE
-from src.translator import ts
-from src.utils.logging_utils import save_log
-from src.utils.db_helper import transaction
-from src.utils.return_err import return_traceback
 from src.constants.keys import (
     ALERTS,
     NEWS,
@@ -24,7 +20,15 @@ from src.constants.keys import (
     #
     ARCHIMEDEA_DEEP,
     ARCHIMEDEA_TEMPORAL,
+    CETUSCYCLE,
+    DUVIRICYCLE,
+    CAMBIONCYCLE,
+    VALLISCYCLE,
 )
+from src.translator import ts
+from src.utils.db_helper import transaction
+from src.utils.logging_utils import save_log
+from src.utils.return_err import return_traceback
 from src.views.help_view import SupportView
 
 DB_COLUMN_MAP = {
@@ -42,11 +46,10 @@ DB_COLUMN_MAP = {
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": "sub_duviri_wf",
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": "sub_duviri_inc",
     EVENTS: "sub_events",
-}
-
-# set profile with alert type
-PROFILE_CONFIG = {
-    # VOIDTRADERS: {"name": "바로 키 티어", "avatar": "baro-ki-teer"},
+    CETUSCYCLE: "sub_cetus",
+    DUVIRICYCLE: "sub_duviri",
+    CAMBIONCYCLE: "sub_cambion",
+    VALLISCYCLE: "sub_vallis",
 }
 
 # UI selection
@@ -74,6 +77,23 @@ NOTI_LABELS = {
         f"{PF_LABEL}{DUVIRI_ROTATION}{DUVIRI_U_K_I}"
     ),
     EVENTS: ts.get(f"{PF_LABEL}{EVENTS}"),
+    CETUSCYCLE: ts.get(f"{PF_LABEL}{CETUSCYCLE}"),
+    DUVIRICYCLE: ts.get(f"{PF_LABEL}{DUVIRICYCLE}"),
+    CAMBIONCYCLE: ts.get(f"{PF_LABEL}{CAMBIONCYCLE}"),
+    VALLISCYCLE: ts.get(f"{PF_LABEL}{VALLISCYCLE}"),
+}
+
+# profile name & image
+PROFILE_CONFIG: dict = {
+    VOIDTRADERS: {"name": ts.get(f"{PF_LABEL}trader"), "avatar": "baro"},
+    f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": {
+        "name": ts.get(f"{PF_LABEL}deep"),
+        "avatar": "deep",
+    },
+    f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": {
+        "name": ts.get(f"{PF_LABEL}temporal"),
+        "avatar": "temporal",
+    },
 }
 
 pfs: str = "cmd.alert-set."  # prefix select

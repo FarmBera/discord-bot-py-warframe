@@ -1,13 +1,13 @@
-import discord
 import random
 
-from src.translator import ts
-from src.utils.times import timeNow, convert_remain
-from src.utils.emoji import get_emoji
-from src.utils.return_err import err_embed
-from src.utils.formatter import extract_last_part, add_space
-from src.utils.data_manager import getSolNode, getLanguage
+import discord
 
+from src.translator import ts
+from src.utils.data_manager import getSolNode, getLanguage
+from src.utils.emoji import get_emoji
+from src.utils.formatter import extract_last_part, add_space
+from src.utils.return_err import err_embed
+from src.utils.times import timeNow, convert_remain
 
 baro_img = ["baro-ki-teer", "baro"]  # VAR
 baro_active: bool = False
@@ -41,9 +41,8 @@ def isBaroActive(act, exp) -> bool:
 def color_decision(arg):
     global baro_active
 
-    for i in arg:
-        if baro_active:
-            return 0x4DD2FF
+    if baro_active:
+        return 0x4DD2FF
     return 0xFFA826
 
 

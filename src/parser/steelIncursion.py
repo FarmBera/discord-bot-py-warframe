@@ -1,10 +1,9 @@
 import discord
 
 from src.translator import ts
+from src.utils.data_manager import solNodes
 from src.utils.file_io import json_load
 from src.utils.times import timeNow
-from src.utils.data_manager import solNodes
-
 
 STEEL_INCURSIONS = json_load("data/steel-incursions.json")
 

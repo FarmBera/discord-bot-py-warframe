@@ -1,12 +1,12 @@
+from src.constants.color import C
+from src.constants.keys import JSON, SETTING_FILE_LOC
+from src.translator import language as lang
 from src.utils.file_io import (
     json_load,
     json_save,
     json_load_async,
     json_save_async,
 )
-from src.constants.color import C
-from src.translator import language as lang
-from src.constants.keys import JSON, SETTING_FILE_LOC
 from src.utils.formatter import add_space
 
 

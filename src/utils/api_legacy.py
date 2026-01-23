@@ -1,11 +1,13 @@
-import requests
-import json
 import datetime as dt
+import json
 
-from src.translator import language as lang
+import requests
+
 from config.TOKEN import base_url_warframe, base_url_market, WF_JSON_PATH
-from src.utils.times import KST, timeNowDT
 from src.constants.color import C
+from src.translator import language as lang
+from src.utils.times import KST, timeNowDT
+from src.handler.handle_error import handleParseError
 
 
 # usage for main api
@@ -18,7 +20,6 @@ def API_Request() -> requests.Response | None:
     """
 
     start_time = dt.datetime.now(tz=KST)
-    response: requests.Response = None
 
     # API Request
     try:
@@ -32,8 +33,8 @@ def API_Request() -> requests.Response | None:
     # check response (is not empty or err value)
     if not response:
         elapsed_time = dt.datetime.now(tz=KST) - start_time
-        msg = f"[err] response is Empty! > ({res_code}/{elapsed_time})\n{response}"
-        print(dt.datetime.now(tz=KST), C.red, msg, res_code, elapsed_time, C.default)
+        msg = f"[err] response is Empty! > ({elapsed_time})\n{response}"
+        print(dt.datetime.now(tz=KST), C.red, msg, elapsed_time, C.default)
         return None
 
     # check response code

@@ -1,4 +1,3 @@
-from src.translator import ts
 from src.constants.keys import (
     ALERTS,
     NEWS,
@@ -6,6 +5,7 @@ from src.constants.keys import (
     ARCHONHUNT,
     VOIDTRADERS,
     # STEELPATH,
+    DUVIRICYCLE,
     FISSURES,
     ARCHIMEDEA,
     ARCHIMEDEA_DEEP,
@@ -17,107 +17,122 @@ from src.constants.keys import (
     DUVIRI_U_K_W,
     DUVIRI_U_K_I,
     EVENTS,
+    CETUSCYCLE,
+    CAMBIONCYCLE,
+    VALLISCYCLE,
 )
 from src.parser.alerts import w_alerts
-from src.parser.news import w_news
-from src.parser.cetusCycle import w_cetusCycle
-from src.parser.sortie import w_sortie
-from src.parser.archonHunt import w_archonHunt
-from src.parser.voidTraders import w_voidTraders
-from src.parser.steelPath import w_steelPath
 from src.parser.archimedea import w_deepArchimedea, w_temporalArchimedia
-from src.parser.duviriCycle import w_duviriCycle
+from src.parser.archonHunt import w_archonHunt
 from src.parser.calendar import w_calendar
-from src.parser.cambionCycle import w_cambionCycle
+from src.parser.cambionCycle import w_cambionCycle, checkNewCambionState
+from src.parser.cetusCycle import w_cetusCycle, checkNewCetusState
 from src.parser.dailyDeals import w_dailyDeals
-from src.parser.invasions import w_invasions, w_invasions_se
+from src.parser.duviriCycle import w_duviriCycle, checkNewDuviriState
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
+from src.parser.invasions import w_invasions_se
+from src.parser.news import w_news
+from src.parser.sortie import w_sortie
+from src.parser.vallisCycle import w_vallisCycle, checkNewVallisState
+from src.parser.voidTraders import w_voidTraders
+
+
+class HK:
+    key = "key"
+    parser = "parser"
+    special_logic = "special_logic"
+    update_check = "update_check"
+
+
+class LOGIC:
+    no_args = "handle_no_args"
+    missing = "handle_missing_items"
+    news = "handle_new_news"
+    # trader = "handle_voidtraders"
 
 
 DATA_HANDLERS = {
     ALERTS: {
-        "parser": w_alerts,
-        "special_logic": "handle_missing_items",
+        HK.parser: w_alerts,
+        HK.special_logic: LOGIC.missing,
     },
     NEWS: {
-        "parser": w_news,
-        "special_logic": "handle_new_news",
-        "channel_key": "news",
+        HK.parser: w_news,
+        HK.special_logic: "handle_new_news",
     },
-    # "cetusCycle": {
-    #     "parser": w_cetusCycle,
-    #     "update_check": lambda prev, new: prev["state"] != new["state"]
-    #     or prev["activation"] != new["activation"],
-    # },
+    CETUSCYCLE: {
+        HK.parser: w_cetusCycle,
+        HK.special_logic: LOGIC.no_args,
+        HK.update_check: checkNewCetusState,
+    },
     SORTIE: {
-        "parser": w_sortie,
-        "update_check": lambda prev, new: prev[0]["_id"]["$oid"]
+        HK.parser: w_sortie,
+        HK.update_check: lambda prev, new: prev[0]["_id"]["$oid"]
         != new[0]["_id"]["$oid"]
         or prev[0]["Activation"]["$date"] != new[0]["Activation"]["$date"],
-        "channel_key": "sortie",
     },
     ARCHONHUNT: {
-        "parser": w_archonHunt,
-        "update_check": lambda prev, new: prev[0]["Activation"] != new[0]["Activation"],
-        "channel_key": "sortie",
+        HK.parser: w_archonHunt,
+        HK.update_check: lambda prev, new: prev[0]["Activation"]
+        != new[0]["Activation"],
     },
     VOIDTRADERS: {
-        "parser": w_voidTraders,
-        "special_logic": "handle_voidtraders",
+        HK.parser: w_voidTraders,
+        HK.special_logic: "handle_voidtraders",
     },
-    # "steelPath": {
-    #     "parser": w_steelPath,
-    #     "update_check": lambda prev, new: prev["currentReward"] != new["currentReward"],
-    # },
-    # "duviriCycle": {
-    #     "parser": w_duviriCycle,
-    #     "update_check": lambda prev, new: prev["state"] != new["state"]
-    #     or prev["activation"] != new["activation"],
-    # },
-    FISSURES: {"special_logic": "handle_fissures"},
+    DUVIRICYCLE: {
+        HK.parser: w_duviriCycle,
+        HK.special_logic: LOGIC.no_args,
+        HK.update_check: checkNewDuviriState,
+    },
+    FISSURES: {HK.special_logic: "handle_fissures"},
     f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": {
         "key": ARCHIMEDEA,
-        "parser": w_deepArchimedea,
-        "special_logic": "handle_deep_archimedea",
+        HK.parser: w_deepArchimedea,
+        HK.special_logic: "handle_deep_archimedea",
     },
     f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": {
         "key": ARCHIMEDEA,
-        "parser": w_temporalArchimedia,
-        "special_logic": "handle_temporal_archimedea",
+        HK.parser: w_temporalArchimedia,
+        HK.special_logic: "handle_temporal_archimedea",
     },
     CALENDAR: {
-        "parser": lambda data: w_calendar(data),
-        "update_check": lambda prev, new: prev[0]["Activation"]["$date"]["$numberLong"]
+        HK.parser: lambda data: w_calendar(data),
+        HK.update_check: lambda prev, new: prev[0]["Activation"]["$date"]["$numberLong"]
         != new[0]["Activation"]["$date"]["$numberLong"],
-        "channel_key": "hex-cal",
     },
-    # "cambionCycle": {
-    #     "parser": w_cambionCycle,
-    #     "update_check": lambda prev, new: prev["state"] != new["state"]
-    #     or prev["activation"] != new["activation"],
-    # },
+    CAMBIONCYCLE: {
+        HK.parser: w_cambionCycle,
+        HK.special_logic: LOGIC.no_args,
+        HK.update_check: checkNewCambionState,
+    },
     DAILYDEALS: {
-        "parser": w_dailyDeals,
-        "special_logic": "handle_dailydeals",
+        HK.parser: w_dailyDeals,
+        # HKEY.special_logic:: "handle_dailydeals",
+        HK.update_check: lambda prev, new: prev[0]["StoreItem"] != new[0]["StoreItem"],
     },
     INVASIONS: {
-        "parser": w_invasions_se,
-        "special_logic": "handle_missing_invasions",
-        "channel_key": "invasions",
+        HK.parser: w_invasions_se,
+        HK.special_logic: "handle_missing_invasions",
     },
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": {  # circuit-warframe
         "key": DUVIRI_ROTATION,
-        "parser": w_duviri_warframe,
-        "special_logic": "handle_duviri_rotation-1",
+        HK.parser: w_duviri_warframe,
+        HK.special_logic: "handle_duviri_rotation-1",
     },
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": {  # circuit-incarnon
         "key": DUVIRI_ROTATION,
-        "parser": w_duviri_incarnon,
-        "special_logic": "handle_duviri_rotation-2",
+        HK.parser: w_duviri_incarnon,
+        HK.special_logic: "handle_duviri_rotation-2",
     },
     EVENTS: {
-        "parser": w_events,
-        "special_logic": "handle_missing_items",
+        HK.parser: w_events,
+        HK.special_logic: LOGIC.missing,
+    },
+    VALLISCYCLE: {
+        HK.parser: w_vallisCycle,
+        HK.special_logic: LOGIC.no_args,
+        HK.update_check: checkNewVallisState,
     },
 }

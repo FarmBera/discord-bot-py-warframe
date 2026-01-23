@@ -1,5 +1,6 @@
-import discord
 import datetime as dt
+
+import discord
 
 from src.translator import ts
 from src.utils.return_err import err_embed
@@ -15,9 +16,19 @@ class CambionCycleData:
     aftertext = "vome"
 
 
+cambion_color = {"fass": 0xECB448, "vome": 0x97D4D9}
+previous_state_cambion = check_timer_states(CambionCycleData)["current"]
+
 pf: str = "cmd.cambion."
 
-cambion_color = {"fass": 0xECB448, "vome": 0x97D4D9}
+
+def checkNewCambionState() -> bool:
+    global previous_state_cambion
+    current = check_timer_states(CambionCycleData)["current"]
+    if previous_state_cambion != current:
+        previous_state_cambion = current
+        return True
+    return False
 
 
 def w_cambionCycle() -> tuple[discord.Embed, str]:
@@ -38,9 +49,10 @@ def w_cambionCycle() -> tuple[discord.Embed, str]:
         next=ts.get(f'{pf}{cambion["next"]}'),
     )
 
-    embed = discord.Embed(description=output_msg, color=cambion_color[status])
+    embed = discord.Embed(description=output_msg.strip(), color=cambion_color[status])
     embed.set_thumbnail(url="attachment://i.webp")
     return embed, status
 
 
 # print(w_cambionCycle()[0].description)
+# print(checkNewCambionState())

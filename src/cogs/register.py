@@ -1,8 +1,8 @@
 import discord
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
 
-from src.translator import ts
+from src.commands.noti_channel import noti_subscribe_helper, noti_unsubscribe_helper
 from src.constants.keys import (
     # cooldown var
     COOLDOWN_DEFAULT,
@@ -33,33 +33,34 @@ from src.constants.keys import (
     EVENTS,
     DESCENDIA,
     ARBITRATION,
+    WORLDSTATE,
 )
-from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
-from src.views.register_view import register_cmd_helper
-from src.commands.noti_channel import noti_subscribe_helper, noti_unsubscribe_helper
-
 from src.parser.alerts import w_alerts
-from src.parser.news import w_news
-from src.parser.cetusCycle import w_cetusCycle
-from src.parser.sortie import w_sortie
-from src.parser.archonHunt import w_archonHunt
-from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
-from src.parser.steelPath import w_steelPath  # duviri
-from src.parser.duviriCycle import w_duviriCycle
-from src.parser.fissures import w_fissures
+from src.parser.arbitration import w_arbitration
 from src.parser.archimedea import w_deepArchimedea
 from src.parser.archimedea import w_temporalArchimedia
+from src.parser.archonHunt import w_archonHunt
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
+from src.parser.cetusCycle import w_cetusCycle
 from src.parser.dailyDeals import w_dailyDeals
-from src.parser.invasions import w_invasions_se
-from src.parser.vallisCycle import w_vallisCycle
-from src.parser.marketsearch import w_market_search, get_market_item_names
+from src.parser.descendia import w_descendia
+from src.parser.duviriCycle import w_duviriCycle
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
-from src.parser.descendia import w_descendia
+from src.parser.fissures import w_fissures
+from src.parser.invasions import w_invasions_se
+from src.parser.marketsearch import w_market_search, get_market_item_names
+from src.parser.news import w_news
+from src.parser.sortie import w_sortie
 from src.parser.steelIncursion import w_steelIncursions
-from src.parser.arbitration import w_arbitration
+from src.parser.steelPath import w_steelPath
+from src.parser.vallisCycle import w_vallisCycle
+from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
+from src.parser.worldstate import w_worldstate
+from src.translator import ts
+from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
+from src.views.register_view import register_cmd_helper
 
 
 class GeneralCommands(commands.Cog):
@@ -554,6 +555,21 @@ class GeneralCommands(commands.Cog):
             key=ARBITRATION,
             parser_func=w_arbitration,
             isFollowUp=True,
+            isPrivateMsg=developer_options,
+            skipGetObj=True,
+        )
+
+    @app_commands.command(name="worldstate", description="cmd.worldstate.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_worldstate(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=WORLDSTATE,
+            parser_func=w_worldstate,
             isPrivateMsg=developer_options,
             skipGetObj=True,
         )

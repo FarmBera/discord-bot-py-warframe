@@ -1,12 +1,16 @@
-import discord
 import datetime as dt
 
+import discord
+
 from src.translator import ts, language as lang
-from src.utils.times import timeNow, KST
 from src.utils.file_io import json_load
 from src.utils.return_err import err_embed
+from src.utils.times import timeNow, KST
+
 
 descendiaLanguage = json_load(f"data/{lang}/descendiaLanguages.json")
+pf: str = "cmd.descendia."
+format_string = "%Y-%m-%d %H:%M:%S"
 
 
 def getDescendiaChallenge(challenge: str) -> str:
@@ -15,24 +19,6 @@ def getDescendiaChallenge(challenge: str) -> str:
 
 def getDescendiaMiss(mission: str) -> str:
     return descendiaLanguage.get("missionType", {}).get(mission, {}).get("name", "")
-
-
-pf: str = "cmd.descendia."
-format_string = "%Y-%m-%d %H:%M:%S"
-
-
-def parseDate(timestamp: int) -> str:
-    return dt.datetime.strftime(
-        dt.datetime.fromtimestamp(int(timestamp), KST), format_string
-    )
-
-
-def check_date(start: str, end: str) -> bool:
-    start = int(start)
-    end = int(end)
-    if start < timeNow() < end:
-        return True
-    return False
 
 
 def w_descendia(descendia) -> tuple[discord.Embed, str]:

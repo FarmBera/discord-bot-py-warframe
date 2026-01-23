@@ -1,17 +1,15 @@
-import discord
 import datetime as dt
+
+import discord
 
 from src.translator import ts
 from src.utils.times import convert_remain
-
-pf: str = "cmd.duviri-cycle."
 
 SEED_TIME: str = "2023-01-01T00:00:00+00:00"
 SECONDS_PER_MOOD: int = 7200
 NEXT_MOOD_LIMIT: int = 2
 
 MOODS = ["fear", "joy", "anger", "envy", "sorrow"]
-
 MOOD_COLOR = {
     "fear": 0xB783C9,
     "joy": 0x2BB8BE,
@@ -19,6 +17,8 @@ MOOD_COLOR = {
     "envy": 0x69B124,
     "sorrow": 0x6694E6,
 }
+
+pf: str = "cmd.duviri-cycle."
 
 
 def which_mood(timestamp: int) -> int:
@@ -101,6 +101,18 @@ def get_next_mood() -> list[dict]:
     return mood_list
 
 
+previous_state_duviri = get_current_mood()["mood"]
+
+
+def checkNewDuviriState():
+    global previous_state_duviri
+    current = get_current_mood()["mood"]
+    if previous_state_duviri != current:
+        previous_state_duviri = current
+        return True
+    return False
+
+
 def w_duviriCycle() -> tuple[discord.Embed, str]:
     duviri: dict = get_current_mood()
     nextd: list = get_next_mood()
@@ -126,3 +138,5 @@ def w_duviriCycle() -> tuple[discord.Embed, str]:
 # print("\n--- Next Moods ---")
 # print(get_next_mood())
 # print(w_duviriCycle()[0].description)
+
+# print(checkNewDuviriState())

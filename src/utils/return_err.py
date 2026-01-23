@@ -1,6 +1,8 @@
 import traceback
-from src.constants.color import C
+
 import discord
+
+from src.constants.color import C
 from src.translator import ts
 
 

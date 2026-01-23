@@ -2,15 +2,14 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from config.config import LOG_TYPE
 from config.TOKEN import HOMEPAGE, SERVER_NAME
-from src.translator import ts
+from config.config import LOG_TYPE
 from src.constants.keys import COOLDOWN_5_MIN
-from src.utils.permission import is_valid_guild
-from src.utils.logging_utils import save_log
 from src.services.channel_service import ChannelService
+from src.translator import ts
+from src.utils.logging_utils import save_log
+from src.utils.permission import is_valid_guild
 from src.views.complain_view import pf, ApplyButtonView
-
 
 complain_guide: discord.Embed = discord.Embed(
     description=ts.get(f"{pf}info").format(SERVER_NAME=SERVER_NAME, HOMEPAGE=HOMEPAGE),

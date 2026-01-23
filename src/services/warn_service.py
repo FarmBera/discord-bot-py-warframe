@@ -1,6 +1,6 @@
 from src.utils.db_helper import query_reader, transaction
 
-BAN_THRESHOLD: int = 100
+WARN_THRESHOLD: int = 5
 
 
 class WarnService:
@@ -38,11 +38,11 @@ class WarnService:
             current_warn_count = result["cnt"] if result else 0
 
             # decision ban
-            if current_warn_count + 1 >= BAN_THRESHOLD:
+            if current_warn_count + 1 >= WARN_THRESHOLD:
                 is_executed_ban = True
 
             await cursor.execute(
-                "INSERT INTO warnings (user_id, display_name, game_nickname, category, note, banned) VALUES (%s, %s, %s, %s, %s, %s)",
+                "INSERT INTO warnings (user_id, display_name, game_nickname, category, note, critical) VALUES (%s, %s, %s, %s, %s, %s)",
                 (
                     user_id,
                     display_name,

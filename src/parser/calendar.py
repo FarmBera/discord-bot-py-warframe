@@ -1,10 +1,9 @@
 import discord
 
 from src.translator import ts
+from src.utils.data_manager import getLanguage
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
-from src.utils.data_manager import getLanguage
-
 
 CODE_REWARD: str = "CET_REWARD"
 CODE_CHALLENGE: str = "CET_CHALLENGE"

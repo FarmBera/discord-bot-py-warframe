@@ -5,7 +5,6 @@ from src.utils.data_manager import getLanguage, getMissionType, getSolNode
 from src.utils.emoji import get_emoji
 from src.utils.times import convert_remain
 
-
 pf: str = "cmd.events."
 
 

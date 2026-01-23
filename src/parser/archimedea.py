@@ -1,19 +1,20 @@
 import discord
 
-from src.translator import ts, language as lang
 from src.constants.keys import ARCHIMEDEA, ARCHIMEDEA_DEEP, ARCHIMEDEA_TEMPORAL
-from src.utils.file_io import json_load
+from src.translator import ts, language as lang
 from src.utils.data_manager import get_obj, set_obj_async, getMissionType  # getFactions
-from src.utils.times import convert_remain
+from src.utils.file_io import json_load
 from src.utils.return_err import err_embed
+from src.utils.times import convert_remain
 
 archimedea_deep = get_obj(f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
 archimedea_temporal = get_obj(f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 conquest_var: dict = json_load(f"data/{lang}/archimedeaData.json")
 
-
 CT_LAB = "CT_LAB"
 CT_HEX = "CT_HEX"
+
+pf: str = "cmd.archimedea."
 
 
 def getDeepArchimedea():
@@ -36,9 +37,6 @@ async def setTemporalArchimedea(obj):
     global archimedea_temporal
     archimedea_temporal = obj
     await set_obj_async(obj, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
-
-
-pf: str = "cmd.archimedea."
 
 
 def generateVariables(obj) -> str:
