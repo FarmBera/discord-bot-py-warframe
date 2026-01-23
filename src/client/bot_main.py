@@ -173,7 +173,7 @@ class DiscordBot(commands.Bot):
             await cursor.execute("SELECT value FROM vari WHERE name='img_server'")
             base_url = await cursor.fetchone()
         if base_url:
-            out_avatar = f"{base_url["value"]}{fetched_avatar}"
+            out_avatar = f"{base_url["value"]}/?name={fetched_avatar}"
 
         return out_name, out_avatar
 

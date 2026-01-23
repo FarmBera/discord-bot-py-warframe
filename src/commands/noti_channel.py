@@ -94,6 +94,7 @@ PROFILE_CONFIG: dict = {
         "name": ts.get(f"{PF_LABEL}temporal"),
         "avatar": "temporal",
     },
+    DAILYDEALS: {"name": ts.get(f"{PF_LABEL}darvo"), "avatar": "darvo"},
 }
 
 pfs: str = "cmd.alert-set."  # prefix select
