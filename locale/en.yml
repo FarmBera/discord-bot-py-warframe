@@ -60,6 +60,10 @@ noti-label:
   duviriCycle: Duviri Mood Cycle
   cambionCycle: Deimos - Cambion Drift Cycle
   vallisCycle: Venus - Orb Vallis Cycle
+  # profile
+  trader: Baro Ki'Teer
+  deep: Necraloid
+  temporal: Kaya
 
 view:
   support-support: 'Quick Links to Contact/Support Server'

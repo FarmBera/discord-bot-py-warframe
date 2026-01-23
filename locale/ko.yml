@@ -60,6 +60,10 @@ noti-label:
   duviriCycle: 두비리 감정 주기
   cambionCycle: 데이모스 - 캠비온 퇴적지 주기
   vallisCycle: 금성 - 오브 협곡 주기
+  # profile
+  trader: 키티어
+  deep: 네크랄로이드
+  temporal: 카야
 
 view:
   support-support: '문의/지원 서버 바로가기'

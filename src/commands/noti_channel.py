@@ -83,6 +83,19 @@ NOTI_LABELS = {
     VALLISCYCLE: ts.get(f"{PF_LABEL}{VALLISCYCLE}"),
 }
 
+# profile name & image
+PROFILE_CONFIG: dict = {
+    VOIDTRADERS: {"name": ts.get(f"{PF_LABEL}trader"), "avatar": "baro"},
+    f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": {
+        "name": ts.get(f"{PF_LABEL}deep"),
+        "avatar": "deep",
+    },
+    f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": {
+        "name": ts.get(f"{PF_LABEL}temporal"),
+        "avatar": "temporal",
+    },
+}
+
 pfs: str = "cmd.alert-set."  # prefix select
 pfu: str = "cmd.alert-delete."  # prefix unselect
 

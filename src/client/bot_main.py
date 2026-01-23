@@ -12,7 +12,7 @@ from src.constants.color import C
 from src.constants.keys import MSG_BOT
 from src.translator import ts
 from src.utils.data_manager import SETTINGS
-from src.utils.db_helper import query_reader
+from src.utils.db_helper import query_reader, transaction
 from src.utils.discord_file import img_file
 from src.utils.logging_utils import save_log
 from src.utils.return_err import return_traceback
@@ -68,7 +68,7 @@ class DiscordBot(commands.Bot):
             await self.tree.sync()
             print(f"{C.green}Synced Tree Commands")
         else:
-            print(f"{C.blue}[{LOG_TYPE.info}] {C.red}Commands Not Synced!")
+            print(f"{C.blue}[{LOG_TYPE.err}] {C.red}Commands Not Synced!")
 
         # noinspection PyTypeChecker
         await self.change_presence(
@@ -150,6 +150,32 @@ class DiscordBot(commands.Bot):
                     msg=error_msg,
                     obj=return_traceback(),
                 )
+
+    async def get_profile_img(self, noti_key):
+        out_name = self.user.name
+        out_avatar = self.user.display_avatar.url if self.user else None
+
+        # get profile config
+        profile_conf = PROFILE_CONFIG.get(noti_key)
+        if not profile_conf:
+            return out_name, out_avatar
+
+        # get profile name
+        fetched_name = profile_conf.get("name")
+        fetched_avatar = profile_conf.get("avatar")
+        if (not fetched_name) or (not fetched_avatar):
+            return out_name, out_avatar
+
+        out_name = fetched_name
+
+        # fetch url & combine
+        async with transaction(self.db) as cursor:
+            await cursor.execute("SELECT value FROM vari WHERE name='img_server'")
+            base_url = await cursor.fetchone()
+        if base_url:
+            out_avatar = f"{base_url["value"]}{fetched_avatar}"
+
+        return out_name, out_avatar
 
     async def broadcast_webhook(self, noti_key: str, content) -> None:
         """
@@ -242,35 +268,8 @@ class DiscordBot(commands.Bot):
             text_content = str(content)
             log_content = text_content
 
-        # setup profile img
-        bot_name = self.user.name
-        bot_avatar_url = self.user.display_avatar.url if self.user else None
-
-        # get setting
-        profile_conf = PROFILE_CONFIG.get(noti_key)
-
-        final_username = bot_name
-        final_avatar_url = bot_avatar_url
-
-        if profile_conf:
-            final_username = profile_conf.get("name", bot_name)
-            conf_avatar = profile_conf.get("avatar")
-
-            if conf_avatar:
-                # URL
-                if conf_avatar.startswith("http"):
-                    final_avatar_url = conf_avatar
-
-                else:
-                    msg = f"profile picture http only: {conf_avatar}"
-                    print(C.red, msg, C.default)
-                    await save_log(
-                        pool=self.db,
-                        type=LOG_TYPE.err,
-                        cmd="broadcast_webhook",
-                        user=MSG_BOT,
-                        msg=msg,
-                    )
+        # setup profile
+        final_username, final_avatar_url = await self.get_profile_img(noti_key)
 
         # send alert & check result
         async with aiohttp.ClientSession() as session:
