@@ -16,7 +16,6 @@ class CetusTimerData:
 
 
 cetus_color = {"day": 0xFFBB00, "night": 0x2B79FF}
-
 previous_state_cetus: str = check_timer_states(CetusTimerData)["current"]
 
 pf: str = "cmd.cetus."

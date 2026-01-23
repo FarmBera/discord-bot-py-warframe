@@ -6,7 +6,7 @@ from config.config import LOG_TYPE
 from src.utils.logging_utils import save_log
 from src.utils.db_helper import transaction
 from src.utils.return_err import return_traceback
-from src.services.warn_service import WarnService, BAN_THRESHOLD
+from src.services.warn_service import WarnService, WARN_THRESHOLD
 from src.views.help_view import SupportView
 
 pf: str = "cmd.user-ban."
@@ -79,7 +79,7 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
             warn_reason=warn_reason,
         )
         if is_executed_ban:
-            message_body += ts.get(f"{pf}banned").format(ban_threshold=BAN_THRESHOLD)
+            message_body += ts.get(f"{pf}banned").format(ban_threshold=WARN_THRESHOLD)
 
         await interact.followup.send(message_body, ephemeral=True)
         await save_log(

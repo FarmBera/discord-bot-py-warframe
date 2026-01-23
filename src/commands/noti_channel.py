@@ -1,10 +1,6 @@
 import discord
 
 from config.config import LOG_TYPE
-from src.translator import ts
-from src.utils.logging_utils import save_log
-from src.utils.db_helper import transaction
-from src.utils.return_err import return_traceback
 from src.constants.keys import (
     ALERTS,
     NEWS,
@@ -29,6 +25,10 @@ from src.constants.keys import (
     CAMBIONCYCLE,
     VALLISCYCLE,
 )
+from src.translator import ts
+from src.utils.db_helper import transaction
+from src.utils.logging_utils import save_log
+from src.utils.return_err import return_traceback
 from src.views.help_view import SupportView
 
 DB_COLUMN_MAP = {
@@ -50,11 +50,6 @@ DB_COLUMN_MAP = {
     DUVIRICYCLE: "sub_duviri",
     CAMBIONCYCLE: "sub_cambion",
     VALLISCYCLE: "sub_vallis",
-}
-
-# set profile with alert type
-PROFILE_CONFIG = {
-    # VOIDTRADERS: {"name": "바로 키 티어", "avatar": "baro-ki-teer"},
 }
 
 # UI selection

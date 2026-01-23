@@ -1,6 +1,6 @@
 import datetime as dt
-from zoneinfo import ZoneInfo
 import re
+from zoneinfo import ZoneInfo
 
 JSON_DATE_PAT: str = "%Y-%m-%dT%H:%M:%S.%fZ"
 

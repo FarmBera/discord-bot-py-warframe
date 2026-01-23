@@ -1,4 +1,5 @@
 import discord
+
 from src.translator import ts
 from src.utils.return_err import err_embed
 
@@ -14,7 +15,6 @@ color_list = {
     "주 무기 리벤 모드": 0xA11EE3,
     "산탄총 리벤 모드": 0xA11EE3,
 }
-
 img_list = {
     "Umbra Forma Blueprint": "umbra-forma",
     "50,000 Kuva": "kuva",

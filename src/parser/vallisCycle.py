@@ -1,8 +1,9 @@
-import discord
 import datetime as dt
 
+import discord
+
 from src.translator import ts
-from src.utils.return_err import err_embed, return_traceback
+from src.utils.return_err import err_embed
 from src.utils.times import check_timer_states
 
 

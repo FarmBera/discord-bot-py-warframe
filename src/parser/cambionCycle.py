@@ -1,5 +1,6 @@
-import discord
 import datetime as dt
+
+import discord
 
 from src.translator import ts
 from src.utils.return_err import err_embed
@@ -15,12 +16,10 @@ class CambionCycleData:
     aftertext = "vome"
 
 
-pf: str = "cmd.cambion."
-
 cambion_color = {"fass": 0xECB448, "vome": 0x97D4D9}
-
-
 previous_state_cambion = check_timer_states(CambionCycleData)["current"]
+
+pf: str = "cmd.cambion."
 
 
 def checkNewCambionState() -> bool:

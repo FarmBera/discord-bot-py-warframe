@@ -1,19 +1,18 @@
-import discord
 import asyncio
-import sys
 import logging
-import aiomysql
+import sys
 
-# log_lock = asyncio.Lock()
+import aiomysql
+import discord
 
 from config.TOKEN import TOKEN as BOT_TOKEN, DB_USER, DB_PW, DB_HOST, DB_PORT, DB_NAME
 from config.config import LOG_TYPE
-from src.constants.color import C
-from src.translator import ts
 from src.client.bot_main import DiscordBot
 from src.client.bot_maintenance import MaintanceBot
-from src.utils.return_err import return_traceback
+from src.constants.color import C
+from src.translator import ts
 from src.utils.logging_utils import save_log
+from src.utils.return_err import return_traceback
 
 discord.utils.setup_logging(level=logging.INFO, root=False)
 

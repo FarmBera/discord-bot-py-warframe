@@ -22,21 +22,20 @@ from src.constants.keys import (
     VALLISCYCLE,
 )
 from src.parser.alerts import w_alerts
-from src.parser.news import w_news
-from src.parser.cetusCycle import w_cetusCycle, checkNewCetusState
-from src.parser.sortie import w_sortie
-from src.parser.archonHunt import w_archonHunt
-from src.parser.vallisCycle import w_vallisCycle, checkNewVallisState
-from src.parser.voidTraders import w_voidTraders
-from src.parser.steelPath import w_steelPath
 from src.parser.archimedea import w_deepArchimedea, w_temporalArchimedia
-from src.parser.duviriCycle import w_duviriCycle, checkNewDuviriState
+from src.parser.archonHunt import w_archonHunt
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle, checkNewCambionState
+from src.parser.cetusCycle import w_cetusCycle, checkNewCetusState
 from src.parser.dailyDeals import w_dailyDeals
-from src.parser.invasions import w_invasions_se
+from src.parser.duviriCycle import w_duviriCycle, checkNewDuviriState
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
+from src.parser.invasions import w_invasions_se
+from src.parser.news import w_news
+from src.parser.sortie import w_sortie
+from src.parser.vallisCycle import w_vallisCycle, checkNewVallisState
+from src.parser.voidTraders import w_voidTraders
 
 
 class HK:

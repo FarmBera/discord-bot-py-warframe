@@ -9,8 +9,8 @@ from src.utils.emoji import worldstate_emoji
 from src.utils.return_err import err_embed
 from src.utils.times import check_timer_states, convert_remain
 
-pf: str = "cmd.worldstate."
 pattern = "\n"
+pf: str = "cmd.worldstate."
 
 
 def w_worldstate() -> tuple[discord.Embed, str]:

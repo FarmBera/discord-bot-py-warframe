@@ -1,9 +1,8 @@
 import os
+
 import requests
 
 from src.constants.color import C
-from src.utils.api_legacy import API_Request
-from src.utils.data_manager import get_obj, set_obj
 from src.constants.keys import (
     keys,
     JSON,
@@ -12,7 +11,8 @@ from src.constants.keys import (
     ARCHIMEDEA_DEEP,
     ARCHIMEDEA_TEMPORAL,
 )
-
+from src.utils.api_legacy import API_Request
+from src.utils.data_manager import get_obj, set_obj
 
 print("API Requesting...")
 RESPONSE: requests.Response = API_Request()

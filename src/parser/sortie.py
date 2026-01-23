@@ -1,7 +1,8 @@
 import discord
+
 from src.translator import ts
-from src.utils.times import convert_remain
 from src.utils.data_manager import getMissionType, getSolNode, getSortieMod
+from src.utils.times import convert_remain
 
 pf: str = "cmd.sortie."
 

@@ -2,8 +2,8 @@ import discord
 
 from config.config import Lang
 from src.translator import ts, language as lang
-from src.utils.return_err import err_embed
 from src.utils.data_manager import getLanguage
+from src.utils.return_err import err_embed
 
 pf: str = "cmd.news."
 
