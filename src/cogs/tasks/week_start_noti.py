@@ -35,7 +35,7 @@ class TASKSweek_start_noti(commands.Cog):
         self.week_start_noti.cancel()
 
     # weekly alert
-    @tasks.loop(time=dt.time(hour=9, minute=10, tzinfo=KST))
+    @tasks.loop(time=dt.time(hour=9, minute=5, tzinfo=KST))
     async def week_start_noti(self) -> None:
         await save_log(
             pool=self.bot.db,
