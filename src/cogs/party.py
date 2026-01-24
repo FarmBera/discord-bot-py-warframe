@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from config.config import LOG_TYPE
-from src.constants.keys import COOLDOWN_DEFAULT
+from src.constants.keys import COOLDOWN_5_MIN
 from src.services.channel_service import ChannelService
 from src.services.party_service import PartyService
 from src.translator import ts
@@ -21,7 +21,7 @@ class PartyCog(commands.Cog):
 
     @app_commands.command(name="party", description="cmd.party.desc")
     @app_commands.checks.cooldown(
-        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @app_commands.describe(
         title="cmd.party.desc-title",

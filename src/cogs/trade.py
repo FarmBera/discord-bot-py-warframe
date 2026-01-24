@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from config.config import LOG_TYPE
-from src.constants.keys import COOLDOWN_DEFAULT
+from src.constants.keys import COOLDOWN_5_MIN
 from src.parser.marketsearch import get_slug_data, get_market_item_names
 from src.services.channel_service import ChannelService
 from src.services.trade_service import TradeService
@@ -24,7 +24,7 @@ class TradeCog(commands.Cog):
 
     @app_commands.command(name="trade", description="cmd.trade.desc")
     @app_commands.checks.cooldown(
-        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
     )
     @app_commands.choices(
         trade_type=[
