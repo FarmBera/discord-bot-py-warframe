@@ -4,7 +4,6 @@ from discord.ext import tasks, commands
 from config.TOKEN import WF_JSON_PATH
 from config.config import LOG_TYPE, language as lang, Lang
 from src.constants.color import C
-from src.constants.keys import MSG_BOT
 from src.handler.handle_archimedea import handleDeepArchimedea, handleTemporalArchimedea
 from src.handler.handle_duviri import checkCircuitWarframe, checkCircuitIncarnon
 from src.handler.handle_error import handleParseError
@@ -19,9 +18,6 @@ from src.translator import ts
 from src.utils.api_request import API_Request
 from src.utils.data_manager import get_obj_async, set_obj_async, SETTINGS
 from src.utils.file_io import json_load_async
-from src.utils.logging_utils import save_log
-from src.utils.return_err import return_traceback
-from src.utils.times import timeNowDT
 
 
 class TASKcheck_new_content(commands.Cog):
@@ -94,22 +90,14 @@ class TASKcheck_new_content(commands.Cog):
                     notify = True
                 except Exception as e:
                     msg = f"Data parsing error in {handler['parser']}/{e}"
-                    print(timeNowDT(), C.red, msg, e, C.default)
-                    await save_log(
-                        pool=self.bot.db,
-                        type=LOG_TYPE.err,
-                        cmd="check_new_content()",
-                        user=MSG_BOT,
-                        msg=msg,
-                        obj=return_traceback(),
-                    )
+                    await handleParseError(self.bot.db, msg, origin_key)
 
-            elif special_logic == "handle_missing_invasions":  # invasions
+            elif special_logic == "handle_missing_invasions":
                 should_save_data, special_invasions, missing_invasions = checkInvasions(
                     obj_prev, obj_new
                 )
                 # send invasions alert if exists
-                if not special_invasions:  # missing_invasions:
+                if not special_invasions:
                     continue
                 try:
                     parsed_content = handler["parser"](missing_invasions)
@@ -119,7 +107,7 @@ class TASKcheck_new_content(commands.Cog):
                     msg = f"Data parsing error in {handler['parser']}/{e}"
                     await handleParseError(self.bot.db, msg, key)
 
-            elif special_logic == "handle_fissures":  # fissures
+            elif special_logic == "handle_fissures":
                 should_save_data = True
 
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
@@ -217,17 +205,17 @@ class TASKcheck_new_content(commands.Cog):
                 notify = True
                 should_save_data = True
 
-            if should_save_data:  # save data
+            if should_save_data:
                 await set_obj_async(obj_new, key)
 
             if notify and parsed_content:
-                # isEnabled alerts
+                # is alerts enabled global
                 if not SETTINGS["noti"]["list"][origin_key]:
                     continue
 
                 await self.bot.broadcast_webhook(origin_key, parsed_content)
 
-        return  # End Of check_new_content()
+        return
 
 
 async def setup(bot):

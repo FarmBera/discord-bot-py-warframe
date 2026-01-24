@@ -6,18 +6,22 @@ from src.parser.archimedea import (
 )
 
 
-def handleDeepArchimedea(obj_new):
-    obj_new = next(i for i in obj_new if i.get("Type") == CT_LAB)
-    is_new = (
-        getDeepArchimedea()["Activation"]["$date"]["$numberLong"]
-        != obj_new["Activation"]["$date"]["$numberLong"]
+def categorize_new(new, key):
+    return next(i for i in new if i.get("Type") == key)
+
+
+def checking_new(prev, new):
+    return (
+        prev["Activation"]["$date"]["$numberLong"]
+        != new["Activation"]["$date"]["$numberLong"]
     )
-    return obj_new, is_new
+
+
+def handleDeepArchimedea(obj_new):
+    obj_new = categorize_new(obj_new, CT_LAB)
+    return obj_new, checking_new(getDeepArchimedea(), obj_new)
 
 
 def handleTemporalArchimedea(obj_new):
-    obj_new = next(i for i in obj_new if i.get("Type") == CT_HEX)
-    is_new = getTemporalArchimedea()["Activation"]["$date"]["$numberLong"] != (
-        obj_new["Activation"]["$date"]["$numberLong"]
-    )
-    return obj_new, is_new
+    obj_new = categorize_new(obj_new, CT_HEX)
+    return obj_new, checking_new(getTemporalArchimedea(), obj_new)
