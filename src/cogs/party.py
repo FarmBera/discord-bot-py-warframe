@@ -120,7 +120,7 @@ class PartyCog(commands.Cog):
             webhook = await get_webhook(target_channel, self.bot.user.avatar)
 
             thread_starter_msg = await webhook.send(
-                content=ts.get(f"{pf}created-party"),
+                content=title,  # ts.get(f"{pf}created-party"),
                 username=interact.user.display_name,
                 avatar_url=interact.user.display_avatar.url,
                 wait=True,
