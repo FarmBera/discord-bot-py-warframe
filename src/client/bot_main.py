@@ -3,16 +3,19 @@ import json
 import os
 import aiohttp
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from config.config import LOG_TYPE
 from src.bot_translator import BotTranslator
 from src.commands.noti_channel import DB_COLUMN_MAP, PROFILE_CONFIG
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
+from src.services.party_service import PartyService
+from src.services.trade_service import TradeService
 from src.translator import ts
 from src.utils.data_manager import SETTINGS
 from src.utils.db_helper import query_reader, transaction
+from src.utils.delay import delay
 from src.utils.discord_file import img_file
 from src.utils.logging_utils import save_log
 from src.utils.return_err import return_traceback
@@ -26,6 +29,7 @@ class DiscordBot(commands.Bot):
         super().__init__(command_prefix="!", intents=intents, **options)
         self.db = db
         self.webhook_cache = {}
+        self.processing: bool = False
 
     async def setup_hook(self) -> None:
         self.add_view(PartyView())
@@ -363,3 +367,48 @@ class DiscordBot(commands.Bot):
             msg=log_msg,
             obj=f"{log_content}",
         )
+
+    @tasks.loop(count=1)
+    async def process_queue(self):
+        try:
+            db = self.db
+            print("start process queue")  # DEBUG_CODE
+            await delay()
+            # Party queues
+            await PartyService.process_create_queue(db)
+            await PartyService.process_update_queue(db)
+            await PartyService.process_delete_queue(db)
+
+            # Trade queues
+            await TradeService.process_create_queue(db)
+            await TradeService.process_update_queue(db)
+            await TradeService.process_delete_queue(db)
+
+            if not (
+                await TradeService.is_queue_empty()
+                and await PartyService.is_queue_empty()
+            ):
+                self.process_queue.restart()
+                print("restart (queue is not empty)")  # DEBUG_CODE
+        except Exception as e:
+            msg = f"Failed to process queue: {C.red}{e}"
+            print(C.red, msg, C.default)
+            await save_log(
+                pool=self.bot.db,
+                type=LOG_TYPE.err,
+                cmd="bot.process_queue",
+                user=MSG_BOT,
+                msg=msg,
+                obj=return_traceback(),
+            )
+        finally:
+            if self.process_queue.is_running():
+                self.process_queue.stop()
+
+    async def trigger_queue_processing(self):
+        if self.process_queue.is_running():
+            print("already running")  # DEBUG_CODE
+            return
+
+        print("start queue process")  # DEBUG_CODE
+        self.process_queue.start()

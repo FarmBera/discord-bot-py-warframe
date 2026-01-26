@@ -1,6 +1,7 @@
+from src.translator import ts
 from src.utils.db_helper import query_reader, transaction
 
-WARN_THRESHOLD: int = 5
+WARN_THRESHOLD: int = 3
 
 
 class WarnService:
@@ -23,6 +24,15 @@ class WarnService:
             )
             res = await cursor.fetchone()
             return res["count"]
+
+    @staticmethod
+    async def generateWarnMsg(pool, host_id) -> str:
+        host_warn_count = await WarnService.getCriticalCount(pool, host_id)
+        return (
+            ts.get(f"cmd.warning-count").format(count=host_warn_count)
+            if host_warn_count >= 1
+            else ""
+        )
 
     @staticmethod
     async def insertWarn(

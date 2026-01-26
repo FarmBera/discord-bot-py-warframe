@@ -1,23 +1,21 @@
+import datetime as dt
+
 import discord
 from discord import ui
 from discord.ext import commands
-import datetime as dt
-import random
 
-from src.translator import ts
-from src.utils.times import convert_remain, parseKoreanDatetime
-from src.utils.return_err import return_traceback
-from src.utils.logging_utils import save_log
 from config.config import LOG_TYPE
 from src.constants.keys import (
     COOLDOWN_BTN_ACTION,
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
-from src.utils.permission import is_admin_user, is_valid_guild
-from src.utils.webhook import get_webhook
 from src.services.party_service import PartyService
-from src.services.warn_service import WarnService
+from src.translator import ts
+from src.utils.logging_utils import save_log
+from src.utils.permission import is_admin_user, is_valid_guild
+from src.utils.return_err import return_traceback
+from src.utils.times import convert_remain, parseKoreanDatetime
 from src.views.help_view import SupportView
 
 pf = "cmd.party."
@@ -50,23 +48,18 @@ async def build_party_embed(
     data: dict, db_pool, isDelete: bool = False
 ) -> discord.Embed:
     color = discord.Color.orange() if data.get("is_closed") else discord.Color.blue()
+    description: str = ""
+
+    # host warning check
+    # description += await WarnService.generateWarnMsg(db_pool, data["host_id"])
+
     status_text = (
         f"({ts.get(f'{pf}pv-done')})"
         if data.get("is_closed")
         else f"({ts.get(f'{pf}pv-ing2')})"
     )
-
-    # host warning check
-    host_warn_count = await WarnService.getCriticalCount(db_pool, data["host_id"])
-
     participants_str = ", ".join(data["participants"]) or ts.get(f"{pf}pb-no-player")
-
     desc_field = data.get("description", "")
-    warn_desc = (
-        ts.get(f"cmd.warning-count").format(count=host_warn_count)
-        if host_warn_count >= 1
-        else ""
-    )
 
     departure_data = data["departure"]
     if isinstance(departure_data, dt.datetime):
@@ -78,7 +71,7 @@ async def build_party_embed(
             else ts.get(f"{pf}pb-departure-none")
         )
 
-    description = f"""{warn_desc}### {data['title']} {status_text}
+    description += f"""### {data['title']} {status_text}
 - **{ts.get(f'{pf}pb-departure')}:** {time_output}
 - **{ts.get(f'{pf}pb-host')}:** {data['host_mention']}
 - **{ts.get(f'{pf}pb-player-count')}:** {len(data['participants'])} / {data['max_users']}
@@ -162,22 +155,10 @@ class PartyEditModal(ui.Modal, title=ts.get(f"{pf}edit-title")):
                 self.mission_input.value,
                 self.desc_input.value,
             )
-            new_embed = await build_party_embed_from_db(
-                interact.message.id, interact.client.db
-            )
-            await interact.response.edit_message(embed=new_embed)
-
-            if isinstance(interact.channel, discord.Thread):
-                await interact.channel.edit(
-                    name=f"[{self.mission_input.value}] {self.title_input.value}"
-                )
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.event,
-                cmd="btn.edit.article",
-                interact=interact,
-                msg=f"PartyEditModal -> Clicked Submit",
-                obj=f"{self.title_input.value}\n{self.mission_input.value}\n{self.desc_input.value}",
+            await PartyService.add_update_queue({"interact": interact, "self": self})
+            await interact.client.trigger_queue_processing()
+            await interact.response.send_message(
+                ts.get(f"{pf}edit-requested"), ephemeral=True
             )
         except Exception:
             await interact.response.send_message(
@@ -239,10 +220,11 @@ class PartySizeModal(ui.Modal, title=ts.get(f"{pf}size-ui-title")):
         await PartyService.update_party_size(
             interact.client.db, interact.message.id, new_size
         )
-        new_embed = await build_party_embed_from_db(
-            interact.message.id, interact.client.db
+        await PartyService.add_update_queue({"interact": interact})
+        await interact.client.trigger_queue_processing()
+        await interact.response.send_message(
+            ts.get(f"{pf}edit-requested"), ephemeral=True
         )
-        await interact.response.edit_message(embed=new_embed)
 
 
 class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
@@ -266,10 +248,11 @@ class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
             await PartyService.update_party_departure(
                 interact.client.db, interact.message.id, self.date_input.value
             )
-            new_embed = await build_party_embed_from_db(
-                interact.message.id, interact.client.db
+            await PartyService.add_update_queue({"interact": interact})
+            await interact.client.trigger_queue_processing()
+            await interact.response.send_message(
+                ts.get(f"{pf}edit-requested"), ephemeral=True
             )
-            await interact.response.edit_message(embed=new_embed)
         except Exception:
             if not interact.response.is_done():
                 await interact.response.send_message(
@@ -333,9 +316,6 @@ class ConfirmJoinLeaveView(ui.View):
     @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.success)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
         try:
-            host_warn_count = await WarnService.getCriticalCount(
-                interact.client.db, interact.user.id
-            )
             if self.action == "join":
                 await save_log(
                     pool=interact.client.db,
@@ -360,11 +340,7 @@ class ConfirmJoinLeaveView(ui.View):
                     host=f"<@{self.host_id}>", user=self.user_mention
                 )
                 # user warn msg
-                msg_content += (
-                    ts.get(f"cmd.warning-count").format(count=host_warn_count)
-                    if host_warn_count >= 1
-                    else ""
-                )
+                # msg_content += WarnService.generateWarnMsg(self.db_pool, interact.user.id)
                 await self.original_message.channel.send(msg_content)
             elif self.action == "leave":
                 await save_log(
@@ -385,16 +361,11 @@ class ConfirmJoinLeaveView(ui.View):
                 msg_content = ts.get(f"{pf}pc-lefted").format(
                     host=self.user_mention, user=interact.user.mention
                 )
-                msg_content += (
-                    ts.get(f"cmd.warning-count").format(count=host_warn_count)
-                    if host_warn_count >= 1
-                    else ""
-                )
+                # user warn msg
+                # msg_content += WarnService.generateWarnMsg(self.db_pool,interact.user.id)
                 await self.original_message.channel.send(msg_content)
-            new_embed = await build_party_embed_from_db(
-                self.original_message.id, self.db_pool
-            )
-            await self.original_message.edit(embed=new_embed)
+            await PartyService.add_update_queue({"origin_msg": self.original_message})
+            await interact.client.trigger_queue_processing()
         except Exception as e:
             if not interact.response.is_done():
                 await interact.response.edit_message(
@@ -469,8 +440,8 @@ class ConfirmDeleteView(ui.View):
 
     @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.danger)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
-        await interact.response.defer()
-        await interact.delete_original_response()
+        await interact.response.defer(ephemeral=True)
+        await self.origin_message.edit(view=None)
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
@@ -479,32 +450,12 @@ class ConfirmDeleteView(ui.View):
             msg=f"ConfirmDeleteView -> clicked yes",
         )
         try:
-            new_embed = await build_party_embed_from_db(
-                self.origin_message.id, interact.client.db, isDelete=True
+            delete_obj = {"origin_msg": self.origin_message, "interact": interact}
+            await PartyService.add_delete_queue(delete_obj)
+            await interact.client.trigger_queue_processing()
+            await interact.edit_original_response(
+                content=ts.get(f"{pf}delete-requested"), view=None
             )
-            # for item in self.party_view.children:
-            #     item.disabled = True
-            await self.origin_message.edit(embed=new_embed, view=None)
-
-            # edit starter msg
-            try:
-                webhook = await get_webhook(
-                    interact.channel.parent, interact.client.user.avatar
-                )
-                if webhook:
-                    await webhook.edit_message(
-                        message_id=interact.channel.id,
-                        content=ts.get(f"{pf}del-deleted"),
-                    )
-            except:
-                pass  # starter msg not found (maybe deleted manually)
-
-            # lock thread
-            if isinstance(interact.channel, discord.Thread):
-                await interact.channel.edit(locked=True)
-
-            await PartyService.delete_party(interact.client.db, interact.channel.id)
-
         except Exception:
             await interact.followup.send(
                 ts.get(f"{pf}del-err"), view=SupportView(), ephemeral=True
@@ -552,6 +503,7 @@ class KickMemberSelect(ui.Select):
         )
 
     async def callback(self, interact: discord.Interaction):
+        await interact.response.edit_message(view=None)
         target_id = int(self.values[0])
         party, _ = await PartyService.get_party_by_message_id(
             interact.client.db, self.original_message.id
@@ -560,30 +512,29 @@ class KickMemberSelect(ui.Select):
             await PartyService.leave_participant(
                 interact.client.db, party["id"], target_id
             )
-        except Exception:
+            response_msg = ts.get(f"{pf}pv-kick-success").format(name=f"<@{target_id}>")
+            await PartyService.add_update_queue({"origin_msg": self.original_message})
+            await interact.client.trigger_queue_processing()
+            await self.original_message.channel.send(response_msg)
+        except Exception as e:
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-notfound"), view=SupportView(), ephemeral=True
             )
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.err,
+                cmd="select.kick.member",
+                interact=interact,
+                msg=f"Kicked user {target_id} from party {party['id']}, but ERR {e}",
+            )
             return
 
-        new_embed = await build_party_embed_from_db(
-            self.original_message.id, interact.client.db
-        )
-        await self.original_message.edit(embed=new_embed)
-
-        await self.original_message.channel.send(
-            ts.get(f"{pf}pv-kick-success").format(name=f"<@{target_id}>")
-        )
-        await interact.response.edit_message(
-            content=ts.get(f"{pf}pv-kick-success").format(name=f"<@{target_id}>"),
-            view=None,
-        )
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
             cmd="select.kick.member",
             interact=interact,
-            msg=f"Kicked user {target_id} from party {party['id']}",  # TODO:verify
+            msg=f"Kicked user {target_id} from party {party['id']}",
         )
 
 

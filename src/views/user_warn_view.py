@@ -25,7 +25,6 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
         max_length=20,
         required=True,
     )
-
     game_nickname = ui.TextInput(
         label=ts.get(f"{pf}m-game-nic-label"),
         placeholder=ts.get(f"{pf}m-game-nic-desc"),

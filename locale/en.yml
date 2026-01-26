@@ -375,6 +375,9 @@ cmd:
       ## This may be the cause:
       - Someone else has already joined the party
       - You have already left the party
+    edit-requested: |
+      Requested party modification. Please wait a moment...
+      If there are many users, modifications may take up to 15 minutes.
     # PartyEditModal
     edit-title: Edit Party Info
     edit-title-input: Title
@@ -395,6 +398,7 @@ cmd:
     # ConfirmDeleteView
     del-btny: Yes (Continue)
     del-btnn: No (Cancel)
+    delete-requested: "Recruitment has closed successfully."
     del-err: "❌ Error: I don't have permission to delete this thread. Please contact an admin."
     del-cancel: "The action has been canceled."
     del-deleted: "> The party listing has been deleted."
@@ -483,7 +487,9 @@ cmd:
     # cmd_create_thread_helper
     pt-low: "Party size must be at least {num}.\nAutomatically setting to 4."
     pt-high: "Party size cannot exceed {num}.\nAutomatically setting to {num}."
-    pt-create: "Party (thread) has been created!"
+    pt-create: |
+      Requested the creation of a recruitment post. Please wait a moment.
+      If there're many users, it may take up to 15 minutes to create.
 
     no-thread-permission: "❌ Error: I don't have permission to create threads in this channel. Please contact an admin."
     err-creation: "❌ Error: A problem occurred while creating the thread. Please contact an admin."
@@ -556,18 +562,29 @@ cmd:
     auto-price: "Since you did not enter a price, it has been automatically set to the market average of `{price} Platinum`."
 
     # interactions
-    created-trade: "✅ Created a trade post in `{ch}`! {mention}"
+    created-trade: | # ✅
+      거래 글 생성을 요청했어요. 잠시만 기다려주세요.
+      이용자가 많다면 생성까지 최대 15분 소요될 수 있습니다.
+    whispers: |
+      > Copy Whisper command (Drag/Copy or Use right button)
+      ```
+      /w {nickname} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{item}' (을)를 {price} 플레로 {type}하고 싶어요.
+      ```
     confirm-trade: "## Are you sure you want to request this trade?"
     trade-request: |
       {host_mention}, {user_mention} requested {type} for the **{price}** platinum!
-      > Copy invite command (drag or use the copy button on the right)
+      > Copy invite command (drag or use copy button on the right)
       ```
       /invite {user}
       ```
+    edit-requested: |
+      Requested to edit your trade post. Please wait a moment...
+      If there are many users, the process may take up to 15 minutes.
     confirm-delete: "## Are you sure you want to close this trade listing?\nOnce closed, **it cannot be reopened!**"
+    delete-requested: "Delete request submitted"
     deleted: "> The trade has been closed by the poster."
     canceled: "The operation has been canceled."
-    expired: "> The transaction has automatically expired due to inactivity.."
+    expired: "> The trade has automatically expired due to inactivity.."
 
     # modals
     edit-qty-title: "Edit Quantity"

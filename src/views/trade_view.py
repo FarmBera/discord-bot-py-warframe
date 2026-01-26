@@ -2,22 +2,19 @@ import discord
 from discord import ui
 from discord.ext import commands
 
-from src.translator import ts
-from src.utils.return_err import return_traceback
-from src.utils.logging_utils import save_log
-from config.config import LOG_TYPE
 from config.TOKEN import base_url_market_image
+from config.config import LOG_TYPE
 from src.constants.keys import (
-    LFG_WEBHOOK_NAME,
     COOLDOWN_BTN_ACTION,
     COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
 )
-from src.utils.permission import is_admin_user, is_valid_guild
 from src.parser.marketsearch import get_slug_data, create_market_url
 from src.services.trade_service import TradeService
-from src.services.warn_service import WarnService
-from src.utils.webhook import get_webhook
+from src.translator import ts
+from src.utils.logging_utils import save_log
+from src.utils.permission import is_admin_user, is_valid_guild
+from src.utils.return_err import return_traceback
 from src.views.help_view import SupportView
 
 pf = "cmd.trade."
@@ -62,16 +59,12 @@ async def build_trade_embed(
     flag, _, __, img_url = get_slug_data(data["item_name"])
     description: str = ""
 
-    host_warn_count = await WarnService.getCriticalCount(db_pool, data["host_id"])
-    if host_warn_count >= 1:
-        description += ts.get(f"cmd.warning-count").format(count=host_warn_count)
+    # description += await WarnService.generateWarnMsg(db_pool,data['host_id'])
 
     description += f"### [{data['trade_type']}] {data['item_name']}"
 
     if isRank and data.get("item_rank") != -1:
         description += f" ({ts.get(f'{pf}rank-simple').format(rank=data['item_rank'])})"
-
-    color = 0x00FF00 if not isDelete else 0xFF0000
 
     description += f"""
 - **{ts.get(f'{pf}creator')}:** {data['host_mention']}
@@ -82,19 +75,21 @@ async def build_trade_embed(
     rank_val = int(data.get("item_rank", -1))
     rank_str = f" ({rank_val} {ts.get(f'{pf}rank-label')})" if rank_val > -1 else ""
 
+    # whispers
     if not isDelete:
-        description += f"""
-> 귓속말 명령어 복사 (드래그 또는 우측 복사버튼 이용)
-```
-/w {data['game_nickname']} 안녕하세요. 클랜디코 거래글 보고 귓말 드렸습니다. '{data['item_name']}{rank_str}' (을)를 {data['price']} 플레로 {revTradeType(data["trade_type"])}하고 싶어요.
-```
-"""
+        description += ts.get(f"{pf}whispers").format(
+            nickname=data["game_nickname"],
+            item=data["item_name"] + rank_str,
+            price=data["price"],
+            type=revTradeType(data["trade_type"]),
+        )
     if isDelete:
         description = f"~~{description.strip().replace('~~', '')}~~"
-    else:
-        description = description.strip()
 
-    embed = discord.Embed(description=description, color=color)
+    # embed color
+    color = 0x00FF00 if not isDelete else 0xFF0000
+    # generate embed
+    embed = discord.Embed(description=description.strip(), color=color)
     embed.set_footer(text=f"ID: {data['id']}")
     if flag and img_url:
         embed.set_thumbnail(url=f"{base_url_market_image}{img_url}")
@@ -133,9 +128,10 @@ async def build_trade_embed_from_db(
 
 # ----------------- Modals -----------------
 class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
-    def __init__(self, curr_nickname: str, db_pool):
+    def __init__(self, curr_nickname: str, interact: discord.Interaction, db_pool):
         super().__init__(timeout=None)
         self.db_pool = db_pool
+        self.original_message = interact.message
         self.input_nickname = ui.TextInput(
             label=ts.get(f"{pf}edit-nick-label"), default=curr_nickname, required=True
         )
@@ -143,13 +139,6 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
 
     async def on_submit(self, interact: discord.Interaction):
         try:
-            await TradeService.update_nickname(
-                self.db_pool, interact.message.id, self.input_nickname.value
-            )
-            new_embed = await build_trade_embed_from_db(
-                interact.message.id, self.db_pool
-            )
-            await interact.response.edit_message(embed=new_embed)
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.event,
@@ -157,9 +146,17 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
                 interact=interact,
                 msg="EditNicknameModal -> Submit",
             )
+            await TradeService.update_nickname(
+                self.db_pool, interact.message.id, self.input_nickname.value
+            )
+            await TradeService.add_update_queue({"origin_msg": self.original_message})
+            await interact.client.trigger_queue_processing()
+            await interact.response.send_message(
+                ts.get(f"{pf}edit-requested"), ephemeral=True
+            )
         except Exception:
             await interact.response.send_message(
-                ts.get(f"{pf}err-edit"), vew=SupportView(), ephemeral=True
+                ts.get(f"{pf}err-edit"), view=SupportView(), ephemeral=True
             )
             await save_log(
                 pool=interact.client.db,
@@ -172,9 +169,10 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
 
 
 class EditQuantityModal(ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
-    def __init__(self, current_quantity: int, db_pool):
+    def __init__(self, current_quantity: int, interact: discord.Interaction, db_pool):
         super().__init__(timeout=None)
         self.db_pool = db_pool
+        self.original_message = interact.message
         self.quantity_input = ui.TextInput(
             label=ts.get(f"{pf}edit-qty-label"),
             default=str(current_quantity),
@@ -199,10 +197,11 @@ class EditQuantityModal(ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
             await TradeService.update_quantity(
                 self.db_pool, interact.message.id, self.quantity_input.value
             )
-            new_embed = await build_trade_embed_from_db(
-                interact.message.id, self.db_pool
+            await TradeService.add_update_queue({"origin_msg": self.original_message})
+            await interact.client.trigger_queue_processing()
+            await interact.response.send_message(
+                ts.get(f"{pf}edit-requested"), ephemeral=True
             )
-            await interact.response.edit_message(embed=new_embed)
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.event,
@@ -225,9 +224,10 @@ class EditQuantityModal(ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
 
 
 class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
-    def __init__(self, current_price: int, db_pool):
+    def __init__(self, current_price: int, interact: discord.Interaction, db_pool):
         super().__init__(timeout=None)
         self.db_pool = db_pool
+        self.original_message = interact.message
         self.price_input = ui.TextInput(
             label=ts.get(f"{pf}edit-price-label"),
             default=str(current_price),
@@ -246,10 +246,11 @@ class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
             await TradeService.update_price(
                 self.db_pool, interact.message.id, int(self.price_input.value)
             )
-            new_embed = await build_trade_embed_from_db(
-                interact.message.id, self.db_pool
+            await TradeService.add_update_queue({"origin_msg": self.original_message})
+            await interact.client.trigger_queue_processing()
+            await interact.response.send_message(
+                ts.get(f"{pf}edit-requested"), ephemeral=True
             )
-            await interact.response.edit_message(embed=new_embed)
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.event,
@@ -273,9 +274,10 @@ class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
 
 
 class EditRankModal(ui.Modal, title=ts.get(f"{pf}edit-rank-title")):
-    def __init__(self, current_rank: int, db_pool):
+    def __init__(self, current_rank: int, interact: discord.Interaction, db_pool):
         super().__init__(timeout=None)
         self.db_pool = db_pool
+        self.original_message = interact.message
         default_val = str(current_rank) if current_rank is not None else "0"
 
         self.rank_input = ui.TextInput(
@@ -298,10 +300,11 @@ class EditRankModal(ui.Modal, title=ts.get(f"{pf}edit-rank-title")):
             await TradeService.update_item_rank(
                 self.db_pool, interact.message.id, int(self.rank_input.value)
             )
-            new_embed = await build_trade_embed_from_db(
-                interact.message.id, self.db_pool
+            await TradeService.add_update_queue({"origin_msg": self.original_message})
+            await interact.client.trigger_queue_processing()
+            await interact.response.send_message(
+                ts.get(f"{pf}edit-requested"), ephemeral=True
             )
-            await interact.response.edit_message(embed=new_embed)
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.event,
@@ -373,8 +376,9 @@ class ConfirmDeleteView(ui.View):
 
     @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.danger)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
-        await interact.response.defer()
-        await interact.delete_original_response()
+        await interact.response.defer(ephemeral=True)
+        await self.origin_message.edit(view=None)
+        # await interact.delete_original_response()
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.event,
@@ -383,29 +387,10 @@ class ConfirmDeleteView(ui.View):
             msg=f"ConfirmDeleteView -> clicked yes",
         )
         try:
-            await TradeService.delete_trade(interact.client.db, interact.channel.id)
-
-            new_embed = await build_trade_embed(
-                self.data, interact.client.db, isDelete=True
+            await TradeService.add_delete_queue(
+                {"interact": interact, "origin_msg": self.origin_message}
             )
-            # for item in self.party_view.children:
-            #     item.disabled = True
-            await self.origin_message.edit(embed=new_embed, view=None)
-
-            # update webhook
-            try:
-                webhook = await get_webhook(
-                    interact.channel.parent, interact.client.user.avatar
-                )
-                if webhook:
-                    await webhook.edit_message(
-                        message_id=interact.channel.id, content=ts.get(f"{pf}deleted")
-                    )
-            except:
-                pass
-
-            if isinstance(interact.channel, discord.Thread):
-                await interact.channel.edit(locked=True)
+            await interact.client.trigger_queue_processing()
         except Exception:
             await interact.followup.send(
                 ts.get(f"{pf}err-general"), view=SupportView(), ephemeral=True
@@ -418,13 +403,6 @@ class ConfirmDeleteView(ui.View):
                 msg=f"ConfirmDeleteView -> clicked yes, but ERR",
                 obj=return_traceback(),
             )
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd="btn.confirm.delete",
-            interact=interact,
-            msg=f"ConfirmDeleteView -> yes",
-        )
         self.value = True
         self.stop()
 
@@ -452,7 +430,7 @@ class ConfirmTradeView(ui.View):
 
     @ui.button(label=ts.get(f"{pf}btn-confirm"), style=discord.ButtonStyle.success)
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
-        await interact.response.defer()
+        await interact.response.defer(ephemeral=True)
         await interact.delete_original_response()
         await save_log(
             pool=interact.client.db,
@@ -462,15 +440,10 @@ class ConfirmTradeView(ui.View):
             msg=f"ConfirmTradeView -> YES",
         )
         try:
-            host_warn_count = await WarnService.getCriticalCount(
-                interact.client.db, interact.user.id
-            )
             trade_info = await TradeService.get_trade_by_id(self.db_pool, self.trade_id)
 
-            req_text = ""
-            if host_warn_count >= 1:
-                req_text += ts.get(f"cmd.warning-count").format(count=host_warn_count)
-
+            req_text: str = ""
+            # req_text += await WarnService.generateWarnMsg(interact.client.db, interact.user.id)
             req_text += ts.get(f"{pf}trade-request").format(
                 host_mention=f"<@{trade_info['host_id']}>",
                 user_mention=interact.user.mention,
@@ -629,7 +602,7 @@ class TradeView(ui.View):
             return
 
         await interact.response.send_modal(
-            EditQuantityModal(trade_data["quantity"], interact.client.db)
+            EditQuantityModal(trade_data["quantity"], interact, interact.client.db)
         )
 
     # btn edit price
@@ -663,7 +636,7 @@ class TradeView(ui.View):
             return
 
         await interact.response.send_modal(
-            EditPriceModal(trade_data["price"], interact.client.db)
+            EditPriceModal(trade_data["price"], interact, interact.client.db)
         )
 
     # btn edit rank
@@ -705,7 +678,7 @@ class TradeView(ui.View):
             return
 
         await interact.response.send_modal(
-            EditRankModal(trade_data["item_rank"], interact.client.db)
+            EditRankModal(trade_data["item_rank"], interact, interact.client.db)
         )
 
     # edit nickname
@@ -742,7 +715,7 @@ class TradeView(ui.View):
             return
 
         await interact.response.send_modal(
-            EditNicknameModal(trade_data["game_nickname"], interact.client.db)
+            EditNicknameModal(trade_data["game_nickname"], interact, interact.client.db)
         )
 
     # btn close trade

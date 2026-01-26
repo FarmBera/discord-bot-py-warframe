@@ -58,8 +58,11 @@ from src.parser.steelPath import w_steelPath
 from src.parser.vallisCycle import w_vallisCycle
 from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
 from src.parser.worldstate import w_worldstate
+from src.services.party_service import PartyService
+from src.services.trade_service import TradeService
 from src.translator import ts
 from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
+from src.utils.permission import is_super_user
 from src.views.register_view import register_cmd_helper
 
 
@@ -572,6 +575,24 @@ class GeneralCommands(commands.Cog):
             parser_func=w_worldstate,
             isPrivateMsg=developer_options,
             skipGetObj=True,
+        )
+
+    @app_commands.command(name="check-queue", description="cmd.check-queue.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_check_queue_list(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await interact.response.defer(ephemeral=True)
+        if not await is_super_user(interact, "check-queue", True, True):
+            return
+
+        desc: str = "# Processing Queue Status\n"
+        desc += await PartyService.get_queue_count()
+        desc += await TradeService.get_queue_count()
+        await interact.followup.send(
+            embed=discord.Embed(description=desc, color=discord.Color.darker_grey())
         )
 
 

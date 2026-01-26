@@ -11,9 +11,8 @@ from src.translator import ts
 from src.utils.logging_utils import save_log
 from src.utils.permission import is_valid_guild, is_banned_user
 from src.utils.return_err import return_traceback
-from src.utils.webhook import get_webhook
 from src.views.help_view import SupportView
-from src.views.trade_view import TradeView, build_trade_embed, parseNickname
+from src.views.trade_view import parseNickname
 
 pf = "cmd.trade."
 
@@ -159,69 +158,27 @@ class TradeCog(commands.Cog):
             )
             return
 
-        # create embed & thread
-        try:
-            webhook = await get_webhook(target_channel, self.bot.user.avatar)
-
-            thread_name = f"[{trade_type.name}] {real_item_name}"
-            if is_rank_item:
-                thread_name += f" ({ts.get(f'{pf}rank-simple').format(rank=item_rank)})"
-
-            starter_msg = await webhook.send(
-                content=f"**{trade_type.name}** 합니다.",
-                username=interact.user.display_name,
-                avatar_url=interact.user.display_avatar.url,
-                wait=True,
-            )
-            thread = await starter_msg.create_thread(name=thread_name)
-
-            embed = await build_trade_embed(
-                {
-                    "id": trade_id,
-                    "host_id": interact.user.id,
-                    "host_mention": interact.user.mention,
-                    "game_nickname": final_nickname,
-                    "trade_type": trade_type.name,
-                    "item_name": real_item_name,
-                    "item_rank": item_rank,
-                    "quantity": quantity,
-                    "price": estimated_price,
-                },
-                self.bot.db,
-                isRank=is_rank_item,
-            )
-            msg = await thread.send(embed=embed, view=TradeView())
-
-            await TradeService.update_thread_info(
-                self.bot.db, trade_id, thread.id, msg.id
-            )
-
-            await interact.followup.send(
-                f"{output_msg}{ts.get(f'{pf}created-trade').format(ch=target_channel.name, mention=thread.mention)}",
-                ephemeral=True,
-            )
-
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.cmd,
-                cmd=f"cmd.trade",
-                interact=interact,
-                msg="cmd used",
-                obj=f"Type:{trade_type}\nItem:{item_name}\nQty:{quantity}\nPrice:{price}",
-            )
-
-        except Exception as e:
-            await interact.followup.send(
-                f"Error setup thread", view=SupportView(), ephemeral=True
-            )
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.err,
-                cmd=f"cmd.trade",
-                interact=interact,
-                msg=f"Create thread err: {e}",
-                obj=return_traceback(),
-            )
+        # add to queue for processing
+        data = {
+            "id": trade_id,
+            "host_id": interact.user.id,
+            "host_mention": interact.user.mention,
+            "game_nickname": final_nickname,
+            "trade_type": trade_type.name,
+            "item_name": real_item_name,
+            "item_rank": item_rank,
+            "quantity": quantity,
+            "price": estimated_price,
+            "isRank": is_rank_item,
+        }
+        await TradeService.add_create_queue(
+            {"interact": interact, "data": data, "target_channel": target_channel}
+        )
+        await interact.followup.send(
+            f"{output_msg}✅ '{target_channel.name}' {ts.get(f'{pf}created-trade')}",
+            ephemeral=True,
+        )
+        await self.bot.trigger_queue_processing()
 
     # auto complete item
     # noinspection PyUnusedLocal

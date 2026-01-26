@@ -10,9 +10,8 @@ from src.translator import ts
 from src.utils.logging_utils import save_log
 from src.utils.permission import is_valid_guild, is_banned_user
 from src.utils.return_err import return_traceback
-from src.utils.webhook import get_webhook
 from src.views.help_view import SupportView
-from src.views.party_view import PartyView, build_party_embed, pf, MIN_SIZE, MAX_SIZE
+from src.views.party_view import pf, MIN_SIZE, MAX_SIZE
 
 
 class PartyCog(commands.Cog):
@@ -43,7 +42,7 @@ class PartyCog(commands.Cog):
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.cmd,
-            cmd=f"cmd.party",
+            cmd=f"cmd.party.create",
             interact=interact,
             msg="cmd used",  # VAR
             obj=f"T:{title}\nTYPE:{game_name}\nDEPT:{departure}\nDESC:{descriptions}\n{number_of_user}",
@@ -115,70 +114,26 @@ class PartyCog(commands.Cog):
             )
             return
 
-        # create webhook & threads
-        try:
-            webhook = await get_webhook(target_channel, self.bot.user.avatar)
-
-            thread_starter_msg = await webhook.send(
-                content=title,  # ts.get(f"{pf}created-party"),
-                username=interact.user.display_name,
-                avatar_url=interact.user.display_avatar.url,
-                wait=True,
-            )
-            thread = await thread_starter_msg.create_thread(
-                name=f"[{game_name}] {title}",
-                reason=f"{interact.user.display_name} user created party",
-            )
-
-            # create embed & view
-            embed = await build_party_embed(
-                {
-                    "id": party_id,
-                    "host_id": interact.user.id,
-                    "host_mention": interact.user.mention,
-                    "title": title,
-                    "mission": game_name,
-                    "departure": departure,
-                    "max_users": number_of_user,
-                    "participants": [interact.user.mention],
-                    "is_closed": False,
-                    "description": descriptions,
-                },
-                self.bot.db,
-            )
-
-            msg = await thread.send(embed=embed, view=PartyView())
-
-            # update db (thread & msg id)
-            await PartyService.update_thread_info(
-                self.bot.db, party_id, thread.id, msg.id
-            )
-
-            await interact.followup.send(
-                f"✅ '{target_channel.name}' {ts.get(f'{pf}pt-create')} {thread.mention}",
-                ephemeral=True,
-            )
-            await save_log(
-                pool=self.bot.db,
-                type=LOG_TYPE.cmd,
-                cmd="party",
-                interact=interact,
-                msg="Party Created",
-            )
-
-        except Exception as e:
-            await interact.followup.send(
-                f"{ts.get(f'{pf}err-unknown')}", view=SupportView(), ephemeral=True
-            )
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.err,
-                cmd=f"cmd.party",
-                interact=interact,
-                msg="cmd used, but ERR",  # VAR
-                obj=f"Error setup discord thread:\nT:{title}\nTYPE:{game_name}\nDEPT:{departure}\nDESC:{descriptions}\n{number_of_user}\n{return_traceback()}",
-            )
-            print(f"partyCog > {e}")
+        data = {
+            "id": party_id,
+            "host_id": interact.user.id,
+            "host_mention": interact.user.mention,
+            "title": title,
+            "mission": game_name,
+            "departure": departure,
+            "max_users": number_of_user,
+            "participants": [interact.user.mention],
+            "is_closed": False,
+            "description": descriptions,
+        }
+        await PartyService.add_create_queue(
+            {"interact": interact, "data": data, "target_channel": target_channel}
+        )
+        await interact.followup.send(
+            f"✅ '{target_channel.name}' {ts.get(f'{pf}pt-create')}",
+            ephemeral=True,
+        )
+        await self.bot.trigger_queue_processing()
 
 
 async def setup(bot: commands.Bot):
