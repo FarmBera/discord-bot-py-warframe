@@ -249,7 +249,7 @@ class PartyService:
                 )
             except Exception as e:
                 await save_log(
-                    pool=interact.client.db,
+                    pool=emergency_db,
                     type=LOG_TYPE.err,
                     cmd=f"cmd.party",
                     interact=interact,
@@ -341,7 +341,7 @@ class PartyService:
 
                 # build new embed & edit msg
                 new_embed = await build_party_embed_from_db(
-                    msg.id, interact.client.db, isDelete=True
+                    msg.id, emergency_db, isDelete=True
                 )
                 await msg.edit(embed=new_embed, view=None)
 
@@ -366,7 +366,7 @@ class PartyService:
                 if isinstance(interact.channel, discord.Thread):
                     await interact.channel.edit(locked=True)
 
-                await PartyService.delete_party(interact.client.db, interact.channel.id)
+                await PartyService.delete_party(emergency_db, interact.channel.id)
                 await save_log(
                     pool=emergency_db,
                     type=LOG_TYPE.info,

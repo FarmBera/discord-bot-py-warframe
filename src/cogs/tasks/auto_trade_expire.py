@@ -1,4 +1,3 @@
-import asyncio
 import datetime as dt
 
 import discord
@@ -7,12 +6,14 @@ from discord.ext import tasks, commands
 from config.config import LOG_TYPE, language as lang, Lang
 from src.constants.color import C
 from src.constants.keys import MSG_BOT, LFG_WEBHOOK_NAME
+from src.services.trade_service import TradeService
 from src.translator import ts
-from src.utils.db_helper import query_reader, transaction
+from src.utils.db_helper import query_reader
+from src.utils.delay import delay
 from src.utils.logging_utils import save_log
 from src.utils.return_err import return_traceback
 from src.utils.times import KST, timeNowDT
-from src.views.trade_view import TradeView, build_trade_embed_from_db
+from src.views.trade_view import build_trade_embed_from_db
 
 
 class tasks_auto_trade_expire(commands.Cog):
@@ -63,12 +64,20 @@ class tasks_auto_trade_expire(commands.Cog):
         for trade in expired_trades:
             try:
                 thread = self.bot.get_channel(trade["thread_id"])
+
+                await delay()
+
                 await thread.edit(locked=True)  # lock thread
 
                 msg = await thread.fetch_message(trade["message_id"])
+
+                await delay()
+
                 try:  # edit web hook msg
                     webhooks = await thread.parent.webhooks()
                     webhook = discord.utils.get(webhooks, name=LFG_WEBHOOK_NAME)
+
+                    await delay()
 
                     if webhook:
                         starter_message = await thread.parent.fetch_message(thread.id)
@@ -77,29 +86,18 @@ class tasks_auto_trade_expire(commands.Cog):
                                 message_id=thread.id,
                                 content=ts.get("cmd.trade.expired"),
                             )
-                    else:  #  if webhook is not found
-                        starter_message = await thread.parent.fetch_message(thread.id)
-                        await starter_message.edit(content=ts.get("cmd.trade.expired"))
                 except discord.NotFound:
                     pass
 
-                # disable all buttons on the original TradeView
-                new_trade_view = TradeView()
-                for item in new_trade_view.children:
-                    if isinstance(item, discord.ui.Button):
-                        item.disabled = True
+                await delay()
 
                 # refresh Embed
                 new_embed = await build_trade_embed_from_db(
                     trade["message_id"], self.bot.db, isDelete=True
                 )
-                await msg.edit(embed=new_embed, view=new_trade_view)
+                await msg.edit(embed=new_embed, view=None)
 
-                # remove from db
-                async with transaction(self.bot.db) as cursor:
-                    await cursor.execute(
-                        "DELETE FROM trade WHERE id = %s", (trade["id"],)
-                    )
+                await TradeService.delete_trade(self.bot.db, trade["thread_id"])
                 deleted_count += 1
                 omsg = f"Expired trade {trade['id']} deleted."
                 await save_log(
@@ -109,7 +107,7 @@ class tasks_auto_trade_expire(commands.Cog):
                     user=MSG_BOT,
                     msg=omsg,
                 )
-            except discord.NotFound:
+            except discord.NotFound:  # msg deleted manually
                 await save_log(
                     pool=self.bot.db,
                     type=LOG_TYPE.warn,
@@ -118,11 +116,7 @@ class tasks_auto_trade_expire(commands.Cog):
                     msg=f"Trade AutoDelete, but msg not found: {trade['id']}",
                     obj=return_traceback(),
                 )
-                # msg deleted manually
-                async with transaction(self.bot.db) as cursor:
-                    await cursor.execute(
-                        "DELETE FROM trade WHERE id = %s", (trade["id"],)
-                    )
+                await TradeService.delete_trade(self.bot.db, trade["thread_id"])
             except Exception as e:
                 await save_log(
                     pool=self.bot.db,
@@ -132,7 +126,7 @@ class tasks_auto_trade_expire(commands.Cog):
                     msg=f"Trade AutoDelete, but error occurred! {e}",
                     obj=return_traceback(),
                 )
-            await asyncio.sleep(5)
+            await delay()
 
         await save_log(
             pool=self.bot.db,

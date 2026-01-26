@@ -240,7 +240,7 @@ class TradeService:
                 )
             except Exception as e:
                 await save_log(
-                    pool=interact.client.db,
+                    pool=emergency_db,
                     type=LOG_TYPE.err,
                     cmd=f"cmd.trade",
                     interact=interact,
@@ -320,7 +320,7 @@ class TradeService:
 
                 # build new embed & edit msg
                 new_embed = await build_trade_embed_from_db(
-                    msg.id, interact.client.db, isDelete=True
+                    msg.id, emergency_db, isDelete=True
                 )
                 await msg.edit(embed=new_embed, view=None)
 
@@ -345,7 +345,7 @@ class TradeService:
                 if isinstance(interact.channel, discord.Thread):
                     await interact.channel.edit(locked=True)
 
-                await TradeService.delete_trade(interact.client.db, interact.channel.id)
+                await TradeService.delete_trade(emergency_db, interact.channel.id)
                 await save_log(
                     pool=emergency_db,
                     type=LOG_TYPE.info,

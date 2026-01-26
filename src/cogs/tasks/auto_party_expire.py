@@ -1,4 +1,3 @@
-import asyncio
 import datetime as dt
 
 import discord
@@ -7,12 +6,14 @@ from discord.ext import tasks, commands
 from config.config import LOG_TYPE, language as lang, Lang
 from src.constants.color import C
 from src.constants.keys import MSG_BOT, LFG_WEBHOOK_NAME
+from src.services.party_service import PartyService
 from src.translator import ts
-from src.utils.db_helper import query_reader, transaction
+from src.utils.db_helper import query_reader
+from src.utils.delay import delay
 from src.utils.logging_utils import save_log
 from src.utils.return_err import return_traceback
 from src.utils.times import KST, timeNowDT
-from src.views.party_view import PartyView, build_party_embed_from_db
+from src.views.party_view import build_party_embed_from_db
 
 
 class task_auto_party_expire(commands.Cog):
@@ -63,13 +64,23 @@ class task_auto_party_expire(commands.Cog):
         for party in expired_parties:
             try:
                 thread = self.bot.get_channel(party["thread_id"])
+
+                await delay()
+
                 await thread.edit(locked=True)  # lock thread
 
+                await delay()
+
                 msg = await thread.fetch_message(party["message_id"])
+
+                await delay()
+
                 try:  # edit thread starter (webhook) msg
                     webhook = discord.utils.get(
                         await thread.parent.webhooks(), name=LFG_WEBHOOK_NAME
                     )
+                    await delay()
+
                     if webhook and msg:
                         await webhook.edit_message(
                             message_id=party["message_id"],
@@ -78,23 +89,16 @@ class task_auto_party_expire(commands.Cog):
                 except discord.NotFound:
                     pass  # starter msg not found, maybe deleted manually
 
-                # disable all buttons on the original PartyView
-                new_party_view = PartyView()
-                for item in new_party_view.children:
-                    if isinstance(item, discord.ui.Button):
-                        item.disabled = True
+                await delay()
 
                 # refresh Embed
                 new_embed = await build_party_embed_from_db(
                     party["message_id"], self.bot.db, isDelete=True
                 )
-                await msg.edit(embed=new_embed, view=new_party_view)
+                await msg.edit(embed=new_embed, view=None)
 
                 # remove from db
-                async with transaction(self.bot.db) as cursor:
-                    await cursor.execute(
-                        "DELETE FROM party WHERE id = %s", (party["id"],)
-                    )
+                await PartyService.delete_party(self.bot.db, party["thread_id"])
                 deleted_count += 1
                 omsg = f"Expired party {party['id']} deleted."
                 await save_log(
@@ -114,10 +118,7 @@ class task_auto_party_expire(commands.Cog):
                     obj=return_traceback(),
                 )
                 # msg deleted manually
-                async with transaction(self.bot.db) as cursor:
-                    await cursor.execute(
-                        "DELETE FROM party WHERE id = %s", (party["id"],)
-                    )
+                await PartyService.delete_party(self.bot.db, party["thread_id"])
                 deleted_count += 1
             except Exception:
                 await save_log(
@@ -128,7 +129,7 @@ class task_auto_party_expire(commands.Cog):
                     msg=f"Party AutoDelete, but error occurred!",
                     obj=return_traceback(),
                 )
-            await asyncio.sleep(5)
+            await delay()
 
         await save_log(
             pool=self.bot.db,
