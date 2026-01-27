@@ -62,25 +62,6 @@ class ComplainModal(discord.ui.Modal):
                 desc=self.input_desc,
             )
 
-            # load dm users
-            async with query_reader(interact.client.db) as cursor:
-                await cursor.execute(
-                    "SELECT user_id, is_dm_target FROM admins WHERE is_dm_target=TRUE"
-                )
-                result = await cursor.fetchall()
-
-            # dm target not found
-            if result is None or not result:
-                pass
-
-            # send dm to user
-            for user in result:
-                target_user = await interact.client.fetch_user(user["user_id"])
-                await target_user.send(
-                    embed=discord.Embed(title=title, description=desc)
-                )
-                await asyncio.sleep(1)
-
             # get & fetch channel
             channel_list = await ChannelService.getChannels(interact)
             forum_channel = interact.client.get_channel(channel_list.get("complain_ch"))
@@ -102,6 +83,22 @@ class ComplainModal(discord.ui.Modal):
             await self.button_interact.edit_original_response(
                 content=ts.get(f"{pf}done"), embed=None, view=None
             )
+
+            # load dm users
+            # async with query_reader(interact.client.db) as cursor:
+            #     await cursor.execute(
+            #         "SELECT user_id, is_dm_target FROM admins WHERE is_dm_target=TRUE"
+            #     )
+            #     dm_result = await cursor.fetchall()
+            # # send dm to user
+            # if dm_result:
+            #     for user in dm_result:
+            #         target_user = interact.client.get_user(user["user_id"])
+            #         await target_user.send(
+            #             embed=discord.Embed(title=title, description=desc)
+            #         )
+            #         await asyncio.sleep(1)
+
             await save_log(
                 pool=interact.client.db,
                 type=LOG_TYPE.event,
@@ -126,7 +123,7 @@ class ComplainModal(discord.ui.Modal):
 
 
 class ApplyButtonView(discord.ui.View):
-    def __init__(self, interact):
+    def __init__(self, interact, channel_id):
         self.interact: discord.Interaction = interact
         super().__init__(timeout=None)
         self.cd: commands.CooldownMapping = commands.CooldownMapping.from_cooldown(

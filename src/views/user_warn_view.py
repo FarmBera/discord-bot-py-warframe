@@ -1,12 +1,12 @@
 import discord
 from discord import ui
 
-from src.translator import ts
 from config.config import LOG_TYPE
-from src.utils.logging_utils import save_log
-from src.utils.db_helper import transaction
-from src.utils.return_err import return_traceback
+from src.services.channel_service import ChannelService
 from src.services.warn_service import WarnService, WARN_THRESHOLD
+from src.translator import ts
+from src.utils.logging_utils import save_log
+from src.utils.return_err import return_traceback
 from src.views.help_view import SupportView
 
 pf: str = "cmd.user-ban."
@@ -81,6 +81,21 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
             message_body += ts.get(f"{pf}banned").format(ban_threshold=WARN_THRESHOLD)
 
         await interact.followup.send(message_body, ephemeral=True)
+
+        channel_list = await ChannelService.getChannels(interact)
+        channel_id = channel_list.get("warn_log_ch")
+        target_channel = interact.client.get_channel(channel_id)
+        if not target_channel:
+            await interact.followup.send(ts.get(f"{pf}err-channel"), ephemeral=True)
+            await save_log(
+                pool=interact.client.db,
+                type=LOG_TYPE.err,
+                cmd=f"cmd.WarnInputModal",
+                interact=interact,
+                msg="cmd used, but warn_log_ch not found",
+            )
+            return
+        await target_channel.send(content=message_body)
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.cmd,

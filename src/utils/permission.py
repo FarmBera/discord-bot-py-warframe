@@ -13,8 +13,11 @@ GUILD_EMBED: discord.Embed = discord.Embed(
 ADMIN_EMBED: discord.Embed = discord.Embed(
     description=ts.get(f"general.admin"), color=0xFF0000
 )
+TEMP_BANNED_EMBED: discord.Embed = discord.Embed(
+    description=ts.get(f"general.banned").format(time="1시간"), color=0xFF0000
+)
 BANNED_EMBED: discord.Embed = discord.Embed(
-    description=ts.get(f"general.banned"), color=0xFF0000
+    description=ts.get(f"general.banned").format(time="영구"), color=0xFF0000
 )
 
 
@@ -157,23 +160,46 @@ async def is_valid_guild(
 
 
 async def is_banned_user(interact: discord.Interaction, isFollowUp: bool = False):
-    async with query_reader(interact.client.db) as cursor:
-        check_ban_sql = (
-            "SELECT 1 FROM warnings WHERE user_id = %s AND banned = 1 LIMIT 1"
-        )
-        await cursor.execute(check_ban_sql, (interact.user.id,))
-        is_already_banned = await cursor.fetchone()
+    pool = interact.client.db
+    user_id = interact.user.id
 
-    if is_already_banned:
+    sql = """SELECT COALESCE(MAX(banned), 0) AS is_perm_banned,
+COALESCE(MAX(CASE WHEN critical = 1 AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR) THEN 1 ELSE 0 END), 0) AS is_temp_banned
+FROM warnings WHERE user_id  = %s"""
+
+    async with query_reader(pool) as cursor:
+        await cursor.execute(sql, (user_id,))
+        status = await cursor.fetchone()
+
+    if not status:
+        return False
+
+    if status["is_perm_banned"]:
         if isFollowUp:
             await interact.followup.send(embed=BANNED_EMBED, ephemeral=True)
         else:
             await interact.response.send_message(embed=BANNED_EMBED, ephemeral=True)
         await save_log(
-            pool=interact.client.db,
+            pool=pool,
             type=LOG_TYPE.warn,
             interact=interact,
-            msg="cmd used, but banned user",  # VAR
+            msg="cmd used, but permanently banned user",
         )
         return True
+
+    if status["is_temp_banned"]:
+        if isFollowUp:
+            await interact.followup.send(embed=TEMP_BANNED_EMBED, ephemeral=True)
+        else:
+            await interact.response.send_message(
+                embed=TEMP_BANNED_EMBED, ephemeral=True
+            )
+        await save_log(
+            pool=pool,
+            type=LOG_TYPE.warn,
+            interact=interact,
+            msg="cmd used, but temporary banned user",
+        )
+        return True
+
     return False

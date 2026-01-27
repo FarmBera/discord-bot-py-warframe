@@ -45,7 +45,8 @@ class ComplainCommands(commands.Cog):
             return
 
         # fetch channel
-        target_channel = interact.client.get_channel(channel_list.get("complain_ch"))
+        channel_id = channel_list.get("complain_ch")
+        target_channel = interact.client.get_channel(channel_id)
         if not target_channel:
             await interact.followup.send(ts.get(f"{pf}err-channel"), ephemeral=True)
             await save_log(

@@ -50,7 +50,6 @@ class PartyCog(commands.Cog):
 
         if not await is_valid_guild(interact, isFollowUp=True):
             return
-
         if await is_banned_user(interact, isFollowUp=True):
             return
 

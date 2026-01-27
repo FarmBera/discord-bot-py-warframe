@@ -42,7 +42,8 @@ class WarnService:
 
         async with transaction(pool) as cursor:
             # cumulative warning count
-            count_sql = "SELECT COUNT(*) as cnt FROM warnings WHERE user_id = %s"
+            # count_sql = "SELECT COUNT(*) as cnt FROM warnings WHERE user_id = %s"
+            count_sql = "SELECT COUNT(*) as cnt FROM warnings WHERE user_id = %s AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)"
             await cursor.execute(count_sql, (user_id,))
             result = await cursor.fetchone()
             current_warn_count = result["cnt"] if result else 0

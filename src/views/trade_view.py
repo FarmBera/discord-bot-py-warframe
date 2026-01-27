@@ -13,7 +13,7 @@ from src.parser.marketsearch import get_slug_data, create_market_url
 from src.services.trade_service import TradeService
 from src.translator import ts
 from src.utils.logging_utils import save_log
-from src.utils.permission import is_admin_user, is_valid_guild
+from src.utils.permission import is_admin_user, is_valid_guild, is_banned_user
 from src.utils.return_err import return_traceback
 from src.views.help_view import SupportView
 
@@ -541,8 +541,9 @@ class TradeView(ui.View):
         )
         if await self.is_cooldown(interact, self.cooldown_call):
             return
-
         if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+        if await is_banned_user(interact):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(
@@ -588,8 +589,9 @@ class TradeView(ui.View):
         )
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
-
         if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+        if await is_banned_user(interact):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(
@@ -622,8 +624,9 @@ class TradeView(ui.View):
         )
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
-
         if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+        if await is_banned_user(interact):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(
@@ -657,8 +660,9 @@ class TradeView(ui.View):
         )
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
-
         if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+        if await is_banned_user(interact):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(
@@ -698,8 +702,9 @@ class TradeView(ui.View):
         )
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
-
         if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+        if await is_banned_user(interact):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(
@@ -731,13 +736,13 @@ class TradeView(ui.View):
             type=LOG_TYPE.event,
             cmd=cmd,
             interact=interact,
-            msg=f"TradeView -> close_trade",
-            # obj=new_status,
+            msg=f"TradeView -> close_trade",  # obj=new_status,
         )
         if await self.is_cooldown(interact, self.cooldown_manage):
             return
-
         if not await is_valid_guild(interact=interact, cmd=cmd):
+            return
+        if await is_banned_user(interact):
             return
 
         trade_data = await TradeService.get_trade_by_message_id(

@@ -43,7 +43,6 @@ class UserWarnCommands(commands.Cog):
 
         if not await is_valid_guild(interact):
             return
-
         if not await is_admin_user(
             interact, cmd=f"{LOG_TYPE.cmd}.user-ban", notify=True
         ):

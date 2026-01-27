@@ -11,7 +11,7 @@ class ChannelService:
 
         async with query_reader(pool) as cursor:
             await cursor.execute(
-                "SELECT guild_id,party_ch,trade_ch,complain_ch,is_allowed FROM channels WHERE guild_id = %s LIMIT 1",
+                "SELECT guild_id,party_ch,trade_ch,complain_ch,warn_log_ch,is_allowed FROM channels WHERE guild_id = %s LIMIT 1",
                 (guild_id,),
             )
             channels = await cursor.fetchone()

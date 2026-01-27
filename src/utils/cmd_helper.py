@@ -8,7 +8,7 @@ from src.utils.data_manager import get_obj_async
 from src.utils.discord_file import img_file
 from src.utils.file_io import open_file_async
 from src.utils.logging_utils import save_log
-from src.utils.permission import is_admin_user
+from src.utils.permission import is_admin_user, is_banned_user
 from src.utils.return_err import err_embed, return_traceback
 from src.views.help_view import SupportMasterView, SupportView
 
@@ -24,6 +24,9 @@ async def cmd_helper(
     marketQuery: tuple = (None, None),
     skipGetObj: bool = False,
 ) -> None:
+    if await is_banned_user(interact):
+        return
+
     # check admin if user want to send public msg
     if not isPrivateMsg:
         is_admin = await is_admin_user(
@@ -96,6 +99,9 @@ async def cmd_helper(
 async def cmd_helper_txt(
     interact: discord.Interaction, file_name: str, isPrivateMsg: bool = True
 ) -> None:
+    if await is_banned_user(interact):
+        return
+
     if not isPrivateMsg:
         is_admin = await is_admin_user(interact=interact, cmd=f"{file_name}")
         if not is_admin:
