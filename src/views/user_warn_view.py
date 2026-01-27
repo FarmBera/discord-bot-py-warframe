@@ -52,7 +52,7 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
         original_name = self.target_member.name
         global_name = self.target_member.global_name
         display_name = self.target_member.display_name
-        given_name = f"{interact.user.display_name} ({interact.user.name})"
+        given_name = interact.user.display_name
 
         try:
             is_executed_ban = await WarnService.insertWarn(
@@ -78,13 +78,19 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
             )
             return
 
-        message_body = ts.get(f"{pf}msg-body").format(
-            original_name=original_name,
-            display_name=display_name,
-            game_nickname=game_nickname,
-            given_name=given_name,
-            warn_reason=warn_reason,
-        )
+        # message_body = ts.get(f"{pf}msg-body").format(
+        #     original_name=original_name,
+        #     display_name=display_name,
+        #     game_nickname=game_nickname,
+        #     given_name=given_name,
+        #     warn_reason=warn_reason,
+        # )
+        title = f"경고: {display_name}"
+        message_body = f"""- 사용자 ID: {original_name}
+- 워프레임 닉네임: {game_nickname}
+- 사유: **{warn_type}**
+{warn_reason}
+"""
         if is_executed_ban:
             message_body += ts.get(f"{pf}banned").format(ban_threshold=WARN_THRESHOLD)
 
@@ -103,7 +109,12 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
                 msg="cmd used, but warn_log_ch not found",
             )
             return
-        await target_channel.send(content=message_body)
+        eb = discord.Embed(
+            title=title, description=message_body.strip(), color=0xFF0000
+        )
+        eb.set_thumbnail(url=self.target_member.avatar.url)
+        eb.set_footer(text=f"경고 부여자: {given_name}")
+        await target_channel.send(embed=eb)
         await save_log(
             pool=interact.client.db,
             type=LOG_TYPE.cmd,
