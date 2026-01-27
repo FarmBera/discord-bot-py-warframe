@@ -5,7 +5,7 @@ from src.utils.data_manager import solNodes
 from src.utils.file_io import json_load
 from src.utils.times import timeNow
 
-STEEL_INCURSIONS = json_load("data/steel-incursions.json")
+steel_incursions_data = json_load("data/steel-incursions.json")
 
 pf: str = "cmd.steel-incursion."
 
@@ -13,9 +13,9 @@ pf: str = "cmd.steel-incursion."
 def w_steelIncursions() -> tuple[discord.Embed, str]:
     cnt: int = 0
     this_node = []
-    for item in STEEL_INCURSIONS:
+    for item in steel_incursions_data:
         if item["time"] > timeNow():
-            this_node = STEEL_INCURSIONS[cnt - 1]["node"]
+            this_node = steel_incursions_data[cnt - 1]["node"]
             # print(item["time"])
             # print(item["node"])
             # print(cnt)

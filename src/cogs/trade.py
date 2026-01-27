@@ -7,7 +7,6 @@ from src.constants.keys import COOLDOWN_5_MIN
 from src.parser.marketsearch import get_slug_data, get_market_item_names
 from src.services.channel_service import ChannelService
 from src.services.trade_service import TradeService
-from src.services.warn_service import WarnService
 from src.translator import ts
 from src.utils.logging_utils import save_log
 from src.utils.permission import is_valid_guild, is_banned_user

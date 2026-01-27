@@ -103,7 +103,7 @@ class DiscordBot(commands.Bot):
         # send message
         for ch in channel_list:
             try:
-                channel = await self.fetch_channel(ch)
+                channel = self.get_channel(ch)
                 msg: str = f"msg sent"
                 if isinstance(value, discord.Embed):
                     await save_log(
