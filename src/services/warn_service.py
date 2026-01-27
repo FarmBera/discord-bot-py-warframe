@@ -36,7 +36,7 @@ class WarnService:
 
     @staticmethod
     async def insertWarn(
-        pool, user_id, display_name, game_nickname, warn_type, warn_reason
+        pool, user_id, display_name, game_nickname, warn_type, warn_reason, given_name
     ) -> bool:
         is_executed_ban = False
 
@@ -53,13 +53,14 @@ class WarnService:
                 is_executed_ban = True
 
             await cursor.execute(
-                "INSERT INTO warnings (user_id, display_name, game_nickname, category, note, critical) VALUES (%s, %s, %s, %s, %s, %s)",
+                "INSERT INTO warnings (user_id, display_name, game_nickname, category, note, given_name, critical) VALUES (%s, %s, %s, %s, %s, %s, %s)",
                 (
                     user_id,
                     display_name,
                     game_nickname,
                     warn_type,
                     warn_reason,
+                    given_name,
                     is_executed_ban,
                 ),
             )

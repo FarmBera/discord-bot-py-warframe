@@ -52,10 +52,17 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
         original_name = self.target_member.name
         global_name = self.target_member.global_name
         display_name = self.target_member.display_name
+        given_name = f"{interact.user.display_name} ({interact.user.name})"
 
         try:
             is_executed_ban = await WarnService.insertWarn(
-                self.pool, user_id, display_name, game_nickname, warn_type, warn_reason
+                self.pool,
+                user_id,
+                display_name,
+                game_nickname,
+                warn_type,
+                warn_reason,
+                given_name,
             )
         except Exception:
             await interact.followup.send(
@@ -75,6 +82,7 @@ class WarnInputModal(ui.Modal, title=ts.get(f"{pf}modal-title")):
             original_name=original_name,
             display_name=display_name,
             game_nickname=game_nickname,
+            given_name=given_name,
             warn_reason=warn_reason,
         )
         if is_executed_ban:

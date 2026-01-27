@@ -734,6 +734,7 @@ cmd:
     msg-body: |
       ## ⚠️ Warn: {display_name}
       - **User**: {original_name} / Warframe Nick: {game_nickname}
+      - Given user: {given_name}
       - **Reason**: {warn_reason}
     banned: "🚨 **Exceeded the cumulative warning threshold of {ban_threshold} times and have been automatically banned.**"
 

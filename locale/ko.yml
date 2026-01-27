@@ -734,6 +734,7 @@ cmd:
     msg-body: |
       ### ⚠️ 경고: {display_name}
       - **사용자**: {original_name} / 워프레임 닉네임: {game_nickname}
+      - 부여자: {given_name}
       - **사유**: {warn_reason}
     banned: "🚨 **누적 경고 {ban_threshold}회 초과로 자동 밴 처리**"
 
