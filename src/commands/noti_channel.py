@@ -197,7 +197,7 @@ class NotificationSelect(discord.ui.Select):
             except Exception:
                 webhook = await interact.channel.create_webhook(name=bot_name)
 
-        sql_base = "INSERT INTO webhooks (channel_id, guild_id, webhook_url, note, {cols}) VALUES (%s, %s, %s, %s, {vals}) ON DUPLICATE KEY UPDATE webhook_url=%s, {updates}"
+        sql_base = "INSERT INTO webhooks (channel_id, guild_id, webhook_url, note, {cols}) VALUES (%s, %s, %s, %s, {vals}) ON DUPLICATE KEY UPDATE webhook_url=%s{updates}"
 
         col_names = []
         val_placeholders = []
@@ -216,15 +216,20 @@ class NotificationSelect(discord.ui.Select):
 
             col_names.append(col_name)
             val_placeholders.append("%s")
-            update_clauses.append(f"{col_name}=%s")
-
             insert_values.append(is_selected)
-            update_values.append(is_selected)
+
+            if is_selected:
+                update_clauses.append(f"{col_name}=%s")
+                update_values.append(is_selected)
+
+        updates_sql = ""
+        if update_clauses:
+            updates_sql = ", " + ", ".join(update_clauses)
 
         final_sql = sql_base.format(
             cols=", ".join(col_names),
             vals=", ".join(val_placeholders),
-            updates=", ".join(update_clauses),
+            updates=updates_sql,
         )
         # print(final_sql, insert_values + update_values)
 
