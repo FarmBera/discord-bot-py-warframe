@@ -4,7 +4,7 @@ def checkMissingIds(obj_prev, obj_new):
     prev_ids = {item["_id"]["$oid"] for item in obj_prev}
     new_ids = {item["_id"]["$oid"] for item in obj_new}
 
-    if obj_prev != obj_new:
+    if prev_ids != new_ids:
         should_save_data = True
 
     # check newly added items
