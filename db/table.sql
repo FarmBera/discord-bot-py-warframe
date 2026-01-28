@@ -7,14 +7,14 @@ CREATE TABLE IF NOT EXISTS party
     host_id       BIGINT UNSIGNED,
     title         TEXT,
     game_name     TEXT,
-    departure     DATETIME    DEFAULT CURRENT_TIMESTAMP,
+    departure     DATETIME          DEFAULT CURRENT_TIMESTAMP,
     max_users     INTEGER,
     `description` TEXT,
-    `status`      VARCHAR(20) DEFAULT '모집 중',
-    created_at    DATETIME    DEFAULT CURRENT_TIMESTAMP,
-    updated_at    DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `status`      VARCHAR(20)       DEFAULT '모집 중',
+    created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
-) DEFAULT CHARACTER SET = 'utf8mb4'
+) DEFAULT CHARSET = 'utf8mb4'
 ;
 
 CREATE TABLE IF NOT EXISTS participants
@@ -23,11 +23,11 @@ CREATE TABLE IF NOT EXISTS participants
     user_id      BIGINT UNSIGNED,
     user_mention TEXT,
     display_name TEXT,
-    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (party_id, user_id),
     FOREIGN KEY (party_id) REFERENCES party (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET = 'utf8mb4'
+) DEFAULT CHARSET = 'utf8mb4'
 ;
 
 -- trade table
@@ -43,14 +43,11 @@ CREATE TABLE IF NOT EXISTS trade
     price         INTEGER         NOT NULL,
     thread_id     BIGINT UNSIGNED UNIQUE,
     message_id    BIGINT UNSIGNED UNIQUE,
-    `status`      VARCHAR(20)              DEFAULT 'open', -- open, closed
-    created_at    DATETIME                 DEFAULT CURRENT_TIMESTAMP,
-    updated_at    DATETIME                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    INDEX idx_thread_id (thread_id),
-    INDEX idx_msg_id (message_id),
-    INDEX idx_host_id (host_id)
-) DEFAULT CHARACTER SET = 'utf8mb4'
+    `status`      VARCHAR(20)              DEFAULT 'open', -- open, close
+    created_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) DEFAULT CHARSET = 'utf8mb4'
 ;
 
 -- user warnings
@@ -63,26 +60,22 @@ CREATE TABLE IF NOT EXISTS warnings
 (
     id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id       BIGINT UNSIGNED NOT NULL,
-    display_name  VARCHAR(100)    NOT NULL,               -- 경고 당시 닉네임 기록 (스냅샷용)
+    display_name  VARCHAR(100)    NOT NULL,           -- 경고 당시 닉네임 기록 (스냅샷용)
     game_nickname VARCHAR(150)    NOT NULL,
-    category      VARCHAR(20)     NOT NULL,               -- 예: '욕설', '도배' 등
-    note          VARCHAR(500),                           -- 사유 상세
-    critical      BOOLEAN         NOT NULL DEFAULT FALSE, -- 강력 경고
-    banned        BOOLEAN         NOT NULL DEFAULT FALSE, -- 이 경고로 인해 밴 처리가 되었는지 여부
+    category      VARCHAR(20)     NOT NULL,           -- 신고 사유 (예: '욕설', '도배' 등)
+    note          VARCHAR(500),                       -- 사유 상세
+    given_name    VARCHAR(300)    NOT NULL,           -- 경고 부여자
+    critical      BOOLEAN         NOT NULL DEFAULT 0, -- 강력 경고 (임시 벤)
+    banned        BOOLEAN         NOT NULL DEFAULT 0, -- 이 경고로 인해 밴 처리가 되었는지 여부
     created_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    -- index
-    INDEX idx_user_id (user_id),
-    INDEX idx_critical (critical),
-    INDEX idx_banned (banned)
-) DEFAULT CHARACTER SET = 'utf8mb4'
+    PRIMARY KEY (id)
+) DEFAULT CHARSET = 'utf8mb4'
 ;
 
 -- store admin user
-CREATE TABLE IF NOT EXISTS admins
+CREATE TABLE admins
 (
-    -- id INT NOT NULL AUTO_INCREMENT,
     user_id      BIGINT UNSIGNED,
     `key`        VARCHAR(50) UNIQUE, -- for fast query
     note         VARCHAR(150),
@@ -91,7 +84,7 @@ CREATE TABLE IF NOT EXISTS admins
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id)
-) DEFAULT CHARACTER SET = 'utf8mb4'
+) DEFAULT CHARSET = 'utf8mb4'
 ;
 
 -- other variables
@@ -103,7 +96,7 @@ CREATE TABLE IF NOT EXISTS vari
     created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (name)
-) DEFAULT CHARACTER SET = 'utf8mb4'
+) DEFAULT CHARSET = 'utf8mb4'
 ;
 
 -- notification webhooks
@@ -112,9 +105,9 @@ CREATE TABLE IF NOT EXISTS webhooks
     channel_id      BIGINT UNSIGNED NOT NULL,
     guild_id        BIGINT UNSIGNED NOT NULL,
     webhook_url     TEXT            NOT NULL,
-    note            VARCHAR(200),
-    created_at      DATETIME                 DEFAULT CURRENT_TIMESTAMP,
-    updated_at      DATETIME                 DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    note            VARCHAR(300),
+    created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     -- notification flags (1: ON, 0: OFF)
     sub_alerts      BOOLEAN         NOT NULL DEFAULT 0, -- alert mission
     sub_news        BOOLEAN         NOT NULL DEFAULT 0, -- warfrane mews
@@ -130,15 +123,19 @@ CREATE TABLE IF NOT EXISTS webhooks
     sub_duviri_wf   BOOLEAN         NOT NULL DEFAULT 0, -- circuit warframe
     sub_duviri_inc  BOOLEAN         NOT NULL DEFAULT 0, -- circuit incarnon
     sub_events      BOOLEAN         NOT NULL DEFAULT 0, -- periodic events
+    sub_cetus       BOOLEAN         NOT NULL DEFAULT 0, -- cetus worldstate
+    sub_duviri      BOOLEAN         NOT NULL DEFAULT 0, -- duviri worldstate
+    sub_cambion     BOOLEAN         NOT NULL DEFAULT 0, -- cambion worldstate
+    sub_vallis      BOOLEAN         NOT NULL DEFAULT 0, -- vallis worldstate
     PRIMARY KEY (channel_id)
-) DEFAULT CHARACTER SET = 'utf8mb4'
+) DEFAULT CHARSET = 'utf8mb4'
 ;
 
 -- improved log table
 CREATE TABLE IF NOT EXISTS `logs`
 (
-    id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    `type`       VARCHAR(15) NOT NULL, -- cmd, err, btn, ...
+    id           BIGINT UNSIGNED AUTO_INCREMENT,
+    `type`       VARCHAR(15)  NOT NULL,
     -- user info
     display_name VARCHAR(200),
     global_name  VARCHAR(200),
@@ -151,23 +148,21 @@ CREATE TABLE IF NOT EXISTS `logs`
     channel_name VARCHAR(200),
     channel_id   BIGINT UNSIGNED,
     -- content
-    created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cmd          VARCHAR(200),
-    msg          VARCHAR(500),
-    -- index
-    INDEX idx_user_id (user_id),
-    INDEX idx_type (`type`),
-    INDEX idx_created_at (created_at)
-) DEFAULT CHARACTER SET = 'utf8mb4'
+    msg          VARCHAR(500) NOT NULL,
+    PRIMARY KEY (id)
+) DEFAULT CHARSET = 'utf8mb4'
 ;
 
 -- detailed log content
 CREATE TABLE IF NOT EXISTS log_detail
 (
-    log_id  BIGINT UNSIGNED PRIMARY KEY,
+    log_id  BIGINT UNSIGNED,
     content MEDIUMTEXT,
+    PRIMARY KEY (log_id),
     FOREIGN KEY (log_id) REFERENCES `logs` (id) ON DELETE CASCADE
-) DEFAULT CHARACTER SET = 'utf8mb4'
+) DEFAULT CHARSET = 'utf8mb4'
 ;
 
 -- approved guild & save channels
@@ -177,10 +172,11 @@ CREATE TABLE IF NOT EXISTS channels
     party_ch    BIGINT UNSIGNED,
     trade_ch    BIGINT UNSIGNED,
     complain_ch BIGINT UNSIGNED,
-    is_allowed  BOOLEAN NOT NULL DEFAULT FALSE,
+    warn_log_ch BIGINT UNSIGNED,
+    is_allowed  BOOLEAN  NOT NULL DEFAULT FALSE,
     note        VARCHAR(300),
-    created_at  DATETIME         DEFAULT CURRENT_TIMESTAMP,
-    updated_at  DATETIME         DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (guild_id)
-) DEFAULT CHARACTER SET = 'utf8mb4'
+) DEFAULT CHARSET = 'utf8mb4'
 ;
