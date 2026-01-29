@@ -372,7 +372,7 @@ class DiscordBot(commands.Bot):
     async def process_queue(self):
         try:
             db = self.db
-            print("start process queue")  # DEBUG_CODE
+            # print("start process queue")  # DEBUG_CODE
             await delay()
             # Party queues
             await PartyService.process_create_queue(db)
@@ -389,7 +389,7 @@ class DiscordBot(commands.Bot):
                 and await PartyService.is_queue_empty()
             ):
                 self.process_queue.restart()
-                print("restart (queue is not empty)")  # DEBUG_CODE
+                # print("restart (queue is not empty)")  # DEBUG_CODE
         except Exception as e:
             msg = f"Failed to process queue: {C.red}{e}"
             print(C.red, msg, C.default)
@@ -407,8 +407,8 @@ class DiscordBot(commands.Bot):
 
     async def trigger_queue_processing(self):
         if self.process_queue.is_running():
-            print("already running")  # DEBUG_CODE
+            # print("already running")  # DEBUG_CODE
             return
 
-        print("start queue process")  # DEBUG_CODE
+        # print("start queue process")  # DEBUG_CODE
         self.process_queue.start()
