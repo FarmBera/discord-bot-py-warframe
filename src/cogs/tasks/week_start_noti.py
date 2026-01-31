@@ -10,6 +10,7 @@ from src.parser.duviriRotation import (
     w_duviri_warframe,
     w_duviri_incarnon,
 )
+from src.parser.steelIncursion import w_steelIncursions
 from src.parser.steelPath import w_steelPath
 from src.translator import ts
 from src.utils.data_manager import get_obj_async
@@ -48,6 +49,9 @@ class TASKSweek_start_noti(commands.Cog):
         if dt.datetime.now(dt.timezone.utc).weekday() != 0:
             return
 
+        steel_data=await get_obj_async(STEELPATH)
+        await self.bot.broadcast_webhook(STEELPATH,w_steelPath(steel_data))
+
         # duviri notification
         await setDuviriRotate()
 
@@ -73,9 +77,6 @@ class TASKSweek_start_noti(commands.Cog):
                         msg=error_msg,
                         obj=return_traceback(),
                     )
-
-        steel_data = await get_obj_async(STEELPATH)
-        await self.bot.broadcast_webhook(STEELPATH, w_steelPath(steel_data))
 
 
 async def setup(bot):

@@ -1,10 +1,12 @@
 import datetime as dt
 import json
 import os
+
 import aiohttp
 import discord
 from discord.ext import commands, tasks
 
+from config.TOKEN import base_url_profile
 from config.config import LOG_TYPE
 from src.bot_translator import BotTranslator
 from src.commands.noti_channel import DB_COLUMN_MAP, PROFILE_CONFIG
@@ -14,7 +16,7 @@ from src.services.party_service import PartyService
 from src.services.trade_service import TradeService
 from src.translator import ts
 from src.utils.data_manager import SETTINGS
-from src.utils.db_helper import query_reader, transaction
+from src.utils.db_helper import query_reader
 from src.utils.delay import delay
 from src.utils.discord_file import img_file
 from src.utils.logging_utils import save_log
@@ -171,13 +173,13 @@ class DiscordBot(commands.Bot):
             return out_name, out_avatar
 
         out_name = fetched_name
-
+        out_avatar = base_url_profile + fetched_avatar
         # fetch url & combine
-        async with transaction(self.db) as cursor:
-            await cursor.execute("SELECT value FROM vari WHERE name='img_server'")
-            base_url = await cursor.fetchone()
-        if base_url:
-            out_avatar = f"{base_url["value"]}/?name={fetched_avatar}"
+        # async with transaction(self.db) as cursor:
+        #     await cursor.execute("SELECT value FROM vari WHERE name='img_server'")
+        #     base_url = await cursor.fetchone()
+        # if base_url:
+        #     out_avatar = f"{base_url["value"]}/?name={fetched_avatar}"
 
         return out_name, out_avatar
 
