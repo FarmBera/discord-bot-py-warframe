@@ -3,7 +3,7 @@ class Lang:
     KO: str = "ko"
 
 
-language = Lang.KO
+language = Lang.
 # language = input("Select Language (en/ko) >> ")
 
 
