@@ -45,7 +45,13 @@ class TASKSweek_start_noti(commands.Cog):
             user=MSG_BOT,
             msg="Execute week_start_noti()",
         )
-        # only Monday
+        # daily alert
+        await self.bot.broadcast_webhook(w_steelIncursions())
+        # steel essence
+        steel_data = await get_obj_async(STEELPATH)
+        await self.bot.broadcast_webhook(STEELPATH, w_steelPath(steel_data))
+
+        # only week start (monday)
         if dt.datetime.now(dt.timezone.utc).weekday() != 0:
             return
 
