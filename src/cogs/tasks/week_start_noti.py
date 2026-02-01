@@ -46,17 +46,15 @@ class TASKSweek_start_noti(commands.Cog):
             msg="Execute week_start_noti()",
         )
         # daily alert
-        await self.bot.broadcast_webhook(w_steelIncursions())
-        # steel essence
-        steel_data = await get_obj_async(STEELPATH)
-        await self.bot.broadcast_webhook(STEELPATH, w_steelPath(steel_data))
+        # await self.bot.broadcast_webhook(w_steelIncursions())
 
         # only week start (monday)
         if dt.datetime.now(dt.timezone.utc).weekday() != 0:
             return
 
-        steel_data=await get_obj_async(STEELPATH)
-        await self.bot.broadcast_webhook(STEELPATH,w_steelPath(steel_data))
+        # steel essence
+        steel_data = await get_obj_async(STEELPATH)
+        await self.bot.broadcast_webhook(STEELPATH, w_steelPath(steel_data))
 
         # duviri notification
         await setDuviriRotate()
