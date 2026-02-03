@@ -74,7 +74,7 @@ def w_dailyDeals(deals) -> tuple[discord.Embed, str]:
         )
 
     img = getThumbImg(origin_name)
-    embed = discord.Embed(description=output_msg)
+    embed = discord.Embed(description=output_msg, color=discord.Color.darker_grey())
     embed.set_thumbnail(url="attachment://i.webp")
     return embed, img
 
