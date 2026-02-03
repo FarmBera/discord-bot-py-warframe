@@ -275,6 +275,9 @@ class DiscordBot(commands.Bot):
             text_content = str(content)
             log_content = text_content
 
+        if arg_func:
+            args = arg_func()
+
         # setup profile
         final_username, final_avatar_url = await self.get_profile_img(noti_key)
 
@@ -301,7 +304,7 @@ class DiscordBot(commands.Bot):
                 if embed_data:
                     payload["embeds"] = [embed_data]
                 if arg_func:
-                    payload["content"] = arg_func()
+                    payload["content"] = args
 
                 try:
                     if files_to_upload:
