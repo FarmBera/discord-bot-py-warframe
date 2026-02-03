@@ -301,6 +301,16 @@ cmd:
       - ~~{origin}~~ --> **{sale}** ({discount}% Off)
       - **{qty}** Qty remain! ({remain})
       - Expiry: **{time}**
+    msg:
+      - "Want a real deal, Tenno?"
+      - "This is a steal, I tell you"
+      - "Hey, Tenno. Wanna make a deal?"
+      - "This is my special offer."
+      - "Don't miss out on this price."
+      - "You think I'd cheat you? I'm an honest dealer."
+      #- 'Ah, Tenno. Welcome to my little shop.'
+      - "Hey you. Yeah you. Friend, you like deals?"
+      - "Tenno, it's your lucky day!"
 
   invasions:
     cmd: invasions

@@ -27,7 +27,7 @@ from src.parser.archonHunt import w_archonHunt
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle, checkNewCambionState
 from src.parser.cetusCycle import w_cetusCycle, checkNewCetusState
-from src.parser.dailyDeals import w_dailyDeals
+from src.parser.dailyDeals import w_dailyDeals, randomMsg
 from src.parser.duviriCycle import w_duviriCycle, checkNewDuviriState
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
@@ -111,6 +111,7 @@ DATA_HANDLERS = {
         HK.parser: w_dailyDeals,
         # HKEY.special_logic:: "handle_dailydeals",
         HK.update_check: lambda prev, new: prev[0]["StoreItem"] != new[0]["StoreItem"],
+        "arg_func": randomMsg,
     },
     INVASIONS: {
         HK.parser: w_invasions_se,

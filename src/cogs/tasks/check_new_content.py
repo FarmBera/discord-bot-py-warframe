@@ -213,7 +213,9 @@ class TASKcheck_new_content(commands.Cog):
                 if not SETTINGS["noti"]["list"][origin_key]:
                     continue
 
-                await self.bot.broadcast_webhook(origin_key, parsed_content)
+                await self.bot.broadcast_webhook(
+                    origin_key, parsed_content, handler.get("arg_func")
+                )
 
         return
 

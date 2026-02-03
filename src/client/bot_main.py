@@ -98,6 +98,7 @@ class DiscordBot(commands.Bot):
         print(
             f"{C.blue}[{LOG_TYPE.info}] {C.green}{ts.get('start.coroutine')}{C.default}"
         )
+        print(C.white, timeNowDT(), C.default, sep="")
 
     async def send_alert(
         self, value: discord.Embed | tuple[discord.Embed, str] | str, channel_list: list
@@ -183,7 +184,7 @@ class DiscordBot(commands.Bot):
 
         return out_name, out_avatar
 
-    async def broadcast_webhook(self, noti_key: str, content) -> None:
+    async def broadcast_webhook(self, noti_key: str, content, arg_func) -> None:
         """
         search the webhook subscribed to that notification (noti_key) in the database and sends it.
         """
@@ -299,6 +300,8 @@ class DiscordBot(commands.Bot):
                 }
                 if embed_data:
                     payload["embeds"] = [embed_data]
+                if arg_func:
+                    payload["content"] = arg_func()
 
                 try:
                     if files_to_upload:

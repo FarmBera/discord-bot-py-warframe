@@ -1,4 +1,5 @@
 import os
+import random
 
 import discord
 
@@ -14,6 +15,13 @@ IMAGE_ORIGIN.sort()
 IMAGE_CACHE: dict = {}
 
 pf = f"cmd.dailydeals."
+
+DARVO_MSG: list = ts.get(f"{pf}msg")
+MSG_MAX_LENGTH: int = len(DARVO_MSG) - 1
+
+
+def randomMsg() -> str:
+    return f"*{DARVO_MSG[random.randint(0, MSG_MAX_LENGTH)]}*\n"
 
 
 def getItemName(data: str, query1: str = "value") -> str:
