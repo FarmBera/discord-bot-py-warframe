@@ -218,12 +218,17 @@ cmd:
     other: Other
 
   steel-path-reward:
-    cmd: steelpathreward
+    cmd: steel-essense
     desc: Get teshin's special offers
-    title: Steel Path Reward
-    curr-reward: Current Reward
-    cost: cost
-    next: Next Week
+
+    output: |
+      # Teshin's Steel Essense Offer
+      - Expiry: {timer}
+    week: __Remains__
+    item: __< Item >__
+    cost: __Cost__
+
+    current: "**This Week**"
 
   fissures:
     cmd: voidfissures

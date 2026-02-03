@@ -1,3 +1,5 @@
+import datetime as dt
+
 import discord
 
 from src.parser.cambionCycle import CambionCycleData
@@ -11,6 +13,19 @@ from src.utils.times import check_timer_states, convert_remain
 
 pattern = "\n"
 pf: str = "cmd.worldstate."
+
+
+class WeeklyTimerData:
+    name = "Weekly Reset Timer"
+    start_date = dt.datetime(2024, 1, 1, 0, 0, 0, tzinfo=dt.timezone.utc)
+    looptime = 604800
+    delaytime = 0
+    beforetext = ts.get(f"{pf}expiry")
+    aftertext = "before reset"
+
+
+def weekly_remain(delta: int = 0) -> str:
+    return check_timer_states(WeeklyTimerData, delta=delta)["time_left"]
 
 
 def w_worldstate() -> tuple[discord.Embed, str]:

@@ -220,10 +220,15 @@ cmd:
   steel-path-reward:
     cmd: 스틸에센스
     desc: 이번주 태신의 스틸에센스 교환 물품을 확인할 수 있어요.
-    title: 주간 에센스 교환 보상
-    curr-reward: 현재 보상
-    cost: 개
-    next: 다음주
+
+    output: |
+      # 주간 스틸에센스 교환 보상
+      - {timer} 만료
+    week: __남은 시간__
+    item: __< 아이템 >__
+    cost: __교환 개수__
+
+    current: "**이번주**"
 
   fissures:
     cmd: 보이드균열
@@ -845,14 +850,14 @@ trs:
   omnia: 옴니아
 
   # items (steelPath)
-  umbra forma blueprint: 움브라 포르마 설계도
+  "umbra forma blueprint": 움브라 포르마 설계도
   "50,000 kuva": "50,000 쿠바"
-  kitgun riven mod: 키트건 리벤 모드
-  3x forma: 포르마 3개
-  zaw riven mod: 조우 리벤 모드
+  "kitgun riven mod": 키트건 리벤 모드
+  "3x forma": 포르마 x3
+  "zaw riven mod": 조우 리벤 모드
   "30,000 endo": "30,000 엔도"
-  rifle riven mod: 소총 리벤 모드
-  shotgun riven mod: 샷건 리벤 모드
+  "rifle riven mod": 소총 리벤 모드
+  "shotgun riven mod": 샷건 리벤 모드
 
   # name
   "baro ki'teer": 바로 키 티어

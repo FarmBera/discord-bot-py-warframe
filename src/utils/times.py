@@ -243,7 +243,7 @@ def format_duration(seconds):
     return " ".join(parts[:3])
 
 
-def check_timer_states(timer, target_time=None) -> dict:
+def check_timer_states(timer, target_time=None, delta: int = 0) -> dict:
     if target_time is None:
         target_time = dt.datetime.now(dt.timezone.utc)
 
@@ -253,7 +253,7 @@ def check_timer_states(timer, target_time=None) -> dict:
 
     elapsed = (target_time - start).total_seconds()  # elapsed time
     current_pos = elapsed % loop  # current cycle
-    boundary = loop - delay  # check current state & calculate seconds remaining
+    boundary = loop - delay  # state change point
 
     if current_pos < boundary:
         # normal state
@@ -264,7 +264,9 @@ def check_timer_states(timer, target_time=None) -> dict:
         state_text = timer.aftertext
         seconds_left = loop - current_pos
 
-    # calculate expiry timestamp
+    # calculate expiry timeseamp---
+    seconds_left += delta * loop
+
     expiry_date = target_time + dt.timedelta(seconds=seconds_left)
     expiry_timestamp = int(expiry_date.timestamp())
 

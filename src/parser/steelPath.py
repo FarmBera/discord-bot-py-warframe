@@ -1,12 +1,13 @@
 import discord
 
+from src.parser.worldstate import weekly_remain
 from src.translator import ts
 from src.utils.return_err import err_embed
 
 color_list = {
     "Umbra Forma Blueprint": 0x00FFFF,
     "50,000 Kuva": 0xB02121,
-    "3x Forma": 0xA11EE3,
+    "3x Forma": 0xFBFF24,
     "30,000 Endo": 0xFBFF24,
     "Kitgun Riven Mod": 0xA11EE3,
     "Zaw Riven Mod": 0xA11EE3,
@@ -27,7 +28,7 @@ img_list = {
     "주 무기 리벤 모드": "riven-mod",
     "산탄총 리벤 모드": "riven-mod",
 }
-
+pattern = "\n"
 pf: str = "cmd.steel-path-reward."
 
 
@@ -36,31 +37,55 @@ def w_steelPath(steel) -> tuple[discord.Embed, str]:
         return err_embed("steelPath"), ""
 
     curr_idx: int = steel["currentReward"]
-    current: dict = steel["rotation"][curr_idx]
-
-    cname: str = current["name"]
-    cost = current["cost"]
-
-    output_msg: str = f"# {ts.get(f'{pf}title')}\n\n"
-
-    # current reward
-    output_msg += f"- {ts.get(f'{pf}curr-reward')}: **{ts.trs(cname)}** ({cost} {ts.get(f'{pf}cost')})\n"
-
-    # next week reward
-    idx = 0
     stl = steel["rotation"]
-    for item in stl:
-        if item["name"] == cname:
-            idx = (idx + 1) % len(stl)
+    length: int = len(stl)
 
-            # output
-            item = stl[idx]
-            output_msg += f"- {ts.get(f'{pf}next')}: *{ts.trs(item['name'])}* ({item['cost']} {ts.get(f'{pf}cost')})"
-            break
+    # current item
+    current_reward_item = stl[curr_idx]
+    cname: str = current_reward_item["name"]
+
+    output_msg = ts.get(f"{pf}output").format(timer=weekly_remain())
+
+    # data list
+    weeks: list = []
+    items: list = []
+    costs: list = []
+
+    # print item list
+    for i in range(length):
+        target_item = stl[i]
+        name = ts.trs(target_item["name"])
+        cost = str(target_item["cost"])
+
+        # this week item
+        if i == curr_idx:
+            weeks.append(f"__**{ts.get(f'{pf}current')}**__")
+            items.append(f"__**{name}**__")
+            costs.append(f"__**{cost}**__")
         else:
-            idx += 1
+            if i > curr_idx:
+                delta = i - curr_idx
+            else:
+                delta = length - curr_idx + i
+            delta -= 1
 
-    embed = discord.Embed(description=output_msg, colour=color_list[cname])
+            weeks.append(weekly_remain(delta))
+            items.append(name)
+            costs.append(cost)
+
+    embed = discord.Embed(
+        description=output_msg.strip(),
+        colour=color_list.get(cname, discord.Color.darker_grey()),
+    )
     embed.set_thumbnail(url="attachment://i.webp")
 
-    return embed, img_list[cname]
+    embed.add_field(name=ts.get(f"{pf}week"), value=pattern.join(weeks), inline=True)
+    embed.add_field(name=ts.get(f"{pf}item"), value=pattern.join(items), inline=True)
+    embed.add_field(name=ts.get(f"{pf}cost"), value=pattern.join(costs), inline=True)
+
+    return embed, img_list.get(cname, "")
+
+
+# from src.utils.data_manager import get_obj
+# from src.constants.keys import STEELPATH
+# print(w_steelPath(get_obj(STEELPATH))[0].fields)
