@@ -1,10 +1,10 @@
 import datetime as dt
+
 from discord.ext import tasks, commands
 
 from config.config import LOG_TYPE, language as lang, Lang
 from src.constants.color import C
-from src.constants.keys import MSG_BOT, STEELPATH, DUVIRI_CACHE
-from src.parser.duviriRotation import setDuviriRotate
+from src.constants.keys import MSG_BOT, STEELPATH
 from src.translator import ts
 from src.utils.data_manager import get_obj_async, set_obj_async
 from src.utils.logging_utils import save_log
@@ -75,34 +75,6 @@ class TASKSWeeklyTask(commands.Cog):
                 obj=return_traceback(),
             )
 
-        try:
-            # update duviri-rotation time
-            duviri_data: dict = await get_obj_async(DUVIRI_CACHE)
-            curr = duviri_data["expiry"]
-            duviri_data["expiry"] = (
-                dt.datetime.fromtimestamp(duviri_data["expiry"]) + dt.timedelta(weeks=1)
-            ).timestamp()
-            await set_obj_async(duviri_data, DUVIRI_CACHE)
-            await setDuviriRotate()
-            msg = f"Updated DuviriData Timestamp {curr}->{duviri_data['expiry']}"
-            await save_log(
-                pool=self.bot.db,
-                type=LOG_TYPE.info,
-                cmd="bot.WEEKLY_TASK.duviri-cache",
-                user=MSG_BOT,
-                msg=msg,
-            )
-        except Exception:
-            msg = f"Failed to update duviri-cache data"
-            print(C.red, msg, C.default)
-            await save_log(
-                pool=self.bot.db,
-                type=LOG_TYPE.err,
-                cmd="bot.WEEKLY_TASK.duviri-cache",
-                user=MSG_BOT,
-                msg=msg,
-                obj=return_traceback(),
-            )
 
 async def setup(bot):
     await bot.add_cog(TASKSWeeklyTask(bot))

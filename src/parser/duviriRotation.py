@@ -1,19 +1,18 @@
 import discord
 
 from src.constants.keys import DUVIRI_ROTATION, DUVIRI_U_K_W, DUVIRI_U_K_I, DUVIRI_CACHE
+from src.parser.worldstate import weekly_remain
 from src.translator import ts, Lang, language as lang
 from src.utils.data_manager import get_obj, get_obj_async, set_obj_async
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
-from src.utils.times import convert_remain
 
 rotation_data = get_obj(DUVIRI_CACHE)
 duv_warframe = get_obj(f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}")
 duv_incarnon = get_obj(f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}")
 
-IDX_MAX_WAF: int = 11
-IDX_MAX_INC: int = 8
-ADD_ONE_WEEK: int = 604800
+IDX_MAX_WAF: int = len(rotation_data["warframe"])
+IDX_MAX_INC: int = len(rotation_data["incarnon"])
 
 pf: str = "cmd.duviri-circuit."
 
@@ -45,7 +44,7 @@ async def setDuvIncarnon(obj):
     await set_obj_async(obj, f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}")
 
 
-def create_embed(output_msg: str, color=None):
+def create_embed(output_msg: str, color=discord.Color.darker_grey()):
     embed = (
         discord.Embed(description=output_msg, color=color)
         if color
@@ -62,7 +61,6 @@ def w_duviri_warframe(rotation) -> discord.Embed:
         return err_embed("w_duviri_warframe")
 
     curr_rotation = rotation[0]["Choices"]
-    tstamp: int = rotation_data["expiry"]
 
     # title
     output_msg: str = (
@@ -75,7 +73,7 @@ def w_duviri_warframe(rotation) -> discord.Embed:
         [f"{ts.trs(item)} {get_emoji(item)}" for item in curr_rotation]
     )
     # ends in
-    output_msg += f"\n{ts.get(f'{pf}end').format(day=convert_remain(tstamp))}\n"
+    output_msg += f"\n{ts.get(f'{pf}end').format(day=weekly_remain())}\n"
     # next items
     warframe_list = rotation_data["warframe"]
     length = len(warframe_list)
@@ -90,18 +88,17 @@ def w_duviri_warframe(rotation) -> discord.Embed:
         idx += 1
     # create next rotation list
     output_msg += f"### __{ts.get(f'{pf}next-rotate')}__\n"
-    for _ in range(length - 1):
+    for i in range(length - 1):
         idx = (idx + 1) % length
         if idx == idx_init:
             break
 
         jtem = warframe_list[idx]
         output_msg += (
-            f"{convert_remain(tstamp)}: "
-            + ", ".join([f"{ts.trs(i)} {get_emoji(i)}" for i in jtem])
+            f"{weekly_remain(i)}: "
+            + ", ".join([f"{ts.trs(i)} {get_emoji(str(i))}" for i in jtem])
             + "\n"
         )
-        tstamp += ADD_ONE_WEEK
     return create_embed(output_msg)
 
 
@@ -110,7 +107,6 @@ def w_duviri_incarnon(incarnon) -> discord.Embed:
         return err_embed("w_duviri_warframe")
 
     curr_rotation = incarnon[1]["Choices"]
-    tstamp: int = rotation_data["expiry"]
     # title
     output_msg: str = (
         f"# {ts.get(f'{pf}inc-lvl')} {ts.get(f'{pf}circuit')} - {ts.get(f'{pf}inc-title')}\n"
@@ -120,7 +116,7 @@ def w_duviri_incarnon(incarnon) -> discord.Embed:
     # items
     output_msg += ", ".join([f"{ts.trs(i)} {get_emoji(i)}" for i in curr_rotation])
     # ends in
-    output_msg += f"\n{ts.get(f'{pf}end').format(day=convert_remain(tstamp))}\n"
+    output_msg += f"\n{ts.get(f'{pf}end').format(day=weekly_remain())}\n"
     # next items
     incarnon_list = rotation_data["incarnon"]
     length = len(incarnon_list)
@@ -135,16 +131,19 @@ def w_duviri_incarnon(incarnon) -> discord.Embed:
         idx += 1
     # create next rotation list
     output_msg += f"### __{ts.get(f'{pf}next-rotate')}__\n"
-    for _ in range(length - 1):
+    for i in range(length - 1):
         idx = (idx + 1) % length
         if idx == idx_init:
             break
 
         jtem = incarnon_list[idx]
         output_msg += (
-            f"{convert_remain(tstamp)}: "
-            + ", ".join([f"{ts.trs(i)} {get_emoji(i)}" for i in jtem])
+            f"{weekly_remain(i)}: "
+            + ", ".join([f"{ts.trs(i)} {get_emoji(str(i))}" for i in jtem])
             + "\n"
         )
-        tstamp += ADD_ONE_WEEK
     return create_embed(output_msg=output_msg, color=0x65E6E1)
+
+
+# print(w_duviri_warframe(get_obj(f"{DUVIRI_ROTATION}")).description)
+# print(w_duviri_incarnon(get_obj(f"{DUVIRI_ROTATION}")).description)
