@@ -110,14 +110,6 @@ class TASKcheck_new_content(commands.Cog):
 
             elif special_logic == "handle_fissures":
                 should_save_data, missing = checkMissingIds(obj_prev, obj_new)
-                await save_log(
-                    pool=self.bot.db,
-                    type=LOG_TYPE.debug,
-                    cmd="check_new_content()",
-                    user="test",
-                    msg="handle_fissures",
-                    obj=f"should_save_data: {should_save_data}\n{missing}",
-                )
 
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
                 if not checkCircuitWarframe(obj_new):
