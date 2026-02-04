@@ -18,6 +18,7 @@ from src.translator import ts
 from src.utils.api_request import API_Request
 from src.utils.data_manager import get_obj_async, set_obj_async, SETTINGS
 from src.utils.file_io import json_load_async
+from src.utils.logging_utils import save_log
 
 
 class TASKcheck_new_content(commands.Cog):
@@ -108,7 +109,7 @@ class TASKcheck_new_content(commands.Cog):
                     await handleParseError(self.bot.db, msg, key)
 
             elif special_logic == "handle_fissures":
-                should_save_data = True
+                should_save_data, missing = checkMissingIds(obj_prev, obj_new)
 
             elif special_logic == "handle_duviri_rotation-1":  # circuit-warframe
                 if not checkCircuitWarframe(obj_new):
