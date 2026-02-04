@@ -23,7 +23,6 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
         res_source (str, optional): code position of the api request. Defaults to "Unknown Source".
 
     Returns:
-
         None: failed to request api
     """
     start_time = timeNowDT()
@@ -33,7 +32,7 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
         response = requests.get(base_url_warframe, timeout=60)
     except Exception as e:
         elapsed_time = timeNowDT() - start_time
-        msg = f"[err] API request failed!: {elapsed_time}/{e}"
+        msg = f"API request failed!: {elapsed_time}/{e}"
         print(timeNowDT(), C.red, msg, C.default)
         await save_log(
             pool=pool,
@@ -49,8 +48,7 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
     res_code: int = response.status_code
     if res_code != 200:
         elapsed_time = timeNowDT() - start_time
-
-        msg = f"[warn] response code is not 200: {res_code}/{elapsed_time}"
+        msg = f"response code is not 200: {res_code}/{elapsed_time}"
         await save_log(
             pool=pool,
             type=LOG_TYPE.err,
@@ -64,7 +62,7 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
     # check response (is not empty or err value)
     if response is None:
         elapsed_time = timeNowDT() - start_time
-        msg = f"[err] response is Empty!: {res_code}/{elapsed_time}"
+        msg = f"response is Empty!: {res_code}/{elapsed_time}"
         print(timeNowDT(), C.red, msg, C.default)
         await save_log(
             pool=pool,
@@ -82,7 +80,7 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
             json.dump(response.json(), json_file, ensure_ascii=False, indent=2)
     except Exception as e:
         elapsed_time = timeNowDT() - start_time
-        msg = f"[err] Error on saving file: {elapsed_time}/{e}"
+        msg = f"Error on saving file: {elapsed_time}/{e}"
         print(timeNowDT(), C.red, msg, C.default)
         await save_log(
             pool=pool,
@@ -93,15 +91,15 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
             obj=return_traceback(),
         )
 
-    msg = f"{res_code}//{res_source}//{response.elapsed}"
-    # print(C.red, msg, C.default, sep="")
-    await save_log(
-        pool=pool,
-        type=LOG_TYPE.api,
-        cmd="API_Request()",
-        user=MSG_BOT,
-        msg=msg,
-    )
+    # msg = f"{res_code}//{res_source}//{response.elapsed}"
+    # # print(C.red, msg, C.default, sep="")
+    # await save_log(
+    #     pool=pool,
+    #     type=LOG_TYPE.api,
+    #     cmd="API_Request()",
+    #     user=MSG_BOT,
+    #     msg=msg,
+    # )
     return response
 
 
@@ -120,7 +118,7 @@ async def API_MarketSearch(pool, item_name: str):
             timeout=60,
         )
     except Exception as e:
-        msg = f"[err] API request failed!: {e}"
+        msg = f"API request failed!: {e}"
         print(timeNowDT(), C.red, msg, C.default)
         await save_log(
             pool=pool,
@@ -141,7 +139,7 @@ async def API_MarketSearch(pool, item_name: str):
 
     # check response (is not empty)
     if response is None:
-        msg = f"[err] response is Empty!"
+        msg = f"response is Empty!"
         await save_log(
             pool=pool,
             type=LOG_TYPE.err,
