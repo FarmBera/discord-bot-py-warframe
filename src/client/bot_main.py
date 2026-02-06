@@ -411,7 +411,7 @@ class DiscordBot(commands.Bot):
                 obj=return_traceback(),
             )
         finally:
-            print("End process")  # DEBUG_CODE
+            # print("End process")  # DEBUG_CODE
             pass
 
     async def trigger_queue_processing(self):
