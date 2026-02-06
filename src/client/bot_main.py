@@ -184,7 +184,7 @@ class DiscordBot(commands.Bot):
 
         return out_name, out_avatar
 
-    async def broadcast_webhook(self, noti_key: str, content, arg_func) -> None:
+    async def broadcast_webhook(self, noti_key: str, content, arg_func=None) -> None:
         """
         search the webhook subscribed to that notification (noti_key) in the database and sends it.
         """
