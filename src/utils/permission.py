@@ -134,7 +134,7 @@ async def is_valid_guild(
     try:
         # fetch & check guild
         channel_list = await ChannelService.getChannels(interact)
-        if channel_list:
+        if channel_list.get("guild") == interact.guild_id:
             return True
 
         if isFollowUp:

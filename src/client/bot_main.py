@@ -380,29 +380,30 @@ class DiscordBot(commands.Bot):
     async def process_queue(self):
         try:
             db = self.db
-            # print("start process queue")  # DEBUG_CODE
-            await delay()
-            # Party queues
-            await PartyService.process_create_queue(db)
-            await PartyService.process_update_queue(db)
-            await PartyService.process_delete_queue(db)
+            # max_iterations = 5
+            # iterations = 0
 
-            # Trade queues
-            await TradeService.process_create_queue(db)
-            await TradeService.process_update_queue(db)
-            await TradeService.process_delete_queue(db)
-
-            if not (
+            while not (
                 await TradeService.is_queue_empty()
                 and await PartyService.is_queue_empty()
             ):
-                self.process_queue.restart()
-                # print("restart (queue is not empty)")  # DEBUG_CODE
+                # if iterations >= max_iterations: print("Queue processing reached max iterations.");break;
+
+                await delay()
+                # process party
+                await PartyService.process_create_queue(db)
+                await PartyService.process_update_queue(db)
+                await PartyService.process_delete_queue(db)
+                # process trade
+                await TradeService.process_create_queue(db)
+                await TradeService.process_update_queue(db)
+                await TradeService.process_delete_queue(db)
+                # iterations += 1
         except Exception as e:
-            msg = f"Failed to process queue: {C.red}{e}"
-            print(C.red, msg, C.default)
+            msg = f"Failed to process queue: {e}"
+            print(msg)
             await save_log(
-                pool=self.bot.db,
+                pool=self.db,
                 type=LOG_TYPE.err,
                 cmd="bot.process_queue",
                 user=MSG_BOT,
@@ -410,8 +411,8 @@ class DiscordBot(commands.Bot):
                 obj=return_traceback(),
             )
         finally:
-            if self.process_queue.is_running():
-                self.process_queue.stop()
+            print("End process")  # DEBUG_CODE
+            pass
 
     async def trigger_queue_processing(self):
         if self.process_queue.is_running():

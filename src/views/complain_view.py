@@ -123,7 +123,7 @@ class ComplainModal(discord.ui.Modal):
 
 
 class ApplyButtonView(discord.ui.View):
-    def __init__(self, interact, channel_id):
+    def __init__(self, interact):
         self.interact: discord.Interaction = interact
         super().__init__(timeout=None)
         self.cd: commands.CooldownMapping = commands.CooldownMapping.from_cooldown(

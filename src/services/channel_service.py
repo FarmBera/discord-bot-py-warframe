@@ -1,11 +1,16 @@
 import discord
 
 from src.utils.db_helper import query_reader, transaction
+from src.utils.file_io import yaml_open
+
+CHANNELS = yaml_open("config/channel")
 
 
 class ChannelService:
     @staticmethod
     async def getChannels(interact: discord.Interaction) -> dict | None:
+        return CHANNELS
+
         pool = interact.client.db
         guild_id = interact.guild_id
 

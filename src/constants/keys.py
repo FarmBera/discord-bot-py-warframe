@@ -85,7 +85,7 @@ keys: list = [
     DESCENDIA,
 ]
 
-LFG_WEBHOOK_NAME: str = "cat-prime-profile"
+LFG_WEBHOOK_NAME: str = "meow-bot-profile"
 
 SPECIAL_ITEM_LIST: list = [
     # en
