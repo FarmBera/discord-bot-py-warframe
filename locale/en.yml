@@ -198,6 +198,14 @@ cmd:
     appear: "Appears {time}"
     place: Coming to
 
+    msg:
+      - The wait is over Tenno, Baro Ki'Teer has arrived.
+      - Tenno! May I extend an invitation to you, my latest collection of choice items from the Void is now available for viewing.
+      - I have much to show you.
+      - Baro Ki'Teer, at your service.
+      - Oh my, now here is someone with great taste.
+      - I can tell you will appreciate what I have today.
+
   void-traders-item:
     cmd: baro-items
     desc: Get Baro Ki'Teer selling item list.

@@ -18,7 +18,6 @@ from src.translator import ts
 from src.utils.api_request import API_Request
 from src.utils.data_manager import get_obj_async, set_obj_async, SETTINGS
 from src.utils.file_io import json_load_async
-from src.utils.logging_utils import save_log
 
 
 class TASKcheck_new_content(commands.Cog):
@@ -159,7 +158,12 @@ class TASKcheck_new_content(commands.Cog):
                         await handleParseError(self.bot.db, msg, key)
                         continue
 
-                    await self.bot.broadcast_webhook(origin_key, parsed_content)
+                    if event.get("have_custom_msg"):
+                        await self.bot.broadcast_webhook(
+                            origin_key, parsed_content, handler.get("arg_func")
+                        )
+                    else:
+                        await self.bot.broadcast_webhook(origin_key, parsed_content)
 
             elif special_logic == "handle_deep_archimedea":
                 obj_new, is_new = handleDeepArchimedea(obj_new)

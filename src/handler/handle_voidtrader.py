@@ -9,6 +9,7 @@ def handleVoidTrader(obj_prev, obj_new):
             {
                 "text_key": "cmd.void-traders.baro-new",
                 "embed_color": 0xFFDD00,
+                "have_custom_msg": False,
             }
         )
 
@@ -18,6 +19,7 @@ def handleVoidTrader(obj_prev, obj_new):
             {
                 "text_key": "cmd.void-traders.baro-appear",
                 "embed_color": None,
+                "have_custom_msg": True,
             }
         )
 

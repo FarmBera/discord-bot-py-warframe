@@ -14,6 +14,13 @@ baro_active: bool = False
 pf: str = "cmd.void-traders."
 pfi = "cmd.void-traders-item."
 
+BARO_MSG: list = ts.get(f"{pf}msg")
+MSG_MAX_LENGTH: int = len(BARO_MSG) - 1
+
+
+def getBaroRandomMsg() -> str:
+    return f"*{BARO_MSG[random.randint(0, MSG_MAX_LENGTH)]}*\n"
+
 
 def getBaroImg(name: str = "") -> str:
     if name and "evil" in name.lower():

@@ -20,7 +20,7 @@ DARVO_MSG: list = ts.get(f"{pf}msg")
 MSG_MAX_LENGTH: int = len(DARVO_MSG) - 1
 
 
-def randomMsg() -> str:
+def getDarvoRandomMsg() -> str:
     return f"*{DARVO_MSG[random.randint(0, MSG_MAX_LENGTH)]}*\n"
 
 

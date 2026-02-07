@@ -27,7 +27,7 @@ from src.parser.archonHunt import w_archonHunt
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle, checkNewCambionState
 from src.parser.cetusCycle import w_cetusCycle, checkNewCetusState
-from src.parser.dailyDeals import w_dailyDeals, randomMsg
+from src.parser.dailyDeals import w_dailyDeals, getDarvoRandomMsg
 from src.parser.duviriCycle import w_duviriCycle, checkNewDuviriState
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
@@ -35,7 +35,7 @@ from src.parser.invasions import w_invasions_se
 from src.parser.news import w_news
 from src.parser.sortie import w_sortie
 from src.parser.vallisCycle import w_vallisCycle, checkNewVallisState
-from src.parser.voidTraders import w_voidTraders
+from src.parser.voidTraders import w_voidTraders, getBaroRandomMsg
 
 
 class HK:
@@ -43,6 +43,7 @@ class HK:
     parser = "parser"
     special_logic = "special_logic"
     update_check = "update_check"
+    arg_func = "arg_func"
 
 
 class LOGIC:
@@ -80,6 +81,7 @@ DATA_HANDLERS = {
     VOIDTRADERS: {
         HK.parser: w_voidTraders,
         HK.special_logic: "handle_voidtraders",
+        HK.arg_func: getBaroRandomMsg,
     },
     DUVIRICYCLE: {
         HK.parser: w_duviriCycle,
@@ -88,12 +90,12 @@ DATA_HANDLERS = {
     },
     FISSURES: {HK.special_logic: "handle_fissures"},
     f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": {
-        "key": ARCHIMEDEA,
+        HK.key: ARCHIMEDEA,
         HK.parser: w_deepArchimedea,
         HK.special_logic: "handle_deep_archimedea",
     },
     f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": {
-        "key": ARCHIMEDEA,
+        HK.key: ARCHIMEDEA,
         HK.parser: w_temporalArchimedia,
         HK.special_logic: "handle_temporal_archimedea",
     },
@@ -109,21 +111,20 @@ DATA_HANDLERS = {
     },
     DAILYDEALS: {
         HK.parser: w_dailyDeals,
-        # HKEY.special_logic:: "handle_dailydeals",
         HK.update_check: lambda prev, new: prev[0]["StoreItem"] != new[0]["StoreItem"],
-        "arg_func": randomMsg,
+        HK.arg_func: getDarvoRandomMsg,
     },
     INVASIONS: {
         HK.parser: w_invasions_se,
         HK.special_logic: "handle_missing_invasions",
     },
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": {  # circuit-warframe
-        "key": DUVIRI_ROTATION,
+        HK.key: DUVIRI_ROTATION,
         HK.parser: w_duviri_warframe,
         HK.special_logic: "handle_duviri_rotation-1",
     },
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": {  # circuit-incarnon
-        "key": DUVIRI_ROTATION,
+        HK.key: DUVIRI_ROTATION,
         HK.parser: w_duviri_incarnon,
         HK.special_logic: "handle_duviri_rotation-2",
     },
