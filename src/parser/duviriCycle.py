@@ -3,6 +3,7 @@ import datetime as dt
 import discord
 
 from src.translator import ts
+from src.utils.emoji import worldstate_emoji
 from src.utils.times import convert_remain
 
 SEED_TIME: str = "2023-01-01T00:00:00+00:00"
@@ -118,9 +119,9 @@ def w_duviriCycle() -> tuple[discord.Embed, str]:
     nextd: list = get_next_mood()
 
     mood: str = duviri["mood"]
-
     output_msg: str = ts.get(f"{pf}output").format(
-        state=ts.get(f"{pf}{mood}"), time=convert_remain(duviri["timestamp"])
+        state=f"{ts.get(f'{pf}{mood}')}{worldstate_emoji.get(mood,'')}",
+        time=convert_remain(duviri["timestamp"]),
     )
     # next moods
     for item in nextd:
@@ -137,6 +138,6 @@ def w_duviriCycle() -> tuple[discord.Embed, str]:
 # print(get_current_mood())
 # print("\n--- Next Moods ---")
 # print(get_next_mood())
-# print(w_duviriCycle()[0].description)
+print(w_duviriCycle()[0].description)
 
 # print(checkNewDuviriState())

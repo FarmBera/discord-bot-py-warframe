@@ -35,6 +35,7 @@ def w_sortie(sortie):
 
     embed = discord.Embed(
         description=output_msg,
+        color=discord.Color.darker_grey(),
         # color=embed_color if embed_color else color_decision(trader),
     )
     embed.set_thumbnail(url="attachment://i.webp")
