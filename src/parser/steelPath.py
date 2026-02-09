@@ -2,6 +2,7 @@ import discord
 
 from src.parser.worldstate import weekly_remain
 from src.translator import ts
+from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
 
 color_list = {
@@ -13,8 +14,6 @@ color_list = {
     "Zaw Riven Mod": 0xA11EE3,
     "Rifle Riven Mod": 0xA11EE3,
     "Shotgun Riven Mod": 0xA11EE3,
-    "주 무기 리벤 모드": 0xA11EE3,
-    "산탄총 리벤 모드": 0xA11EE3,
 }
 img_list = {
     "Umbra Forma Blueprint": "umbra-forma",
@@ -25,8 +24,6 @@ img_list = {
     "Zaw Riven Mod": "riven-mod",
     "Rifle Riven Mod": "riven-mod",
     "Shotgun Riven Mod": "riven-mod",
-    "주 무기 리벤 모드": "riven-mod",
-    "산탄총 리벤 모드": "riven-mod",
 }
 pattern = "\n"
 pf: str = "cmd.steel-path-reward."
@@ -54,13 +51,14 @@ def w_steelPath(steel) -> tuple[discord.Embed, str]:
     # print item list
     for i in range(length):
         target_item = stl[i]
-        name = ts.trs(target_item["name"])
+        origin_name = target_item["name"]
+        name = ts.trs(origin_name)
         cost = str(target_item["cost"])
 
         # this week item
         if i == curr_idx:
             weeks.append(f"__**{ts.get(f'{pf}current')}**__")
-            items.append(f"__**{name}**__")
+            items.append(f"__**{get_emoji(origin_name)} {name}**__")
             costs.append(f"__**{cost}**__")
         else:
             if i > curr_idx:
@@ -70,8 +68,8 @@ def w_steelPath(steel) -> tuple[discord.Embed, str]:
             delta -= 1
 
             weeks.append(weekly_remain(delta))
-            items.append(name)
-            costs.append(cost)
+            items.append(f"{get_emoji(origin_name)} {name}")
+            costs.append(f"{cost}x {get_emoji('essense')}")
 
     embed = discord.Embed(
         description=output_msg.strip(),
@@ -88,4 +86,4 @@ def w_steelPath(steel) -> tuple[discord.Embed, str]:
 
 # from src.utils.data_manager import get_obj
 # from src.constants.keys import STEELPATH
-# print(w_steelPath(get_obj(STEELPATH))[0].fields)
+# print(w_steelPath(get_obj(STEELPATH))[0].fields[1].value)
