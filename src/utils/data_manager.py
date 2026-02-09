@@ -93,6 +93,10 @@ def getSortieModDesc(modifier: str) -> str:
     return sortieData.get("modifierDescriptions", {}).get(modifier, modifier)
 
 
+def getLanguageOrigin(key_data: str):
+    return languages.get(key_data)
+
+
 def getLanguage(data: str, query1: str = "value") -> str:
     """convert /Lotus path into item name etc
 

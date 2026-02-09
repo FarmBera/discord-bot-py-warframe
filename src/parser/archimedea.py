@@ -2,7 +2,12 @@ import discord
 
 from src.constants.keys import ARCHIMEDEA, ARCHIMEDEA_DEEP, ARCHIMEDEA_TEMPORAL
 from src.translator import ts, language as lang
-from src.utils.data_manager import get_obj, set_obj_async, getMissionType  # getFactions
+from src.utils.data_manager import (
+    get_obj,
+    set_obj_async,
+    getMissionType,
+    getLanguageOrigin,
+)
 from src.utils.file_io import json_load
 from src.utils.return_err import err_embed
 from src.utils.times import convert_remain
@@ -39,25 +44,6 @@ async def setTemporalArchimedea(obj):
     await set_obj_async(obj, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 
 
-def generateVariables(obj) -> str:
-    try:
-        text = ts.get(f"{pf}var")
-        for var in obj["Variables"]:
-            archi_data = conquest_var["var"]
-            if not archi_data:
-                return ""
-
-            desc = archi_data[var].get("simple")
-            if not desc:
-                desc = archi_data[var]["value"]
-
-            text += f"\n- **{archi_data[var]['key']}**: {desc}"
-        return text
-    except KeyError as e:
-        print(f"KeyError in archimedea: {e}")
-        return ""
-
-
 def generateMissions(obj) -> str:
     text = ""
     idx = 1
@@ -69,45 +55,56 @@ def generateMissions(obj) -> str:
         # ({getFactions(item['faction'])})\n"
 
         # mission with h2 header
-        text += f"## {idx}. **{getMissionType(item['missionType'])}**"
+        text += f"## {idx}. {getMissionType(item['missionType'])}"
 
-        # # deviation
-        # try:
-        #     for jtem in item["difficulties"]:
-        #         if jtem.get("type") == "CD_HARD":
-        #             path: dict = conquest_var["deviation"][jtem["deviation"]]
-        #             desc: str = path.get("simple")
-        #
-        #             if not desc:
-        #                 desc = path["value"]
-        #
-        #             text += f"\n- {ts.get(f'{pf}deviation')}: {path['key']} - {desc}"
-        #             break
-        # except Exception as e:
-        #     print(e)
-        #     pass
+        # deviation
+        for jtem in item["difficulties"]:
+            if jtem.get("type") != "CD_HARD":
+                continue
 
-        # # risks
-        # try:
-        #     risks: dict = {}
-        #     for jtem in item["difficulties"]:
-        #         if jtem.get("type") == "CD_HARD":
-        #             risks = jtem.get("risks")
-        #             # text += ", ".join(jtem.get("risks"))
-        #             break
-        #     for rsk in risks:
-        #         path: dict = conquest_var["risks"][rsk]
-        #         desc: str = path.get("simple")
-        #         if not desc:
-        #             desc = path["value"]
-        #         text += f"\n- {ts.get(f'{pf}risks')}: {path['key']} - {desc}"
-        # except Exception as e:
-        #     print(e)
-        #     pass
+            key = getLanguageOrigin(jtem["deviation"])
+            if not key:
+                text += f"\n- {jtem['deviation']}"
+                continue
+
+            value = key["value"]
+            desc = key["simple"] if key.get("simple") else key["desc"]
+            text += f"\n- **{ts.get(f'{pf}deviation')}**: {value} - {desc}"
+            break
+
+        # risks
+        risks: dict = {}
+        for jtem in item["difficulties"]:
+            if jtem.get("type") == "CD_HARD":
+                risks = jtem.get("risks")
+                break
+        for rsk in risks:
+            key = getLanguageOrigin(rsk)
+            if not key:
+                text += f"\n- {rsk}"
+                continue
+
+            value = key["value"]
+            desc = key["simple"] if key.get("simple") else key["desc"]
+            text += f"\n- **{ts.get(f'{pf}risks')}**: {value} - {desc}"
 
         text += "\n"
         idx += 1
 
+    return text
+
+
+def generateVariables(obj) -> str:
+    text = ts.get(f"{pf}var")
+    for var in obj["Variables"]:
+        translate = getLanguageOrigin(var)
+        if not translate:
+            text += f"\n- **{var}**"
+            continue
+
+        key = translate["value"]
+        desc = translate["simple"] if translate.get("simple") else translate["desc"]
+        text += f"\n- **{key}**: {desc}"
     return text
 
 

@@ -138,6 +138,6 @@ def w_duviriCycle() -> tuple[discord.Embed, str]:
 # print(get_current_mood())
 # print("\n--- Next Moods ---")
 # print(get_next_mood())
-print(w_duviriCycle()[0].description)
+# print(w_duviriCycle()[0].description)
 
 # print(checkNewDuviriState())
