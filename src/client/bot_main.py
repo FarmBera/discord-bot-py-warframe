@@ -13,6 +13,7 @@ from src.commands.noti_channel import DB_COLUMN_MAP, PROFILE_CONFIG
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
 from src.services.party_service import PartyService
+from src.services.queue_manager import GLOBAL_QUEUE, JobType
 from src.services.trade_service import TradeService
 from src.translator import ts
 from src.utils.data_manager import SETTINGS
@@ -379,27 +380,39 @@ class DiscordBot(commands.Bot):
     @tasks.loop(count=1)
     async def process_queue(self):
         try:
-            db = self.db
-            # max_iterations = 5
-            # iterations = 0
+            while GLOBAL_QUEUE:
+                job = GLOBAL_QUEUE.pop(0)  # FIFO
+                job_type = job["type"]
+                data = job["data"]
 
-            while not (
-                await TradeService.is_queue_empty()
-                and await PartyService.is_queue_empty()
-            ):
-                # if iterations >= max_iterations: print("Queue processing reached max iterations.");break;
-
+                try:
+                    if job_type == JobType.PARTY_CREATE:
+                        await PartyService.execute_create(self.db, data)
+                    elif job_type == JobType.PARTY_UPDATE:
+                        await PartyService.execute_update(self.db, data)
+                    elif job_type == JobType.PARTY_DELETE:
+                        await PartyService.execute_delete(self.db, data)
+                    elif job_type == JobType.PARTY_TOGGLE:
+                        await PartyService.execute_toggle(self.db, data)
+                    elif job_type == JobType.TRADE_CREATE:
+                        await TradeService.execute_create(self.db, data)
+                    elif job_type == JobType.TRADE_UPDATE:
+                        await TradeService.execute_update(self.db, data)
+                    elif job_type == JobType.TRADE_DELETE:
+                        await TradeService.execute_delete(self.db, data)
+                except Exception as inner_e:
+                    msg = f"Error executing job {job_type}: {inner_e}"
+                    print(msg)
+                    await save_log(
+                        pool=self.db,
+                        type=LOG_TYPE.err,
+                        cmd="process_queue.inner",
+                        msg=msg,
+                        obj=return_traceback(),
+                    )
+                # print(len(GLOBAL_QUEUE))  # DEBUG_CODE
                 await delay()
-                # process party
-                await PartyService.process_toggle_queue(db)
-                await PartyService.process_create_queue(db)
-                await PartyService.process_update_queue(db)
-                await PartyService.process_delete_queue(db)
-                # process trade
-                await TradeService.process_create_queue(db)
-                await TradeService.process_update_queue(db)
-                await TradeService.process_delete_queue(db)
-                # iterations += 1
+
         except Exception as e:
             msg = f"Failed to process queue: {e}"
             print(msg)
@@ -407,18 +420,10 @@ class DiscordBot(commands.Bot):
                 pool=self.db,
                 type=LOG_TYPE.err,
                 cmd="bot.process_queue",
-                user=MSG_BOT,
                 msg=msg,
                 obj=return_traceback(),
             )
-        finally:
-            # print("End process")  # DEBUG_CODE
-            pass
 
     async def trigger_queue_processing(self):
-        if self.process_queue.is_running():
-            # print("already running")  # DEBUG_CODE
-            return
-
-        # print("start queue process")  # DEBUG_CODE
-        self.process_queue.start()
+        if not self.process_queue.is_running():
+            self.process_queue.start()

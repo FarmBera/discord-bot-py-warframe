@@ -6,6 +6,7 @@ from config.config import LOG_TYPE
 from src.constants.keys import COOLDOWN_5_MIN
 from src.parser.marketsearch import get_slug_data, get_market_item_names
 from src.services.channel_service import ChannelService
+from src.services.queue_manager import add_job, JobType
 from src.services.trade_service import TradeService
 from src.translator import ts
 from src.utils.logging_utils import save_log
@@ -170,11 +171,12 @@ class TradeCog(commands.Cog):
             "price": estimated_price,
             "isRank": is_rank_item,
         }
-        await TradeService.add_create_queue(
-            {"interact": interact, "data": data, "target_channel": target_channel}
+        await add_job(
+            JobType.TRADE_CREATE,
+            {"interact": interact, "data": data, "target_channel": target_channel},
         )
         await interact.followup.send(
-            f"{output_msg}✅ '{target_channel.name}' {ts.get(f'{pf}created-trade')}",
+            f"{output_msg}✅ '{target_channel.mention}' {ts.get(f'{pf}created-trade')}",
             ephemeral=True,
         )
         await self.bot.trigger_queue_processing()

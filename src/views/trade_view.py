@@ -10,6 +10,7 @@ from src.constants.keys import (
     COOLDOWN_BTN_CALL,
 )
 from src.parser.marketsearch import get_slug_data, create_market_url
+from src.services.queue_manager import add_job, JobType
 from src.services.trade_service import TradeService
 from src.translator import ts
 from src.utils.logging_utils import save_log
@@ -154,7 +155,7 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
             await TradeService.update_nickname(
                 self.db_pool, interact.message.id, self.input_nickname.value
             )
-            await TradeService.add_update_queue({"origin_msg": self.original_message})
+            await add_job(JobType.TRADE_UPDATE, {"origin_msg": self.original_message})
             await interact.client.trigger_queue_processing()
             await interact.response.send_message(
                 ts.get(f"{pf}edit-requested"), ephemeral=True
@@ -202,7 +203,7 @@ class EditQuantityModal(ui.Modal, title=ts.get(f"{pf}edit-qty-title")):
             await TradeService.update_quantity(
                 self.db_pool, interact.message.id, self.quantity_input.value
             )
-            await TradeService.add_update_queue({"origin_msg": self.original_message})
+            await add_job(JobType.TRADE_UPDATE, {"origin_msg": self.original_message})
             await interact.client.trigger_queue_processing()
             await interact.response.send_message(
                 ts.get(f"{pf}edit-requested"), ephemeral=True
@@ -251,7 +252,7 @@ class EditPriceModal(ui.Modal, title=ts.get(f"{pf}edit-price-title")):
             await TradeService.update_price(
                 self.db_pool, interact.message.id, int(self.price_input.value)
             )
-            await TradeService.add_update_queue({"origin_msg": self.original_message})
+            await add_job(JobType.TRADE_UPDATE, {"origin_msg": self.original_message})
             await interact.client.trigger_queue_processing()
             await interact.response.send_message(
                 ts.get(f"{pf}edit-requested"), ephemeral=True
@@ -305,7 +306,7 @@ class EditRankModal(ui.Modal, title=ts.get(f"{pf}edit-rank-title")):
             await TradeService.update_item_rank(
                 self.db_pool, interact.message.id, int(self.rank_input.value)
             )
-            await TradeService.add_update_queue({"origin_msg": self.original_message})
+            await add_job(JobType.TRADE_UPDATE, {"origin_msg": self.original_message})
             await interact.client.trigger_queue_processing()
             await interact.response.send_message(
                 ts.get(f"{pf}edit-requested"), ephemeral=True
@@ -392,8 +393,9 @@ class ConfirmDeleteView(ui.View):
             msg=f"ConfirmDeleteView -> clicked yes",
         )
         try:
-            await TradeService.add_delete_queue(
-                {"interact": interact, "origin_msg": self.origin_message}
+            await add_job(
+                JobType.TRADE_DELETE,
+                {"interact": interact, "origin_msg": self.origin_message},
             )
             await interact.client.trigger_queue_processing()
         except Exception:

@@ -11,6 +11,7 @@ from src.constants.keys import (
     COOLDOWN_BTN_CALL,
 )
 from src.services.party_service import PartyService
+from src.services.queue_manager import add_job, JobType
 from src.translator import ts
 from src.utils.logging_utils import save_log
 from src.utils.permission import (
@@ -160,7 +161,7 @@ class PartyEditModal(ui.Modal, title=ts.get(f"{pf}edit-title")):
                 self.mission_input.value,
                 self.desc_input.value,
             )
-            await PartyService.add_update_queue({"interact": interact, "self": self})
+            await add_job(JobType.PARTY_UPDATE, {"interact": interact, "self": self})
             await interact.client.trigger_queue_processing()
             await interact.response.send_message(
                 ts.get(f"{pf}edit-requested"), ephemeral=True
@@ -225,8 +226,7 @@ class PartySizeModal(ui.Modal, title=ts.get(f"{pf}size-ui-title")):
         await PartyService.update_party_size(
             interact.client.db, interact.message.id, new_size
         )
-        await PartyService.add_update_queue({"interact": interact})
-        await interact.client.trigger_queue_processing()
+        await add_job(JobType.PARTY_UPDATE, {"interact": interact})
         await interact.response.send_message(
             ts.get(f"{pf}edit-requested"), ephemeral=True
         )
@@ -253,7 +253,7 @@ class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
             await PartyService.update_party_departure(
                 interact.client.db, interact.message.id, self.date_input.value
             )
-            await PartyService.add_update_queue({"interact": interact})
+            await add_job(JobType.PARTY_UPDATE, {"interact": interact})
             await interact.client.trigger_queue_processing()
             await interact.response.send_message(
                 ts.get(f"{pf}edit-requested"), ephemeral=True
@@ -369,7 +369,7 @@ class ConfirmJoinLeaveView(ui.View):
                 # user warn msg
                 # msg_content += WarnService.generateWarnMsg(self.db_pool,interact.user.id)
                 await self.original_message.channel.send(msg_content)
-            await PartyService.add_update_queue({"origin_msg": self.original_message})
+            await add_job(JobType.PARTY_UPDATE, {"origin_msg": self.original_message})
             await interact.client.trigger_queue_processing()
         except Exception as e:
             if not interact.response.is_done():
@@ -455,8 +455,10 @@ class ConfirmDeleteView(ui.View):
             msg=f"ConfirmDeleteView -> clicked yes",
         )
         try:
-            delete_obj = {"origin_msg": self.origin_message, "interact": interact}
-            await PartyService.add_delete_queue(delete_obj)
+            await add_job(
+                JobType.PARTY_DELETE,
+                {"origin_msg": self.origin_message, "interact": interact},
+            )
             await interact.client.trigger_queue_processing()
             await interact.edit_original_response(
                 content=ts.get(f"{pf}delete-requested"), view=None
@@ -517,10 +519,11 @@ class KickMemberSelect(ui.Select):
             await PartyService.leave_participant(
                 interact.client.db, party["id"], target_id
             )
-            response_msg = ts.get(f"{pf}pv-kick-success").format(name=f"<@{target_id}>")
-            await PartyService.add_update_queue({"origin_msg": self.original_message})
+            await add_job(JobType.PARTY_UPDATE, {"origin_msg": self.original_message})
             await interact.client.trigger_queue_processing()
-            await self.original_message.channel.send(response_msg)
+            await self.original_message.channel.send(
+                ts.get(f"{pf}pv-kick-success").format(name=f"<@{target_id}>")
+            )
         except Exception as e:
             await interact.response.send_message(
                 ts.get(f"{pf}pv-err-notfound"), view=SupportView(), ephemeral=True
@@ -806,7 +809,7 @@ class PartyView(ui.View):
             if child.custom_id in ["party_join", "party_edit_size"]:
                 child.disabled = is_done
 
-        await PartyService.add_toggle_queue({"interact": interact, "view": self})
+        await add_job(JobType.PARTY_TOGGLE,{"interact": interact, "view": self})
         await interact.client.trigger_queue_processing()
         await interact.response.send_message(
             ts.get(f"{pf}edit-requested"), ephemeral=True

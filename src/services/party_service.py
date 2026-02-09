@@ -5,14 +5,8 @@ from src.translator import ts
 from src.utils.db_helper import transaction, query_reader
 from src.utils.delay import delay
 from src.utils.logging_utils import save_log
-from src.utils.return_err import return_traceback
 from src.utils.times import parseKoreanDatetime
 from src.utils.webhook import get_webhook
-
-PARTY_TOGGLE_QUEUE = []
-PARTY_CREATE_QUEUE = []
-PARTY_UPDATE_QUEUE = []
-PARTY_DELETE_QUEUE = []
 
 pf = "cmd.party."
 
@@ -144,295 +138,131 @@ class PartyService:
     ############################
     ############################
     @staticmethod
-    async def is_queue_empty() -> bool:
-        global PARTY_TOGGLE_QUEUE, PARTY_CREATE_QUEUE, PARTY_UPDATE_QUEUE, PARTY_DELETE_QUEUE
+    async def execute_toggle(emergency_db, job_data):
+        from src.views.party_view import build_party_embed_from_db
 
-        return (
-            len(PARTY_TOGGLE_QUEUE) == 0
-            and len(PARTY_CREATE_QUEUE) == 0
-            and len(PARTY_UPDATE_QUEUE) == 0
-            and len(PARTY_DELETE_QUEUE) == 0
+        interact = job_data["interact"]
+        view = job_data["view"]
+        new_embed = await build_party_embed_from_db(interact.message.id, emergency_db)
+        await interact.message.edit(embed=new_embed, view=view)
+        await save_log(
+            pool=emergency_db,
+            type=LOG_TYPE.info,
+            cmd="btn.toggle.state",
+            interact=interact,
+            msg=f"toggled party state",
         )
 
     @staticmethod
-    async def get_queue_count() -> str:
-        global PARTY_TOGGLE_QUEUE, PARTY_UPDATE_QUEUE, PARTY_DELETE_QUEUE
-        return f"""## Party Queue
-- TOGGLE: {len(PARTY_TOGGLE_QUEUE)}
-- CREATE: {len(PARTY_CREATE_QUEUE)}
-- UPDATE: {len(PARTY_UPDATE_QUEUE)}
-- DELETE: {len(PARTY_DELETE_QUEUE)}
-"""
-
-    @staticmethod
-    async def add_toggle_queue(obj):
-        global PARTY_TOGGLE_QUEUE
-        PARTY_TOGGLE_QUEUE.append(obj)
-
-    @staticmethod
-    async def add_create_queue(obj):
-        global PARTY_CREATE_QUEUE
-        PARTY_CREATE_QUEUE.append(obj)
-
-    @staticmethod
-    async def add_update_queue(obj):
-        global PARTY_UPDATE_QUEUE
-
-        # Remove existing entry with same message_id if present
-        try:
-            message_id = obj.get("interact").message.id
-            PARTY_UPDATE_QUEUE[:] = [
-                item
-                for item in PARTY_UPDATE_QUEUE
-                if item.get("interact").message.id != message_id
-            ]
-        except:
-            message_id = obj.get("origin_msg").id
-            PARTY_UPDATE_QUEUE[:] = [
-                item
-                for item in PARTY_UPDATE_QUEUE
-                if item.get("origin_msg").id != message_id
-            ]
-
-        PARTY_UPDATE_QUEUE.append(obj)
-        # print(len(PARTY_UPDATE_QUEUE))  # DEBUG_CODE
-
-    @staticmethod
-    async def add_delete_queue(obj):
-        global PARTY_DELETE_QUEUE
-
-        message_id = obj.get("origin_msg").id
-        PARTY_DELETE_QUEUE[:] = [
-            item
-            for item in PARTY_DELETE_QUEUE
-            if item.get("origin_msg").id != message_id
-        ]
-        PARTY_DELETE_QUEUE.append(obj)
-        # print(len(PARTY_DELETE_QUEUE))  # DEBUG_CODE
-
-    @staticmethod
-    async def process_toggle_queue(emergency_db):
-        from src.views.party_view import build_party_embed_from_db
-
-        global PARTY_TOGGLE_QUEUE
-
-        processed_index = []
-
-        for idx, party in enumerate(PARTY_TOGGLE_QUEUE):
-            try:
-                interact = party["interact"]
-                view = party["view"]
-                new_embed = await build_party_embed_from_db(
-                    interact.message.id, emergency_db
-                )
-                await interact.message.edit(embed=new_embed, view=view)
-                await delay()
-                await save_log(
-                    pool=emergency_db,
-                    type=LOG_TYPE.info,
-                    cmd="btn.toggle.state",
-                    interact=interact,
-                    msg=f"toggled party state",
-                )
-            except Exception as e:
-                await save_log(
-                    pool=emergency_db,
-                    type=LOG_TYPE.err,
-                    cmd="process.toggle_queue",
-                    msg=f"Failed to process toggle queue item",
-                    obj=f"{e}\n{return_traceback()}",
-                )
-            processed_index.append(idx)
-
-        for idx in reversed(processed_index):
-            PARTY_TOGGLE_QUEUE.pop(idx)
-
-    @staticmethod
-    async def process_create_queue(emergency_db):
+    async def execute_create(emergency_db, job_data):
         from src.views.party_view import PartyView, build_party_embed
 
-        global PARTY_CREATE_QUEUE
-        # print("create", len(PARTY_CREATE_QUEUE))  # DEBUG_CODEv
-        processed_index = []
+        interact = job_data["interact"]
+        party_data = job_data["data"]
+        webhook = await get_webhook(
+            job_data["target_channel"], interact.client.user.avatar
+        )
+        await delay()
 
-        for idx, party in enumerate(PARTY_CREATE_QUEUE):
-            interact = party["interact"]
-            data = party["data"]
-            try:
-                webhook = await get_webhook(
-                    party["target_channel"], interact.client.user.avatar
-                )
+        thread_starter_msg = await webhook.send(
+            content=party_data["title"],  # ts.get(f"{pf}created-party"),
+            username=interact.user.display_name,
+            avatar_url=interact.user.display_avatar.url,
+            wait=True,
+        )
+        thread = await thread_starter_msg.create_thread(
+            name=f"[{party_data['mission']}] {party_data['title']}",
+            reason=f"{interact.user.display_name} user created party",
+        )
 
-                await delay()
+        # create embed & view
+        embed = await build_party_embed(party_data, emergency_db)
+        msg = await thread.send(embed=embed, view=PartyView())
 
-                thread_starter_msg = await webhook.send(
-                    content=data["title"],  # ts.get(f"{pf}created-party"),
-                    username=interact.user.display_name,
-                    avatar_url=interact.user.display_avatar.url,
-                    wait=True,
-                )
-                thread = await thread_starter_msg.create_thread(
-                    name=f"[{data['mission']}] {data['title']}",
-                    reason=f"{interact.user.display_name} user created party",
-                )
+        # update db (thread & msg id)
+        await PartyService.update_thread_info(
+            emergency_db, party_data["id"], thread.id, msg.id
+        )
+        await save_log(
+            pool=emergency_db,
+            type=LOG_TYPE.info,
+            cmd="party create",
+            interact=interact,
+            msg="Party Created",
+            obj=embed.description,
+        )
 
-                # create embed & view
-                embed = await build_party_embed(data, emergency_db)
-                msg = await thread.send(embed=embed, view=PartyView())
+    @staticmethod
+    async def execute_update(db, job_data):
+        from src.views.party_view import build_party_embed_from_db
 
-                # update db (thread & msg id)
-                await PartyService.update_thread_info(
-                    emergency_db, data["id"], thread.id, msg.id
-                )
-                await save_log(
-                    pool=emergency_db,
-                    type=LOG_TYPE.cmd,
-                    cmd="party",
-                    interact=interact,
-                    msg="Party Created",
-                    obj=embed.description,
-                )
-            except Exception as e:
-                await save_log(
-                    pool=emergency_db,
-                    type=LOG_TYPE.err,
-                    cmd=f"cmd.party",
-                    interact=interact,
-                    msg="cmd used, but ERR",  # VAR
-                    obj=f"Error setup discord thread:\nT:{data['title']}\nTYPE:{data['mission']}\nDEPT:{data['departure']}\nDESC:{data['description']}\n{data['max_users']}\n{return_traceback()}",
-                )
-                print(f"partyCog > {e}")
+        interact = job_data.get("interact")
+        if interact:
+            modal = job_data.get("self")
 
-            processed_index.append(idx)
+            new_embed = await build_party_embed_from_db(interact.message.id, db)
+            await interact.message.edit(embed=new_embed)
             await delay()
 
-        # print("create", processed_index)  # DEBUG_CODE
-
-        for idx in reversed(processed_index):
-            PARTY_CREATE_QUEUE.pop(idx)
-
-    @staticmethod
-    async def process_update_queue(emergency_db):
-        from src.views.party_view import build_party_embed_from_db
-
-        global PARTY_UPDATE_QUEUE
-        # print("update:", len(PARTY_UPDATE_QUEUE))  # DEBUG_CODE
-        processed_index = []
-
-        for idx, queue_party in enumerate(PARTY_UPDATE_QUEUE):
-            try:
-                interact = queue_party.get("interact")
-                if interact:
-                    interact = queue_party["interact"]
-                    selfp = queue_party.get("self")
-
-                    new_embed = await build_party_embed_from_db(
-                        interact.message.id, emergency_db
-                    )
-                    await interact.message.edit(embed=new_embed)
-
-                    await delay()
-
-                    if selfp:
-                        ch_name = (
-                            f"[{selfp.mission_input.value}] {selfp.title_input.value}"
-                        )
-                        if (
-                            isinstance(interact.channel, discord.Thread)
-                            and interact.channel.name != ch_name
-                        ):
-                            await interact.channel.edit(name=ch_name)
-                            await delay()
-                    await save_log(
-                        pool=emergency_db,
-                        type=LOG_TYPE.event,
-                        cmd="btn.edit.article",
-                        interact=interact,
-                        msg=f"PartyEditModal -> Clicked Submit",
-                        obj=f"{selfp.title_input.value}\n{selfp.mission_input.value}\n{selfp.desc_input.value}",
-                    )
-                else:
-                    msg = queue_party["origin_msg"]
-                    new_embed = await build_party_embed_from_db(msg.id, emergency_db)
-                    await msg.edit(embed=new_embed)
-                    await delay()
-            except Exception as e:
-                await save_log(
-                    pool=emergency_db,
-                    type=LOG_TYPE.err,
-                    cmd="process.update_queue",
-                    msg=f"Failed to process update queue item",
-                    obj=f"{e}\n{return_traceback()}",
-                )
-            processed_index.append(idx)
-
-        # print("update", processed_index)  # DEBUG_CODE
-
-        for idx in reversed(processed_index):
-            PARTY_UPDATE_QUEUE.pop(idx)
+            if modal:
+                ch_name = f"[{modal.mission_input.value}] {modal.title_input.value}"
+                if (
+                    isinstance(interact.channel, discord.Thread)
+                    and interact.channel.name != ch_name
+                ):
+                    await interact.channel.edit(name=ch_name)
+            await save_log(
+                pool=db,
+                type=LOG_TYPE.info,
+                interact=interact,
+                msg=f"Edit Article",
+                obj=f"{modal.title_input.value}\n{modal.mission_input.value}\n{modal.desc_input.value}",
+            )
+        else:
+            msg = job_data["origin_msg"]
+            new_embed = await build_party_embed_from_db(msg.id, db)
+            await msg.edit(embed=new_embed)
+            await save_log(
+                pool=db,
+                type=LOG_TYPE.info,
+                interact=interact,
+                msg=f"Edit Article",
+                obj=new_embed.description,
+            )
 
     @staticmethod
-    async def process_delete_queue(emergency_db):
+    async def execute_delete(db, job_data):
         from src.views.party_view import build_party_embed_from_db
 
-        global PARTY_DELETE_QUEUE
-        # print("delete:", len(PARTY_DELETE_QUEUE))  # DEBUG_CODE
-        processed_index = []
+        msg = job_data["origin_msg"]
+        interact = job_data["interact"]
+        new_embed = await build_party_embed_from_db(msg.id, db, isDelete=True)
+        await msg.edit(embed=new_embed, view=None)
+        await delay()
 
-        for idx, party in enumerate(PARTY_DELETE_QUEUE):
-            try:
-                msg = party["origin_msg"]
-                interact = party["interact"]
-
-                # build new embed & edit msg
-                new_embed = await build_party_embed_from_db(
-                    msg.id, emergency_db, isDelete=True
+        # edit thread starter msg
+        try:
+            webhook = await get_webhook(
+                interact.channel.parent, interact.client.user.avatar
+            )
+            if webhook:
+                await webhook.edit_message(
+                    message_id=interact.channel.id, content=ts.get(f"{pf}del-deleted")
                 )
-                await msg.edit(embed=new_embed, view=None)
+        except:
+            pass  # starter msg not found (maybe deleted manually)
+        await delay()
 
-                await delay()
+        # lock thread
+        if isinstance(interact.channel, discord.Thread):
+            await interact.channel.edit(locked=True)
 
-                # edit thread starter msg
-                try:
-                    webhook = await get_webhook(
-                        interact.channel.parent, interact.client.user.avatar
-                    )
-                    if webhook:
-                        await webhook.edit_message(
-                            message_id=interact.channel.id,
-                            content=ts.get(f"{pf}del-deleted"),
-                        )
-                except:
-                    pass  # starter msg not found (maybe deleted manually)
-
-                await delay()
-
-                # lock thread
-                if isinstance(interact.channel, discord.Thread):
-                    await interact.channel.edit(locked=True)
-
-                await PartyService.delete_party(emergency_db, interact.channel.id)
-                await save_log(
-                    pool=emergency_db,
-                    type=LOG_TYPE.info,
-                    cmd="btn.confirm.delete",
-                    interact=interact,
-                    msg=f"Party Deleted",
-                    obj=new_embed.description,
-                )
-
-                await delay()
-            except Exception as e:
-                await save_log(
-                    pool=emergency_db,
-                    type=LOG_TYPE.err,
-                    cmd="PartyService.process_delete_queue",
-                    msg=f"Failed to process update queue item{e}",
-                    obj=return_traceback(),
-                )
-            processed_index.append(idx)
-
-        # print("delete", processed_index)  # DEBUG_CODE
-
-        for idx in reversed(processed_index):
-            PARTY_DELETE_QUEUE.pop(idx)
+        await PartyService.delete_party(db, interact.channel.id)
+        await save_log(
+            pool=db,
+            type=LOG_TYPE.info,
+            cmd="btn.confirm.delete",
+            interact=interact,
+            msg=f"Party Deleted",
+            obj=new_embed.description,
+        )

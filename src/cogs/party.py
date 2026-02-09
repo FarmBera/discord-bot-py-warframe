@@ -6,6 +6,7 @@ from config.config import LOG_TYPE
 from src.constants.keys import COOLDOWN_5_MIN
 from src.services.channel_service import ChannelService
 from src.services.party_service import PartyService
+from src.services.queue_manager import add_job, JobType
 from src.translator import ts
 from src.utils.logging_utils import save_log
 from src.utils.permission import is_valid_guild, is_banned_user
@@ -47,7 +48,6 @@ class PartyCog(commands.Cog):
             msg="cmd used",  # VAR
             obj=f"T:{title}\nTYPE:{game_name}\nDEPT:{departure}\nDESC:{descriptions}\n{number_of_user}",
         )
-
         if not await is_valid_guild(interact, isFollowUp=True):
             return
         if await is_banned_user(interact, isFollowUp=True):
@@ -74,15 +74,13 @@ class PartyCog(commands.Cog):
 
         if number_of_user < MIN_SIZE:
             await interact.followup.send(
-                ts.get(f"{pf}pt-low").format(num=MIN_SIZE),
-                ephemeral=True,
+                ts.get(f"{pf}pt-low").format(num=MIN_SIZE), ephemeral=True
             )
             number_of_user = 4
 
         elif number_of_user > MAX_SIZE:
             await interact.followup.send(
-                ts.get(f"{pf}pt-high").format(num=MAX_SIZE),
-                ephemeral=True,
+                ts.get(f"{pf}pt-high").format(num=MAX_SIZE), ephemeral=True
             )
             number_of_user = MAX_SIZE
 
@@ -125,12 +123,12 @@ class PartyCog(commands.Cog):
             "is_closed": False,
             "description": descriptions,
         }
-        await PartyService.add_create_queue(
-            {"interact": interact, "data": data, "target_channel": target_channel}
+        await add_job(
+            JobType.PARTY_CREATE,
+            {"interact": interact, "data": data, "target_channel": target_channel},
         )
         await interact.followup.send(
-            f"✅ '{target_channel.name}' {ts.get(f'{pf}pt-create')}",
-            ephemeral=True,
+            f"✅ '{target_channel.mention}' {ts.get(f'{pf}pt-create')}", ephemeral=True
         )
         await self.bot.trigger_queue_processing()
 

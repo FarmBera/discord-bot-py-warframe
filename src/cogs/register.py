@@ -58,8 +58,7 @@ from src.parser.steelPath import w_steelPath
 from src.parser.vallisCycle import w_vallisCycle
 from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
 from src.parser.worldstate import w_worldstate
-from src.services.party_service import PartyService
-from src.services.trade_service import TradeService
+from src.services.queue_manager import get_queue_status
 from src.translator import ts
 from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
 from src.utils.permission import is_super_user
@@ -587,8 +586,7 @@ class GeneralCommands(commands.Cog):
             return
 
         desc: str = "# Processing Queue Status\n"
-        desc += await PartyService.get_queue_count()
-        desc += await TradeService.get_queue_count()
+        desc += get_queue_status()
         await interact.followup.send(
             embed=discord.Embed(description=desc, color=discord.Color.darker_grey())
         )
