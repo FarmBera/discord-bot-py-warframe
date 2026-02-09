@@ -1,4 +1,5 @@
 import discord
+from discord.ext import commands
 
 from config.config import LOG_TYPE
 from src.services.channel_service import ChannelService
@@ -19,6 +20,24 @@ TEMP_BANNED_EMBED: discord.Embed = discord.Embed(
 BANNED_EMBED: discord.Embed = discord.Embed(
     description=ts.get(f"general.banned").format(time="영구"), color=0xFF0000
 )
+
+
+async def is_cooldown(
+    interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
+):
+    bucket = cooldown_mapping.get_bucket(interact.message)
+    retry = bucket.update_rate_limit()
+    if retry:
+        await interact.response.send_message(
+            embed=discord.Embed(
+                title=ts.get(f"cmd.err-cooldown.title"),
+                description=ts.get("cmd.err-cooldown.btn").format(time=f"{int(retry)}"),
+                color=0xFF0000,
+            ),
+            ephemeral=True,
+        )
+        return True
+    return False
 
 
 async def is_admin_user(

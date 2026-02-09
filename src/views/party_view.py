@@ -13,7 +13,12 @@ from src.constants.keys import (
 from src.services.party_service import PartyService
 from src.translator import ts
 from src.utils.logging_utils import save_log
-from src.utils.permission import is_admin_user, is_valid_guild, is_banned_user
+from src.utils.permission import (
+    is_cooldown,
+    is_admin_user,
+    is_valid_guild,
+    is_banned_user,
+)
 from src.utils.return_err import return_traceback
 from src.utils.times import convert_remain, parseKoreanDatetime
 from src.views.help_view import SupportView
@@ -559,37 +564,30 @@ class PartyView(ui.View):
         )
 
     @staticmethod
-    async def is_cooldown(
-        interact: discord.Interaction, cooldown_mapping: commands.CooldownMapping
-    ):
-        bucket = cooldown_mapping.get_bucket(interact.message)
-        retry = bucket.update_rate_limit()
-        if retry:
-            await interact.response.send_message(
-                embed=discord.Embed(
-                    title=ts.get(f"cmd.err-cooldown.title"),
-                    description=ts.get("cmd.err-cooldown.btn").format(
-                        time=f"{int(retry)}"
-                    ),
-                    color=0xFF0000,
-                ),
-                ephemeral=True,
-            )
-            return True
-        return False
-
-    @staticmethod
     async def check_permissions(
         interact: discord.Interaction,
-        party_data,
-        participants,
-        check_host=False,
-        check_joined=False,
-        check_not_joined=False,
+        cooldown_action,
+        check_host: bool = False,
+        check_joined: bool = False,
+        check_not_joined: bool = False,
+        skip_banned: bool = False,
         cmd: str = "",
-    ):
+    ) -> bool | tuple[dict, dict]:
+        if await is_cooldown(interact, cooldown_action):
+            return False
+        if not await is_valid_guild(interact=interact, cmd=cmd):
+            return False
+        if not skip_banned and await is_banned_user(interact):
+            return False
+
+        party, participants = await PartyService.get_party_by_message_id(
+            interact.client.db, interact.message.id
+        )
+        if not await isPartyExist(interact, party):
+            return False
+
         user_id = interact.user.id
-        is_host: bool = user_id == party_data["host_id"]
+        is_host: bool = user_id == party["host_id"]
         is_admin: bool = await is_admin_user(interact, notify=False, cmd=cmd)
         is_participant = any(p["user_id"] == user_id for p in participants)
 
@@ -600,17 +598,23 @@ class PartyView(ui.View):
                 )
                 return False
 
+        if check_joined and interact.user.id == party["host_id"]:  # Host cannot leave
+            await interact.response.send_message(
+                ts.get(f"{pf}pv-host-exit-err"), ephemeral=True
+            )
+            return False
         if check_joined and not is_participant:
             await interact.response.send_message(
                 ts.get(f"{pf}pv-already-left"), ephemeral=True
             )
             return False
+
         if check_not_joined and is_participant:
             await interact.response.send_message(
                 ts.get(f"{pf}pv-already-joined"), ephemeral=True
             )
             return False
-        return True
+        return party, participants
 
     @ui.button(
         label=ts.get(f"{pf}pv-join-btn"),
@@ -626,23 +630,14 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> join_party",
         )
-        if await self.is_cooldown(interact, self.cooldown_action):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
+        #########################
+        check_result = await self.check_permissions(
+            interact, self.cooldown_action, check_not_joined=True, cmd=cmd
         )
-        if not await isPartyExist(interact, party):
+        if not check_result:
             return
 
-        if not await self.check_permissions(
-            interact, party, participants, check_not_joined=True, cmd=cmd
-        ):
-            return
+        party, participants = check_result
 
         if len(participants) >= party["max_users"]:
             await interact.response.send_message(ts.get(f"{pf}pv-full"), ephemeral=True)
@@ -681,27 +676,13 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> leave_party",
         )
-        if await self.is_cooldown(interact, self.cooldown_action):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
+        check_result = await self.check_permissions(
+            interact, self.cooldown_action, check_joined=True, skip_banned=True, cmd=cmd
         )
-        if not await isPartyExist(interact, party):
+        if not check_result:
             return
 
-        if interact.user.id == party["host_id"]:  # Host cannot leave
-            await interact.response.send_message(
-                ts.get(f"{pf}pv-host-exit-err"), ephemeral=True
-            )
-            return
-
-        if not await self.check_permissions(
-            interact, party, participants, check_joined=True, cmd=cmd
-        ):
-            return
+        party, participants = check_result
 
         view = ConfirmJoinLeaveView(
             action="leave",
@@ -727,20 +708,14 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> edit_size",
         )
-        if await self.is_cooldown(interact, self.cooldown_action):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
+        check_result = await self.check_permissions(
+            interact, self.cooldown_action, check_host=True, cmd=cmd
+        )
+        if not check_result:
             return
 
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
-        )
-        if not await self.check_permissions(
-            interact, party, participants, check_host=True, cmd=cmd
-        ):
-            return
+        party, participants = check_result
+
         await interact.response.send_modal(PartySizeModal(party["max_users"]))
 
     @ui.button(
@@ -757,23 +732,14 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> edit_content",
         )
-        if await self.is_cooldown(interact, self.cooldown_action):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
+        check_result = await self.check_permissions(
+            interact, self.cooldown_action, check_host=True, cmd=cmd
         )
-        if not await isPartyExist(interact, party):
+        if not check_result:
             return
 
-        if not await self.check_permissions(
-            interact, party, participants, check_host=True, cmd=cmd
-        ):
-            return
+        party, participants = check_result
+
         await interact.response.send_modal(
             PartyEditModal(
                 party["title"],
@@ -796,23 +762,12 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> edit_departure",
         )
-        if await self.is_cooldown(interact, self.cooldown_action):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
+        check_result = await self.check_permissions(
+            interact, self.cooldown_action, check_host=True, cmd=cmd
         )
-        if not await isPartyExist(interact, party):
+        if not check_result:
             return
 
-        if not await self.check_permissions(
-            interact, party, participants, check_host=True, cmd=cmd
-        ):
-            return
         await interact.response.send_modal(PartyDateEditModal())
 
     @ui.button(
@@ -829,44 +784,33 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> toggle_close",
         )
-        if await self.is_cooldown(interact, self.cooldown_action):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
+        check_result = await self.check_permissions(
+            interact, self.cooldown_action, check_host=True, cmd=cmd
         )
-        if not await isPartyExist(interact, party):
+        if not check_result:
             return
 
-        if not await self.check_permissions(
-            interact, party, participants, check_host=True, cmd=cmd
-        ):
-            return
+        party, participants = check_result
 
         new_status = await PartyService.toggle_status(
             interact.client.db, party["id"], party["status"]
         )
-
         # UI Button Update
         is_done = new_status == ts.get(f"{pf}pv-done")
         button.label = ts.get(f"{pf}pv-ing") if is_done else ts.get(f"{pf}pv-done")
         button.style = (
             discord.ButtonStyle.success if is_done else discord.ButtonStyle.primary
         )
-
         # Disable/Enable other buttons
         for child in self.children:
             if child.custom_id in ["party_join", "party_edit_size"]:
                 child.disabled = is_done
 
-        new_embed = await build_party_embed_from_db(
-            interact.message.id, interact.client.db
+        await PartyService.add_toggle_queue({"interact": interact, "view": self})
+        await interact.client.trigger_queue_processing()
+        await interact.response.send_message(
+            ts.get(f"{pf}edit-requested"), ephemeral=True
         )
-        await interact.response.edit_message(embed=new_embed, view=self)
 
     @ui.button(
         label=ts.get(f"{pf}pv-call-label"),
@@ -882,23 +826,13 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> call_members",
         )
-        if await self.is_cooldown(interact, self.cooldown_action):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
+        check_result = await self.check_permissions(
+            interact, self.cooldown_call, check_host=True, cmd=cmd
         )
-        if not await isPartyExist(interact, party):
+        if not check_result:
             return
 
-        if not await self.check_permissions(
-            interact, party, participants, check_host=True, cmd=cmd
-        ):
-            return
+        party, participants = check_result
 
         mentions = [
             p["user_mention"] for p in participants if p["user_id"] != party["host_id"]
@@ -927,23 +861,13 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> kick_member",
         )
-        if await self.is_cooldown(interact, self.cooldown_action):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
+        check_result = await self.check_permissions(
+            interact, self.cooldown_action, check_host=True, cmd=cmd
         )
-        if not await isPartyExist(interact, party):
+        if not check_result:
             return
 
-        if not await self.check_permissions(
-            interact, party, participants, check_host=True, cmd=cmd
-        ):
-            return
+        party, participants = check_result
 
         members_to_kick = [p for p in participants if p["user_id"] != party["host_id"]]
         if not members_to_kick:
@@ -972,22 +896,10 @@ class PartyView(ui.View):
             interact=interact,
             msg=f"PartyView -> delete_party",
         )
-        if await self.is_cooldown(interact, self.cooldown_action):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        party, participants = await PartyService.get_party_by_message_id(
-            interact.client.db, interact.message.id
+        check_result = await self.check_permissions(
+            interact, self.cooldown_action, check_host=True, cmd=cmd
         )
-        if not await isPartyExist(interact, party):
-            return
-
-        if not await self.check_permissions(
-            interact, party, participants, check_host=True, cmd=cmd
-        ):
+        if not check_result:
             return
 
         view = ConfirmDeleteView(interact, interact.message, self)

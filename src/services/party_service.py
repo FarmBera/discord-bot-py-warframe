@@ -9,6 +9,7 @@ from src.utils.return_err import return_traceback
 from src.utils.times import parseKoreanDatetime
 from src.utils.webhook import get_webhook
 
+PARTY_TOGGLE_QUEUE = []
 PARTY_CREATE_QUEUE = []
 PARTY_UPDATE_QUEUE = []
 PARTY_DELETE_QUEUE = []
@@ -144,22 +145,29 @@ class PartyService:
     ############################
     @staticmethod
     async def is_queue_empty() -> bool:
-        global PARTY_CREATE_QUEUE, PARTY_UPDATE_QUEUE, PARTY_DELETE_QUEUE
+        global PARTY_TOGGLE_QUEUE, PARTY_CREATE_QUEUE, PARTY_UPDATE_QUEUE, PARTY_DELETE_QUEUE
 
         return (
-            len(PARTY_CREATE_QUEUE) == 0
+            len(PARTY_TOGGLE_QUEUE) == 0
+            and len(PARTY_CREATE_QUEUE) == 0
             and len(PARTY_UPDATE_QUEUE) == 0
             and len(PARTY_DELETE_QUEUE) == 0
         )
 
     @staticmethod
     async def get_queue_count() -> str:
-        global PARTY_CREATE_QUEUE, PARTY_UPDATE_QUEUE, PARTY_DELETE_QUEUE
+        global PARTY_TOGGLE_QUEUE, PARTY_UPDATE_QUEUE, PARTY_DELETE_QUEUE
         return f"""## Party Queue
+- TOGGLE: {len(PARTY_TOGGLE_QUEUE)}
 - CREATE: {len(PARTY_CREATE_QUEUE)}
 - UPDATE: {len(PARTY_UPDATE_QUEUE)}
 - DELETE: {len(PARTY_DELETE_QUEUE)}
 """
+
+    @staticmethod
+    async def add_toggle_queue(obj):
+        global PARTY_TOGGLE_QUEUE
+        PARTY_TOGGLE_QUEUE.append(obj)
 
     @staticmethod
     async def add_create_queue(obj):
@@ -201,6 +209,43 @@ class PartyService:
         ]
         PARTY_DELETE_QUEUE.append(obj)
         # print(len(PARTY_DELETE_QUEUE))  # DEBUG_CODE
+
+    @staticmethod
+    async def process_toggle_queue(emergency_db):
+        from src.views.party_view import build_party_embed_from_db
+
+        global PARTY_TOGGLE_QUEUE
+
+        processed_index = []
+
+        for idx, party in enumerate(PARTY_TOGGLE_QUEUE):
+            try:
+                interact = party["interact"]
+                view = party["view"]
+                new_embed = await build_party_embed_from_db(
+                    interact.message.id, emergency_db
+                )
+                await interact.message.edit(embed=new_embed, view=view)
+                await delay()
+                await save_log(
+                    pool=emergency_db,
+                    type=LOG_TYPE.info,
+                    cmd="btn.toggle.state",
+                    interact=interact,
+                    msg=f"toggled party state",
+                )
+            except Exception as e:
+                await save_log(
+                    pool=emergency_db,
+                    type=LOG_TYPE.err,
+                    cmd="process.toggle_queue",
+                    msg=f"Failed to process toggle queue item",
+                    obj=f"{e}\n{return_traceback()}",
+                )
+            processed_index.append(idx)
+
+        for idx in reversed(processed_index):
+            PARTY_TOGGLE_QUEUE.pop(idx)
 
     @staticmethod
     async def process_create_queue(emergency_db):

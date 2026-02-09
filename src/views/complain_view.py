@@ -1,14 +1,12 @@
 import discord
 from discord.ext import commands
-import asyncio
 
 from config.config import LOG_TYPE
-from src.translator import ts
 from src.constants.keys import COOLDOWN_DEFAULT
-from src.utils.return_err import return_traceback
-from src.utils.logging_utils import save_log
-from src.utils.db_helper import query_reader
 from src.services.channel_service import ChannelService
+from src.translator import ts
+from src.utils.logging_utils import save_log
+from src.utils.return_err import return_traceback
 from src.views.help_view import SupportView
 
 pf: str = "cmd.complain."

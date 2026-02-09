@@ -391,6 +391,7 @@ class DiscordBot(commands.Bot):
 
                 await delay()
                 # process party
+                await PartyService.process_toggle_queue(db)
                 await PartyService.process_create_queue(db)
                 await PartyService.process_update_queue(db)
                 await PartyService.process_delete_queue(db)
