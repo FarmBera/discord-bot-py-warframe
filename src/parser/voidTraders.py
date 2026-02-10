@@ -45,7 +45,7 @@ def isBaroActive(act, exp) -> bool:
     return True if active < curr < expiry else False
 
 
-def color_decision(arg):
+def color_decision():
     global baro_active
 
     if baro_active:
@@ -77,7 +77,6 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
             output_msg += f"- {ts.get(f'{pf}tdr-name')}: {ts.trs(td['Character'])}\n"
 
         baro_active = isBaroActive(t_act, t_exp)
-        # print(f"is baro activate: {baro_active}")
 
         # OO appeared
         if baro_active:
@@ -101,14 +100,13 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
 
     embed = discord.Embed(
         description=output_msg,
-        color=embed_color if embed_color else color_decision(trader),
+        color=embed_color if embed_color else color_decision(),
     )
     embed.set_thumbnail(url="attachment://i.webp")
 
     return embed, getBaroImg(trader[0]["Character"])
 
 
-# todo-delay: 한글화
 def w_voidTradersItem(trader) -> discord.Embed:
     if not trader:
         return err_embed("voidTraders")
@@ -160,10 +158,9 @@ def w_voidTradersItem(trader) -> discord.Embed:
             output_msg += f"- {jtem}\n"
         output_msg += "\n"
 
-    return discord.Embed(description=output_msg, color=color_decision(trader))
+    return discord.Embed(description=output_msg, color=color_decision())
 
 
 # from src.utils.data_manager import get_obj
 # from src.constants.keys import VOIDTRADERS
-
 # print(w_voidTraders(get_obj(VOIDTRADERS))[0].description)

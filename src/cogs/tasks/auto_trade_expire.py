@@ -35,13 +35,13 @@ class tasks_auto_trade_expire(commands.Cog):
     # trade auto expire
     @tasks.loop(time=dt.time(hour=4, minute=0, tzinfo=KST))
     async def auto_trade_expire(self) -> None:
-        await save_log(
-            pool=self.bot.db,
-            type=LOG_TYPE.info,
-            cmd="auto_trade_expire()",
-            user=MSG_BOT,
-            msg=f"START Trade AutoDelete",
-        )
+        # await save_log(
+        #     pool=self.bot.db,
+        #     type=LOG_TYPE.info,
+        #     cmd="auto_trade_expire()",
+        #     user=MSG_BOT,
+        #     msg=f"START Trade AutoDelete",
+        # )
         deleted_count: int = 0
         eta: dt.datetime = timeNowDT()
 
@@ -64,49 +64,42 @@ class tasks_auto_trade_expire(commands.Cog):
         for trade in expired_trades:
             try:
                 thread = self.bot.get_channel(trade["thread_id"])
-
-                await delay()
-
                 await thread.edit(locked=True)  # lock thread
+                await delay()
 
                 msg = await thread.fetch_message(trade["message_id"])
-
                 await delay()
 
-                try:  # edit web hook msg
-                    webhooks = await thread.parent.webhooks()
-                    webhook = discord.utils.get(webhooks, name=LFG_WEBHOOK_NAME)
-
-                    await delay()
-
-                    if webhook:
-                        starter_message = await thread.parent.fetch_message(thread.id)
-                        if starter_message:
-                            await webhook.edit_message(
-                                message_id=thread.id,
-                                content=ts.get("cmd.trade.expired"),
-                            )
-                except discord.NotFound:
-                    pass
-
-                await delay()
-
-                # refresh Embed
                 new_embed = await build_trade_embed_from_db(
-                    trade["message_id"], self.bot.db, isDelete=True
+                    msg.id, self.bot.db, isDelete=True
                 )
                 await msg.edit(embed=new_embed, view=None)
+                await delay()
+
+                # edit web hook msg
+                webhooks = await thread.parent.webhooks()
+                webhook = discord.utils.get(webhooks, name=LFG_WEBHOOK_NAME)
+                await delay()
+
+                if webhook:
+                    starter_message = await thread.parent.fetch_message(thread.id)
+                    if starter_message:
+                        await webhook.edit_message(
+                            message_id=thread.id,
+                            content=ts.get("cmd.trade.expired"),
+                        )
+                await delay()
 
                 await TradeService.delete_trade(self.bot.db, trade["thread_id"])
                 deleted_count += 1
-                omsg = f"Expired trade {trade['id']} deleted."
-                await save_log(
-                    pool=self.bot.db,
-                    type=LOG_TYPE.info,
-                    cmd="auto_trade_expire()",
-                    user=MSG_BOT,
-                    msg=omsg,
-                )
+                # omsg = f"Expired trade {trade['id']} deleted."
+                # await save_log(
+                #     pool=self.bot.db,
+                #     type=LOG_TYPE.info,
+                #     cmd="auto_trade_expire()",
+                #     user=MSG_BOT,
+                #     msg=omsg,
+                # )
             except discord.NotFound:  # msg deleted manually
                 await save_log(
                     pool=self.bot.db,
@@ -128,13 +121,14 @@ class tasks_auto_trade_expire(commands.Cog):
                 )
             await delay()
 
-        await save_log(
-            pool=self.bot.db,
-            type=LOG_TYPE.info,
-            cmd="auto_trade_expire()",
-            user=MSG_BOT,
-            msg=f"END Trade AutoDelete (deleted: {deleted_count}, eta: {timeNowDT()-eta})",
-        )
+        if deleted_count >= 1:
+            await save_log(
+                pool=self.bot.db,
+                type=LOG_TYPE.info,
+                cmd="auto_trade_expire()",
+                user=MSG_BOT,
+                msg=f"END Trade AutoDelete (deleted: {deleted_count}, eta: {timeNowDT()-eta})",
+            )
 
 
 async def setup(bot):

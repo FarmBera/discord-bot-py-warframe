@@ -35,13 +35,13 @@ class task_auto_party_expire(commands.Cog):
     # party auto expire
     @tasks.loop(time=dt.time(hour=3, minute=0, tzinfo=KST))
     async def auto_party_expire(self) -> None:
-        await save_log(
-            pool=self.bot.db,
-            type=LOG_TYPE.info,
-            cmd="auto_party_expire()",
-            user=MSG_BOT,
-            msg=f"START Party AutoDelete",
-        )
+        # await save_log(
+        #     pool=self.bot.db,
+        #     type=LOG_TYPE.info,
+        #     cmd="auto_party_expire()",
+        #     user=MSG_BOT,
+        #     msg=f"START Party AutoDelete",
+        # )
         eta: dt.datetime = timeNowDT()
 
         async with query_reader(self.bot.db) as cursor:
@@ -64,15 +64,10 @@ class task_auto_party_expire(commands.Cog):
         for party in expired_parties:
             try:
                 thread = self.bot.get_channel(party["thread_id"])
-
-                await delay()
-
                 await thread.edit(locked=True)  # lock thread
-
                 await delay()
 
                 msg = await thread.fetch_message(party["message_id"])
-
                 await delay()
 
                 try:  # edit thread starter (webhook) msg
@@ -100,14 +95,14 @@ class task_auto_party_expire(commands.Cog):
                 # remove from db
                 await PartyService.delete_party(self.bot.db, party["thread_id"])
                 deleted_count += 1
-                omsg = f"Expired party {party['id']} deleted."
-                await save_log(
-                    pool=self.bot.db,
-                    type=LOG_TYPE.info,
-                    cmd="auto_party_expire()",
-                    user=MSG_BOT,
-                    msg=omsg,
-                )
+                # omsg = f"Expired party {party['id']} deleted."
+                # await save_log(
+                #     pool=self.bot.db,
+                #     type=LOG_TYPE.info,
+                #     cmd="auto_party_expire()",
+                #     user=MSG_BOT,
+                #     msg=omsg,
+                # )
             except discord.NotFound:
                 await save_log(
                     pool=self.bot.db,
@@ -131,13 +126,14 @@ class task_auto_party_expire(commands.Cog):
                 )
             await delay()
 
-        await save_log(
-            pool=self.bot.db,
-            type=LOG_TYPE.info,
-            cmd="auto_party_expire()",
-            user=MSG_BOT,
-            msg=f"END Party AutoDelete (deleted: {deleted_count}, eta: {timeNowDT()-eta})",
-        )
+        if deleted_count >= 1:
+            await save_log(
+                pool=self.bot.db,
+                type=LOG_TYPE.info,
+                cmd="auto_party_expire()",
+                user=MSG_BOT,
+                msg=f"END Party AutoDelete (deleted: {deleted_count}, eta: {timeNowDT()-eta})",
+            )
 
 
 async def setup(bot):
