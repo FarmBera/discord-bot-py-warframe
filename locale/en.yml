@@ -160,7 +160,7 @@ cmd:
     eta: "Expires **{eta}**"
 
   archon-hunt:
-    cmd: archonhunt
+    cmd: archon-hunt
     desc: Get archon hunt missions this weekend
     title: Archon Hunt
     eta: "Expires {time}"
@@ -239,7 +239,7 @@ cmd:
     current: "**This Week**"
 
   fissures:
-    cmd: voidfissures
+    cmd: fissures
     desc: Get available void fissures with fast-run available (like Exterminate, Capture)
     fiss: Fissure
 
@@ -252,7 +252,7 @@ cmd:
       Expiry: **{time}** / {node} - {enemy}
 
   duviri-cycle:
-    cmd: duviricycle
+    cmd: duviri-cycle
     desc: Get current Duviri State
     output: |
       ## Duviri WorldState
@@ -270,22 +270,22 @@ cmd:
     var: "## Personal Modifiers"
 
   deep-archimedea:
-    cmd: deeparchimedea
+    cmd: deep
     desc: "[Beta] Get Deep Archimedea missions this weekend"
     content: |
       # Deep Archimedea
       > Expiry: {time}
 
   temporal-archimedea:
-    cmd: temporalarchimedea
+    cmd: temporal
     desc: "[Beta] Get Temporal Archimedea missions this weekend"
     content: |
       # Temporal Archimedea
       > Expiry: {time}
 
   calendar:
-    cmd: hexcalendar
-    desc: Get Hex calendar mission/rewards this week
+    cmd: 1999calendar
+    desc: Get 1999 hex calendar mission/rewards this week
     title: Hex Calendar
     prize: "## Big Prize\n"
     todo: "## To Do\n"
@@ -301,7 +301,7 @@ cmd:
     vome: Vome
 
   dailydeals:
-    cmd: dailydeals
+    cmd: darvo
     desc: Get today's hot deal item!
     title: "## Darvo's Daily Deal\n"
     output: | # each discount items
@@ -523,7 +523,7 @@ cmd:
     created-party: "Created a party!"
 
   trade:
-    cmd: trade
+    cmd: create-trade
     desc: "Create new trade article."
 
     # cmd args
@@ -799,7 +799,7 @@ cmd:
     outnext: "\n- {time} **{miss}**"
 
   worldstate:
-    cmd: worldcycle
+    cmd: world-cycle
     desc: View all world cycles at once. (cetus, duviri, cambion, orb-vallis)
     title: '# World Cycles'
     world_names: [ 'Cetus', 'Duviri', 'Cambion', 'Vallis' ]
