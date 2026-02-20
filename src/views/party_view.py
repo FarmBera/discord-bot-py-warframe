@@ -6,9 +6,9 @@ from discord.ext import commands
 
 from config.config import LOG_TYPE
 from src.constants.keys import (
-    COOLDOWN_BTN_ACTION,
-    COOLDOWN_BTN_MANAGE,
     COOLDOWN_BTN_CALL,
+    COOLDOWN_ACTION,
+    COOLDOWN_SHORT,
 )
 from src.services.party_service import PartyService
 from src.services.queue_manager import add_job, JobType
@@ -557,10 +557,10 @@ class PartyView(ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         self.cooldown_action = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_ACTION, commands.BucketType.user
+            1, COOLDOWN_ACTION, commands.BucketType.user
         )
         self.cooldown_manage = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_MANAGE, commands.BucketType.user
+            1, COOLDOWN_SHORT, commands.BucketType.user
         )
         self.cooldown_call = commands.CooldownMapping.from_cooldown(
             1, COOLDOWN_BTN_CALL, commands.BucketType.user
@@ -712,7 +712,7 @@ class PartyView(ui.View):
             msg=f"PartyView -> edit_size",
         )
         check_result = await self.check_permissions(
-            interact, self.cooldown_action, check_host=True, cmd=cmd
+            interact, self.cooldown_manage, check_host=True, cmd=cmd
         )
         if not check_result:
             return
@@ -736,7 +736,7 @@ class PartyView(ui.View):
             msg=f"PartyView -> edit_content",
         )
         check_result = await self.check_permissions(
-            interact, self.cooldown_action, check_host=True, cmd=cmd
+            interact, self.cooldown_manage, check_host=True, cmd=cmd
         )
         if not check_result:
             return
@@ -766,7 +766,7 @@ class PartyView(ui.View):
             msg=f"PartyView -> edit_departure",
         )
         check_result = await self.check_permissions(
-            interact, self.cooldown_action, check_host=True, cmd=cmd
+            interact, self.cooldown_manage, check_host=True, cmd=cmd
         )
         if not check_result:
             return
@@ -788,7 +788,7 @@ class PartyView(ui.View):
             msg=f"PartyView -> toggle_close",
         )
         check_result = await self.check_permissions(
-            interact, self.cooldown_action, check_host=True, cmd=cmd
+            interact, self.cooldown_manage, check_host=True, cmd=cmd
         )
         if not check_result:
             return
@@ -809,10 +809,10 @@ class PartyView(ui.View):
             if child.custom_id in ["party_join", "party_edit_size"]:
                 child.disabled = is_done
 
-        await add_job(JobType.PARTY_TOGGLE,{"interact": interact, "view": self})
+        await add_job(JobType.PARTY_TOGGLE, {"interact": interact, "view": self})
         await interact.client.trigger_queue_processing()
         await interact.response.send_message(
-            ts.get(f"{pf}edit-requested"), ephemeral=True
+            f"상태: {new_status}" + ts.get(f"{pf}edit-requested"), ephemeral=True
         )
 
     @ui.button(
@@ -865,7 +865,7 @@ class PartyView(ui.View):
             msg=f"PartyView -> kick_member",
         )
         check_result = await self.check_permissions(
-            interact, self.cooldown_action, check_host=True, cmd=cmd
+            interact, self.cooldown_manage, check_host=True, cmd=cmd
         )
         if not check_result:
             return
@@ -900,7 +900,7 @@ class PartyView(ui.View):
             msg=f"PartyView -> delete_party",
         )
         check_result = await self.check_permissions(
-            interact, self.cooldown_action, check_host=True, cmd=cmd
+            interact, self.cooldown_manage, check_host=True, cmd=cmd
         )
         if not check_result:
             return

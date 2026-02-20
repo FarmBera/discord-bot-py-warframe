@@ -3,6 +3,8 @@ from config.config import language as lang
 # commands cooldown time (sec)
 CDN: float = 1.0
 COOLDOWN_DEFAULT: float = 10.0
+COOLDOWN_SHORT: float = 2.0
+COOLDOWN_ACTION: float = 60.0
 COOLDOWN_CREATE: float = 60.0
 COOLDOWN_BTN_ACTION: float = 15.0  # btn join/leave
 COOLDOWN_BTN_MANAGE: float = 15.0  # btn modify/remove
@@ -11,17 +13,16 @@ COOLDOWN_BTN_CALL: float = 900.0  # btn call members
 
 
 filePfx: str = f"docs/{lang}/"
+fileExt: str = ".md"
 configPfx: str = "config/"
 JSON: str = "api_cache"
-fileExt: str = ".md"
 
 # json file location
 # DEFAULT_JSON_PATH: str = f"data/Warframe.json"
 # DEFAULT_MARKET_JSON_PATH: str = f"data/market-search.json"
+
 # other file location
-LOG_FILE_PATH: str = "log/log.csv"
 SETTING_FILE_LOC: str = f"{configPfx}setting.json"
-CHANNEL_FILE_LOC: str = f"{configPfx}channel"
 # docs file list
 HELP_FILE_LOC: str = f"{filePfx}help{fileExt}"
 ANNOUNCE_FILE_LOC: str = f"{filePfx}announcement{fileExt}"
@@ -32,7 +33,7 @@ FOOTER_FILE_LOC: str = f"{filePfx}footer{fileExt}"
 
 MSG_BOT: str = "bot.self"
 
-
+# cached worldstate data
 ALERTS: str = "Alerts"
 NEWS: str = "Events"
 CETUSCYCLE: str = "cetusCycle"
@@ -51,7 +52,6 @@ MARKET_SEARCH: str = "market-search"
 VALLISCYCLE: str = "vallisCycle"
 DUVIRI_ROTATION: str = "EndlessXpChoices"
 EVENTS: str = "Goals"
-# CODA: str = ""  # coda weapon
 EVENT_BOOSTER: str = ""
 DESCENDIA: str = "Descents"
 ARBITRATION: str = "arbitration"
@@ -64,22 +64,18 @@ DUVIRI_CACHE: str = "RotationDuviri"
 ARCHIMEDEA_DEEP: str = "Deep"
 ARCHIMEDEA_TEMPORAL: str = "Temporal"
 
+# keys to refresh api_cache JSON
 keys: list = [
     ALERTS,
     NEWS,
-    # CETUSCYCLE,
     SORTIE,
     ARCHONHUNT,
     VOIDTRADERS,
-    # STEELPATH,
-    # DUVIRICYCLE,
     ARCHIMEDEA,
     FISSURES,
     CALENDAR,
-    # CAMBIONCYCLE,
     DAILYDEALS,
     INVASIONS,
-    # VALLISCYCLE,
     DUVIRI_ROTATION,
     EVENTS,
     DESCENDIA,
@@ -87,6 +83,7 @@ keys: list = [
 
 LFG_WEBHOOK_NAME: str = "meow-bot-profile"
 
+# special items for invasions
 SPECIAL_ITEM_LIST: list = [
     # en
     "exilus",

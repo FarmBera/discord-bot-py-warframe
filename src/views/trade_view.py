@@ -4,11 +4,7 @@ from discord.ext import commands
 
 from config.TOKEN import base_url_market_image
 from config.config import LOG_TYPE
-from src.constants.keys import (
-    COOLDOWN_BTN_ACTION,
-    COOLDOWN_BTN_MANAGE,
-    COOLDOWN_BTN_CALL,
-)
+from src.constants.keys import COOLDOWN_SHORT, COOLDOWN_BTN_CALL
 from src.parser.marketsearch import get_slug_data, create_market_url
 from src.services.queue_manager import add_job, JobType
 from src.services.trade_service import TradeService
@@ -491,11 +487,8 @@ class ConfirmTradeView(ui.View):
 class TradeView(ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        self.cooldown_action = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_ACTION, commands.BucketType.user
-        )
         self.cooldown_manage = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_MANAGE, commands.BucketType.user
+            1, COOLDOWN_SHORT, commands.BucketType.user
         )
         self.cooldown_call = commands.CooldownMapping.from_cooldown(
             1, COOLDOWN_BTN_CALL, commands.BucketType.user
@@ -513,6 +506,30 @@ class TradeView(ui.View):
                 return False
         return True
 
+    @staticmethod
+    async def basic_trade_logic(interact, cd, cmd: str) -> bool | dict:
+        await save_log(
+            pool=interact.client.db,
+            type=LOG_TYPE.event,
+            cmd="TradeView btn",
+            interact=interact,
+            msg=cmd,
+        )
+        if await is_cooldown(interact, cd):
+            return False
+        if not await is_valid_guild(interact=interact, cmd=cmd):
+            return False
+        if await is_banned_user(interact):
+            return False
+
+        trade_data = await TradeService.get_trade_by_message_id(
+            interact.client.db, interact.message.id
+        )
+        if not await isTradeExists(interact, trade_data):
+            return False
+
+        return trade_data
+
     # btn trade request
     @ui.button(
         label=ts.get(f"{pf}btn-trade"),
@@ -521,24 +538,8 @@ class TradeView(ui.View):
     )
     async def trade_action(self, interact: discord.Interaction, button: ui.Button):
         cmd: str = "TradeView -> trade_action"
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd=f"btn.trade",
-            interact=interact,
-            msg=cmd,
-        )
-        if await is_cooldown(interact, self.cooldown_call):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        trade_data = await TradeService.get_trade_by_message_id(
-            interact.client.db, interact.message.id
-        )
-        if not await isTradeExists(interact, trade_data):
+        trade_data = await self.basic_trade_logic(interact, self.cooldown_call, cmd)
+        if not trade_data:
             return
 
         if interact.user.id == trade_data["host_id"]:
@@ -551,7 +552,6 @@ class TradeView(ui.View):
         await interact.response.send_message(
             ts.get(f"{pf}confirm-trade"), view=view, ephemeral=True
         )
-
         timed_out = await view.wait()
         if timed_out:
             try:
@@ -568,25 +568,9 @@ class TradeView(ui.View):
         custom_id="trade_btn_edit_qty",
     )
     async def edit_quantity(self, interact: discord.Interaction, button: ui.Button):
-        cmd = "TradeView.btn.edit-quantity"
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd=cmd,
-            interact=interact,
-            msg=f"TradeView -> edit_quantity",
-        )
-        if await is_cooldown(interact, self.cooldown_manage):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        trade_data = await TradeService.get_trade_by_message_id(
-            interact.client.db, interact.message.id
-        )
-        if not await isTradeExists(interact, trade_data):
+        cmd = "TradeView -> edit_quantity"
+        trade_data = await self.basic_trade_logic(interact, self.cooldown_manage, cmd)
+        if not trade_data:
             return
 
         if not await self.check_permissions(interact, trade_data, cmd):
@@ -603,25 +587,9 @@ class TradeView(ui.View):
         custom_id="trade_btn_edit_price",
     )
     async def edit_price(self, interact: discord.Interaction, button: ui.Button):
-        cmd = "TradeView.btn.edit-price"
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd=cmd,
-            interact=interact,
-            msg=f" -> edit_price",
-        )
-        if await is_cooldown(interact, self.cooldown_manage):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        trade_data = await TradeService.get_trade_by_message_id(
-            interact.client.db, interact.message.id
-        )
-        if not await isTradeExists(interact, trade_data, cmd):
+        cmd = "TradeView -> edit_price"
+        trade_data = await self.basic_trade_logic(interact, self.cooldown_manage, cmd)
+        if not trade_data:
             return
 
         if not await self.check_permissions(interact, trade_data, cmd):
@@ -639,25 +607,9 @@ class TradeView(ui.View):
         # row=1,
     )
     async def edit_rank(self, interact: discord.Interaction, button: ui.Button):
-        cmd = "TradeView.btn.edit-rank"
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd=cmd,
-            interact=interact,
-            msg=f" -> edit_rank",
-        )
-        if await is_cooldown(interact, self.cooldown_manage):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        trade_data = await TradeService.get_trade_by_message_id(
-            interact.client.db, interact.message.id
-        )
-        if not await isTradeExists(interact, trade_data, cmd):
+        cmd = "TradeView -> edit_rank"
+        trade_data = await self.basic_trade_logic(interact, self.cooldown_manage, cmd)
+        if not trade_data:
             return
 
         if not await self.check_permissions(interact, trade_data, cmd):
@@ -681,25 +633,9 @@ class TradeView(ui.View):
         custom_id="trade_btn_edit_nick",
     )
     async def edit_nickname(self, interact: discord.Interaction, button: ui.Button):
-        cmd = "TradeView.btn.edit-nickname"
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd=cmd,
-            interact=interact,
-            msg=f" -> edit_price",
-        )
-        if await is_cooldown(interact, self.cooldown_manage):
-            return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        trade_data = await TradeService.get_trade_by_message_id(
-            interact.client.db, interact.message.id
-        )
-        if not await isTradeExists(interact, trade_data):
+        cmd = "TradeView -> edit_price"
+        trade_data = await self.basic_trade_logic(interact, self.cooldown_manage, cmd)
+        if not trade_data:
             return
 
         if not await is_admin_user(interact, notify=False, cmd=cmd):
@@ -719,32 +655,15 @@ class TradeView(ui.View):
         custom_id="trade_btn_edit_close",
     )
     async def close_trade(self, interact: discord.Interaction, button: ui.Button):
-        cmd = "TradeView.btn.trade.toggle_close_party"
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd=cmd,
-            interact=interact,
-            msg=f"TradeView -> close_trade",  # obj=new_status,
-        )
-        if await is_cooldown(interact, self.cooldown_manage):
+        cmd = "TradeView -> close_trade"
+        trade_data = await self.basic_trade_logic(interact, self.cooldown_manage, cmd)
+        if not trade_data:
             return
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return
-        if await is_banned_user(interact):
-            return
-
-        trade_data = await TradeService.get_trade_by_message_id(
-            interact.client.db, interact.message.id
-        )
-        if not await isTradeExists(interact, trade_data):
-            return
-
-        trade_data["host_mention"] = f"<@{trade_data['host_id']}>"
 
         if not await self.check_permissions(interact, trade_data, cmd):
             return
 
+        trade_data["host_mention"] = f"<@{trade_data['host_id']}>"
         view = ConfirmDeleteView(interact, interact.message, trade_data, self)
         await interact.response.send_message(
             ts.get(f"{pf}confirm-delete"), view=view, ephemeral=True
