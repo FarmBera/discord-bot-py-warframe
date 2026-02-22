@@ -1,19 +1,16 @@
-import datetime as dt
-
 import discord
 
 from src.translator import ts, language as lang
 from src.utils.file_io import json_load
 from src.utils.return_err import err_embed
-from src.utils.times import timeNow, KST
-
+from src.utils.times import timeNow
 
 descendiaLanguage = json_load(f"data/{lang}/descendiaLanguages.json")
 pf: str = "cmd.descendia."
 format_string = "%Y-%m-%d %H:%M:%S"
 
 
-def getDescendiaChallenge(challenge: str) -> str:
+def getDescendiaChallenge(challenge: str) -> dict:
     return descendiaLanguage.get("challenge", {}).get(challenge, {})
 
 
@@ -46,7 +43,7 @@ def w_descendia(descendia) -> tuple[discord.Embed, str]:
     output_msg += ts.get(f"{pf}title")
 
     for challenge in descendia[this_week_index]["Challenges"]:
-        output_msg += f"{challenge['Index']:2d}. {getDescendiaMiss(challenge['Type'])}: {getDescendiaChallenge(challenge['Challenge'])}\n"
+        output_msg += f"{challenge['Index']:2d}. {getDescendiaMiss(challenge['Type'])}: {getDescendiaChallenge(challenge['Challenge'])['name']}\n"
 
     embed = discord.Embed(description=output_msg, color=0x883F0A)
     embed.set_thumbnail(url="attachment://i.webp")
