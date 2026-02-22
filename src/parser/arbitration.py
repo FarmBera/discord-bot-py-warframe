@@ -1,16 +1,17 @@
 import discord
 
 from src.translator import ts
-from src.utils.file_io import json_load
-from src.utils.times import timeNow, convert_remain
 from src.utils.data_manager import solNodes
+from src.utils.file_io import json_load
+from src.utils.image import getThumbImg
+from src.utils.times import timeNow, convert_remain
 
 ARBITRATION = json_load("data/arbys.json")
 
 pf: str = "cmd.arbitration."
 
 
-def w_arbitration() -> tuple[discord.Embed, str]:
+def w_arbitration() -> discord.Embed:
     cnt: int = 0  # count
     curr_arbi: dict = {}
 
@@ -41,8 +42,8 @@ def w_arbitration() -> tuple[discord.Embed, str]:
         )
 
     embed = discord.Embed(description=output_msg, color=discord.Color.greyple())
-    embed.set_thumbnail(url="attachment://i.webp")
-    return embed, "vitus-essence"  # "arbitration"
+    embed.set_thumbnail(url=getThumbImg("vitus-essence"))
+    return embed  # , "vitus-essence"  # "arbitration"
 
 
 # print(w_arbitration()[0].description)

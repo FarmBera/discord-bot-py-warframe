@@ -3,6 +3,7 @@ import discord
 from src.translator import ts
 from src.utils.data_manager import solNodes
 from src.utils.file_io import json_load
+from src.utils.image import getThumbImg
 from src.utils.times import timeNow
 
 steel_incursions_data = json_load("data/steel-incursions.json")
@@ -10,7 +11,7 @@ steel_incursions_data = json_load("data/steel-incursions.json")
 pf: str = "cmd.steel-incursion."
 
 
-def w_steelIncursions() -> tuple[discord.Embed, str]:
+def w_steelIncursions() -> discord.Embed:
     cnt: int = 0
     this_node = []
     for item in steel_incursions_data:
@@ -31,8 +32,8 @@ def w_steelIncursions() -> tuple[discord.Embed, str]:
         idx += 1
 
     embed = discord.Embed(description=output_msg.strip(), color=0xB49D89)
-    embed.set_thumbnail(url="attachment://i.webp")
-    return embed, "steel-essence"
+    embed.set_thumbnail(url=getThumbImg("steel-essence"))
+    return embed
 
 
 # print(w_steelIncursions()[0].description)
