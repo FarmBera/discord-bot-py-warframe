@@ -1,6 +1,12 @@
 # Discord Bot for 'Warframe'
 
-Python Toy Project for game called 'Warframe' made by Digital Extremes
+Discord Bot for Warframe Community
+
+## IMPORT NOTICE
+
+- This service is an UNOFFICIAL project created by a fan.
+- This bot service is not affiliated with, endorsed, sponsored, or approved by Digital Extremes Ltd.
+- Images and content used in this service are for informational purposes only, with no intent to infringe on copyright.
 
 ## Top Features
 
