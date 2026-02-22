@@ -24,7 +24,7 @@ class Translator:
                 msg = f"{C.red}[warn]: Default translation file 'en.yml' also not found.{C.default}"
                 print(msg)
 
-    def get(self, key, **kwargs):
+    def get(self, key, **kwargs) -> str:
         """
         receive keys and return translated text (ex: 'main_screen.title')
         """
@@ -37,7 +37,7 @@ class Translator:
         except (KeyError, TypeError):
             return key
 
-    def trs(self, key):
+    def trs(self, key) -> str:
         """
         receive SPECIAL keys (not officialy translated text in API) and return translated text (ex: 'ts.trs(SEARCH_QUERY)')
         """

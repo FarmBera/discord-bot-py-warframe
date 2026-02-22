@@ -2,6 +2,7 @@ import datetime as dt
 
 import discord
 
+from src.constants.keys import FIELD_PATTERN as pat
 from src.parser.cambionCycle import CambionCycleData
 from src.parser.cetusCycle import CetusTimerData
 from src.parser.duviriCycle import get_current_mood
@@ -11,7 +12,6 @@ from src.utils.emoji import worldstate_emoji
 from src.utils.return_err import err_embed
 from src.utils.times import check_timer_states, convert_remain
 
-pattern = "\n"
 pf: str = "cmd.worldstate."
 
 
@@ -57,9 +57,9 @@ def w_worldstate() -> tuple[discord.Embed, str]:
     ]
 
     embed = discord.Embed(description=title, color=discord.Color.darker_grey())
-    embed.add_field(name=ts.get(f"{pf}world"), value=pattern.join(worlds), inline=True)
-    embed.add_field(name=ts.get(f"{pf}state"), value=pattern.join(states), inline=True)
-    embed.add_field(name=ts.get(f"{pf}expiry"), value=pattern.join(expiry), inline=True)
+    embed.add_field(name=ts.get(f"{pf}world"), value=pat.join(worlds), inline=True)
+    embed.add_field(name=ts.get(f"{pf}state"), value=pat.join(states), inline=True)
+    embed.add_field(name=ts.get(f"{pf}expiry"), value=pat.join(expiry), inline=True)
     embed.set_thumbnail(url="attachment://i.webp")
     return embed, "worldstate"
 

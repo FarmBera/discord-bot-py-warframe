@@ -12,6 +12,9 @@ COOLDOWN_5_MIN: float = 300.0  # 5 minute cooldown
 COOLDOWN_BTN_CALL: float = 900.0  # btn call members
 
 
+FIELD_PATTERN: str = "\n"
+
+
 filePfx: str = f"docs/{lang}/"
 fileExt: str = ".md"
 configPfx: str = "config/"

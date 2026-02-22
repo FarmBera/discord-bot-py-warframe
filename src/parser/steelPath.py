@@ -1,5 +1,6 @@
 import discord
 
+from src.constants.keys import FIELD_PATTERN as pat
 from src.parser.worldstate import weekly_remain
 from src.translator import ts
 from src.utils.emoji import get_emoji
@@ -25,7 +26,6 @@ img_list = {
     "Rifle Riven Mod": "riven-mod",
     "Shotgun Riven Mod": "riven-mod",
 }
-pattern = "\n"
 pf: str = "cmd.steel-path-reward."
 
 
@@ -77,9 +77,9 @@ def w_steelPath(steel) -> tuple[discord.Embed, str]:
     )
     embed.set_thumbnail(url="attachment://i.webp")
 
-    embed.add_field(name=ts.get(f"{pf}week"), value=pattern.join(weeks), inline=True)
-    embed.add_field(name=ts.get(f"{pf}item"), value=pattern.join(items), inline=True)
-    embed.add_field(name=ts.get(f"{pf}cost"), value=pattern.join(costs), inline=True)
+    embed.add_field(name=ts.get(f"{pf}week"), value=pat.join(weeks), inline=True)
+    embed.add_field(name=ts.get(f"{pf}item"), value=pat.join(items), inline=True)
+    embed.add_field(name=ts.get(f"{pf}cost"), value=pat.join(costs), inline=True)
 
     return embed, img_list.get(cname, "")
 

@@ -157,13 +157,18 @@ cmd:
     desc: 오늘의 출격 미션을 확인할 수 있어요.
 
     title: 오늘의 출격 미션
-    eta: "**{eta}** 만료됩니다."
+    eta: "**{eta}** 초기화"
+
+    index: 번호
+    type: 미션
+    node: 노드
+    mod: 변수
 
   archon-hunt:
     cmd: 집정관사냥
     desc: 이번주 집정관 미션 목록과, 얻을 수 있는 샤드를 확인할 수 있어요.
     title: 집정관 사냥 미션 목록
-    eta: "**{time}** 만료됩니다."
+    eta: "**{time}** 초기화"
     hunt: 토벌
 
     obt: "이번주에는 {emoji} **{shard} 집정관 샤드** 를 얻을 수 있습니다!\n\n"
