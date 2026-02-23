@@ -11,11 +11,13 @@ format_string = "%Y-%m-%d %H:%M:%S"
 
 
 def getDescendiaChallenge(challenge: str) -> dict:
-    return descendiaLanguage.get("challenge", {}).get(challenge, {})
+    return descendiaLanguage.get("challenge", {}).get(challenge, {}).get("name", "{}")
 
 
 def getDescendiaMiss(mission: str) -> str:
-    return descendiaLanguage.get("missionType", {}).get(mission, {}).get("name", "")
+    return (
+        descendiaLanguage.get("missionType", {}).get(mission, {}).get("name", mission)
+    )
 
 
 def w_descendia(descendia) -> tuple[discord.Embed, str]:
@@ -43,7 +45,7 @@ def w_descendia(descendia) -> tuple[discord.Embed, str]:
     output_msg += ts.get(f"{pf}title")
 
     for challenge in descendia[this_week_index]["Challenges"]:
-        output_msg += f"{challenge['Index']:2d}. {getDescendiaMiss(challenge['Type'])}: {getDescendiaChallenge(challenge['Challenge'])['name']}\n"
+        output_msg += f"{challenge['Index']:2d}. {getDescendiaMiss(challenge['Type'])}: {getDescendiaChallenge(challenge['Challenge'])}\n"
 
     embed = discord.Embed(description=output_msg, color=0x883F0A)
     embed.set_thumbnail(url="attachment://i.webp")

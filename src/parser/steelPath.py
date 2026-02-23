@@ -52,13 +52,13 @@ def w_steelPath(steel) -> tuple[discord.Embed, str]:
     for i in range(length):
         target_item = stl[i]
         origin_name = target_item["name"]
-        name = ts.trs(origin_name)
-        cost = str(target_item["cost"])
+        name = f"{get_emoji(origin_name)} {ts.trs(origin_name)}"
+        cost = f"{target_item['cost']}x {get_emoji('essense')}"
 
         # this week item
         if i == curr_idx:
             weeks.append(f"__**{ts.get(f'{pf}current')}**__")
-            items.append(f"__**{get_emoji(origin_name)} {name}**__")
+            items.append(f"__**{name}**__")
             costs.append(f"__**{cost}**__")
         else:
             if i > curr_idx:
@@ -68,8 +68,8 @@ def w_steelPath(steel) -> tuple[discord.Embed, str]:
             delta -= 1
 
             weeks.append(weekly_remain(delta))
-            items.append(f"{get_emoji(origin_name)} {name}")
-            costs.append(f"{cost}x {get_emoji('essense')}")
+            items.append(name)
+            costs.append(cost)
 
     embed = discord.Embed(
         description=output_msg.strip(),

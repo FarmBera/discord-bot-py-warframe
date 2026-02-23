@@ -43,7 +43,7 @@ def w_arbitration() -> discord.Embed:
 
     embed = discord.Embed(description=output_msg, color=discord.Color.greyple())
     embed.set_thumbnail(url=getThumbImg("vitus-essence"))
-    return embed  # , "vitus-essence"  # "arbitration"
+    return embed
 
 
 # print(w_arbitration()[0].description)
