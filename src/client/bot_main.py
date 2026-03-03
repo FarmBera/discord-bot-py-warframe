@@ -51,7 +51,6 @@ class DiscordBot(commands.Bot):
             "complain",
             "user_warn",
             # tasks
-            "tasks.weekly_task",
             "tasks.week_start_noti",
             "tasks.check_new_content",
             "tasks.auto_party_expire",
