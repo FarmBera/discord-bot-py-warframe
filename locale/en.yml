@@ -707,7 +707,10 @@ cmd:
       (User ID: {name})
 
       {desc}
-    done: "✅ Submission completed.\nWe will review and respond promptly."
+    done: |
+      {mention}
+      ✅ Submission completed.
+      We will review and respond promptly.
 
     # error
     err: "An error occurred during submission.\n\nIf the error persists, please contact an administrator."

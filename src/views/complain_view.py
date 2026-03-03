@@ -59,7 +59,6 @@ class ComplainModal(discord.ui.Modal):
                 name=interact.user.name,
                 desc=self.input_desc,
             )
-
             # get & fetch channel
             channel_list = await ChannelService.getChannels(interact)
             forum_channel = interact.client.get_channel(channel_list.get("complain_ch"))
@@ -78,8 +77,9 @@ class ComplainModal(discord.ui.Modal):
             if isinstance(forum_channel, discord.ForumChannel):
                 await forum_channel.create_thread(name=title, content=desc)
 
-            await self.button_interact.edit_original_response(
-                content=ts.get(f"{pf}done"), embed=None, view=None
+            await interact.followup.send(
+                ts.get(f"{pf}done").format(mention=interact.user.mention),
+                ephemeral=True,
             )
 
             # load dm users
