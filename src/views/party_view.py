@@ -17,7 +17,6 @@ from src.utils.logging_utils import save_log
 from src.utils.permission import (
     is_cooldown,
     is_admin_user,
-    is_valid_guild,
     is_banned_user,
 )
 from src.utils.return_err import return_traceback
@@ -578,8 +577,6 @@ class PartyView(ui.View):
     ) -> bool | tuple[dict, dict]:
         if await is_cooldown(interact, cooldown_action):
             return False
-        if not await is_valid_guild(interact=interact, cmd=cmd):
-            return False
         if not skip_banned and await is_banned_user(interact):
             return False
 
@@ -812,7 +809,8 @@ class PartyView(ui.View):
         await add_job(JobType.PARTY_TOGGLE, {"interact": interact, "view": self})
         await interact.client.trigger_queue_processing()
         await interact.response.send_message(
-            f"상태: {new_status}" + ts.get(f"{pf}edit-requested"), ephemeral=True
+            f"**현재 모집 상태: {new_status}**\n" + ts.get(f"{pf}edit-requested"),
+            ephemeral=True,
         )
 
     @ui.button(

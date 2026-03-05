@@ -3,13 +3,13 @@ from discord import app_commands
 from discord.ext import commands
 
 from config.config import LOG_TYPE
-from src.constants.keys import COOLDOWN_5_MIN
+from src.constants.keys import COOLDOWN_ACTION
 from src.services.channel_service import ChannelService
 from src.services.party_service import PartyService
 from src.services.queue_manager import add_job, JobType
 from src.translator import ts
 from src.utils.logging_utils import save_log
-from src.utils.permission import is_valid_guild, is_banned_user
+from src.utils.permission import is_banned_user
 from src.utils.return_err import return_traceback
 from src.views.help_view import SupportView
 from src.views.party_view import pf, MIN_SIZE, MAX_SIZE
@@ -21,7 +21,7 @@ class PartyCog(commands.Cog):
 
     @app_commands.command(name="party", description="cmd.party.desc")
     @app_commands.checks.cooldown(
-        1, COOLDOWN_5_MIN, key=lambda i: (i.guild_id, i.user.id)
+        1, COOLDOWN_ACTION, key=lambda i: (i.guild_id, i.user.id)
     )
     @app_commands.describe(
         title="cmd.party.desc-title",
@@ -48,8 +48,6 @@ class PartyCog(commands.Cog):
             msg="cmd used",  # VAR
             obj=f"T:{title}\nTYPE:{game_name}\nDEPT:{departure}\nDESC:{descriptions}\n{number_of_user}",
         )
-        if not await is_valid_guild(interact, isFollowUp=True):
-            return
         if await is_banned_user(interact, isFollowUp=True):
             return
 

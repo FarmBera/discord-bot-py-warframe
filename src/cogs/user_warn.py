@@ -7,7 +7,7 @@ from src.constants.keys import COOLDOWN_DEFAULT
 from src.translator import ts
 from src.utils.db_helper import query_reader
 from src.utils.logging_utils import save_log
-from src.utils.permission import is_admin_user, is_valid_guild
+from src.utils.permission import is_admin_user
 from src.utils.return_err import return_traceback
 from src.views.help_view import SupportView
 from src.views.user_warn_view import pf, WarnInputModal
@@ -41,8 +41,6 @@ class UserWarnCommands(commands.Cog):
             )
             return
 
-        if not await is_valid_guild(interact):
-            return
         if not await is_admin_user(
             interact, cmd=f"{LOG_TYPE.cmd}.user-ban", notify=True
         ):

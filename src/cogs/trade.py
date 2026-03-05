@@ -10,7 +10,7 @@ from src.services.queue_manager import add_job, JobType
 from src.services.trade_service import TradeService
 from src.translator import ts
 from src.utils.logging_utils import save_log
-from src.utils.permission import is_valid_guild, is_banned_user
+from src.utils.permission import is_banned_user
 from src.utils.return_err import return_traceback
 from src.views.help_view import SupportView
 from src.views.trade_view import parseNickname
@@ -50,8 +50,6 @@ class TradeCog(commands.Cog):
         price: int = 0,
         quantity: int = 1,
     ):
-        if not await is_valid_guild(interact, isFollowUp=False):
-            return
         if await is_banned_user(interact, isFollowUp=False):
             return
 
