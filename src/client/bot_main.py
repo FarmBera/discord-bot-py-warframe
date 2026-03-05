@@ -45,7 +45,6 @@ class DiscordBot(commands.Bot):
         # load cogs
         cog_ext = [
             # commands
-            "register",
             "party",
             "trade",
             "complain",
