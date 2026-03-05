@@ -48,9 +48,6 @@ async def is_admin_user(
 ) -> bool:
     """check interaction user is admin
 
-        Args:
-            interact (discord.Interaction): interaction object
-
     :param interact: interaction object to response back
     :param cmd: used function
     :param isFollowUp: is ephemeral msg
@@ -97,9 +94,6 @@ async def is_super_user(
     notify: bool = False,
 ) -> bool:
     """check interaction user is super admin
-
-        Args:
-            interact (discord.Interaction): interaction object
 
     :param interact: interaction object to response back
     :param cmd: used function
@@ -153,7 +147,7 @@ async def is_valid_guild(
     try:
         # fetch & check guild
         channel_list = await ChannelService.getChannels(interact)
-        if channel_list.get("guild") == interact.guild_id:
+        if channel_list.get("guild_id") == interact.guild_id:
             return True
 
         if isFollowUp:
