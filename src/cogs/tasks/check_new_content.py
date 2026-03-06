@@ -41,9 +41,7 @@ class TASKcheck_new_content(commands.Cog):
     @tasks.loop(minutes=5.0)
     async def check_new_content(self) -> None:
         if lang == Lang.EN:
-            latest_data: requests.Response | None = await API_Request(
-                self.bot.db, "check_new_content()"
-            )
+            latest_data: requests.Response | None = await API_Request(self.bot.db)
             if not latest_data or latest_data.status_code != 200:
                 return
 
