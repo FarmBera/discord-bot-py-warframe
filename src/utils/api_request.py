@@ -78,11 +78,10 @@ async def API_Request(pool, URL=base_url_warframe, fname=WF_JSON_PATH):
         dict: successfully parsed object
     """
     response = await API_internal(pool, URL)
-    response = response.json()
     if not response:
         return None
 
-    await json_save_async(response, fname)
+    await json_save_async(response.json(), fname)
     return response
 
 
