@@ -13,6 +13,7 @@ from src.handler.handle_news import processNews
 from src.handler.handle_voidtrader import handleVoidTrader
 from src.handler.handler_config import DATA_HANDLERS, LOGIC
 from src.parser.archimedea import setDeepArchimedea, setTemporalArchimedea
+from src.parser.bounty import handleNewBounty
 from src.parser.duviriRotation import setDuvWarframe, setDuvIncarnon
 from src.translator import ts
 from src.utils.api_request import API_Request
@@ -58,7 +59,7 @@ class TASKcheck_new_content(commands.Cog):
                 key = special_key
 
             special_logic = handler.get("special_logic")
-            if special_logic != LOGIC.no_args:
+            if special_logic not in [LOGIC.no_args, LOGIC.bounty]:
                 try:
                     obj_prev = await get_obj_async(key)
                     obj_new = latest_data[key]
@@ -199,6 +200,17 @@ class TASKcheck_new_content(commands.Cog):
                 if handler["update_check"]():
                     parsed_content = handler["parser"]()
                     notify = True
+
+            elif special_logic == LOGIC.bounty:
+                obj_new, is_new = await handleNewBounty(self.bot.db)
+                if not obj_new:
+                    await handleParseError(self.bot.db, "error with bounty object", key)
+                    continue
+
+                if is_new:
+                    parsed_content = handler["parser"](obj_new)
+                    notify = True
+                    should_save_data = True
 
             # parsing: default
             elif handler["update_check"](obj_prev, obj_new):

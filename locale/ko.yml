@@ -61,6 +61,7 @@ noti-label:
   duviriCycle: 두비리 감정 주기
   cambionCycle: 데이모스 - 캠비온 퇴적지 주기
   vallisCycle: 금성 - 오브 협곡 주기
+  Bounty: '의뢰'
   # profile
   trader: 바로 키티어
   deep: 네크랄로이드
@@ -814,6 +815,12 @@ cmd:
     world: 월드
     state: 상태
     expiry: 남은 시간
+
+  bounty:
+    cmd: 의뢰
+    desc: 자리만 & 엔트라티 의뢰를 확인합니다.
+    title-z: "# 자리만 의뢰\n"
+    title-e: "# 엔트라티 의뢰\n"
 
 trs:
   # keyword

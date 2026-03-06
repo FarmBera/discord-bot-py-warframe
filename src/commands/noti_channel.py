@@ -24,6 +24,7 @@ from src.constants.keys import (
     DUVIRICYCLE,
     CAMBIONCYCLE,
     VALLISCYCLE,
+    BOUNTY,
 )
 from src.translator import ts
 from src.utils.db_helper import transaction
@@ -50,6 +51,7 @@ DB_COLUMN_MAP = {
     DUVIRICYCLE: "sub_duviri",
     CAMBIONCYCLE: "sub_cambion",
     VALLISCYCLE: "sub_vallis",
+    BOUNTY: "sub_bounty",
 }
 
 # UI selection
@@ -81,6 +83,7 @@ NOTI_LABELS = {
     DUVIRICYCLE: ts.get(f"{PF_LABEL}{DUVIRICYCLE}"),
     CAMBIONCYCLE: ts.get(f"{PF_LABEL}{CAMBIONCYCLE}"),
     VALLISCYCLE: ts.get(f"{PF_LABEL}{VALLISCYCLE}"),
+    BOUNTY: ts.get(f"{PF_LABEL}{BOUNTY}"),
 }
 
 # profile name & image

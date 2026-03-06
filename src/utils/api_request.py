@@ -1,5 +1,3 @@
-import json
-
 import requests
 
 from config.TOKEN import base_url_warframe, base_url_market, WF_JSON_PATH
@@ -7,6 +5,7 @@ from config.config import LOG_TYPE
 from src.constants.color import C
 from src.constants.keys import MSG_BOT
 from src.translator import language as lang
+from src.utils.file_io import json_save_async
 from src.utils.logging_utils import save_log
 from src.utils.return_err import return_traceback
 from src.utils.times import timeNowDT
@@ -14,22 +13,12 @@ from src.utils.times import timeNowDT
 params_market: dict = {"Language": lang, "Platform": "pc"}
 
 
-# usage for main api
-async def API_Request(pool, res_source: str = "Unknown Source"):
-    """API request function for Warframe status
-
-    Args:
-        pool (aiomysql cursor pool)
-        res_source (str, optional): code position of the api request. Defaults to "Unknown Source".
-
-    Returns:
-        None: failed to request api
-    """
+async def API_internal(pool, url=base_url_warframe):
     start_time = timeNowDT()
 
     # API Request
     try:
-        response = requests.get(base_url_warframe, timeout=60)
+        response = requests.get(url, timeout=60)
     except Exception as e:
         elapsed_time = timeNowDT() - start_time
         msg = f"API request failed!: {elapsed_time}/{e}"
@@ -74,32 +63,26 @@ async def API_Request(pool, res_source: str = "Unknown Source"):
         )
         return None
 
-    # save data
-    try:
-        with open(WF_JSON_PATH, "w", encoding="utf-8") as json_file:
-            json.dump(response.json(), json_file, ensure_ascii=False, indent=2)
-    except Exception as e:
-        elapsed_time = timeNowDT() - start_time
-        msg = f"Error on saving file: {elapsed_time}/{e}"
-        print(timeNowDT(), C.red, msg, C.default)
-        await save_log(
-            pool=pool,
-            type=LOG_TYPE.err,
-            cmd="API_Request()",
-            user=MSG_BOT,
-            msg=msg,
-            obj=return_traceback(),
-        )
+    return response
 
-    # msg = f"{res_code}//{res_source}//{response.elapsed}"
-    # # print(C.red, msg, C.default, sep="")
-    # await save_log(
-    #     pool=pool,
-    #     type=LOG_TYPE.api,
-    #     cmd="API_Request()",
-    #     user=MSG_BOT,
-    #     msg=msg,
-    # )
+
+# usage for main api
+async def API_Request(pool, URL=base_url_warframe, fname=WF_JSON_PATH):
+    """API request function for Warframe status
+
+    :param pool: aiomysql cursor pool
+    :param URL: request url
+    :param fname:
+    :return:
+        None: failed to request api
+        dict: successfully parsed object
+    """
+    response = await API_internal(pool, URL)
+    response = response.json()
+    if not response:
+        return None
+
+    await json_save_async(response, fname)
     return response
 
 

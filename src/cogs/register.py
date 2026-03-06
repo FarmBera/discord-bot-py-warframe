@@ -34,12 +34,14 @@ from src.constants.keys import (
     DESCENDIA,
     ARBITRATION,
     WORLDSTATE,
+    BOUNTY,
 )
 from src.parser.alerts import w_alerts
 from src.parser.arbitration import w_arbitration
 from src.parser.archimedea import w_deepArchimedea
 from src.parser.archimedea import w_temporalArchimedia
 from src.parser.archonHunt import w_archonHunt
+from src.parser.bounty import w_bounty
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle
 from src.parser.cetusCycle import w_cetusCycle
@@ -589,6 +591,21 @@ class GeneralCommands(commands.Cog):
         desc += get_queue_status()
         await interact.followup.send(
             embed=discord.Embed(description=desc, color=discord.Color.darker_grey())
+        )
+
+    @app_commands.command(name="bounty", description="cmd.bounty.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_bounty(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=BOUNTY,
+            parser_func=w_bounty,
+            isFollowUp=True,
+            isPrivateMsg=developer_options,
         )
 
 

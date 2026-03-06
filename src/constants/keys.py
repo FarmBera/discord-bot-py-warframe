@@ -59,6 +59,7 @@ EVENT_BOOSTER: str = ""
 DESCENDIA: str = "Descents"
 ARBITRATION: str = "arbitration"
 WORLDSTATE: str = "WorldState"
+BOUNTY: str = "Bounty"
 
 DUVIRI_U_K_W: str = "Warframe"
 DUVIRI_U_K_I: str = "Incarnon"

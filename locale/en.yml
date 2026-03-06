@@ -60,7 +60,8 @@ noti-label:
   cetusCycle: Earth - Cetus Cycle
   duviriCycle: Duviri Mood Cycle
   cambionCycle: Deimos - Cambion Drift Cycle
-  vallisCycle: Venus - Orb Vallis Cycle
+  vallisCycle: Venus - Orb Vallis
+  bounty: Bounty
   # profile
   trader: Baro Ki'Teer
   deep: Necraloid
@@ -809,3 +810,9 @@ cmd:
     world: World
     state: State
     expiry: Rotates
+
+  bounty:
+    cmd: bounty
+    desc: Check bounty of Zariman & Entrati.
+    title-z: "# Zariman Bounty\n"
+    title-e: "# Entrati Bounty\n"

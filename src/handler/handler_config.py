@@ -20,10 +20,12 @@ from src.constants.keys import (
     CETUSCYCLE,
     CAMBIONCYCLE,
     VALLISCYCLE,
+    BOUNTY,
 )
 from src.parser.alerts import w_alerts
 from src.parser.archimedea import w_deepArchimedea, w_temporalArchimedia
 from src.parser.archonHunt import w_archonHunt
+from src.parser.bounty import w_bounty
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle, checkNewCambionState
 from src.parser.cetusCycle import w_cetusCycle, checkNewCetusState
@@ -51,6 +53,7 @@ class LOGIC:
     missing = "handle_missing_items"
     news = "handle_new_news"
     # trader = "handle_voidtraders"
+    bounty = "handle_bounty"
 
 
 DATA_HANDLERS = {
@@ -136,5 +139,9 @@ DATA_HANDLERS = {
         HK.parser: w_vallisCycle,
         HK.special_logic: LOGIC.no_args,
         HK.update_check: checkNewVallisState,
+    },
+    BOUNTY: {
+        HK.parser: w_bounty,
+        HK.special_logic: LOGIC.bounty,
     },
 }
