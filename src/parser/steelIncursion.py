@@ -36,4 +36,4 @@ def w_steelIncursions() -> discord.Embed:
     return embed
 
 
-# print(w_steelIncursions()[0].description)
+# print(w_steelIncursions().description)

@@ -56,9 +56,6 @@ class TASKSweek_start_noti(commands.Cog):
         steel_data = await get_obj_async(STEELPATH)
         await self.bot.broadcast_webhook(STEELPATH, w_steelPath(steel_data))
 
-        # duviri notification
-        await setDuviriRotate()
-
         if lang == Lang.KO:
             data_list: list = [
                 w_duviri_warframe(await get_obj_async(DUVIRI_ROTATION)),

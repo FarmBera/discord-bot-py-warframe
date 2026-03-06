@@ -63,7 +63,7 @@ BOUNTY: str = "Bounty"
 
 DUVIRI_U_K_W: str = "Warframe"
 DUVIRI_U_K_I: str = "Incarnon"
-DUVIRI_CACHE: str = "RotationDuviri"
+DUVIRI_CACHE: str = "data/RotationDuviri.json"
 
 ARCHIMEDEA_DEEP: str = "Deep"
 ARCHIMEDEA_TEMPORAL: str = "Temporal"

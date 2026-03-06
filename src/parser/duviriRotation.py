@@ -3,11 +3,12 @@ import discord
 from src.constants.keys import DUVIRI_ROTATION, DUVIRI_U_K_W, DUVIRI_U_K_I, DUVIRI_CACHE
 from src.parser.worldstate import weekly_remain
 from src.translator import ts, Lang, language as lang
-from src.utils.data_manager import get_obj, get_obj_async, set_obj_async
+from src.utils.data_manager import get_obj, set_obj_async
 from src.utils.emoji import get_emoji
+from src.utils.file_io import json_load_async, json_load
 from src.utils.return_err import err_embed
 
-rotation_data = get_obj(DUVIRI_CACHE)
+rotation_data = json_load(DUVIRI_CACHE)
 duv_warframe = get_obj(f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}")
 duv_incarnon = get_obj(f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}")
 
@@ -29,7 +30,7 @@ def getDuvIncarnon():
 
 async def setDuviriRotate():
     global rotation_data
-    rotation_data = await get_obj_async(DUVIRI_CACHE)
+    rotation_data = await json_load_async(DUVIRI_CACHE)
 
 
 async def setDuvWarframe(obj):

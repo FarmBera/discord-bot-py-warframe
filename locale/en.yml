@@ -160,6 +160,11 @@ cmd:
     title: Today's Sortie
     eta: "Expires **{eta}**"
 
+    index: Num
+    type: Mission
+    node: Node
+    mod: Variable
+
   archon-hunt:
     cmd: archon-hunt
     desc: Get archon hunt missions this weekend
