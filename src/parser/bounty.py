@@ -16,7 +16,8 @@ pf: str = "cmd.bounty."
 
 async def handleNewBounty(pool):
     prev: dict = get_obj(BOUNTY)
-    new: dict = await API_Request(pool, base_url_bounty, BOUNTY_JSON_PATH)
+    new = await API_Request(pool, base_url_bounty, BOUNTY_JSON_PATH)
+    new = new.json()
     if not prev or not new:
         return None, False
 
