@@ -6,24 +6,16 @@ import requests
 from config.TOKEN import base_url_warframe, base_url_market, WF_JSON_PATH
 from src.constants.color import C
 from src.translator import language as lang
+from src.utils.file_io import json_save
 from src.utils.times import KST, timeNowDT
-from src.handler.handle_error import handleParseError
 
 
-# usage for main api
-def API_Request() -> requests.Response | None:
-    """Legacy API request function for `init` script
-
-    Returns:
-        requests.Response: API Response object
-        None: failed to request API
-    """
-
+def API_internal(URL, fname):
     start_time = dt.datetime.now(tz=KST)
 
     # API Request
     try:
-        response = requests.get(base_url_warframe, timeout=60)
+        response = requests.get(URL, timeout=60)
     except Exception as e:
         elapsed_time = dt.datetime.now(tz=KST) - start_time
         msg = f"[err] API request failed! ({elapsed_time})\n{e}"
@@ -45,15 +37,21 @@ def API_Request() -> requests.Response | None:
         print(dt.datetime.now(tz=KST), C.red, msg, res_code, elapsed_time, C.default)
         return None
 
-    try:
-        with open(WF_JSON_PATH, "w", encoding="utf-8") as json_file:
-            json.dump(response.json(), json_file, ensure_ascii=False, indent=2)
-    except Exception as e:
-        elapsed_time = timeNowDT() - start_time
-        msg = f"[err] Error on saving file!"
-        # obj = f"{elapsed_time}/{e}"
-        print(timeNowDT(), C.red, msg, elapsed_time, C.default)
+    return response
 
+
+# usage for main api
+def API_Request(
+    URL: str = base_url_warframe, fname: str = WF_JSON_PATH
+) -> requests.Response | None:
+    """Legacy API request function for `init` script
+
+    Returns:
+        requests.Response: API Response object
+        None: failed to request API
+    """
+    response = API_internal(URL, fname)
+    json_save(response.json(), fname)
     return response
 
 
