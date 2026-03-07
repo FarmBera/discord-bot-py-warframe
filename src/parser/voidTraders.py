@@ -5,7 +5,7 @@ import discord
 from src.translator import ts
 from src.utils.data_manager import getSolNode, getLanguage
 from src.utils.emoji import get_emoji
-from src.utils.formatter import extract_last_part, add_space
+from src.utils.formatter import extract_last_part, add_space, check_str_length
 from src.utils.return_err import err_embed
 from src.utils.times import timeNow, convert_remain
 
@@ -158,9 +158,12 @@ def w_voidTradersItem(trader) -> discord.Embed:
             output_msg += f"- {jtem}\n"
         output_msg += "\n"
 
-    return discord.Embed(description=output_msg, color=color_decision())
+    return discord.Embed(
+        description=check_str_length(output_msg), color=color_decision()
+    )
 
 
 # from src.utils.data_manager import get_obj
 # from src.constants.keys import VOIDTRADERS
 # print(w_voidTraders(get_obj(VOIDTRADERS))[0].description)
+# print(w_voidTradersItem(get_obj(VOIDTRADERS)).description)

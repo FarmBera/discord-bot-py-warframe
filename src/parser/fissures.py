@@ -4,7 +4,7 @@ from src.translator import ts
 from src.utils.data_manager import SETTINGS
 from src.utils.data_manager import getFissure, getSolNode, getMissionType, getNodeEnemy
 from src.utils.emoji import get_emoji
-from src.utils.formatter import txt_length_check
+from src.utils.formatter import check_str_length
 from src.utils.times import convert_remain, timeNow
 
 pf: str = "cmd.fissures."
@@ -133,7 +133,7 @@ def w_fissures(fissures, args) -> tuple[discord.Embed, str]:
             enemy=o_enemy,
         )
         output_msg += "\n"
-    output_msg = txt_length_check(output_msg)
+    output_msg = check_str_length(output_msg)
 
     embed = discord.Embed(description=output_msg, color=0x11806A)
     embed.set_thumbnail(url="attachment://i.webp")

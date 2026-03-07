@@ -35,7 +35,7 @@ def time_format(t: dt.timedelta) -> str:
     return f"{'' if h == 0 else f'{h}{H} '}{m[0]}{M}"
 
 
-def txt_length_check(txt) -> str:
+def check_str_length(txt) -> str:
     threshold: int = 4095
 
     return txt[0:threshold] if len(txt) > threshold else txt
