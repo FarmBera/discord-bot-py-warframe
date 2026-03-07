@@ -10,6 +10,7 @@ from src.utils.data_manager import (
     solNodes,
 )
 from src.utils.return_err import err_embed
+from src.utils.times import convert_remain
 
 pf: str = "cmd.bounty."
 
@@ -45,7 +46,9 @@ def w_bounty(bounty) -> discord.Embed:
     if not bounty:
         return err_embed("bounty")
 
-    output_msg: str = ""
+    output_msg: str = ts.get(f"{pf}expiry").format(
+        time=convert_remain(bounty["expiry"])
+    )
     bty = bounty["bounties"]
 
     output_msg += ts.get(f"{pf}title-z")

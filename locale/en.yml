@@ -819,5 +819,6 @@ cmd:
   bounty:
     cmd: bounty
     desc: Check bounty of Zariman & Entrati.
+    expiry: "> Expiry: {time}\n"
     title-z: "# Zariman Bounty\n"
     title-e: "# Entrati Bounty\n"
