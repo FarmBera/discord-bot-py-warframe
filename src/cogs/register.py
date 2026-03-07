@@ -370,22 +370,22 @@ class GeneralCommands(commands.Cog):
             isPrivateMsg=developer_options,
         )
 
-    # voidTrader item command
-    @app_commands.command(
-        name="void-traders-item", description="cmd.void-traders-item.desc"
-    )
-    @app_commands.checks.cooldown(
-        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
-    )
-    async def cmd_traders_item(
-        self, interact: discord.Interaction, developer_options: bool = True
-    ):
-        await cmd_helper(
-            interact,
-            key=VOIDTRADERS,
-            parser_func=w_voidTradersItem,
-            isPrivateMsg=developer_options,
-        )
+    # # voidTrader item command
+    # @app_commands.command(
+    #     name="void-traders-item", description="cmd.void-traders-item.desc"
+    # )
+    # @app_commands.checks.cooldown(
+    #     1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    # )
+    # async def cmd_traders_item(
+    #     self, interact: discord.Interaction, developer_options: bool = True
+    # ):
+    #     await cmd_helper(
+    #         interact,
+    #         key=VOIDTRADERS,
+    #         parser_func=w_voidTradersItem,
+    #         isPrivateMsg=developer_options,
+    #     )
 
     # search 'warframe.market' commnad
     @app_commands.command(name="market-search", description="cmd.market-search.desc")
