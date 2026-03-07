@@ -14,73 +14,42 @@ alert_times = [
 
 
 def timeNow() -> int:
+    """get curreutn local integer timestamp"""
     return int(dt.datetime.now(tz=KST).timestamp())
 
 
 def timeNowDT() -> dt.datetime:
+    """get current local datetime to datetime object"""
     return dt.datetime.now(tz=KST)
 
 
-def unixToDatetime(timestamp: int) -> dt.datetime:
-    if timestamp > 10**12:  # ms unit
-        return dt.datetime.fromtimestamp(timestamp / 1000)
-    else:  # sec unit
-        return dt.datetime.fromtimestamp(timestamp)
+def unixToDatetime(time: int) -> dt.datetime:
+    """convert timestamp into python datetime object
+    (exclude ms unit)
 
-
-def convert_remain(unix_timestamp: int | float | str):
+    :param time: integer timestamp
+    :return:
     """
-    Calculates the time difference between the current time and a given Unix timestamp, and returns it as a string in the specified format.
+    return dt.datetime.fromtimestamp(time / 1000 if time > 10**12 else time)
 
-    Args:
-        unix_timestamp: Unix Timestamp to compare (int or str type)
 
-    Returns:
-        string that shows remain time with discord timestamp
-        <t:1234567890:R>
+def convert_remain(timestamp: int | float | str) -> str:
+    """convert unix timestamp into discord timestamp (like `<t:{TIMESTAMP}:R>`)
+
+    :param timestamp: unix timestamp with [int, float, str] type
+    :return: formatted discord timestamp
     """
     try:
-        ts_str = str(int(unix_timestamp))
-
-        # convert milliseconds into seconds
-        if len(ts_str) == 13:
-            ts_int = int(ts_str) // 1000
-        else:
-            ts_int = int(ts_str)
+        ts_str = str(int(timestamp))
+        ts_int = int(ts_str) // 1000 if len(ts_str) == 13 else int(ts_str)
     except (ValueError, TypeError):
-        # print_test_err("Timestamp Format err")
-        return "**Time ERR**"
+        return "*Time ERR*"
 
     return f"<t:{ts_int}:R>"
 
-    # # convert into datetime obj
-    # now_dt = timeNowDT()
-    # input_dt = dt.datetime.fromtimestamp(ts_int)
-    #
-    # # calculate time diff
-    # diff = now_dt - input_dt
-    # if diff.total_seconds() > 0:
-    #     return "`Event End!`"
-    # time_difference = abs(diff)
-    #
-    # # extract day, hour, minute
-    # days = time_difference.days
-    # remaining_seconds = time_difference.seconds
-    # hours = remaining_seconds // 3600
-    # minutes = (remaining_seconds % 3600) // 60
-    #
-    # output: list = []
-    # if days > 0:
-    #     output.append(f"{days}{ts.get('time.day')}")
-    # if hours > 0:
-    #     output.append(f"{hours}{ts.get('time.hour')}")
-    # if minutes > 0:
-    #     output.append(f"{minutes}{ts.get('time.min')}")
-    #
-    # return " ".join(output)
-
 
 def parseKoreanDatetime(text):
+    """Convert korean text to discord timestamp"""
     if not isinstance(text, str):
         return text
 
@@ -174,7 +143,6 @@ def parseKoreanDatetime(text):
                     pass
 
     # parse time
-
     hour = 0
     minute = 0
 
@@ -226,6 +194,9 @@ def parseKoreanDatetime(text):
 
 
 def format_duration(seconds):
+    """[Deprecated] legacy time formatter
+    Format seconds to human readable string like 2d 9h 35m 23s
+    """
     td = dt.timedelta(seconds=int(seconds))
     d = td.days
     h, remainder = divmod(td.seconds, 3600)
