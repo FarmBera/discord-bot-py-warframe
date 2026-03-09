@@ -38,7 +38,7 @@ def w_nightwave(season) -> tuple[discord.Embed, str]:
     output_msg += ts.get(f"{pf}expiry").format(
         time=convert_remain(season["Expiry"]["$date"]["$numberLong"])
     )
-    preset=ts.get(f'{pf}output')
+    preset = ts.get(f"{pf}output")
     for chal in season["ActiveChallenges"]:
         output_msg += preset.format(
             value=getLanguage(chal["Challenge"], "value"),
@@ -50,4 +50,4 @@ def w_nightwave(season) -> tuple[discord.Embed, str]:
     return embed, "nightwave"
 
 
-print(w_nightwave(get_obj(SEASONINFO))[0].description)
+# print(w_nightwave(get_obj(SEASONINFO))[0].description)
