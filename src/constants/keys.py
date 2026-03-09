@@ -60,6 +60,7 @@ DESCENDIA: str = "Descents"
 ARBITRATION: str = "arbitration"
 WORLDSTATE: str = "WorldState"
 BOUNTY: str = "Bounty"
+SEASONINFO: str = "SeasonInfo"
 
 DUVIRI_U_K_W: str = "Warframe"
 DUVIRI_U_K_I: str = "Incarnon"
@@ -83,6 +84,7 @@ keys: list = [
     DUVIRI_ROTATION,
     EVENTS,
     DESCENDIA,
+    SEASONINFO,
 ]
 
 LFG_WEBHOOK_NAME: str = "meow-bot-profile"

@@ -822,3 +822,10 @@ cmd:
     expiry: "> Expiry: {time}\n"
     title-z: "# Zariman Bounty\n"
     title-e: "# Entrati Bounty\n"
+
+  seasoninfo:
+    cmd: nightwave
+    desc: Check Daily/Weekly nightwave quest.
+    title: "# Daily/Weekly Nightwave Quests\n"
+    expiry: "> Expiry: {time}"
+    output: "\n- **{value}**: {desc}"

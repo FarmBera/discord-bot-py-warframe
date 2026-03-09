@@ -35,6 +35,7 @@ from src.constants.keys import (
     ARBITRATION,
     WORLDSTATE,
     BOUNTY,
+    SEASONINFO,
 )
 from src.parser.alerts import w_alerts
 from src.parser.arbitration import w_arbitration
@@ -54,6 +55,7 @@ from src.parser.fissures import w_fissures
 from src.parser.invasions import w_invasions_se
 from src.parser.marketsearch import w_market_search, get_market_item_names
 from src.parser.news import w_news
+from src.parser.seasoninfo import w_nightwave
 from src.parser.sortie import w_sortie
 from src.parser.steelIncursion import w_steelIncursions
 from src.parser.steelPath import w_steelPath
@@ -604,6 +606,21 @@ class GeneralCommands(commands.Cog):
             interact,
             key=BOUNTY,
             parser_func=w_bounty,
+            isFollowUp=True,
+            isPrivateMsg=developer_options,
+        )
+
+    @app_commands.command(name="seasoninfo", description="cmd.seasoninfo.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_bounty(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper(
+            interact,
+            key=SEASONINFO,
+            parser_func=w_nightwave,
             isFollowUp=True,
             isPrivateMsg=developer_options,
         )

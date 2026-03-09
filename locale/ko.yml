@@ -823,6 +823,13 @@ cmd:
     title-z: "# 자리만 의뢰\n"
     title-e: "# 엔트라티 의뢰\n"
 
+  seasoninfo:
+    cmd: 나이트웨이브
+    desc: 일일/주간 퀘스트(나이트웨이브)를 확인합니다.
+    title: "# 일일/주간 나이트웨이브 퀘스트\n"
+    expiry: "> {time} 종료"
+    output: "\n- **{value}**: {desc}"
+
 trs:
   # keyword
   blueprint: 설계도
