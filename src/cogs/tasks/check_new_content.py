@@ -165,15 +165,15 @@ class TASKcheck_new_content(commands.Cog):
                         await self.bot.broadcast_webhook(origin_key, parsed_content)
 
             elif special_logic == "handle_deep_archimedea":
-                obj_new, is_new = handleDeepArchimedea(obj_new)
+                obj_deep, is_new = handleDeepArchimedea(obj_new)
                 if not is_new:
                     continue
 
                 try:
-                    parsed_content = handler["parser"](obj_new)
+                    parsed_content = handler["parser"](obj_deep)
                     notify = True
                     should_save_data = True
-                    await setDeepArchimedea(obj_new)
+                    await setDeepArchimedea(obj_deep)
                 except Exception as e:
                     msg = (
                         f"parse error in handle_deep_archimedea {handler['parser']}/{e}"
@@ -181,15 +181,15 @@ class TASKcheck_new_content(commands.Cog):
                     await handleParseError(self.bot.db, msg, key)
 
             elif special_logic == "handle_temporal_archimedea":
-                obj_new, is_new = handleTemporalArchimedea(obj_new)
+                obj_temporal, is_new = handleTemporalArchimedea(obj_new)
                 if not is_new:
                     continue
 
                 try:
-                    parsed_content = handler["parser"](obj_new)
+                    parsed_content = handler["parser"](obj_temporal)
                     notify = True
                     should_save_data = True
-                    await setTemporalArchimedea(obj_new)
+                    await setTemporalArchimedea(obj_temporal)
                 except Exception as e:
                     msg = f"parse error in handle_temporal_archimedea {handler['parser']}/{e}"
                     await handleParseError(self.bot.db, msg, key)
