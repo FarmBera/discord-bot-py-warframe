@@ -614,7 +614,7 @@ class GeneralCommands(commands.Cog):
     @app_commands.checks.cooldown(
         1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
     )
-    async def cmd_bounty(
+    async def cmd_seasoninfo(
         self, interact: discord.Interaction, developer_options: bool = True
     ):
         await cmd_helper(

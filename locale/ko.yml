@@ -818,7 +818,7 @@ cmd:
 
   bounty:
     cmd: 의뢰
-    desc: 자리만 & 엔트라티 의뢰를 확인합니다.
+    desc: "자리만 & 엔트라티 의뢰를 확인합니다."
     expiry: "> {time} 종료\n"
     title-z: "# 자리만 의뢰\n"
     title-e: "# 엔트라티 의뢰\n"
