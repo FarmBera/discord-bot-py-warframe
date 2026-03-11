@@ -7,7 +7,7 @@ from src.parser.cambionCycle import CambionCycleData
 from src.parser.cetusCycle import CetusTimerData
 from src.parser.duviriCycle import get_current_mood
 from src.parser.vallisCycle import VallisCycleData
-from src.translator import ts
+from src.translator import Translator, ts as _ts, language as _default_lang
 from src.utils.emoji import worldstate_emoji
 from src.utils.return_err import err_embed
 from src.utils.times import check_timer_states, convert_remain
@@ -20,7 +20,7 @@ class WeeklyTimerData:
     start_date = dt.datetime(2024, 1, 1, 0, 0, 0, tzinfo=dt.timezone.utc)
     looptime = 604800
     delaytime = 0
-    beforetext = ts.get(f"{pf}expiry")
+    beforetext = _ts.get(f"{pf}expiry")
     aftertext = "before reset"
 
 
@@ -28,7 +28,9 @@ def weekly_remain(delta: int = 0) -> str:
     return check_timer_states(WeeklyTimerData, delta=delta)["time_left"]
 
 
-def w_worldstate() -> tuple[discord.Embed, str]:
+def w_worldstate(
+    ts: Translator = _ts, lang: str = _default_lang
+) -> tuple[discord.Embed, str]:
     # calculate vallis cycle
     try:
         cetus = check_timer_states(CetusTimerData)
@@ -38,16 +40,16 @@ def w_worldstate() -> tuple[discord.Embed, str]:
         if not cetus or not duviri or not cambion or not vallis:
             raise ValueError("ERROR FETCHING DATA")
     except Exception:
-        return err_embed("WorldState"), ""
+        return err_embed(ts.get("err.worldstate-fetch-failed")), ""
 
     title: str = ts.get(f"{pf}title")
 
     worlds = ts.get(f"{pf}world_names")
     states = [
         f"{worldstate_emoji[cetus['current']]} {ts.get(f'cmd.cetus.{cetus['current']}')}",
-        f"{worldstate_emoji[duviri["mood"]]} {ts.get(f'cmd.duviri-cycle.{duviri["mood"]}')}",
-        f"{worldstate_emoji[cambion["current"]]} {ts.get(f'cmd.cambion.{cambion["current"]}')}",
-        f"{worldstate_emoji[vallis["current"]]} {ts.get(f'cmd.vallis.{vallis["current"]}')}",
+        f"{worldstate_emoji[duviri['mood']]} {ts.get(f'cmd.duviri-cycle.{duviri['mood']}')}",
+        f"{worldstate_emoji[cambion['current']]} {ts.get(f'cmd.cambion.{cambion['current']}')}",
+        f"{worldstate_emoji[vallis['current']]} {ts.get(f'cmd.vallis.{vallis['current']}')}",
     ]
     expiry = [
         cetus["time_left"],

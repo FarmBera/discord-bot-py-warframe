@@ -795,7 +795,9 @@ cmd:
   steel-incursion:
     cmd: 강길-얼럿
     desc: 강철의 길 얼럿 미션을 확인합니다.
-    output: "# 오늘의 강길 얼럿"
+    output: |
+      # 오늘의 강길 얼럿
+      > {time} 종료
 
   arbitration:
     cmd: 중재

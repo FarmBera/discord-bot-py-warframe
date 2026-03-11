@@ -2,7 +2,7 @@ import datetime as dt
 
 import discord
 
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.return_err import err_embed
 from src.utils.times import check_timer_states
 
@@ -31,7 +31,7 @@ def checkNewCambionState() -> bool:
     return False
 
 
-def w_cambionCycle() -> tuple[discord.Embed, str]:
+def w_cambionCycle(ts=_ts, lang=_default_lang) -> tuple[discord.Embed, str]:
     # calculate cambion cycle
     try:
         cambion = check_timer_states(CambionCycleData)

@@ -1,6 +1,6 @@
 import discord
 
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.data_manager import getLanguage, getMissionType, getSolNode
 from src.utils.emoji import get_emoji
 from src.utils.times import convert_remain
@@ -10,7 +10,7 @@ def color_decision(t):
     return 0x4DD2FF if t else 0xFFA826
 
 
-def w_alerts(alerts) -> tuple[discord.Embed, str]:
+def w_alerts(alerts, ts=_ts, lang=_default_lang) -> tuple[discord.Embed, str]:
     """
     parse alert missions
 
@@ -36,19 +36,19 @@ def w_alerts(alerts) -> tuple[discord.Embed, str]:
         # activation = int(i["Activation"]["$date"]["$numberLong"])
         # tag = i["Tag"]
         expiry = convert_remain(int(i["Expiry"]["$date"]["$numberLong"]))
-        mission_location = getSolNode(ms["location"])
-        mission_type = getMissionType(ms["missionType"])
+        mission_location = getSolNode(ms["location"], lang)
+        mission_type = getMissionType(ms["missionType"], lang)
         reward = " + ".join(
             # credit
             [f"{int(ms['missionReward']['credits']):,} {get_emoji('credit')}"]
             # single item
             + [
-                f"{getLanguage(item)} {get_emoji(item)}"
+                f"{getLanguage(item, lang=lang)} {get_emoji(item)}"
                 for item in ms["missionReward"].get("items", [])
             ]
             # multiple item
             + [
-                f"{getLanguage(item['ItemType'])} {get_emoji(getLanguage(item['ItemType']))} x{item['ItemCount']}"
+                f"{getLanguage(item['ItemType'], lang=lang)} {get_emoji(getLanguage(item['ItemType'], lang=lang))} x{item['ItemCount']}"
                 for item in ms["missionReward"].get("countedItems", [])
             ]
         )

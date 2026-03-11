@@ -63,7 +63,7 @@ from src.parser.vallisCycle import w_vallisCycle
 from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
 from src.parser.worldstate import w_worldstate
 from src.services.queue_manager import get_queue_status
-from src.translator import ts
+from src.translator import ts, locale_to_lang
 from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
 from src.utils.permission import is_super_user
 from src.views.register_view import register_cmd_helper
@@ -420,9 +420,10 @@ class GeneralCommands(commands.Cog):
         self, interact: discord.Interaction, current: str
     ) -> list[discord.app_commands.Choice[str]]:
         """Autocompletes the item name for the market search."""
+        user_lang = locale_to_lang(interact.locale)
         choices = [
             discord.app_commands.Choice(name=name, value=name)
-            for name in get_market_item_names()
+            for name in get_market_item_names(user_lang)
             if current.lower() in name.lower()
         ]
         return choices[:25]

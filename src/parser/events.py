@@ -1,6 +1,6 @@
 import discord
 
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.data_manager import getLanguage, getMissionType, getSolNode
 from src.utils.emoji import get_emoji
 from src.utils.times import convert_remain
@@ -12,7 +12,7 @@ def color_decision(t):
     return 0x4DD2FF if t else 0xFFA826
 
 
-def w_events(events) -> discord.Embed:
+def w_events(events, ts=_ts, lang=_default_lang) -> discord.Embed:
     if not events:  # empty list
         return discord.Embed(
             description=ts.get(f"{pf}desc-none"), color=color_decision(events)
@@ -24,7 +24,7 @@ def w_events(events) -> discord.Embed:
     for e in events:
         idx += 1
         # event title
-        output_msg += f"## {idx}. {getLanguage(e['Desc'])}\n"
+        output_msg += f"## {idx}. {getLanguage(e['Desc'], lang=lang)}\n"
         # desc
         # output_msg += f"- {getLanguage(e['ToolTip'])}\n"
         # status percent
@@ -39,14 +39,16 @@ def w_events(events) -> discord.Embed:
         if e.get("MissionInfo", None):
             ee = e["MissionInfo"]
             output_msg += f"""{ts.get(f'{pf}miss-title')}
-{ts.get(f'{pf}miss-info').format(type=getMissionType(ee['missionType']), loc=getSolNode(ee['location']), min=ee['minEnemyLevel'], max=ee['maxEnemyLevel'])}
+{ts.get(f'{pf}miss-info').format(type=getMissionType(ee['missionType'], lang), loc=getSolNode(ee['location'], lang), min=ee['minEnemyLevel'], max=ee['maxEnemyLevel'])}
 """
             # required items
             if ee.get("requiredItems"):
                 output_msg += (
                     "- "
                     + ts.get(f"{pf}require-item").format(
-                        ilist=", ".join(getLanguage(i) for i in ee["requiredItems"])
+                        ilist=", ".join(
+                            getLanguage(i, lang=lang) for i in ee["requiredItems"]
+                        )
                     )
                     + "\n"
                 )
@@ -55,7 +57,7 @@ def w_events(events) -> discord.Embed:
         # rewards list
         if e.get("InterimGoals") and e.get("InterimRewards"):
             for i in range(len(e.get("InterimGoals"))):
-                output_msg += f"- {e['InterimGoals'][i]}% : {", ".join([getLanguage(item) for item in e['InterimRewards'][i]['items'] ])}\n"
+                output_msg += f"- {e['InterimGoals'][i]}% : {", ".join([getLanguage(item, lang=lang) for item in e['InterimRewards'][i]['items'] ])}\n"
         # final rewards
         if e.get("Reward"):
             output_msg += f"- 100% : "
@@ -68,7 +70,7 @@ def w_events(events) -> discord.Embed:
             # other items
             output_msg += ", ".join(
                 [
-                    f"{getLanguage(i)} {get_emoji(getLanguage(i))}"
+                    f"{getLanguage(i, lang=lang)} {get_emoji(getLanguage(i, lang=lang))}"
                     for i in e["Reward"]["items"]
                 ]
             )

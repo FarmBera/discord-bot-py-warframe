@@ -1,8 +1,8 @@
 import discord
 
 from config.TOKEN import base_url_bounty, BOUNTY_JSON_PATH
-from src.constants.keys import BOUNTY, SEASONINFO
-from src.translator import ts
+from src.constants.keys import BOUNTY
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.api_request import API_Request
 from src.utils.data_manager import get_obj, getLanguage
 from src.utils.return_err import err_embed
@@ -24,7 +24,7 @@ async def handleNewSeasoninfo(pool):
     return new, True
 
 
-def w_nightwave(season) -> tuple[discord.Embed, str]:
+def w_nightwave(season, ts=_ts, lang=_default_lang) -> tuple[discord.Embed, str]:
     """
     parse nightwave data
 
@@ -41,8 +41,8 @@ def w_nightwave(season) -> tuple[discord.Embed, str]:
     preset = ts.get(f"{pf}output")
     for chal in season["ActiveChallenges"]:
         output_msg += preset.format(
-            value=getLanguage(chal["Challenge"], "value"),
-            desc=getLanguage(chal["Challenge"], "desc"),
+            value=getLanguage(chal["Challenge"], "value", lang),
+            desc=getLanguage(chal["Challenge"], "desc", lang),
         )
 
     embed = discord.Embed(description=output_msg, color=discord.Color.darker_grey())

@@ -3,7 +3,7 @@ import discord
 from config.config import LOG_TYPE
 from src.constants.color import C
 from src.constants.keys import FOOTER_FILE_LOC
-from src.translator import ts
+from src.translator import ts, get_ts, locale_to_lang
 from src.utils.data_manager import get_obj_async
 from src.utils.discord_file import img_file
 from src.utils.file_io import open_file_async
@@ -39,14 +39,20 @@ async def cmd_helper(
         await interact.response.defer(ephemeral=isPrivateMsg)
 
     # parse objects
+    user_ts = get_ts(interact.locale)
+    user_lang = locale_to_lang(interact.locale)
     if skipGetObj:
-        obj = parser_func()
+        obj = parser_func(ts=user_ts, lang=user_lang)
     elif parser_args:
-        obj = parser_func(await get_obj_async(key), parser_args)
+        obj = parser_func(
+            await get_obj_async(key), parser_args, ts=user_ts, lang=user_lang
+        )
     elif isMarketQuery:
-        obj = await parser_func(interact.client.db, marketQuery)
+        obj = await parser_func(
+            interact.client.db, marketQuery, ts=user_ts, lang=user_lang
+        )
     else:
-        obj = parser_func(await get_obj_async(key))
+        obj = parser_func(await get_obj_async(key), ts=user_ts, lang=user_lang)
 
     # send message
     resp_head = interact.followup if isFollowUp else interact.response

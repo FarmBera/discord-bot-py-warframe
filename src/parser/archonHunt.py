@@ -1,6 +1,6 @@
 import discord
 
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.data_manager import getMissionType, getSolNode
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
@@ -25,7 +25,7 @@ shard_color: dict = {
 pf: str = "cmd.archon-hunt."
 
 
-def w_archonHunt(archon) -> tuple[discord.Embed, str]:
+def w_archonHunt(archon, ts=_ts, lang=_default_lang) -> tuple[discord.Embed, str]:
     """
     parse archon hunt data
 
@@ -54,11 +54,11 @@ def w_archonHunt(archon) -> tuple[discord.Embed, str]:
         if idx == 3:
             output_msg += (
                 f"{idx}. **"
-                + ts.get(f"{getMissionType(value['missionType'])}")
-                + f"** - {getSolNode(value['node'])}\n"
+                + ts.get(f"{getMissionType(value['missionType'], lang)}")
+                + f"** - {getSolNode(value['node'], lang)}\n"
             )
         else:
-            output_msg += f"{idx}. {getMissionType(value['missionType'])} - {getSolNode(value['node'])}\n"
+            output_msg += f"{idx}. {getMissionType(value['missionType'], lang)} - {getSolNode(value['node'], lang)}\n"
         idx += 1
 
     embed = discord.Embed(description=output_msg, color=shard_color[shard])

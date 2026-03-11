@@ -2,7 +2,7 @@ import datetime as dt
 
 import discord
 
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.emoji import worldstate_emoji
 from src.utils.times import convert_remain
 
@@ -114,7 +114,7 @@ def checkNewDuviriState():
     return False
 
 
-def w_duviriCycle() -> tuple[discord.Embed, str]:
+def w_duviriCycle(ts=_ts, lang=_default_lang) -> tuple[discord.Embed, str]:
     duviri: dict = get_current_mood()
     nextd: list = get_next_mood()
 

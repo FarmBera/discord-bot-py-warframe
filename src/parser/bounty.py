@@ -2,12 +2,12 @@ import discord
 
 from config.TOKEN import base_url_bounty, BOUNTY_JSON_PATH
 from src.constants.keys import BOUNTY
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.api_request import API_Request
 from src.utils.data_manager import (
     get_obj,
     getLanguage,
-    solNodes,
+    getSolNodeData,
 )
 from src.utils.return_err import err_embed
 from src.utils.times import convert_remain
@@ -28,15 +28,15 @@ async def handleNewBounty(pool):
     return new, True
 
 
-def generateBounty(bounty, b_key):
+def generateBounty(bounty, b_key, lang=_default_lang):
     output = ""
     for i in bounty[b_key]:
-        node = solNodes[i["node"]]
+        node = getSolNodeData(i["node"], lang)
         output += f"- **{node['type']}** - {getLanguage(i['challenge'])}\n"
     return output
 
 
-def w_bounty(bounty) -> discord.Embed:
+def w_bounty(bounty, ts=_ts, lang=_default_lang) -> discord.Embed:
     """
     parse bounty data (zariman & entrati)
 
@@ -52,10 +52,10 @@ def w_bounty(bounty) -> discord.Embed:
     bty = bounty["bounties"]
 
     output_msg += ts.get(f"{pf}title-z")
-    output_msg += generateBounty(bty, "ZarimanSyndicate")
+    output_msg += generateBounty(bty, "ZarimanSyndicate", lang)
 
     output_msg += ts.get(f"{pf}title-e")
-    output_msg += generateBounty(bty, "EntratiLabSyndicate")
+    output_msg += generateBounty(bty, "EntratiLabSyndicate", lang)
 
     embed = discord.Embed(description=output_msg, color=discord.Color.darker_grey())
     # embed.set_thumbnail(url="attachment://i.webp")

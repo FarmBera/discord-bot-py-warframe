@@ -3,7 +3,7 @@ import discord
 from config.TOKEN import base_url_market_image
 from config.config import Lang, LOG_TYPE
 from src.constants.keys import MSG_BOT
-from src.translator import ts, language as lang
+from src.translator import Translator, ts as _default_ts, language as _default_lang
 from src.utils.api_request import API_MarketSearch
 from src.utils.file_io import json_load
 from src.utils.logging_utils import save_log
@@ -11,17 +11,28 @@ from src.utils.logging_utils import save_log
 THRESHOLD: int = 7
 SLUGS: list = json_load("data/market-item-list.json")["data"]
 
-_market_item_names = sorted([item["i18n"][lang]["name"] for item in SLUGS])
+# pre-build per-language item name lists
+_all_market_item_names: dict[str, list[str]] = {
+    Lang.EN: sorted([item["i18n"][Lang.EN]["name"] for item in SLUGS]),
+    Lang.KO: sorted([item["i18n"][Lang.KO]["name"] for item in SLUGS]),
+}
+
+# backward-compat: default language list
+_market_item_names = _all_market_item_names.get(
+    _default_lang, _all_market_item_names[Lang.EN]
+)
 
 pf: str = "cmd.market-search."
 
 
-def get_market_item_names() -> list[str]:
-    return _market_item_names
+def get_market_item_names(lang: str = _default_lang) -> list[str]:
+    return _all_market_item_names.get(lang, _all_market_item_names[Lang.EN])
 
 
-def get_slug_data(name) -> tuple[bool, str, str, str]:
-    if name not in _market_item_names:
+def get_slug_data(name, lang: str = _default_lang) -> tuple[bool, str, str, str]:
+    item_names = get_market_item_names(lang)
+
+    if name not in item_names:
         # rename input name
         iname: list = []
         for item in name.split(" "):
@@ -66,7 +77,6 @@ def categorize(result, rank: int) -> list:
 
     # if rank exists: categorize only selected rank
     if rank and (0 <= rank <= 5) and result["data"][0].get("rank"):
-        # print(f"rank {rank} search")
         for item in result["data"]:
             if item["user"]["status"] != "ingame":
                 continue
@@ -74,11 +84,9 @@ def categorize(result, rank: int) -> list:
                 continue
             if item["rank"] != rank:
                 continue
-            # print(item["rank"], rank, item["platinum"])
             ingame_orders.append(item)
 
     else:
-        # print("default search")
         for item in result["data"]:
             if item["user"]["status"] != "ingame":
                 continue
@@ -89,7 +97,7 @@ def categorize(result, rank: int) -> list:
     return sorted(ingame_orders, key=lambda x: x["platinum"])
 
 
-def create_market_url(name, slug=None, is_markdown=True):
+def create_market_url(name, slug=None, is_markdown=True, lang: str = _default_lang):
     msg = ""
     if is_markdown:
         msg += f"[{name}]("
@@ -98,7 +106,7 @@ def create_market_url(name, slug=None, is_markdown=True):
     msg += f"/{lang}" if lang != Lang.EN else ""
 
     if not slug:
-        slug = get_slug_data(name)[1]
+        slug = get_slug_data(name, lang=lang)[1]
 
     msg += f"/items/{slug}?type=sell"
     if is_markdown:
@@ -108,26 +116,32 @@ def create_market_url(name, slug=None, is_markdown=True):
 
 
 class MarketBtn(discord.ui.View):
-    def __init__(self, name, slug):
+    def __init__(
+        self, name, slug, ts: Translator = _default_ts, lang: str = _default_lang
+    ):
         super().__init__(timeout=None)
 
         self.add_item(
             discord.ui.Button(
-                label=ts.get(f"{pf}shortcut"), url=create_market_url(name, slug, False)
+                label=ts.get(f"{pf}shortcut"),
+                url=create_market_url(name, slug, False, lang=lang),
             )
         )
 
 
 async def w_market_search(
-    pool, arg_obj: tuple[str, int]
+    pool,
+    arg_obj: tuple[str, int],
+    ts: Translator = _default_ts,
+    lang: str = _default_lang,
 ) -> tuple[discord.Embed, discord.ui.View | None]:
     name, rank = arg_obj
-    flag, item_slug, item_name, item_img_url = get_slug_data(name)
+    flag, item_slug, item_name, item_img_url = get_slug_data(name, lang=lang)
 
     if not flag:  # data not found
         return (
             discord.Embed(
-                description=ts.get(f"{pf}no-result").format(name=name),
+                description=ts.get(f"{pf}no-result", name=name),
                 color=0xE67E22,  # discord.Color.orange
             ),
             None,
@@ -149,7 +163,7 @@ async def w_market_search(
             )
             return (
                 discord.Embed(
-                    description=ts.get(f"{pf}no-result").format(name=name),
+                    description=ts.get(f"{pf}no-result", name=name),
                     color=0xE67E22,
                 ),
                 None,
@@ -193,7 +207,7 @@ async def w_market_search(
     if not ingame_orders:
         return (
             discord.Embed(
-                description=ts.get(f"{pf}no-item").format(name=item_name),
+                description=ts.get(f"{pf}no-item", name=item_name),
                 color=0xE67E22,
             ),
             None,
@@ -204,13 +218,11 @@ async def w_market_search(
     # create output msg
     idx: int = 0
     # title
-    output_msg += ts.get(f"{pf}result").format(
-        link=create_market_url(name=item_name, slug=item_slug)
+    output_msg += ts.get(
+        f"{pf}result", link=create_market_url(name=item_name, slug=item_slug, lang=lang)
     )
     # item rank if exists
-    output_msg += (
-        ts.get(f"{pf}rank").format(rank=rank) if ingame_orders[0].get("rank") else ""
-    )
+    output_msg += ts.get(f"{pf}rank", rank=rank) if ingame_orders[0].get("rank") else ""
     # sub desc
     output_msg += "\n"
     # item list
@@ -224,4 +236,4 @@ async def w_market_search(
     embed = discord.Embed(description=output_msg, color=0x3498DB)
     # discord.Color.blue,
     embed.set_thumbnail(url=f"{base_url_market_image}{item_img_url}")
-    return embed, MarketBtn(item_name, item_slug)
+    return embed, MarketBtn(item_name, item_slug, ts=ts, lang=lang)

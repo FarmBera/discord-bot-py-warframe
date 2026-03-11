@@ -3,7 +3,7 @@ from enum import Enum, auto
 import discord
 
 from src.constants.keys import FIELD_PATTERN as pat
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.data_manager import getMissionType, getSolNode, getSortieMod
 from src.utils.times import convert_remain
 
@@ -16,7 +16,7 @@ class Mode(Enum):
 pf: str = "cmd.sortie."
 
 
-def w_sortie(sortie):
+def w_sortie(sortie, ts=_ts, lang=_default_lang):
     if not sortie:
         return ts.get("general.error-cmd")
 
@@ -39,9 +39,9 @@ def w_sortie(sortie):
     # mission list
     idx = 1
     for i in sortie["Variants"]:
-        miss_type = getMissionType(i["missionType"])
-        node = getSolNode(i["node"])
-        mod_type = getSortieMod(i["modifierType"])
+        miss_type = getMissionType(i["missionType"], lang)
+        node = getSolNode(i["node"], lang)
+        mod_type = getSortieMod(i["modifierType"], lang)
 
         if mode == Mode.text:
             output_msg += f"{idx}. **{miss_type}** "

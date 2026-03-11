@@ -4,7 +4,7 @@ import discord
 
 from src.constants.keys import FIELD_PATTERN as pat
 from src.parser.worldstate import weekly_remain
-from src.translator import ts
+from src.translator import Translator, ts as _ts, language as _default_lang
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
 
@@ -40,9 +40,11 @@ def get_thisweek_index() -> int:
     return intervals_passed % LENGTH
 
 
-def w_steelPath(steel) -> tuple[discord.Embed, str]:
+def w_steelPath(
+    steel, ts: Translator = _ts, lang: str = _default_lang
+) -> tuple[discord.Embed, str]:
     if not steel:
-        return err_embed("steelPath"), ""
+        return err_embed(ts.get("err.steelpath-not-found")), ""
 
     curr_idx: int = get_thisweek_index()
     stl = steel["rotation"]

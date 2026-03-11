@@ -4,7 +4,7 @@ from collections import defaultdict
 import discord
 
 from src.constants.keys import SPECIAL_ITEM_LIST
-from src.translator import ts
+from src.translator import Translator, ts as _ts, language as _default_lang
 from src.utils.data_manager import getFactions, getLanguage, getSolNode
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
@@ -20,14 +20,15 @@ def get_percent(numerator: int, denominator: int) -> str:
     return f"{(abs(numerator) / denominator) * 100:.1f}%"
 
 
-def getPlanet(inv) -> str:
-    return re.findall(r"\((.*?)\)", getSolNode(inv["Node"]))[0]
+def getPlanet(inv, lang: str = _default_lang) -> str:
+    return re.findall(r"\((.*?)\)", getSolNode(inv["Node"], lang))[0]
 
 
-def singleInvasion(inv) -> str:
-    i_node = getSolNode(inv["Node"])
+def singleInvasion(inv, ts: Translator = _ts, lang: str = _default_lang) -> str:
+    i_node = getSolNode(inv["Node"], lang)
     i_status_perc = get_percent(inv["Count"], inv["Goal"])
-    i_fact = getFactions(inv["Faction"])  # (inv["AttackerMissionInfo"]["faction"])
+    i_fact = getFactions(inv["Faction"], lang)
+    # (inv["AttackerMissionInfo"]["faction"])
 
     # title / progress
     output_msg = f"""### {ts.get(f'{pf}title')} - *{i_node}*
@@ -42,26 +43,26 @@ def singleInvasion(inv) -> str:
     output_msg += "\n"
 
     item_atk: str = getLanguage(
-        inv["AttackerReward"]["countedItems"][0]["ItemType"].lower()
+        inv["AttackerReward"]["countedItems"][0]["ItemType"].lower(), lang=lang
     )
     item_def: str = getLanguage(
-        inv["DefenderReward"]["countedItems"][0]["ItemType"].lower()
+        inv["DefenderReward"]["countedItems"][0]["ItemType"].lower(), lang=lang
     )
 
     # item
     if inv["AttackerReward"]:  # is VS Infestation
-        output_msg += (
-            f"- {getFactions(inv['Faction'])} - **{get_emoji(item_atk)} {item_atk}**\n"
-        )
+        output_msg += f"- {getFactions(inv['Faction'], lang)} - **{get_emoji(item_atk)} {item_atk}**\n"
 
-    output_msg += f"- {getFactions(inv['DefenderFaction'])} - **{get_emoji(item_def)} {item_def}**\n"
+    output_msg += f"- {getFactions(inv['DefenderFaction'], lang)} - **{get_emoji(item_def)} {item_def}**\n"
 
     return output_msg
 
 
-def w_invasions(invasions) -> discord.Embed:
+def w_invasions(
+    invasions, ts: Translator = _ts, lang: str = _default_lang
+) -> discord.Embed:
     if not invasions:
-        return err_embed("invasions")
+        return err_embed(ts.get("err.invasions-not-found"))
 
     mission_per_planets = defaultdict(list)
 
@@ -69,7 +70,7 @@ def w_invasions(invasions) -> discord.Embed:
         if inv.get("Completed"):
             continue
 
-        planet = getPlanet(inv)
+        planet = getPlanet(inv, lang)
         mission_per_planets[planet].append(dict(inv))
 
     # generate output msg
@@ -80,14 +81,16 @@ def w_invasions(invasions) -> discord.Embed:
 
         output_msg += f"# {planet}\n\n"  # planet title
         for inv in inv_list:  # desc
-            output_msg += singleInvasion(inv)
+            output_msg += singleInvasion(inv, ts, lang)
 
     return discord.Embed(description=output_msg)  # color=0x00FFFF,
 
 
-def w_invasions_se(invasions) -> tuple[discord.Embed, str]:
+def w_invasions_se(
+    invasions, ts: Translator = _ts, lang: str = _default_lang
+) -> tuple[discord.Embed, str]:
     if not invasions:
-        return err_embed("invasions"), ""
+        return err_embed(ts.get("err.invasions-not-found")), ""
 
     mission_per_planets = defaultdict(list)
 
@@ -97,7 +100,7 @@ def w_invasions_se(invasions) -> tuple[discord.Embed, str]:
 
         special_item_exist: bool = False
         item_list = [
-            getLanguage(item["ItemType"]).lower()
+            getLanguage(item["ItemType"], lang=lang).lower()
             for reward in [
                 inv.get("AttackerReward"),
                 inv.get("DefenderReward"),
@@ -112,7 +115,7 @@ def w_invasions_se(invasions) -> tuple[discord.Embed, str]:
                     special_item_exist = True
                     break
         if special_item_exist:
-            planet = getPlanet(inv)
+            planet = getPlanet(inv, lang)
             mission_per_planets[planet].append(dict(inv))
 
     # generate output msg
@@ -123,7 +126,7 @@ def w_invasions_se(invasions) -> tuple[discord.Embed, str]:
 
         output_msg += f"# {planet}\n\n"  # planet title
         for inv in inv_list:  # desc
-            output_msg += singleInvasion(inv)
+            output_msg += singleInvasion(inv, ts, lang)
 
     if not output_msg:
         output_msg = ts.get(f"{pf}no-special")

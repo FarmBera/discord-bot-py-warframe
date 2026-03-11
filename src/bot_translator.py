@@ -1,17 +1,16 @@
 import discord
 from discord import app_commands
 
-from src.translator import Translator, Lang
+from src.translator import Lang, _translators
 
 
 class BotTranslator(app_commands.Translator):
     def __init__(self):
         self.translators = {
-            discord.Locale.korean: Translator(lang=Lang.KO),
-            discord.Locale.american_english: Translator(lang=Lang.EN),
-            # add another languages
+            discord.Locale.korean: _translators[Lang.KO],
+            discord.Locale.american_english: _translators[Lang.EN],
         }
-        self.default_translator = Translator(lang=Lang.EN)
+        self.default_translator = _translators[Lang.EN]
 
     async def translate(
         self,

@@ -1,7 +1,7 @@
 import discord
 import datetime as dt
 
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.times import check_timer_states
 from src.utils.return_err import err_embed
 
@@ -35,7 +35,7 @@ def checkNewCetusState() -> bool:
 
 
 # cetus day/night state & cycle
-def w_cetusCycle() -> tuple[discord.Embed, str]:
+def w_cetusCycle(ts=_ts, lang=_default_lang) -> tuple[discord.Embed, str]:
     # calculate cetus cycle
     try:
         cetus = check_timer_states(CetusTimerData)
