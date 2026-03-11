@@ -10,7 +10,7 @@ from src.utils.times import convert_remain, timeNow
 pf: str = "cmd.fissures."
 FISSURE_CHOICE_FAST = f"{pf}choice-fast"
 
-railjack: list = [
+RAILJACK_NODES: list = [
     # veil proxima
     "numina",
     "calabash",
@@ -75,8 +75,9 @@ def w_fissures(
         choice = args
 
     output_msg: str = ""
-    normal = []  # normal fissures
-    steel_path = []  # steel path fissures
+    normal: list = []  # normal fissures
+    steel_path: list = []  # steel path fissures
+    railjack: list = []  # railjack node
 
     # process fissures
     for item in fissures:
@@ -98,18 +99,20 @@ def w_fissures(
         # other choices...
 
         if not include_railjack_node:
-            if node.lower() in railjack:
+            if node.lower() in RAILJACK_NODES:
                 continue
 
         if item.get("Hard"):  # steel path
             steel_path.append(item)
+        # elif item in RAILJACK_NODES:
+        #     railjack.append(item)
         else:  # normal
             normal.append(item)
 
-    integrated_fiss: list = normal + steel_path
+    integrated_fiss: list = normal + steel_path + railjack
 
     # create output msg
-    output_msg += f"# {choice}: {len(integrated_fiss)}{ts.get(f'{pf}cnt')}\n"
+    output_msg += f"# {ts.get(choice)}: {len(integrated_fiss)}{ts.get(f'{pf}cnt')}\n"
 
     for item in integrated_fiss:
         """
