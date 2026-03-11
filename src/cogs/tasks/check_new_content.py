@@ -194,13 +194,10 @@ class TASKcheck_new_content(commands.Cog):
     # auto api request & check new contents
     @tasks.loop(minutes=5.0)
     async def check_new_content(self) -> None:
-        if lang == Lang.EN:
-            latest_data: requests.Response | None = await API_Request(self.bot.db)
-            if not latest_data or latest_data.status_code != 200:
-                return
-            latest_data = latest_data.json()
-        else:
-            latest_data: dict = await json_load_async(WF_JSON_PATH)
+        latest_data: requests.Response | None = await API_Request(self.bot.db)
+        if not latest_data or latest_data.status_code != 200:
+            return
+        latest_data = latest_data.json()
 
         # pre-load all required api_cache files in parallel
         keys_to_preload = set()
