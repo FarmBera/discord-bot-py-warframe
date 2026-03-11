@@ -2,7 +2,7 @@ import random
 
 import discord
 
-from src.translator import ts
+from src.translator import Translator, ts as _ts, language as _default_lang
 from src.utils.data_manager import getSolNode, getLanguage
 from src.utils.emoji import get_emoji
 from src.utils.formatter import extract_last_part, add_space, check_str_length
@@ -14,7 +14,7 @@ baro_active: bool = False
 pf: str = "cmd.void-traders."
 pfi = "cmd.void-traders-item."
 
-BARO_MSG: list = ts.get(f"{pf}msg")
+BARO_MSG: list = _ts.get(f"{pf}msg")
 MSG_MAX_LENGTH: int = len(BARO_MSG) - 1
 
 
@@ -53,11 +53,17 @@ def color_decision():
     return 0xFFA826
 
 
-def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
+def w_voidTraders(
+    trader,
+    text_arg=None,
+    embed_color=None,
+    ts: Translator = _ts,
+    lang: str = _default_lang,
+) -> tuple:
     global baro_active
 
     if not trader:
-        return "", err_embed("voidTraders")
+        return "", err_embed(ts.get("err.void-traders-not-found"))
 
     idx = 1
     length: int = len(trader)
@@ -96,7 +102,7 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
             output_msg += f"- {ts.get(f'{pf}place')}: "
 
         # appear location
-        output_msg += f"**{getSolNode(td['Node'])}**\n"
+        output_msg += f"**{getSolNode(td['Node'], lang)}**\n"
 
     embed = discord.Embed(
         description=output_msg,
@@ -107,9 +113,11 @@ def w_voidTraders(trader, text_arg=None, embed_color=None) -> tuple:
     return embed, getBaroImg(trader[0]["Character"])
 
 
-def w_voidTradersItem(trader) -> discord.Embed:
+def w_voidTradersItem(
+    trader, ts: Translator = _ts, lang: str = _default_lang
+) -> discord.Embed:
     if not trader:
-        return err_embed("voidTraders")
+        return err_embed(ts.get("err.void-traders-not-found"))
 
     output_msg: str = ""
 
@@ -144,7 +152,7 @@ def w_voidTradersItem(trader) -> discord.Embed:
             else:
                 itype = ts.get(f"{pfi}other")
 
-            iname = getLanguage(jtem["ItemType"])
+            iname = getLanguage(jtem["ItemType"], lang=lang)
             if "/lotus" in iname.lower():
                 iname = f"__{add_space(extract_last_part(iname))}__"
 
@@ -153,7 +161,9 @@ def w_voidTradersItem(trader) -> discord.Embed:
 
         list_item.sort()
 
-        output_msg += f"# {ts.trs(td['Character'])} at {getSolNode(td['Node'])}\n\n"
+        output_msg += (
+            f"# {ts.trs(td['Character'])} at {getSolNode(td['Node'], lang)}\n\n"
+        )
         for jtem in list_item:
             output_msg += f"- {jtem}\n"
         output_msg += "\n"

@@ -51,7 +51,7 @@ from src.parser.descendia import w_descendia
 from src.parser.duviriCycle import w_duviriCycle
 from src.parser.duviriRotation import w_duviri_warframe, w_duviri_incarnon
 from src.parser.events import w_events
-from src.parser.fissures import w_fissures
+from src.parser.fissures import w_fissures, FISSURE_CHOICE_FAST
 from src.parser.invasions import w_invasions_se
 from src.parser.marketsearch import w_market_search, get_market_item_names
 from src.parser.news import w_news
@@ -60,10 +60,10 @@ from src.parser.sortie import w_sortie
 from src.parser.steelIncursion import w_steelIncursions
 from src.parser.steelPath import w_steelPath
 from src.parser.vallisCycle import w_vallisCycle
-from src.parser.voidTraders import w_voidTraders, w_voidTradersItem
+from src.parser.voidTraders import w_voidTraders
 from src.parser.worldstate import w_worldstate
 from src.services.queue_manager import get_queue_status
-from src.translator import ts
+from src.translator import ts, locale_to_lang
 from src.utils.cmd_helper import cmd_helper, cmd_helper_txt
 from src.utils.permission import is_super_user
 from src.views.register_view import register_cmd_helper
@@ -250,7 +250,7 @@ class GeneralCommands(commands.Cog):
             interact,
             key=FISSURES,
             parser_func=w_fissures,
-            parser_args=(ts.get("cmd.fissures.choice-fast"), False),
+            parser_args=FISSURE_CHOICE_FAST,
             # parser_args=(types.name, is_include_railjack_node),
             isPrivateMsg=developer_options,
         )
@@ -420,9 +420,10 @@ class GeneralCommands(commands.Cog):
         self, interact: discord.Interaction, current: str
     ) -> list[discord.app_commands.Choice[str]]:
         """Autocompletes the item name for the market search."""
+        user_lang = locale_to_lang(interact.locale)
         choices = [
             discord.app_commands.Choice(name=name, value=name)
-            for name in get_market_item_names()
+            for name in get_market_item_names(user_lang)
             if current.lower() in name.lower()
         ]
         return choices[:25]

@@ -34,9 +34,11 @@
             "Extermination",
             "Rescue",
             "Capture",
+            "Void Cascade",
             "섬멸",
             "구출",
-            "생포"
+            "생포",
+            "보이드 범람"
         ],
         "missionTemp": [
             "Excavation"

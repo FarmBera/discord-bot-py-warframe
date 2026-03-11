@@ -1,7 +1,7 @@
 import discord
 
-from src.translator import ts
-from src.utils.data_manager import solNodes
+from src.translator import ts as _ts, language as _default_lang
+from src.utils.data_manager import getSolNodeData
 from src.utils.file_io import json_load
 from src.utils.image import getThumbImg
 from src.utils.times import timeNow, convert_remain
@@ -11,7 +11,7 @@ ARBITRATION = json_load("data/arbys.json")
 pf: str = "cmd.arbitration."
 
 
-def w_arbitration() -> discord.Embed:
+def w_arbitration(ts=_ts, lang=_default_lang) -> discord.Embed:
     cnt: int = 0  # count
     curr_arbi: dict = {}
 
@@ -23,7 +23,7 @@ def w_arbitration() -> discord.Embed:
         cnt += 1
 
     next_arbi = ARBITRATION[cnt]
-    curr_arbi = solNodes[curr_arbi["node"]]
+    curr_arbi = getSolNodeData(curr_arbi["node"], lang)
 
     # current mission
     output_msg: str = ts.get(f"{pf}output").format(
@@ -38,7 +38,8 @@ def w_arbitration() -> discord.Embed:
         present = ARBITRATION[i]
 
         output_msg += ts.get(f"{pf}outnext").format(
-            time=convert_remain(present["time"]), miss=solNodes[present["node"]]["type"]
+            time=convert_remain(present["time"]),
+            miss=getSolNodeData(present["node"])["type"],
         )
 
     embed = discord.Embed(description=output_msg, color=discord.Color.greyple())
@@ -46,4 +47,4 @@ def w_arbitration() -> discord.Embed:
     return embed
 
 
-# print(w_arbitration()[0].description)
+# print(w_arbitration().description)

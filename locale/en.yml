@@ -795,7 +795,9 @@ cmd:
   steel-incursion:
     cmd: steelpath-incursion
     desc: Check the Steel Path alert missions.
-    output: "# Today's SteelPath Alerts"
+    output: |
+      # Today's SteelPath Alerts
+      > Expiry: {time}
 
   arbitration:
     cmd: arbitration

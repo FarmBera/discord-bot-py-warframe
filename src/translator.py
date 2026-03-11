@@ -1,4 +1,5 @@
 import yaml
+import discord
 
 from config.config import Lang, language
 from src.constants.color import C
@@ -41,7 +42,7 @@ class Translator:
         """
         receive SPECIAL keys (not officialy translated text in API) and return translated text (ex: 'ts.trs(SEARCH_QUERY)')
         """
-        if language == self.EN:
+        if self.lang == self.EN:
             return key
 
         value = self.translations
@@ -59,4 +60,22 @@ if language not in [Lang.EN, Lang.KO]:  # input check
         f"{C.red}Unknown string: {C.yellow}'{language}'. {C.white}will setup default lang: {C.cyan}{Lang.EN}{C.default}"
     )
     language = Lang.EN
-ts = Translator(lang=language)
+
+_translators: dict[str, Translator] = {
+    Lang.KO: Translator(lang=Lang.KO),
+    Lang.EN: Translator(lang=Lang.EN),
+}
+ts = _translators.get(language, _translators[Lang.EN])
+
+_LOCALE_TO_LANG: dict[discord.Locale, str] = {
+    discord.Locale.korean: Lang.KO,
+    discord.Locale.american_english: Lang.EN,
+}
+
+
+def locale_to_lang(locale: discord.Locale) -> str:
+    return _LOCALE_TO_LANG.get(locale, Lang.EN)
+
+
+def get_ts(locale: discord.Locale) -> Translator:
+    return _translators.get(locale_to_lang(locale), _translators[Lang.EN])

@@ -1,7 +1,7 @@
 import discord
 
 from config.config import Lang
-from src.translator import ts, language as lang
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.data_manager import getLanguage
 from src.utils.return_err import err_embed
 
@@ -17,7 +17,7 @@ class News:
         self.img = img
 
 
-def w_news(newses):
+def w_news(newses, ts=_ts, lang=_default_lang):
     if not newses:
         return err_embed("news")
 

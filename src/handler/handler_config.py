@@ -52,8 +52,14 @@ class LOGIC:
     no_args = "handle_no_args"
     missing = "handle_missing_items"
     news = "handle_new_news"
-    # trader = "handle_voidtraders"
     bounty = "handle_bounty"
+    invasions = "handle_missing_invasions"
+    fissures = "handle_fissures"
+    voidtraders = "handle_voidtraders"
+    deep_archimedea = "handle_deep_archimedea"
+    temporal_archimedea = "handle_temporal_archimedea"
+    duviri_wf = "handle_duviri_rotation-1"
+    duviri_inc = "handle_duviri_rotation-2"
 
 
 DATA_HANDLERS = {
@@ -63,7 +69,7 @@ DATA_HANDLERS = {
     },
     NEWS: {
         HK.parser: w_news,
-        HK.special_logic: "handle_new_news",
+        HK.special_logic: LOGIC.news,
     },
     CETUSCYCLE: {
         HK.parser: w_cetusCycle,
@@ -83,7 +89,7 @@ DATA_HANDLERS = {
     },
     VOIDTRADERS: {
         HK.parser: w_voidTraders,
-        HK.special_logic: "handle_voidtraders",
+        HK.special_logic: LOGIC.voidtraders,
         HK.arg_func: getBaroRandomMsg,
     },
     DUVIRICYCLE: {
@@ -91,16 +97,16 @@ DATA_HANDLERS = {
         HK.special_logic: LOGIC.no_args,
         HK.update_check: checkNewDuviriState,
     },
-    FISSURES: {HK.special_logic: "handle_fissures"},
+    FISSURES: {HK.special_logic: LOGIC.fissures},
     f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": {
         HK.key: ARCHIMEDEA,
         HK.parser: w_deepArchimedea,
-        HK.special_logic: "handle_deep_archimedea",
+        HK.special_logic: LOGIC.deep_archimedea,
     },
     f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": {
         HK.key: ARCHIMEDEA,
         HK.parser: w_temporalArchimedia,
-        HK.special_logic: "handle_temporal_archimedea",
+        HK.special_logic: LOGIC.temporal_archimedea,
     },
     CALENDAR: {
         HK.parser: lambda data: w_calendar(data),
@@ -119,17 +125,17 @@ DATA_HANDLERS = {
     },
     INVASIONS: {
         HK.parser: w_invasions_se,
-        HK.special_logic: "handle_missing_invasions",
+        HK.special_logic: LOGIC.invasions,
     },
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": {  # circuit-warframe
         HK.key: DUVIRI_ROTATION,
         HK.parser: w_duviri_warframe,
-        HK.special_logic: "handle_duviri_rotation-1",
+        HK.special_logic: LOGIC.duviri_wf,
     },
     f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": {  # circuit-incarnon
         HK.key: DUVIRI_ROTATION,
         HK.parser: w_duviri_incarnon,
-        HK.special_logic: "handle_duviri_rotation-2",
+        HK.special_logic: LOGIC.duviri_inc,
     },
     EVENTS: {
         HK.parser: w_events,

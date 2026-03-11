@@ -1,20 +1,18 @@
 import discord
 
 from src.constants.keys import ARCHIMEDEA, ARCHIMEDEA_DEEP, ARCHIMEDEA_TEMPORAL
-from src.translator import ts, language as lang
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.data_manager import (
     get_obj,
     set_obj_async,
     getMissionType,
     getLanguageOrigin,
 )
-from src.utils.file_io import json_load
 from src.utils.return_err import err_embed
 from src.utils.times import convert_remain
 
 archimedea_deep = get_obj(f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}")
 archimedea_temporal = get_obj(f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
-conquest_var: dict = json_load(f"data/{lang}/archimedeaData.json")
 
 CT_LAB = "CT_LAB"
 CT_HEX = "CT_HEX"
@@ -44,7 +42,7 @@ async def setTemporalArchimedea(obj):
     await set_obj_async(obj, f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}")
 
 
-def generateMissions(obj) -> str:
+def generateMissions(obj, ts=_ts, lang=_default_lang) -> str:
     text = ""
     idx = 1
     for item in obj["Missions"]:
@@ -55,14 +53,14 @@ def generateMissions(obj) -> str:
         # ({getFactions(item['faction'])})\n"
 
         # mission with h2 header
-        text += f"## {idx}. {getMissionType(item['missionType'])}"
+        text += f"## {idx}. {getMissionType(item['missionType'],lang)}"
 
         # deviation
         for jtem in item["difficulties"]:
             if jtem.get("type") != "CD_HARD":
                 continue
 
-            key = getLanguageOrigin(jtem["deviation"])
+            key = getLanguageOrigin(jtem["deviation"], lang)
             if not key:
                 text += f"\n- {jtem['deviation']}"
                 continue
@@ -79,7 +77,7 @@ def generateMissions(obj) -> str:
                 risks = jtem.get("risks")
                 break
         for rsk in risks:
-            key = getLanguageOrigin(rsk)
+            key = getLanguageOrigin(rsk, lang)
             if not key:
                 text += f"\n- {rsk}"
                 continue
@@ -94,10 +92,10 @@ def generateMissions(obj) -> str:
     return text
 
 
-def generateVariables(obj) -> str:
+def generateVariables(obj, ts=_ts, lang=_default_lang) -> str:
     text = ts.get(f"{pf}var")
     for var in obj["Variables"]:
-        translate = getLanguageOrigin(var)
+        translate = getLanguageOrigin(var, lang)
         if not translate:
             text += f"\n- **{var}**"
             continue
@@ -111,7 +109,9 @@ def generateVariables(obj) -> str:
 pfd: str = "cmd.deep-archimedea."
 
 
-def w_deepArchimedea(archimedea) -> tuple[discord.Embed, str]:
+def w_deepArchimedea(
+    archimedea, ts=_ts, lang=_default_lang
+) -> tuple[discord.Embed, str]:
     # find deep archimedea
     deep = None
     try:
@@ -130,9 +130,9 @@ def w_deepArchimedea(archimedea) -> tuple[discord.Embed, str]:
         time=convert_remain(deep["Expiry"]["$date"]["$numberLong"])
     )
     # missions
-    output_msg += generateMissions(deep)
+    output_msg += generateMissions(deep, ts, lang)
     # risks & global variables
-    output_msg += generateVariables(deep)
+    output_msg += generateVariables(deep, ts, lang)
 
     embed = discord.Embed(description=output_msg, color=discord.Color.dark_gold())
     embed.set_thumbnail(url="attachment://i.webp")
@@ -142,7 +142,9 @@ def w_deepArchimedea(archimedea) -> tuple[discord.Embed, str]:
 pft: str = "cmd.temporal-archimedea."
 
 
-def w_temporalArchimedia(archimedea) -> tuple[discord.Embed, str]:
+def w_temporalArchimedia(
+    archimedea, ts=_ts, lang=_default_lang
+) -> tuple[discord.Embed, str]:
     # find temporal archimedea
     temporal = None
     try:
@@ -161,9 +163,9 @@ def w_temporalArchimedia(archimedea) -> tuple[discord.Embed, str]:
         time=convert_remain(temporal["Expiry"]["$date"]["$numberLong"]),
     )
     # missions
-    output_msg += generateMissions(temporal)
+    output_msg += generateMissions(temporal, ts, lang)
     # global variables
-    output_msg += generateVariables(temporal)
+    output_msg += generateVariables(temporal, ts, lang)
 
     embed = discord.Embed(description=output_msg, color=discord.Color.teal())
     embed.set_thumbnail(url="attachment://i.webp")

@@ -2,7 +2,7 @@ import random
 
 import discord
 
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.data_manager import getLanguage
 from src.utils.image import getThumbImg
 from src.utils.return_err import err_embed
@@ -10,7 +10,7 @@ from src.utils.times import convert_remain
 
 pf = f"cmd.dailydeals."
 
-DARVO_MSG: list = ts.get(f"{pf}msg")
+DARVO_MSG: list = _ts.get(f"{pf}msg")
 MSG_MAX_LENGTH: int = len(DARVO_MSG) - 1
 
 
@@ -18,7 +18,7 @@ def getDarvoRandomMsg() -> str:
     return f"*{DARVO_MSG[random.randint(0, MSG_MAX_LENGTH)]}*\n"
 
 
-def w_dailyDeals(deals) -> discord.Embed:
+def w_dailyDeals(deals, ts=_ts, lang=_default_lang) -> discord.Embed:
     if not deals:
         return err_embed("dailyDeals")
 
@@ -28,7 +28,7 @@ def w_dailyDeals(deals) -> discord.Embed:
     for item in deals:
         origin_name = item["StoreItem"].lower()
         output_msg += ts.get(f"{pf}output").format(
-            name=getLanguage(origin_name),
+            name=getLanguage(origin_name, lang),
             origin=item["OriginalPrice"],
             sale=item["SalePrice"],
             discount=item["Discount"],

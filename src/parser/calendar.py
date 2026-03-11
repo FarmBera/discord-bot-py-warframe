@@ -1,6 +1,6 @@
 import discord
 
-from src.translator import ts
+from src.translator import ts as _ts, language as _default_lang
 from src.utils.data_manager import getLanguage
 from src.utils.emoji import get_emoji
 from src.utils.return_err import err_embed
@@ -11,7 +11,7 @@ CODE_CHALLENGE: str = "CET_CHALLENGE"
 pf: str = "cmd.calendar."
 
 
-def w_calendar(calendar) -> tuple[discord.Embed, str]:
+def w_calendar(calendar, ts=_ts, lang=_default_lang) -> tuple[discord.Embed, str]:
     if not calendar:
         return err_embed("calendar"), ""
 
@@ -37,11 +37,11 @@ def w_calendar(calendar) -> tuple[discord.Embed, str]:
                 tt = jtem["reward"]
                 # tmp_emoji.append(get_emoji(tt))
                 # tmp_list.append(getLanguage(tt))
-                tmp_list.append(f"{get_emoji(tt)} {getLanguage(tt)}")
+                tmp_list.append(f"{get_emoji(tt)} {getLanguage(tt, lang=lang)}")
 
             # challenge
             elif e_type == CODE_CHALLENGE:  # var
-                tmp_list.append(f"{getLanguage(jtem['challenge'],'desc')}")
+                tmp_list.append(f"{getLanguage(jtem['challenge'], 'desc', lang)}")
 
             # # override
             # elif e_type == "CET_UPGRADE":  # var

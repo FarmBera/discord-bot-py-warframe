@@ -2,7 +2,7 @@ import discord
 
 from src.constants.keys import DUVIRI_ROTATION, DUVIRI_U_K_W, DUVIRI_U_K_I, DUVIRI_CACHE
 from src.parser.worldstate import weekly_remain
-from src.translator import ts, Lang, language as lang
+from src.translator import ts as _ts, language as _default_lang, Lang
 from src.utils.data_manager import get_obj, set_obj_async
 from src.utils.emoji import get_emoji
 from src.utils.file_io import json_load_async, json_load
@@ -45,7 +45,9 @@ async def setDuvIncarnon(obj):
     await set_obj_async(obj, f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}")
 
 
-def create_embed(output_msg: str, color=discord.Color.darker_grey()):
+def create_embed(
+    output_msg: str, color=discord.Color.darker_grey(), lang=_default_lang
+):
     embed = (
         discord.Embed(description=output_msg, color=color)
         if color
@@ -57,7 +59,7 @@ def create_embed(output_msg: str, color=discord.Color.darker_grey()):
     return embed
 
 
-def w_duviri_warframe(rotation) -> discord.Embed:
+def w_duviri_warframe(rotation, ts=_ts, lang=_default_lang) -> discord.Embed:
     if not rotation:
         return err_embed("w_duviri_warframe")
 
@@ -79,7 +81,7 @@ def w_duviri_warframe(rotation) -> discord.Embed:
     warframe_list = rotation_data["warframe"]
     length = len(warframe_list)
     if length == 0:
-        return create_embed(output_msg)
+        return create_embed(output_msg, lang=lang)
     # init index (find curr index)
     idx, idx_init = 0, 0
     for item in warframe_list:
@@ -100,10 +102,10 @@ def w_duviri_warframe(rotation) -> discord.Embed:
             + ", ".join([f"{ts.trs(i)} {get_emoji(str(i))}" for i in jtem])
             + "\n"
         )
-    return create_embed(output_msg)
+    return create_embed(output_msg, lang=lang)
 
 
-def w_duviri_incarnon(incarnon) -> discord.Embed:
+def w_duviri_incarnon(incarnon, ts=_ts, lang=_default_lang) -> discord.Embed:
     if not incarnon:
         return err_embed("w_duviri_warframe")
 
@@ -122,7 +124,7 @@ def w_duviri_incarnon(incarnon) -> discord.Embed:
     incarnon_list = rotation_data["incarnon"]
     length = len(incarnon_list)
     if length == 0:
-        return create_embed(output_msg=output_msg, color=0x65E6E1)
+        return create_embed(output_msg=output_msg, color=0x65E6E1, lang=lang)
     # init index (find curr index)
     idx, idx_init = 0, 0
     for item in incarnon_list:
@@ -143,7 +145,7 @@ def w_duviri_incarnon(incarnon) -> discord.Embed:
             + ", ".join([f"{ts.trs(i)} {get_emoji(str(i))}" for i in jtem])
             + "\n"
         )
-    return create_embed(output_msg=output_msg, color=0x65E6E1)
+    return create_embed(output_msg=output_msg, color=0x65E6E1, lang=lang)
 
 
 # print(w_duviri_warframe(get_obj(f"{DUVIRI_ROTATION}")).description)
