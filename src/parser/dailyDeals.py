@@ -28,7 +28,7 @@ def w_dailyDeals(deals, ts=_ts, lang=_default_lang) -> discord.Embed:
     for item in deals:
         origin_name = item["StoreItem"].lower()
         output_msg += ts.get(f"{pf}output").format(
-            name=getLanguage(origin_name, lang),
+            name=getLanguage(origin_name, lang=lang),
             origin=item["OriginalPrice"],
             sale=item["SalePrice"],
             discount=item["Discount"],
