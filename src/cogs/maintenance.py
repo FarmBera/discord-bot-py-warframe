@@ -38,6 +38,8 @@ from src.constants.keys import (
     DESCENDIA,
     ARBITRATION,
     WORLDSTATE,
+    BOUNTY,
+    SEASONINFO,
 )
 from src.parser.marketsearch import get_market_item_names
 from src.translator import ts
@@ -508,6 +510,31 @@ class MaintenanceCommands(commands.Cog):
         self, interact: discord.Interaction, developer_options: bool = True
     ):
         await cmd_helper_maintenance(interact, WORLDSTATE)
+
+    @app_commands.command(name="bounty", description="cmd.bounty.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_bounty(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper_maintenance(interact, BOUNTY)
+
+    @app_commands.command(name="seasoninfo", description="cmd.seasoninfo.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_seasoninfo(
+        self, interact: discord.Interaction, developer_options: bool = True
+    ):
+        await cmd_helper_maintenance(interact, SEASONINFO)
+
+    @app_commands.command(name="check-queue", description="cmd.check-queue.desc")
+    @app_commands.checks.cooldown(
+        1, COOLDOWN_DEFAULT, key=lambda i: (i.guild_id, i.user.id)
+    )
+    async def cmd_check_queue_list(self, interact: discord.Interaction):
+        await cmd_helper_maintenance(interact, "check-queue")
 
 
 async def setup(bot: commands.Bot):

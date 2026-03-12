@@ -5,8 +5,8 @@ from discord.ext import commands
 
 from config.config import LOG_TYPE
 from src.constants.keys import (
-    COOLDOWN_BTN_ACTION,
-    COOLDOWN_BTN_MANAGE,
+    COOLDOWN_ACTION,
+    COOLDOWN_SHORT,
     COOLDOWN_BTN_CALL,
 )
 from src.translator import ts
@@ -63,10 +63,10 @@ class PartyView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)  # make the button persistent
         self.cooldown_action = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_ACTION, commands.BucketType.user
+            1, COOLDOWN_ACTION, commands.BucketType.user
         )
         self.cooldown_manage = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_MANAGE, commands.BucketType.user
+            1, COOLDOWN_SHORT, commands.BucketType.user
         )
         self.cooldown_call = commands.CooldownMapping.from_cooldown(
             1, COOLDOWN_BTN_CALL, commands.BucketType.user
@@ -313,10 +313,13 @@ class TradeView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         self.cooldown_action = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_ACTION, commands.BucketType.user
+            1, COOLDOWN_ACTION, commands.BucketType.user
         )
         self.cooldown_manage = commands.CooldownMapping.from_cooldown(
-            1, COOLDOWN_BTN_MANAGE, commands.BucketType.user
+            1, COOLDOWN_SHORT, commands.BucketType.user
+        )
+        self.cooldown_call = commands.CooldownMapping.from_cooldown(
+            1, COOLDOWN_BTN_CALL, commands.BucketType.user
         )
 
     async def is_cooldown(
@@ -348,7 +351,7 @@ class TradeView(discord.ui.View):
     ):
         etype: str = EVENT_TYPE
 
-        if await self.is_cooldown(interact, self.cooldown_action):
+        if await self.is_cooldown(interact, self.cooldown_call):
             etype += EVENT_COOLDOWN
             return
 
@@ -372,7 +375,7 @@ class TradeView(discord.ui.View):
     ):
         etype: str = EVENT_TYPE
 
-        if await self.is_cooldown(interact, self.cooldown_action):
+        if await self.is_cooldown(interact, self.cooldown_manage):
             etype += EVENT_COOLDOWN
             return
 
@@ -395,7 +398,7 @@ class TradeView(discord.ui.View):
     ):
         etype: str = EVENT_TYPE
 
-        if await self.is_cooldown(interact, self.cooldown_action):
+        if await self.is_cooldown(interact, self.cooldown_manage):
             etype += EVENT_COOLDOWN
             return
 
@@ -408,6 +411,27 @@ class TradeView(discord.ui.View):
             msg=f"TradeView -> edit_price",
         )
 
+    @discord.ui.button(  # 랭크 수정
+        label=ts.get(f"{pf}btn-edit-rank"),
+        style=discord.ButtonStyle.secondary,
+        custom_id="trade_btn_edit_rank",
+    )
+    async def edit_rank(self, interact: discord.Interaction, button: discord.ui.Button):
+        etype: str = EVENT_TYPE
+
+        if await self.is_cooldown(interact, self.cooldown_manage):
+            etype += EVENT_COOLDOWN
+            return
+
+        await cmd_helper_maintenance(interact)
+        await save_log(
+            pool=interact.client.db,
+            type=etype,
+            cmd="btn.main.edit-rank",
+            interact=interact,
+            msg=f"TradeView -> edit_rank",
+        )
+
     @discord.ui.button(  # 닉네임 변경
         label=ts.get(f"{pf}btn-edit-nickname"),
         style=discord.ButtonStyle.secondary,
@@ -418,7 +442,7 @@ class TradeView(discord.ui.View):
     ):
         etype: str = EVENT_TYPE
 
-        if await self.is_cooldown(interact, self.cooldown_action):
+        if await self.is_cooldown(interact, self.cooldown_manage):
             etype += EVENT_COOLDOWN
             return
 
@@ -441,7 +465,7 @@ class TradeView(discord.ui.View):
     ):
         etype: str = EVENT_TYPE
 
-        if await self.is_cooldown(interact, self.cooldown_action):
+        if await self.is_cooldown(interact, self.cooldown_manage):
             etype += EVENT_COOLDOWN
             return
 
