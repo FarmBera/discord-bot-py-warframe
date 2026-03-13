@@ -77,5 +77,11 @@ def locale_to_lang(locale: discord.Locale) -> str:
     return _LOCALE_TO_LANG.get(locale, Lang.EN)
 
 
+def get_ts_by_lang(lang_code: str) -> Translator:
+    """Get Translator instance by language code string (e.g. 'ko', 'en')."""
+    return _translators.get(lang_code, _translators[Lang.EN])
+
+
 def get_ts(locale: discord.Locale) -> Translator:
-    return _translators.get(locale_to_lang(locale), _translators[Lang.EN])
+    """Get Translator instance by discord.Locale."""
+    return get_ts_by_lang(locale_to_lang(locale))
