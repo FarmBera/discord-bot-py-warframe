@@ -5,7 +5,7 @@ import discord
 from src.constants.keys import FIELD_PATTERN as pat
 from src.parser.cambionCycle import CambionCycleData
 from src.parser.cetusCycle import CetusTimerData
-from src.parser.duviriCycle import get_current_mood
+from src.parser.duviriCycle import duviri_cycle
 from src.parser.vallisCycle import VallisCycleData
 from src.translator import Translator, ts as _ts, language as _default_lang
 from src.utils.emoji import worldstate_emoji
@@ -34,7 +34,7 @@ def w_worldstate(
     # calculate vallis cycle
     try:
         cetus = check_timer_states(CetusTimerData)
-        duviri = get_current_mood()
+        duviri = duviri_cycle.current()
         cambion = check_timer_states(CambionCycleData)
         vallis = check_timer_states(VallisCycleData)
         if not cetus or not duviri or not cambion or not vallis:

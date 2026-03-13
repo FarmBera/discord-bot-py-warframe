@@ -9,5 +9,4 @@
 - WorldState Data: [Warframe Wiki](https://wiki.warframe.com/w/World_State)
   - JSON data
   - World timer (Plains of Eidolon, Cambion Drift etc.)
-- Duviri Cycle: [duviri-mood-clock (mifuyne)](https://github.com/mifuyne/duviri-mood-clock)
 - SteelPath Incursion & Arbitration Data: [browse.wf](https://browse.wf/about)

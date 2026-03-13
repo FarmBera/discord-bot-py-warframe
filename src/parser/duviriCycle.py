@@ -1,4 +1,6 @@
 import datetime as dt
+from dataclasses import dataclass
+from enum import IntEnum
 
 import discord
 
@@ -6,138 +8,119 @@ from src.translator import ts as _ts, language as _default_lang
 from src.utils.emoji import worldstate_emoji
 from src.utils.times import convert_remain
 
-SEED_TIME: str = "2023-01-01T00:00:00+00:00"
-SECONDS_PER_MOOD: int = 7200
-NEXT_MOOD_LIMIT: int = 2
 
-MOODS = ["fear", "joy", "anger", "envy", "sorrow"]
-MOOD_COLOR = {
-    "fear": 0xB783C9,
-    "joy": 0x2BB8BE,
-    "anger": 0xFC8408,
-    "envy": 0x69B124,
-    "sorrow": 0x6694E6,
+class Mood(IntEnum):
+    FEAR = 0
+    JOY = 1
+    ANGER = 2
+    ENVY = 3
+    SORROW = 4
+
+    @property
+    def label(self) -> str:
+        return self.name.lower()
+
+    @property
+    def color(self) -> int:
+        return _MOOD_COLORS[self]
+
+
+_MOOD_COLORS: dict[Mood, int] = {
+    Mood.FEAR: 0xB783C9,
+    Mood.JOY: 0x2BB8BE,
+    Mood.ANGER: 0xFC8408,
+    Mood.ENVY: 0x69B124,
+    Mood.SORROW: 0x6694E6,
 }
+
+
+@dataclass(frozen=True)
+class DuviriCycleConfig:
+    origin: dt.datetime = dt.datetime(2023, 1, 1, tzinfo=dt.timezone.utc)
+    interval: int = 7200  # seconds per state phase
+
+
+@dataclass(frozen=True)
+class State:
+    state: Mood
+    expires_at: int
+
+
+class DuviriStateCycle:
+    def __init__(self, config: DuviriCycleConfig | None = None):
+        self.config = config or DuviriCycleConfig()
+        self.origin_timestamp = int(self.config.origin.timestamp())
+        self.total_cycle = self.config.interval * len(Mood)
+        self.prev_state: Mood | None = None
+
+    @staticmethod
+    def stamp() -> int:
+        return int(dt.datetime.now(dt.timezone.utc).timestamp())
+
+    def state_at(self, timestamp: int) -> Mood:
+        """Determine the active state at a given unix timestamp."""
+        elapsed = (timestamp - self.origin_timestamp) % self.total_cycle
+        index = elapsed // self.config.interval
+        return Mood(min(index, len(Mood) - 1))
+
+    def next_timestamp(self, timestamp: int) -> int:
+        """Unix timestamp of the next state transition after `timestamp`."""
+        remainder = timestamp % self.config.interval
+        return timestamp + (self.config.interval - remainder)
+
+    def current(self) -> State:
+        now = self.stamp()
+        return State(
+            state=self.state_at(now),
+            expires_at=self.next_timestamp(now),
+        )
+
+    def upcoming(self, count: int = 4) -> list[State]:
+        boundary = self.next_timestamp(self.stamp())
+        return [
+            State(
+                state=self.state_at(boundary + i * self.config.interval),
+                expires_at=boundary + i * self.config.interval,
+            )
+            for i in range(count)
+        ]
+
+    def is_changed(self) -> bool:
+        current_state = self.current().state
+        changed = self.prev_state is not None and self.prev_state != current_state
+        self.prev_state = current_state
+        return changed
+
+
+# Module-level singleton
+duviri_cycle = DuviriStateCycle()
 
 pf: str = "cmd.duviri-cycle."
 
 
-def which_mood(timestamp: int) -> int:
-    """the index of the current mood based on the timestamp
-
-    :param timestamp: input timestamp
-    :return: index of the current mood
-    """
-    try:
-        date = dt.datetime.fromisoformat(SEED_TIME)
-        start_time = int(date.timestamp())
-    except ValueError:
-        print("[ERROR]: Invalid SEED_TIME format")
-        start_time = 0
-
-    # calculate diff with current time & seed time
-    cycle_length = SECONDS_PER_MOOD * len(MOODS)
-
-    # Adjust if the difference is negative to prevent negative modulo operations
-    time_diff = (timestamp - start_time) % cycle_length
-
-    # calculate index
-    if time_diff < SECONDS_PER_MOOD:
-        return 0
-    elif time_diff < (SECONDS_PER_MOOD * 2):
-        return 1
-    elif time_diff < (SECONDS_PER_MOOD * 3):
-        return 2
-    elif time_diff < (SECONDS_PER_MOOD * 4):
-        return 3
-    elif time_diff < (SECONDS_PER_MOOD * 5):
-        return 4
-    else:
-        return 99
-
-
-def get_next_shift(curr_time: int) -> int:
-    """Calculate the next mood-change time
-    (sorted in 7,200-second (2-hour) intervals)
-
-    :param curr_time: current timestamp
-    :return: next mood change time
-    """
-    return curr_time + (7200 - (curr_time % 7200))
-
-
-def get_current_mood() -> dict:
-    """
-    :return: the current mood state and the expiration time (next mood start time)
-    """
-    curr_timestamp = int(dt.datetime.now(dt.timezone.utc).timestamp())
-
-    # caltulate state based on current time
-    mood_idx = which_mood(curr_timestamp)
-    mood_now = MOODS[mood_idx] if mood_idx < len(MOODS) else "Unknown"
-
-    return {"timestamp": get_next_shift(curr_timestamp), "mood": mood_now}
-
-
-def get_next_mood() -> list[dict]:
-    """
-    :return: list of mood changes after the given time
-    """
-    now_stamp = int(dt.datetime.now(dt.timezone.utc).timestamp())
-    next_timestamp = get_next_shift(now_stamp)
-    mood_list = []
-
-    for i in range(NEXT_MOOD_LIMIT):
-        this_time = next_timestamp
-
-        # if not the first, add SECONDS_PER_MOOD to the previous item's time
-        if i != 0:
-            last_item = mood_list[-1]
-            this_time = last_item["timestamp"] + SECONDS_PER_MOOD
-
-        mood_idx = which_mood(this_time)
-        this_mood = MOODS[mood_idx] if mood_idx < len(MOODS) else "Unknown"
-        mood_list.append({"timestamp": this_time, "mood": this_mood})
-
-    return mood_list
-
-
-previous_state_duviri = get_current_mood()["mood"]
-
-
-def checkNewDuviriState():
-    global previous_state_duviri
-    current = get_current_mood()["mood"]
-    if previous_state_duviri != current:
-        previous_state_duviri = current
-        return True
-    return False
-
-
 def w_duviriCycle(ts=_ts, lang=_default_lang) -> tuple[discord.Embed, str]:
-    duviri: dict = get_current_mood()
-    nextd: list = get_next_mood()
+    state = duviri_cycle.current()
+    upcoming = duviri_cycle.upcoming()
+    label = state.state.label
 
-    mood: str = duviri["mood"]
     output_msg: str = ts.get(f"{pf}output").format(
-        state=f"{ts.get(f'{pf}{mood}')}{worldstate_emoji.get(mood,'')}",
-        time=convert_remain(duviri["timestamp"]),
+        state=f"{ts.get(f'{pf}{label}')}{worldstate_emoji.get(label, '')}",
+        time=convert_remain(state.expires_at),
     )
-    # next moods
-    for item in nextd:
+
+    for item in upcoming:
+        item_label = item.state.label
         output_msg += (
-            f"{convert_remain(item['timestamp'])} **{ts.get(f'{pf}{item['mood']}')}**\n"
+            f"{convert_remain(item.expires_at)} **{ts.get(f'{pf}{item_label}')}**\n"
         )
 
-    embed = discord.Embed(description=output_msg.strip(), color=MOOD_COLOR[mood])
+    embed = discord.Embed(description=output_msg.strip(), color=state.state.color)
     embed.set_thumbnail(url="attachment://i.webp")
-    return embed, mood
+    return embed, label
 
 
-# print("--- Current Mood ---")
-# print(get_current_mood())
-# print("\n--- Next Moods ---")
-# print(get_next_mood())
-# print(w_duviriCycle()[0].description)
+def checkNewDuviriState() -> bool:
+    return duviri_cycle.is_changed()
 
-# print(checkNewDuviriState())
+
+print(w_duviriCycle()[0].description)

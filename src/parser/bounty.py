@@ -32,7 +32,7 @@ def generateBounty(bounty, b_key, lang=_default_lang):
     output = ""
     for i in bounty[b_key]:
         node = getSolNodeData(i["node"], lang)
-        output += f"- **{node['type']}** - {getLanguage(i['challenge'])}\n"
+        output += f"- **{node['type']}** - {getLanguage(i['challenge'],lang=lang)}\n"
     return output
 
 
