@@ -76,13 +76,14 @@ fissureModifiers = _all_fissure_modifiers[_default_lang]
 
 def getSolNodeData(node: str, lang: str = _default_lang) -> dict:
     """return full solNode dict (type, value, enemy)"""
-    return _all_sol_nodes.get(lang, _all_sol_nodes[Lang.EN]).get(node, {})
+    return _all_sol_nodes.get(lang, _all_sol_nodes[_default_lang]).get(node, {})
 
 
 def getSolNode(node: str, lang: str = _default_lang) -> str:
     """return node name & planet
 
     :param node: solNodes like 'SolNode22'
+    :param lang: language to parse
     :return: solNode's name and planet like 'Tessera (Venus)'
     """
     return getSolNodeData(node, lang).get("value", node)
@@ -92,6 +93,7 @@ def getNodeEnemy(node: str, lang: str = _default_lang) -> str:
     """return node's enemy factions
 
     :param node: solNodes like 'SolNode22'
+    :param lang: language to parse
     :return: solNode's enemy faction like 'Corpus'
     """
     return getSolNodeData(node, lang).get("enemy", f"unknown: {node}")
@@ -101,10 +103,11 @@ def getMissionType(miss: str, lang: str = _default_lang) -> str:
     """return mission type
 
     :param miss: mission code like 'MT_CAPTURE'
+    :param lang: language to parse
     :return: ingame mission name like 'Capture'
     """
     return (
-        _all_mission_types.get(lang, _all_mission_types[Lang.EN])
+        _all_mission_types.get(lang, _all_mission_types[_default_lang])
         .get(miss, {})
         .get("value", miss)
     )
@@ -114,10 +117,11 @@ def getSortieMod(modifier: str, lang: str = _default_lang) -> str:
     """return sortie modifier title
 
     :param modifier: modifier code like 'SORTIE_MODIFIER_LOW_ENERGY'
+    :param lang: language to parse
     :return: simple sortie modifier description like 'Energy Reduction'
     """
     return (
-        _all_sortie_data.get(lang, _all_sortie_data[Lang.EN])
+        _all_sortie_data.get(lang, _all_sortie_data[_default_lang])
         .get("modifierTypes", {})
         .get(modifier, modifier)
     )
@@ -127,17 +131,18 @@ def getSortieModDesc(modifier: str, lang: str = _default_lang) -> str:
     """return sortie modifier descriptions
 
     :param modifier: modifier code like 'SORTIE_MODIFIER_LOW_ENERGY'
+    :param lang: language to parse
     :return: full sortie modifier description like 'Maximum Warframe Energy capacity is quartered.'
     """
     return (
-        _all_sortie_data.get(lang, _all_sortie_data[Lang.EN])
+        _all_sortie_data.get(lang, _all_sortie_data[_default_lang])
         .get("modifierDescriptions", {})
         .get(modifier, modifier)
     )
 
 
 def getLanguageOrigin(key_data: str, lang: str = _default_lang):
-    return _all_languages.get(lang, _all_languages[Lang.EN]).get(key_data)
+    return _all_languages.get(lang, _all_languages[_default_lang]).get(key_data)
 
 
 def getLanguage(data: str, query1: str = "value", lang: str = _default_lang) -> str:
@@ -145,12 +150,13 @@ def getLanguage(data: str, query1: str = "value", lang: str = _default_lang) -> 
 
     :param data: item name with game path like '/lotus/storeitems/types/items/miscitems/formaumbra'
     :param query1: special key in query
+    :param lang: language to parse
     :return: parsed name like 'Umbra Forma'
     """
     if not data:
         return ""
 
-    _languages = _all_languages.get(lang, _all_languages[Lang.EN])
+    _languages = _all_languages.get(lang, _all_languages[_default_lang])
     mapping = _languages.get(data) or _languages.get(data.lower())
     if mapping:
         result = mapping.get(query1)
@@ -168,10 +174,11 @@ def getFactions(factions: str, lang: str = _default_lang) -> str:
     """return enemy factions data
 
     :param factions: enemy faction code like 'FC_SENTIENT'
+    :param lang: language to parse
     :return: ingame name like 'Sentient'
     """
     return (
-        _all_factions.get(lang, _all_factions[Lang.EN])
+        _all_factions.get(lang, _all_factions[_default_lang])
         .get(factions, {})
         .get("value", factions)
     )
@@ -181,10 +188,11 @@ def getFissure(fiss: str, lang: str = _default_lang) -> str:
     """returns fissure name
 
     :param fiss: fissure code like 'VoidT2'
+    :param lang: language to parse
     :return: fissure name like 'Meso'
     """
     return (
-        _all_fissure_modifiers.get(lang, _all_fissure_modifiers[Lang.EN])
+        _all_fissure_modifiers.get(lang, _all_fissure_modifiers[_default_lang])
         .get(fiss, {})
         .get("value", fiss)
     )

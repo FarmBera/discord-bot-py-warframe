@@ -123,4 +123,4 @@ def checkNewDuviriState() -> bool:
     return duviri_cycle.is_changed()
 
 
-print(w_duviriCycle()[0].description)
+# print(w_duviriCycle()[0].description)
