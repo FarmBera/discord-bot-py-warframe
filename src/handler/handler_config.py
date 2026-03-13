@@ -109,7 +109,7 @@ DATA_HANDLERS = {
         HK.special_logic: LOGIC.temporal_archimedea,
     },
     CALENDAR: {
-        HK.parser: lambda data: w_calendar(data),
+        HK.parser: lambda data, **kwargs: w_calendar(data, **kwargs),
         HK.update_check: lambda prev, new: prev[0]["Activation"]["$date"]["$numberLong"]
         != new[0]["Activation"]["$date"]["$numberLong"],
     },

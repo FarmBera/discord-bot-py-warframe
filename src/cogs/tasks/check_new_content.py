@@ -3,8 +3,7 @@ import asyncio
 import requests
 from discord.ext import tasks, commands
 
-from config.TOKEN import WF_JSON_PATH
-from config.config import LOG_TYPE, language as lang, Lang
+from config.config import LOG_TYPE, language as lang
 from src.constants.color import C
 from src.handler.handle_archimedea import handleDeepArchimedea, handleTemporalArchimedea
 from src.handler.handle_duviri import checkCircuitWarframe, checkCircuitIncarnon
@@ -17,10 +16,19 @@ from src.handler.handler_config import DATA_HANDLERS, LOGIC
 from src.parser.archimedea import setDeepArchimedea, setTemporalArchimedea
 from src.parser.bounty import handleNewBounty
 from src.parser.duviriRotation import setDuvWarframe, setDuvIncarnon
-from src.translator import ts
+from src.translator import ts, get_ts_by_lang
 from src.utils.api_request import API_Request
 from src.utils.data_manager import get_obj_async, set_obj_async, SETTINGS
-from src.utils.file_io import json_load_async
+
+
+def _make_factory(parser, *args):
+    """Create a content_factory that calls parser(*args, ts=..., lang=...) for each language."""
+
+    def factory(subscriber_lang: str):
+        _ts = get_ts_by_lang(subscriber_lang)
+        return parser(*args, ts=_ts, lang=subscriber_lang)
+
+    return factory
 
 
 # noinspection PyUnusedLocal,PyMethodMayBeStatic
@@ -44,13 +52,28 @@ class TASKcheck_new_content(commands.Cog):
     # --- handler helpers ---
 
     async def _safe_parse(self, handler, log_key, *args):
-        """Run parser safely. Returns parsed result, or None on error."""
+        """Create a content_factory that safely calls parser with ts and lang.
+        Returns factory or None on initial validation error."""
+        parser = handler["parser"]
+
+        # validate the parser works at all (with default lang)
         try:
-            return handler["parser"](*args)
+            test_result = parser(*args, ts=ts, lang=lang)
+            if test_result is None:
+                return None
         except Exception as e:
-            msg = f"Data parsing error in {handler['parser']}/{e}"
+            msg = f"Data parsing error in {parser}/{e}"
             await handleParseError(self.bot.db, msg, log_key)
             return None
+
+        def factory(subscriber_lang: str):
+            try:
+                _ts = get_ts_by_lang(subscriber_lang)
+                return parser(*args, ts=_ts, lang=subscriber_lang)
+            except Exception:
+                return None
+
+        return factory
 
     async def _handle_missing(self, handler, origin_key, key, obj_prev, obj_new):
         should_save, newly_added_ids = checkMissingIds(obj_prev, obj_new)
@@ -59,7 +82,8 @@ class TASKcheck_new_content(commands.Cog):
         missing_items = checkMissingItem(obj_new, newly_added_ids)
         if not missing_items:
             return None
-        return await self._safe_parse(handler, origin_key, missing_items), should_save
+        factory = await self._safe_parse(handler, origin_key, missing_items)
+        return factory, should_save
 
     async def _handle_news(self, handler, origin_key, key, obj_prev, obj_new):
         obj_prev, obj_new = processNews(obj_prev, obj_new)
@@ -71,7 +95,8 @@ class TASKcheck_new_content(commands.Cog):
         )
         if not special_invasions:
             return None
-        return await self._safe_parse(handler, key, missing_invasions), should_save
+        factory = await self._safe_parse(handler, key, missing_invasions)
+        return factory, should_save
 
     async def _handle_fissures(self, handler, origin_key, key, obj_prev, obj_new):
         should_save, _ = checkMissingIds(obj_prev, obj_new)
@@ -81,25 +106,25 @@ class TASKcheck_new_content(commands.Cog):
         if not checkCircuitWarframe(obj_new):
             return None
         try:
-            parsed_content = handler["parser"](obj_new)
             await setDuvWarframe(obj_new[0])
-            return parsed_content, True
         except Exception as e:
             msg = f"parse error in handle_duviri_rotation-1 {handler['parser']}/{e}"
             await handleParseError(self.bot.db, msg, key)
             return None
+        factory = _make_factory(handler["parser"], obj_new)
+        return factory, True
 
     async def _handle_duviri_inc(self, handler, origin_key, key, obj_prev, obj_new):
         if not checkCircuitIncarnon(obj_new):
             return None
         try:
-            parsed_content = handler["parser"](obj_new)
             await setDuvIncarnon(obj_new[1])
-            return parsed_content, True
         except Exception as e:
             msg = f"parse error in handle_duviri_rotation-2 {handler['parser']}/{e}"
             await handleParseError(self.bot.db, msg, key)
             return None
+        factory = _make_factory(handler["parser"], obj_new)
+        return factory, True
 
     async def _handle_voidtraders(self, handler, origin_key, key, obj_prev, obj_new):
         events = handleVoidTrader(obj_prev, obj_new)
@@ -108,19 +133,44 @@ class TASKcheck_new_content(commands.Cog):
         for event in events:
             if not SETTINGS["noti"]["list"][key]:
                 continue
-            text_arg = ts.get(event["text_key"])
             embed_color = event["embed_color"]
-            parsed_content = handler["parser"](obj_new, text_arg, embed_color)
-            if not parsed_content:
-                msg = f"parse error in handle_voidtraders {handler['parser']}"
-                await handleParseError(self.bot.db, msg, key)
-                continue
+
+            # build content_factory for per-language rendering
+            text_key = event["text_key"]
+            parser = handler["parser"]
+
+            def voidtrader_factory(
+                subscriber_lang: str,
+                _text_key=text_key,
+                _parser=parser,
+                _obj=obj_new,
+                _color=embed_color,
+            ):
+                _ts = get_ts_by_lang(subscriber_lang)
+                _text_arg = _ts.get(_text_key)
+                return _parser(_obj, _text_arg, _color, ts=_ts, lang=subscriber_lang)
+
             if event.get("have_custom_msg"):
+                arg_func = handler.get("arg_func")
+
+                def lang_arg_func(subscriber_lang: str, _af=arg_func):
+                    if _af is None:
+                        return None
+                    _ts = get_ts_by_lang(subscriber_lang)
+                    try:
+                        return _af(ts=_ts, lang=subscriber_lang)
+                    except TypeError:
+                        return _af()
+
                 await self.bot.broadcast_webhook(
-                    origin_key, parsed_content, handler.get("arg_func")
+                    origin_key,
+                    content_factory=voidtrader_factory,
+                    arg_func=lang_arg_func,
                 )
             else:
-                await self.bot.broadcast_webhook(origin_key, parsed_content)
+                await self.bot.broadcast_webhook(
+                    origin_key, content_factory=voidtrader_factory
+                )
         # broadcast already done above; True = save voidtrader data
         return None, True
 
@@ -131,13 +181,13 @@ class TASKcheck_new_content(commands.Cog):
         if not is_new:
             return None
         try:
-            parsed_content = handler["parser"](obj_deep)
             await setDeepArchimedea(obj_deep)
-            return parsed_content, True
         except Exception as e:
             msg = f"parse error in handle_deep_archimedea {handler['parser']}/{e}"
             await handleParseError(self.bot.db, msg, key)
             return None
+        factory = _make_factory(handler["parser"], obj_deep)
+        return factory, True
 
     async def _handle_temporal_archimedea(
         self, handler, origin_key, key, obj_prev, obj_new
@@ -146,18 +196,19 @@ class TASKcheck_new_content(commands.Cog):
         if not is_new:
             return None
         try:
-            parsed_content = handler["parser"](obj_temporal)
             await setTemporalArchimedea(obj_temporal)
-            return parsed_content, True
         except Exception as e:
             msg = f"parse error in handle_temporal_archimedea {handler['parser']}/{e}"
             await handleParseError(self.bot.db, msg, key)
             return None
+        factory = _make_factory(handler["parser"], obj_temporal)
+        return factory, True
 
     async def _handle_no_args(self, handler, origin_key, key, obj_prev, obj_new):
         if not handler["update_check"]():
             return None
-        return handler["parser"](), False
+        factory = _make_factory(handler["parser"])
+        return factory, False
 
     async def _handle_bounty(self, handler, origin_key, key, obj_prev, obj_new):
         obj_bounty, is_new = await handleNewBounty(self.bot.db)
@@ -166,17 +217,17 @@ class TASKcheck_new_content(commands.Cog):
             return None
         if not is_new:
             return None
-        parsed_content = handler["parser"](obj_bounty)
         await set_obj_async(obj_bounty, key)
+        factory = _make_factory(handler["parser"], obj_bounty)
         # already saved above (obj_bounty differs from outer obj_new)
-        return parsed_content, False
+        return factory, False
 
     async def _handle_default(self, handler, origin_key, key, obj_prev, obj_new):
         if not handler["update_check"](obj_prev, obj_new):
             return None
-        parsed_content = await self._safe_parse(handler, key, obj_new)
+        factory = await self._safe_parse(handler, key, obj_new)
         # save even if parse failed, to keep cache in sync (matches original behavior)
-        return parsed_content, True
+        return factory, True
 
     # --- cog lifecycle ---
 
@@ -232,13 +283,27 @@ class TASKcheck_new_content(commands.Cog):
             if result is None:
                 continue
 
-            parsed_content, should_save = result
+            content_factory, should_save = result
             if should_save:
                 await set_obj_async(obj_new, key)
 
-            if parsed_content and SETTINGS["noti"]["list"][origin_key]:
+            if content_factory and SETTINGS["noti"]["list"][origin_key]:
+                arg_func = handler.get("arg_func")
+                # wrap arg_func to accept lang parameter
+                lang_arg_func = None
+                if arg_func:
+
+                    def lang_arg_func(subscriber_lang: str, _af=arg_func):
+                        _ts = get_ts_by_lang(subscriber_lang)
+                        try:
+                            return _af(ts=_ts, lang=subscriber_lang)
+                        except TypeError:
+                            return _af()
+
                 await self.bot.broadcast_webhook(
-                    origin_key, parsed_content, handler.get("arg_func")
+                    origin_key,
+                    content_factory=content_factory,
+                    arg_func=lang_arg_func,
                 )
 
 

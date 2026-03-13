@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 import os
+from collections import defaultdict
 
 import aiohttp
 import discord
@@ -184,12 +185,16 @@ class DiscordBot(commands.Bot):
 
         return out_name, out_avatar
 
-    async def broadcast_webhook(self, noti_key: str, content, arg_func=None) -> None:
+    async def broadcast_webhook(
+        self, noti_key: str, content=None, arg_func=None, content_factory=None
+    ) -> None:
         """
         search the webhook subscribed to that notification (noti_key) in the database and sends it.
+
+        content_factory: optional callable(lang: str) -> content
+            When provided, content is generated per-language group.
+            When omitted, the pre-built `content` is sent to all subscribers (legacy behavior).
         """
-        # debug
-        # await save_log(pool=self.db,type=LOG_TYPE.info,cmd="broadcast_webhook",user=MSG_BOT,msg="called broadcast_webhook")
         # check db column mapping
         db_column = DB_COLUMN_MAP.get(noti_key)
         if not db_column:
@@ -207,76 +212,23 @@ class DiscordBot(commands.Bot):
         # search subscribers in db
         async with query_reader(self.db) as cursor:
             await cursor.execute(
-                f"SELECT webhook_url FROM webhooks WHERE {db_column} = 1"
+                f"SELECT webhook_url, lang FROM webhooks WHERE {db_column} = 1"
             )
             subscribers = await cursor.fetchall()
 
         if not subscribers:
-            # debug
-            # await save_log(pool=self.db,type=LOG_TYPE.info,cmd="broadcast_webhook",user=MSG_BOT,msg="No Subscribers")
             return
+
+        # group subscribers by language
+        lang_groups = defaultdict(list)
+        for row in subscribers:
+            subscriber_lang = row.get("lang", "ko")
+            lang_groups[subscriber_lang].append(row)
 
         # initialize counters
         total_subscribers = len(subscribers)
         success_count = 0
-        # prepare payload data
-        embed_data = None
-        text_content = ""
-        files_to_upload = []
-        content_file_name = "i.webp"
-
-        # process embed
-        if isinstance(content, discord.Embed):
-            embed_data = content.to_dict()
-            log_content = content.description
-
-        # process tuple (embed, file)
-        elif isinstance(content, tuple):
-            eb, file_info = content
-            embed_data = eb.to_dict()
-            real_file_path = None
-
-            log_content = f"IMG: {file_info}\n{eb.description}"
-            # img path is string
-            if isinstance(file_info, str):
-                path = f"img/{file_info}.webp"
-                if os.path.exists(path):
-                    real_file_path = path
-                    # content_file_name = "i.webp"
-                # else:
-                #     real_file_path = file_info
-                #     content_file_name = os.path.basename(file_info)
-
-            # read file
-            if real_file_path:
-                try:
-                    with open(real_file_path, "rb") as f:
-                        files_to_upload.append(
-                            {
-                                "name": "file",
-                                "filename": content_file_name,
-                                "data": f.read(),
-                            }
-                        )
-                except Exception as e:
-                    msg = f"Failed to read image file: {e}"
-                    await save_log(
-                        pool=self.db,
-                        type=LOG_TYPE.err,
-                        cmd="broadcast_webhook",
-                        user=MSG_BOT,
-                        msg=msg,
-                        obj=return_traceback(),
-                    )
-                    print(C.red, msg, C.default)
-
-        # string only
-        else:
-            text_content = str(content)
-            log_content = text_content
-
-        if arg_func:
-            args = arg_func()
+        log_content = ""
 
         # setup profile
         final_username, final_avatar_url = await self.get_profile_img(noti_key)
@@ -284,83 +236,143 @@ class DiscordBot(commands.Bot):
         # send alert & check result
         async with aiohttp.ClientSession() as session:
             eta_start: dt.datetime = timeNowDT()
-            for row in subscribers:
-                url = row["webhook_url"]
-                # custom_msg = row.get("custom_msg", "")
 
-                # verify URL
-                if not url or not str(url).startswith("http"):
+            for subscriber_lang, rows in lang_groups.items():
+                # generate content for this language
+                lang_content = (
+                    content_factory(subscriber_lang) if content_factory else content
+                )
+                if lang_content is None:
                     continue
 
-                # combine msg
-                # final_text = (
-                #     f"{custom_msg}\n{text_content}" if custom_msg else text_content
-                # )
-                payload = {
-                    "username": final_username,
-                    "avatar_url": final_avatar_url,
-                    "content": text_content.strip(),  # final_text
-                }
-                if embed_data:
-                    payload["embeds"] = [embed_data]
-                if arg_func:
-                    payload["content"] = args
+                # prepare payload data for this language group
+                embed_data = None
+                text_content = ""
+                files_to_upload = []
+                content_file_name = "i.webp"
 
-                try:
-                    if files_to_upload:
-                        # [send file] multipart/form-data
-                        form = aiohttp.FormData()
-                        form.add_field("payload_json", json.dumps(payload))
+                # process embed
+                if isinstance(lang_content, discord.Embed):
+                    embed_data = lang_content.to_dict()
+                    log_content = lang_content.description
 
-                        # upload all file
-                        for file_obj in files_to_upload:
-                            form.add_field(
-                                file_obj["name"],
-                                file_obj["data"],
-                                filename=file_obj["filename"],
-                                content_type="application/octet-stream",
+                # process tuple (embed, file)
+                elif isinstance(lang_content, tuple):
+                    eb, file_info = lang_content
+                    embed_data = eb.to_dict()
+                    real_file_path = None
+
+                    log_content = f"IMG: {file_info}\n{eb.description}"
+                    # img path is string
+                    if isinstance(file_info, str):
+                        path = f"img/{file_info}.webp"
+                        if os.path.exists(path):
+                            real_file_path = path
+
+                    # read file
+                    if real_file_path:
+                        try:
+                            with open(real_file_path, "rb") as f:
+                                files_to_upload.append(
+                                    {
+                                        "name": "file",
+                                        "filename": content_file_name,
+                                        "data": f.read(),
+                                    }
+                                )
+                        except Exception as e:
+                            msg = f"Failed to read image file: {e}"
+                            await save_log(
+                                pool=self.db,
+                                type=LOG_TYPE.err,
+                                cmd="broadcast_webhook",
+                                user=MSG_BOT,
+                                msg=msg,
+                                obj=return_traceback(),
                             )
+                            print(C.red, msg, C.default)
 
-                        async with session.post(url, data=form) as response:
-                            if 200 <= response.status < 300:
-                                success_count += 1
-                            else:
-                                err_text = await response.text()
-                                eta_end: dt.timedelta = timeNowDT() - eta_start
-                                await save_log(
-                                    pool=self.db,
-                                    type=LOG_TYPE.err,
-                                    cmd="broadcast_webhook",
-                                    user=MSG_BOT,
-                                    msg=f"Failed to send {noti_key} Multipart (code: {response.status}, eta: {eta_end})",
-                                    obj=err_text,
-                                )
-                    else:  # general send (json)
-                        async with session.post(url, json=payload) as response:
-                            if 200 <= response.status < 300:
-                                success_count += 1
-                            else:
-                                err_text = await response.text()
-                                eta_end: dt.timedelta = timeNowDT() - eta_start
-                                await save_log(
-                                    pool=self.db,
-                                    type=LOG_TYPE.err,
-                                    cmd="broadcast_webhook",
-                                    user=MSG_BOT,
-                                    msg=f"Failed to send {noti_key} general (code: {response.status}, eta: {eta_end})",
-                                    obj=err_text,
+                # string only
+                else:
+                    text_content = str(lang_content)
+                    log_content = text_content
+
+                if arg_func:
+                    args = arg_func(subscriber_lang)
+
+                # send to each subscriber in this language group
+                for row in rows:
+                    url = row["webhook_url"]
+
+                    # verify URL
+                    if not url or not str(url).startswith("http"):
+                        continue
+
+                    payload = {
+                        "username": final_username,
+                        "avatar_url": final_avatar_url,
+                        "content": text_content.strip(),
+                    }
+                    if embed_data:
+                        payload["embeds"] = [embed_data]
+                    if arg_func:
+                        payload["content"] = args
+
+                    try:
+                        if files_to_upload:
+                            # [send file] multipart/form-data
+                            form = aiohttp.FormData()
+                            form.add_field("payload_json", json.dumps(payload))
+
+                            # upload all file
+                            for file_obj in files_to_upload:
+                                form.add_field(
+                                    file_obj["name"],
+                                    file_obj["data"],
+                                    filename=file_obj["filename"],
+                                    content_type="application/octet-stream",
                                 )
 
-                except Exception as e:
-                    eta_sending: dt.timedelta = timeNowDT() - eta_start
-                    await save_log(
-                        pool=self.db,
-                        type=LOG_TYPE.err,
-                        cmd="broadcast_webhook",
-                        user=MSG_BOT,
-                        msg=f"ERROR on sending msg: {noti_key} (eta: {eta_sending})\n{e}",
-                        obj=return_traceback(),
-                    )
+                            async with session.post(url, data=form) as response:
+                                if 200 <= response.status < 300:
+                                    success_count += 1
+                                else:
+                                    err_text = await response.text()
+                                    eta_end: dt.timedelta = timeNowDT() - eta_start
+                                    await save_log(
+                                        pool=self.db,
+                                        type=LOG_TYPE.err,
+                                        cmd="broadcast_webhook",
+                                        user=MSG_BOT,
+                                        msg=f"Failed to send {noti_key} Multipart (code: {response.status}, eta: {eta_end})",
+                                        obj=err_text,
+                                    )
+                        else:  # general send (json)
+                            async with session.post(url, json=payload) as response:
+                                if 200 <= response.status < 300:
+                                    success_count += 1
+                                else:
+                                    err_text = await response.text()
+                                    eta_end: dt.timedelta = timeNowDT() - eta_start
+                                    await save_log(
+                                        pool=self.db,
+                                        type=LOG_TYPE.err,
+                                        cmd="broadcast_webhook",
+                                        user=MSG_BOT,
+                                        msg=f"Failed to send {noti_key} general (code: {response.status}, eta: {eta_end})",
+                                        obj=err_text,
+                                    )
+
+                    except Exception as e:
+                        eta_sending: dt.timedelta = timeNowDT() - eta_start
+                        await save_log(
+                            pool=self.db,
+                            type=LOG_TYPE.err,
+                            cmd="broadcast_webhook",
+                            user=MSG_BOT,
+                            msg=f"ERROR on sending msg: {noti_key} (eta: {eta_sending})\n{e}",
+                            obj=return_traceback(),
+                        )
 
         # logging
         eta_sending: dt.timedelta = timeNowDT() - eta_start
