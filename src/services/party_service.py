@@ -197,28 +197,7 @@ class PartyService:
         from src.views.party_view import build_party_embed_from_db
 
         interact = job_data.get("interact")
-        if interact:
-            modal = job_data.get("self")
-
-            new_embed = await build_party_embed_from_db(interact.message.id, db)
-            await interact.message.edit(embed=new_embed)
-            await delay()
-
-            if modal:
-                ch_name = f"[{modal.mission_input.value}] {modal.title_input.value}"
-                if (
-                    isinstance(interact.channel, discord.Thread)
-                    and interact.channel.name != ch_name
-                ):
-                    await interact.channel.edit(name=ch_name)
-            await save_log(
-                pool=db,
-                type=LOG_TYPE.info,
-                interact=interact,
-                msg=f"Edit Article",
-                obj=f"{modal.title_input.value}\n{modal.mission_input.value}\n{modal.desc_input.value}",
-            )
-        else:
+        if not interact:
             msg = job_data["origin_msg"]
             new_embed = await build_party_embed_from_db(msg.id, db)
             await msg.edit(embed=new_embed)
@@ -229,6 +208,38 @@ class PartyService:
                 msg=f"Edit Article",
                 obj=new_embed.description,
             )
+            return
+
+        # edit main message
+        new_embed = await build_party_embed_from_db(interact.message.id, db)
+        await interact.message.edit(embed=new_embed)
+        await delay()
+
+        # edit thread start message
+        modal = job_data.get("self")
+        if modal:
+            try:
+                ch_name = f"[{modal.mission_input.value}] {modal.title_input.value}"
+                if (
+                    isinstance(interact.channel, discord.Thread)
+                    and interact.channel.name != ch_name
+                ):
+                    await interact.channel.edit(name=ch_name)
+            except:
+                pass
+
+        # logging
+        try:
+            modal_log = f"{modal.title_input.value}\n{modal.mission_input.value}\n{modal.desc_input.value}"
+        except:
+            modal_log = f"{modal.date_input.value}"
+        await save_log(
+            pool=db,
+            type=LOG_TYPE.info,
+            interact=interact,
+            msg=f"Edit Article",
+            obj=modal_log,
+        )
 
     @staticmethod
     async def execute_delete(db, job_data):

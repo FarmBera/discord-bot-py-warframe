@@ -252,7 +252,7 @@ class PartyDateEditModal(ui.Modal, title=ts.get(f"{pf}date-title")):
             await PartyService.update_party_departure(
                 interact.client.db, interact.message.id, self.date_input.value
             )
-            await add_job(JobType.PARTY_UPDATE, {"interact": interact})
+            await add_job(JobType.PARTY_UPDATE, {"interact": interact, "self": self})
             await interact.client.trigger_queue_processing()
             await interact.response.send_message(
                 ts.get(f"{pf}edit-requested"), ephemeral=True

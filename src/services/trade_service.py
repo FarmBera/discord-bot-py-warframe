@@ -175,13 +175,6 @@ class TradeService:
             msg = job_data["origin_msg"]
             new_embed = await build_trade_embed_from_db(msg.id, db)
             await msg.edit(embed=new_embed)
-        await save_log(
-            pool=db,
-            type=LOG_TYPE.event,
-            cmd="btn.edit.trade",
-            interact=interact,
-            msg=f"Trade Update -> Clicked Submit",
-        )
 
     @staticmethod
     async def execute_delete(db, job_data):
