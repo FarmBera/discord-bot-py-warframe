@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+from enum import Enum, auto
+from typing import Callable, Optional
+
 from src.constants.keys import (
     ALERTS,
     NEWS,
@@ -20,14 +24,12 @@ from src.constants.keys import (
     CETUSCYCLE,
     CAMBIONCYCLE,
     VALLISCYCLE,
-    BOUNTY,
     DESCENDIA,
     SEASONINFO,
 )
 from src.parser.alerts import w_alerts
 from src.parser.archimedea import w_deepArchimedea, w_temporalArchimedia
 from src.parser.archonHunt import w_archonHunt
-from src.parser.bounty import w_bounty
 from src.parser.calendar import w_calendar
 from src.parser.cambionCycle import w_cambionCycle, checkNewCambionState
 from src.parser.cetusCycle import w_cetusCycle, checkNewCetusState
@@ -44,124 +46,120 @@ from src.parser.vallisCycle import w_vallisCycle, checkNewVallisState
 from src.parser.voidTraders import w_voidTraders, getBaroRandomMsg
 
 
-class HK:
-    key = "key"
-    parser = "parser"
-    special_logic = "special_logic"
-    update_check = "update_check"
-    arg_func = "arg_func"
+class Logic(Enum):
+    """Special handling strategy for each content type.
+
+    DEFAULT is used when a HandlerSpec does not specify a logic;
+    it runs `update_check(prev, new)` and parses the whole new object.
+    """
+
+    DEFAULT = auto()
+    NO_ARGS = auto()  # stateless parser; update_check() takes no arguments
+    MISSING = auto()  # notify on newly added items (diff by _id.$oid)
+    NEWS = auto()  # like MISSING, but pre-filtered by language
+    BOUNTY = auto()  # fetches its own data; skips the shared api cache
+    INVASIONS = auto()  # like MISSING, but only invasions with special rewards
+    FISSURES = auto()  # save-only; never sends notifications
+    VOIDTRADERS = auto()  # multi-event (new schedule / just arrived)
+    DEEP_ARCHIMEDEA = auto()
+    TEMPORAL_ARCHIMEDEA = auto()
+    SEASONINFO = auto()  # notify on newly added Nightwave challenges
+    DUVIRI_WARFRAME = auto()  # circuit rotation, CategoryChoices[0]
+    DUVIRI_INCARNON = auto()  # circuit rotation, CategoryChoices[1]
 
 
-class LOGIC:
-    no_args = "handle_no_args"
-    missing = "handle_missing_items"
-    news = "handle_new_news"
-    bounty = "handle_bounty"
-    invasions = "handle_missing_invasions"
-    fissures = "handle_fissures"
-    voidtraders = "handle_voidtraders"
-    deep_archimedea = "handle_deep_archimedea"
-    temporal_archimedea = "handle_temporal_archimedea"
-    duviri_wf = "handle_duviri_rotation-1"
-    duviri_inc = "handle_duviri_rotation-2"
-    seasoninfo = "handle_seasoninfo"
+@dataclass(frozen=True)
+class HandlerSpec:
+    """Configuration for a single content type in the notification loop."""
+
+    parser: Optional[Callable] = None
+    logic: Logic = Logic.DEFAULT
+    update_check: Optional[Callable] = None
+    arg_func: Optional[Callable] = None
+    # Overrides the DATA_HANDLERS key when reading the api cache / api response
+    # (used when multiple handlers share one api object, e.g. ARCHIMEDEA).
+    cache_key: Optional[str] = None
+
+    @property
+    def needs_cache(self) -> bool:
+        """Whether this handler consumes the shared api cache (prev/new objects)."""
+        return self.logic not in (Logic.NO_ARGS, Logic.BOUNTY)
 
 
-DATA_HANDLERS = {
-    ALERTS: {
-        HK.parser: w_alerts,
-        HK.special_logic: LOGIC.missing,
-    },
-    NEWS: {
-        HK.parser: w_news,
-        HK.special_logic: LOGIC.news,
-    },
-    CETUSCYCLE: {
-        HK.parser: w_cetusCycle,
-        HK.special_logic: LOGIC.no_args,
-        HK.update_check: checkNewCetusState,
-    },
-    SORTIE: {
-        HK.parser: w_sortie,
-        HK.update_check: lambda prev, new: prev[0]["_id"]["$oid"]
-        != new[0]["_id"]["$oid"]
-        or prev[0]["Activation"]["$date"] != new[0]["Activation"]["$date"],
-    },
-    ARCHONHUNT: {
-        HK.parser: w_archonHunt,
-        HK.update_check: lambda prev, new: prev[0]["Activation"]
-        != new[0]["Activation"],
-    },
-    VOIDTRADERS: {
-        HK.parser: w_voidTraders,
-        HK.special_logic: LOGIC.voidtraders,
-        HK.arg_func: getBaroRandomMsg,
-    },
-    DUVIRICYCLE: {
-        HK.parser: w_duviriCycle,
-        HK.special_logic: LOGIC.no_args,
-        HK.update_check: checkNewDuviriState,
-    },
-    FISSURES: {HK.special_logic: LOGIC.fissures},
-    f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": {
-        HK.key: ARCHIMEDEA,
-        HK.parser: w_deepArchimedea,
-        HK.special_logic: LOGIC.deep_archimedea,
-    },
-    f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": {
-        HK.key: ARCHIMEDEA,
-        HK.parser: w_temporalArchimedia,
-        HK.special_logic: LOGIC.temporal_archimedea,
-    },
-    CALENDAR: {
-        HK.parser: lambda data, **kwargs: w_calendar(data, **kwargs),
-        HK.update_check: lambda prev, new: prev[0]["Activation"]["$date"]["$numberLong"]
-        != new[0]["Activation"]["$date"]["$numberLong"],
-    },
-    CAMBIONCYCLE: {
-        HK.parser: w_cambionCycle,
-        HK.special_logic: LOGIC.no_args,
-        HK.update_check: checkNewCambionState,
-    },
-    DAILYDEALS: {
-        HK.parser: w_dailyDeals,
-        HK.update_check: lambda prev, new: prev[0]["StoreItem"] != new[0]["StoreItem"],
-        HK.arg_func: getDarvoRandomMsg,
-    },
-    INVASIONS: {
-        HK.parser: w_invasions_se,
-        HK.special_logic: LOGIC.invasions,
-    },
-    f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": {  # circuit-warframe
-        HK.key: DUVIRI_ROTATION,
-        HK.parser: w_duviri_warframe,
-        HK.special_logic: LOGIC.duviri_wf,
-    },
-    f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": {  # circuit-incarnon
-        HK.key: DUVIRI_ROTATION,
-        HK.parser: w_duviri_incarnon,
-        HK.special_logic: LOGIC.duviri_inc,
-    },
-    EVENTS: {
-        HK.parser: w_events,
-        HK.special_logic: LOGIC.missing,
-    },
-    VALLISCYCLE: {
-        HK.parser: w_vallisCycle,
-        HK.special_logic: LOGIC.no_args,
-        HK.update_check: checkNewVallisState,
-    },
-    BOUNTY: {
-        HK.parser: w_bounty,
-        HK.special_logic: LOGIC.bounty,
-    },
-    DESCENDIA: {
-        HK.parser: w_descendia,
-        HK.update_check: lambda prev, new: prev[0]["Activation"]["$date"]["$numberLong"]
-        != new[0]["Activation"]["$date"]["$numberLong"],
-    },
-    SEASONINFO: {
-        HK.parser: w_nightwave,
-        HK.special_logic: LOGIC.seasoninfo,
-    },
+# --- shared update_check helpers ---
+
+
+def _activation_long(item) -> str:
+    return item["Activation"]["$date"]["$numberLong"]
+
+
+def _first_activation_changed(prev, new) -> bool:
+    return _activation_long(prev[0]) != _activation_long(new[0])
+
+
+def _sortie_changed(prev, new) -> bool:
+    return (
+        prev[0]["_id"]["$oid"] != new[0]["_id"]["$oid"]
+        or prev[0]["Activation"]["$date"] != new[0]["Activation"]["$date"]
+    )
+
+
+def _archon_hunt_changed(prev, new) -> bool:
+    return prev[0]["Activation"] != new[0]["Activation"]
+
+
+def _daily_deals_changed(prev, new) -> bool:
+    return prev[0]["StoreItem"] != new[0]["StoreItem"]
+
+
+DATA_HANDLERS: dict = {
+    ALERTS: HandlerSpec(parser=w_alerts, logic=Logic.MISSING),
+    NEWS: HandlerSpec(parser=w_news, logic=Logic.NEWS),
+    CETUSCYCLE: HandlerSpec(
+        parser=w_cetusCycle, logic=Logic.NO_ARGS, update_check=checkNewCetusState
+    ),
+    SORTIE: HandlerSpec(parser=w_sortie, update_check=_sortie_changed),
+    ARCHONHUNT: HandlerSpec(parser=w_archonHunt, update_check=_archon_hunt_changed),
+    VOIDTRADERS: HandlerSpec(
+        parser=w_voidTraders, logic=Logic.VOIDTRADERS, arg_func=getBaroRandomMsg
+    ),
+    DUVIRICYCLE: HandlerSpec(
+        parser=w_duviriCycle, logic=Logic.NO_ARGS, update_check=checkNewDuviriState
+    ),
+    FISSURES: HandlerSpec(logic=Logic.FISSURES),
+    f"{ARCHIMEDEA}{ARCHIMEDEA_DEEP}": HandlerSpec(
+        parser=w_deepArchimedea, logic=Logic.DEEP_ARCHIMEDEA, cache_key=ARCHIMEDEA
+    ),
+    f"{ARCHIMEDEA}{ARCHIMEDEA_TEMPORAL}": HandlerSpec(
+        parser=w_temporalArchimedia,
+        logic=Logic.TEMPORAL_ARCHIMEDEA,
+        cache_key=ARCHIMEDEA,
+    ),
+    CALENDAR: HandlerSpec(parser=w_calendar, update_check=_first_activation_changed),
+    CAMBIONCYCLE: HandlerSpec(
+        parser=w_cambionCycle, logic=Logic.NO_ARGS, update_check=checkNewCambionState
+    ),
+    DAILYDEALS: HandlerSpec(
+        parser=w_dailyDeals,
+        update_check=_daily_deals_changed,
+        arg_func=getDarvoRandomMsg,
+    ),
+    INVASIONS: HandlerSpec(parser=w_invasions_se, logic=Logic.INVASIONS),
+    f"{DUVIRI_ROTATION}{DUVIRI_U_K_W}": HandlerSpec(  # circuit-warframe
+        parser=w_duviri_warframe,
+        logic=Logic.DUVIRI_WARFRAME,
+        cache_key=DUVIRI_ROTATION,
+    ),
+    f"{DUVIRI_ROTATION}{DUVIRI_U_K_I}": HandlerSpec(  # circuit-incarnon
+        parser=w_duviri_incarnon,
+        logic=Logic.DUVIRI_INCARNON,
+        cache_key=DUVIRI_ROTATION,
+    ),
+    EVENTS: HandlerSpec(parser=w_events, logic=Logic.MISSING),
+    VALLISCYCLE: HandlerSpec(
+        parser=w_vallisCycle, logic=Logic.NO_ARGS, update_check=checkNewVallisState
+    ),
+    # BOUNTY: HandlerSpec(parser=w_bounty, logic=Logic.BOUNTY),
+    DESCENDIA: HandlerSpec(parser=w_descendia, update_check=_first_activation_changed),
+    SEASONINFO: HandlerSpec(parser=w_nightwave, logic=Logic.SEASONINFO),
 }

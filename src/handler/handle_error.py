@@ -6,8 +6,7 @@ from src.utils.return_err import return_traceback
 from src.utils.times import timeNowDT
 
 
-async def handleGeneralError(db, msg: str, cmd: str = "") -> None:
-    print(timeNowDT(), C.red, msg, C.default)
+async def _save_error_log(db, msg: str, cmd: str) -> None:
     await save_log(
         pool=db,
         type=LOG_TYPE.err,
@@ -18,13 +17,11 @@ async def handleGeneralError(db, msg: str, cmd: str = "") -> None:
     )
 
 
+async def handleGeneralError(db, msg: str, cmd: str = "") -> None:
+    print(timeNowDT(), C.red, msg, C.default)
+    await _save_error_log(db, msg, cmd)
+
+
 async def handleParseError(db, msg, key) -> None:
     print(timeNowDT(), C.red, key, msg, C.default, sep="")
-    await save_log(
-        pool=db,
-        type=LOG_TYPE.err,
-        cmd="check_new_content()",
-        user=MSG_BOT,
-        msg=msg,
-        obj=return_traceback(),
-    )
+    await _save_error_log(db, msg, "check_new_content()")
