@@ -164,10 +164,11 @@ class TradeService:
         avatar = interact.client.user.avatar
 
         thread_name = f"[{data['trade_type']}] {data['item_name']}"
-        if data.get("isRank") and data["item_rank"] != -1:
-            thread_name += (
-                f" ({ts.get(f'{pf}rank-simple').format(rank=data['item_rank'])})"
-            )
+        # add rank in thread title
+        # if data.get("isRank") and data["item_rank"] > -1:
+        #     thread_name += (
+        #         f" ({ts.get(f'{pf}rank-simple').format(rank=data['item_rank'])})"
+        #     )
 
         thread_starter_msg = await webhook_send(
             target_channel,
