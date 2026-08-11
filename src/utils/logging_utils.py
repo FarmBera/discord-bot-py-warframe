@@ -42,6 +42,29 @@ async def save_log(
     return
 
 
+async def log_event(
+    interact: discord.Interaction,
+    cmd: str,
+    msg: str,
+    *,
+    type: str = LOG_TYPE.event,
+    obj: str = None,
+):
+    """Thin wrapper over save_log for interaction-based logging.
+
+    Fills `pool` from the interaction so callers don't repeat
+    `pool=interact.client.db` on every call.
+    """
+    await save_log(
+        pool=interact.client.db,
+        type=type,
+        cmd=cmd,
+        interact=interact,
+        msg=msg,
+        obj=obj,
+    )
+
+
 async def _process_log_background(
     pool,
     type: str,

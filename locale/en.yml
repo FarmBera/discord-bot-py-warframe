@@ -509,7 +509,6 @@ cmd:
     pv-del-label: Delete Post
     pv-del-only-host: "Only the party host can delete this post."
     pv-del-confirm: "Are you sure you want to delete this listing and its thread?"
-    pv-del-cancel: "The action was canceled due to a timeout."
 
     # build_party_embed
     pb-no-player: "No members yet"

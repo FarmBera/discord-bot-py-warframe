@@ -509,7 +509,6 @@ cmd:
     pv-del-label: 모집 종료
     pv-del-only-host: 파티 호스트만 모집을 종료할 수 있어요.
     pv-del-confirm: "# 정말로 파티원 모집을 종료할까요?\n- 모집이 종료된 게시글은 파티원의 참여/탈퇴, 글 수정, 모집 상태 등 **게시글 수정이 불가** 합니다."
-    pv-del-cancel: 시간이 초과되어 작업이 취소되었어요.
 
     # build_party_embed
     pb-no-player: 참가자 없음
@@ -1062,6 +1061,7 @@ trs:
   boltor: 볼터
   bronco: 브롱코
   "ceramic dagger": 세라믹 대거
+  "ceramicdagger": 세라믹 대거
   # week 5
   torid: 토리드
   "dual toxocyst": 듀얼 톡소시스트

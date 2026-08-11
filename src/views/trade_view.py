@@ -9,13 +9,14 @@ from src.parser.marketsearch import get_slug_data, create_market_url
 from src.services.queue_manager import add_job, JobType
 from src.services.trade_service import TradeService
 from src.translator import ts
-from src.utils.logging_utils import save_log
+from src.utils.logging_utils import log_event
 from src.utils.permission import (
     is_cooldown,
     is_admin_user,
     is_banned_user,
 )
 from src.utils.return_err import return_traceback
+from src.views.common import ConfirmDeleteView
 from src.views.consent_view import check_consent
 from src.views.help_view import SupportView
 
@@ -45,13 +46,7 @@ async def isTradeExists(interact: discord.Interaction, trade, cmd: str = "") -> 
         ),
         ephemeral=True,
     )
-    await save_log(
-        pool=interact.client.db,
-        type=LOG_TYPE.err,
-        cmd="btn",
-        msg="trade not found from db",
-        interact=interact,
-    )
+    await log_event(interact, "btn", "trade not found from db", type=LOG_TYPE.err)
     return False
 
 
@@ -63,10 +58,14 @@ async def build_trade_embed(
 
     # description += await WarnService.generateWarnMsg(db_pool,data['host_id'])
 
+    # rank is computed once and reused for both the heading and the whisper text
+    rank_val = int(data.get("item_rank", -1))
+    is_ranked = rank_val > -1
+
     description += f"### [{data['trade_type']}] {data['item_name']}"
 
-    if isRank and data.get("item_rank") != -1:
-        description += f" ({ts.get(f'{pf}rank-simple').format(rank=data['item_rank'])})"
+    if isRank and is_ranked:
+        description += f" ({ts.get(f'{pf}rank-simple').format(rank=rank_val)})"
 
     description += f"""
 - **{ts.get(f'{pf}creator')}:** {data['host_mention']}
@@ -74,8 +73,7 @@ async def build_trade_embed(
 - **{ts.get(f'{pf}price-per')}:** `{data['price']:,} {ts.get(f'{pf}platinum')}` (총합 {data['price'] * data['quantity']:,} 플레)
 - **{ts.get(f'{pf}quantity')}:** `{data['quantity']:,}` 개
 """
-    rank_val = int(data.get("item_rank", -1))
-    rank_str = f" ({rank_val} {ts.get(f'{pf}rank-label')})" if rank_val > -1 else ""
+    rank_str = f" ({rank_val} {ts.get(f'{pf}rank-label')})" if is_ranked else ""
 
     # whispers
     if not isDelete:
@@ -141,12 +139,8 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
 
     async def on_submit(self, interact: discord.Interaction):
         try:
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.event,
-                cmd="btn.edit.nickname",
-                interact=interact,
-                msg="EditNicknameModal -> Submit",
+            await log_event(
+                interact, "btn.edit.nickname", "EditNicknameModal -> Submit"
             )
             await TradeService.update_nickname(
                 self.db_pool, interact.message.id, self.input_nickname.value
@@ -160,12 +154,11 @@ class EditNicknameModal(ui.Modal, title=ts.get(f"{pf}edit-nick-title")):
             await interact.response.send_message(
                 ts.get(f"{pf}err-edit"), view=SupportView(), ephemeral=True
             )
-            await save_log(
-                pool=interact.client.db,
+            await log_event(
+                interact,
+                "btn.edit.nickname",
+                "EditNicknameModal -> Submit, but ERR",
                 type=LOG_TYPE.err,
-                cmd="btn.edit.nickname",
-                interact=interact,
-                msg=f"EditNicknameModal -> Submit, but ERR",
                 obj=f"T:{self.input_nickname.value}\n{return_traceback()}",
             )
 
@@ -271,12 +264,8 @@ class EditTradeModal(ui.Modal, title=ts.get(f"{pf}edit-trade-title")):
             await interact.response.send_message(
                 ts.get(f"{pf}edit-no-change"), ephemeral=True
             )
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.event,
-                cmd="btn.edit.trade",
-                interact=interact,
-                msg="EditTradeModal -> Submit, no change",
+            await log_event(
+                interact, "btn.edit.trade", "EditTradeModal -> Submit, no change"
             )
             return
 
@@ -289,120 +278,25 @@ class EditTradeModal(ui.Modal, title=ts.get(f"{pf}edit-trade-title")):
             await interact.response.send_message(
                 ts.get(f"{pf}edit-requested"), ephemeral=True
             )
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.event,
-                cmd="btn.edit.trade",
-                interact=interact,
-                msg=f"EditTradeModal -> Submit {', '.join(change_log)}",
+            await log_event(
+                interact,
+                "btn.edit.trade",
+                f"EditTradeModal -> Submit {', '.join(change_log)}",
             )
         except Exception:
             await interact.response.send_message(
                 ts.get(f"{pf}err-edit"), view=SupportView(), ephemeral=True
             )
-            await save_log(
-                pool=interact.client.db,
+            await log_event(
+                interact,
+                "btn.edit.trade",
+                "EditTradeModal -> Submit, but ERR",
                 type=LOG_TYPE.err,
-                cmd="btn.edit.trade",
-                interact=interact,
-                msg="EditTradeModal -> Submit, but ERR",
                 obj=f"qty={qty_str}, price={price_str}, rank={rank_str}\n{return_traceback()}",
             )
 
 
 # ----------------- Views -----------------
-class ConfirmDeleteView(ui.View):
-    def __init__(
-        self,
-        interact: discord.Interaction,
-        origin_message: discord.Message,
-        trade_data,
-        trade_view,
-    ):
-        super().__init__(timeout=20)
-        self.interact = interact
-        self.origin_message = origin_message
-        self.data = trade_data
-        self.party_view = trade_view
-        self.value = None
-
-    async def on_timeout(self):
-        cmd = "btn.confirm.delete"
-        try:
-            await self.interact.edit_original_response(
-                content=ts.get(f"cmd.err-timeout"), view=None
-            )
-            await save_log(
-                pool=self.interact.client.db,
-                type=LOG_TYPE.event,
-                cmd=cmd,
-                interact=self.interact,
-                msg=f"TradeView.ConfirmDeleteView -> timeout",
-            )
-        except discord.NotFound:
-            await save_log(
-                pool=self.interact.client.db,
-                type=LOG_TYPE.warn,
-                cmd=cmd,
-                interact=self.interact,
-                msg=f"TradeView.ConfirmDeleteView -> timeout, but Not Found",
-            )
-        except Exception:
-            await save_log(
-                pool=self.interact.client.db,
-                type=LOG_TYPE.err,
-                cmd=cmd,
-                interact=self.interact,
-                msg=f"TradeView.ConfirmDeleteView -> timeout, but ERR",
-                obj=return_traceback(),
-            )
-
-    @ui.button(label=ts.get(f"{pf}del-btny"), style=discord.ButtonStyle.danger)
-    async def yes_button(self, interact: discord.Interaction, button: ui.Button):
-        await interact.response.defer(ephemeral=True)
-        await interact.delete_original_response()
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd="btn.confirm.delete",
-            interact=interact,
-            msg=f"ConfirmDeleteView -> clicked yes",
-        )
-        try:
-            await add_job(
-                JobType.TRADE_DELETE,
-                {"interact": interact, "origin_msg": self.origin_message},
-            )
-            await interact.client.trigger_queue_processing()
-        except Exception:
-            await interact.followup.send(
-                ts.get(f"{pf}err-general"), view=SupportView(), ephemeral=True
-            )
-            await save_log(
-                pool=interact.client.db,
-                type=LOG_TYPE.err,
-                cmd="btn.confirm.delete",
-                interact=interact,
-                msg=f"ConfirmDeleteView -> clicked yes, but ERR",
-                obj=return_traceback(),
-            )
-        self.value = True
-        self.stop()
-
-    @ui.button(label=ts.get(f"{pf}del-btnn"), style=discord.ButtonStyle.secondary)
-    async def no_button(self, interact: discord.Interaction, button: ui.Button):
-        await interact.response.edit_message(content=ts.get(f"{pf}canceled"), view=None)
-        self.value = False
-        self.stop()
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd="btn.confirm.delete.cancel",
-            interact=interact,
-            msg=f"ConfirmDeleteView -> clicked no",
-        )
-
-
 class ConfirmTradeView(ui.View):
     def __init__(self, db_pool, trade_id, original_message):
         super().__init__(timeout=30)
@@ -415,13 +309,7 @@ class ConfirmTradeView(ui.View):
     async def yes_button(self, interact: discord.Interaction, button: ui.Button):
         await interact.response.defer(ephemeral=True)
         await interact.delete_original_response()
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd="btn.confirm.trade",
-            interact=interact,
-            msg=f"ConfirmTradeView -> YES",
-        )
+        await log_event(interact, "btn.confirm.trade", "ConfirmTradeView -> YES")
         try:
             trade_info = await TradeService.get_trade_by_id(self.db_pool, self.trade_id)
 
@@ -441,12 +329,11 @@ class ConfirmTradeView(ui.View):
             await interact.followup.send(
                 ts.get(f"{pf}err-general"), view=SupportView(), ephemeral=True
             )
-            await save_log(
-                pool=interact.client.db,
+            await log_event(
+                interact,
+                "btn.confirm.trade",
+                "ConfirmTradeView -> ERR",
                 type=LOG_TYPE.err,
-                cmd="btn.confirm.trade",
-                interact=interact,
-                msg=f"ConfirmTradeView -> ERR",
                 obj=return_traceback(),
             )
 
@@ -455,12 +342,8 @@ class ConfirmTradeView(ui.View):
         await interact.response.edit_message(content=ts.get(f"{pf}canceled"), view=None)
         self.value = False
         self.stop()
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd="btn.confirm.trade.cancel",
-            interact=interact,
-            msg=f"ConfirmTradeView -> clicked no",
+        await log_event(
+            interact, "btn.confirm.trade.cancel", "ConfirmTradeView -> clicked no"
         )
 
 
@@ -488,13 +371,7 @@ class TradeView(ui.View):
 
     @staticmethod
     async def basic_trade_logic(interact, cd, cmd: str) -> bool | dict:
-        await save_log(
-            pool=interact.client.db,
-            type=LOG_TYPE.event,
-            cmd="TradeView btn",
-            interact=interact,
-            msg=cmd,
-        )
+        await log_event(interact, "TradeView btn", cmd)
         if await is_cooldown(interact, cd):
             return False
         if await is_banned_user(interact):
@@ -536,7 +413,7 @@ class TradeView(ui.View):
         if timed_out:
             try:
                 await interact.edit_original_response(
-                    content=ts.get(f"{pf}pv-del-cancel"), view=None
+                    content=ts.get(f"{pf}err-timeout"), view=None
                 )
             except discord.errors.NotFound:
                 pass
@@ -597,8 +474,16 @@ class TradeView(ui.View):
         if not await self.check_permissions(interact, trade_data, cmd):
             return
 
-        trade_data["host_mention"] = f"<@{trade_data['host_id']}>"
-        view = ConfirmDeleteView(interact, interact.message, trade_data, self)
+        view = ConfirmDeleteView(
+            interact,
+            interact.message,
+            job_type=JobType.TRADE_DELETE,
+            yes_label_key=f"{pf}del-btny",
+            no_label_key=f"{pf}del-btnn",
+            cancel_key=f"{pf}canceled",
+            error_key=f"{pf}err-general",
+            disable_origin=False,
+        )
         await interact.response.send_message(
             ts.get(f"{pf}confirm-delete"), view=view, ephemeral=True
         )
